@@ -1,29 +1,24 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Anomaly/AnomalyComponentBase.h"
 #include "AnomalyManager.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class LOOP9_API UAnomalyManager : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
-	void RegisterAnomaly(AActor* Actor);
+	void RegisterAnomalyComponent(UAnomalyComponentBase* Component);
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
-	void UnregisterAnomaly(AActor* Actor);
+	void UnregisterAnomalyComponent(UAnomalyComponentBase* Component);
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	void TriggerRandomAnomalies(int32 Count = 3, float MinProbability = 0.0f);
@@ -38,7 +33,7 @@ public:
 	int32 GetActiveAnomalyCount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
-	int32 GetRegisteredAnomalyCount() const { return RegisteredAnomalies.Num(); }
+	int32 GetRegisteredAnomalyCount() const { return RegisteredComponents.Num(); }
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	void PrintAnomalyStats();
@@ -50,7 +45,7 @@ public:
 
 private:
 	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> RegisteredAnomalies;
+	TArray<TWeakObjectPtr<UAnomalyComponentBase>> RegisteredComponents;
 
 	int32 TrackedLoopIndex = INDEX_NONE;
 	FString PreviousLoopAnomalyKey;
@@ -59,4 +54,5 @@ private:
 	bool bCurrentLoopAnomalyRepeat = false;
 
 	void ComputeActiveAnomalySnapshot(FString& OutKey, FString& OutContext) const;
+	void CleanupInvalidComponents();
 };

@@ -9,7 +9,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Loop9.h"
-#include "Loop9Interactable.h"
+#include "Interaction/Loop9Interactable.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"

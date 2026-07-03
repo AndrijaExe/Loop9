@@ -15,7 +15,7 @@ public class Loop9 : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"AIModule",
-          "NavigationSystem",
+			"NavigationSystem",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
@@ -24,7 +24,7 @@ public class Loop9 : ModuleRules
 			"MoviePlayer",
 			"HTTP",
 			"Json",
-         "JsonUtilities",
+			"JsonUtilities",
 			"Niagara"
 		});
 
@@ -32,6 +32,15 @@ public class Loop9 : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] {
 			"Loop9",
+			"Loop9/Anomaly",
+			"Loop9/Anomaly/Pursuer",
+			"Loop9/Interaction",
+			"Loop9/Loop",
+			"Loop9/AI",
+			"Loop9/AI/Services",
+			"Loop9/Subsystems",
+			"Loop9/Controllers",
+			"Loop9/UI",
 			"Loop9/Variant_Horror",
 			"Loop9/Variant_Horror/UI",
 			"Loop9/Variant_Shooter",
@@ -39,13 +48,5 @@ public class Loop9 : ModuleRules
 			"Loop9/Variant_Shooter/UI",
 			"Loop9/Variant_Shooter/Weapons"
 		});
-
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-
-		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

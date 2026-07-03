@@ -9,6 +9,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
 
 void UAI_ChatWidget::NativeConstruct()
 {
@@ -52,6 +53,66 @@ void UAI_ChatWidget::NativeConstruct()
 	}
 }
 
+void UAI_ChatWidget::NativeDestruct()
+{
+	StopAIMumble();
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(AITypewriterTimerHandle);
+		World->GetTimerManager().ClearTimer(AICursorBlinkTimerHandle);
+		World->GetTimerManager().ClearTimer(MessageInputFocusTimerHandle);
+	}
+
+	Super::NativeDestruct();
+}
+
+void UAI_ChatWidget::StartAIMumble(bool bUseAnomalyMumble)
+{
+	StopAIMumble();
+
+	USoundBase* SoundToPlay = AIMumbleSound;
+	float Volume = AIMumbleVolume;
+
+	if (bUseAnomalyMumble && AIMumbleAnomalySound)
+	{
+		SoundToPlay = AIMumbleAnomalySound;
+		Volume = AIMumbleAnomalyVolume;
+	}
+
+	if (!SoundToPlay)
+	{
+		return;
+	}
+
+	ActiveAIMumbleAudioComponent = UGameplayStatics::SpawnSound2D(
+		this,
+		SoundToPlay,
+		Volume,
+		1.0f,
+		0.0f,
+		nullptr,
+		false,
+		bLoopAIMumbleWhileTyping);
+
+	if (ActiveAIMumbleAudioComponent)
+	{
+		ActiveAIMumbleAudioComponent->bAutoDestroy = false;
+	}
+}
+
+void UAI_ChatWidget::StopAIMumble()
+{
+	if (!ActiveAIMumbleAudioComponent)
+	{
+		return;
+	}
+
+	ActiveAIMumbleAudioComponent->Stop();
+	ActiveAIMumbleAudioComponent->DestroyComponent();
+	ActiveAIMumbleAudioComponent = nullptr;
+}
+
 UButton* UAI_ChatWidget::ResolveInnerButton(UUserWidget* Widget, const FName& ButtonName) const
 {
 	if (!Widget)
@@ -63,7 +124,7 @@ UButton* UAI_ChatWidget::ResolveInnerButton(UUserWidget* Widget, const FName& Bu
 	return Cast<UButton>(Found);
 }
 
-void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser)
+void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble)
 {
 	if (!ChatScrollBox)
 	{
@@ -95,6 +156,8 @@ void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser)
 		{
 			MessageText->SetText(FText::FromString(PrefixOnly));
 
+			StopAIMumble();
+
 			if (GetWorld())
 			{
 				GetWorld()->GetTimerManager().ClearTimer(AITypewriterTimerHandle);
@@ -105,6 +168,7 @@ void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser)
 			FTypewriterHelper::Begin(AITypewriterState, Message, AITypewriterDuration, AITypewriterTypoProbability, PrefixOnly);
 			AICurrentBaseText = PrefixOnly;
 			bAICursorVisible = true;
+			StartAIMumble(bUseAnomalyMumble);
 
 			if (GetWorld() && bUseBlinkingCursorForAI)
 			{
@@ -145,6 +209,8 @@ void UAI_ChatWidget::TickAITypewriter()
 
 	if (AITypewriterState.bFinished)
 	{
+		StopAIMumble();
+
 		if (UWorld* World = GetWorld())
 		{
 			World->GetTimerManager().ClearTimer(AICursorBlinkTimerHandle);
@@ -283,6 +349,8 @@ void UAI_ChatWidget::ClearChat()
 	{
 		return;
 	}
+
+	StopAIMumble();
 
 	if (UWorld* World = GetWorld())
 	{

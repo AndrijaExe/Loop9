@@ -28,6 +28,11 @@ void UHorrorUI::OnSprintStateChanged(bool bSprinting)
 	BP_SprintStateChanged(bSprinting);
 }
 
+void UHorrorUI::SetInteractionPrompt_Implementation(const FText& PromptText, bool bVisible)
+{
+	SetInteractionPrompt(PromptText, bVisible);
+}
+
 void UHorrorUI::SetInteractionPrompt(const FText& PromptText, bool bVisible)
 {
   if (TB_InteractionPrompt)

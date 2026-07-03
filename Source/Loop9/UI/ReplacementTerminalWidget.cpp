@@ -1,4 +1,8 @@
 #include "UI/ReplacementTerminalWidget.h"
+#include "Components/Button.h"
+#include "Components/PanelWidget.h"
+#include "Components/TextBlock.h"
+#include "Blueprint/WidgetTree.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
@@ -8,6 +12,32 @@
 void UReplacementTerminalWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	BindContinueButton();
+}
+
+void UReplacementTerminalWidget::NativeDestruct()
+{
+	if (BT_Continue)
+	{
+		BT_Continue->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+	}
+
+	if (FallbackContinueButton)
+	{
+		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+	}
+
+	Super::NativeDestruct();
+}
+
+void UReplacementTerminalWidget::RequestContinue()
+{
+	OnContinueRequested.Broadcast();
+}
+
+void UReplacementTerminalWidget::HandleContinueClicked()
+{
+	RequestContinue();
 }
 
 void UReplacementTerminalWidget::StartTerminalSequence()
@@ -19,8 +49,9 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 
 	GetWorld()->GetTimerManager().ClearTimer(TypingTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(NextLineTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(ReturnToMenuTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+
+	bSequenceFinished = false;
 
 	Lines = {
 		TEXT("Initializing interface..."),
@@ -74,8 +105,9 @@ void UReplacementTerminalWidget::StartNextLineFromQueue()
 
 	if (!Lines.IsValidIndex(CurrentLineIndex))
 	{
+		bSequenceFinished = true;
 		OnTerminalSequenceFinished();
-		BeginFinalFadeAndReturnToMainMenu();
+		ShowContinuePrompt();
 		return;
 	}
 
@@ -122,35 +154,67 @@ void UReplacementTerminalWidget::TypeNextCharacter()
 	GetWorld()->GetTimerManager().SetTimer(TypingTimerHandle, this, &UReplacementTerminalWidget::TypeNextCharacter, NextDelay, false);
 }
 
-void UReplacementTerminalWidget::BeginFinalFadeAndReturnToMainMenu()
+void UReplacementTerminalWidget::ShowContinuePrompt()
 {
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
-	{
-		PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	}
-
-	if (PC && PC->PlayerCameraManager)
-	{
-		PC->PlayerCameraManager->StartCameraFade(0.0f, 1.0f, FadeToBlackDuration, FLinearColor::Black, false, true);
-	}
-
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(
-		ReturnToMenuTimerHandle,
-		[this]()
-		{
-			if (UWorld* World = GetWorld())
-			{
-				UGameplayStatics::OpenLevel(World, FName("MainMenu"));
-			}
-		},
-		FadeToBlackDuration,
-		false);
+	UpdateTerminalDisplay(CompletedText);
+
+	if (BT_Continue)
+	{
+		BT_Continue->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+
+	if (FallbackContinueButton)
+	{
+		FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+
+	if (!WidgetTree)
+	{
+		return;
+	}
+
+	FallbackContinueButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("TerminalContinueButton"));
+	if (!FallbackContinueButton)
+	{
+		return;
+	}
+
+	UTextBlock* Label = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("TerminalContinueLabel"));
+	Label->SetText(ContinueButtonLabel);
+	Label->SetJustification(ETextJustify::Center);
+	FallbackContinueButton->AddChild(Label);
+	FallbackContinueButton->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+
+	if (UPanelWidget* RootPanel = Cast<UPanelWidget>(WidgetTree->RootWidget))
+	{
+		RootPanel->AddChild(FallbackContinueButton);
+	}
+
+	FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UReplacementTerminalWidget::BindContinueButton()
+{
+	if (BT_Continue)
+	{
+		BT_Continue->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+		BT_Continue->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+		BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (FallbackContinueButton)
+	{
+		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+		FallbackContinueButton->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+		FallbackContinueButton->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UReplacementTerminalWidget::ToggleCursorBlink()

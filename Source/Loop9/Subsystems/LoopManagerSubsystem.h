@@ -1,28 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Loop/LoopTypes.h"
 #include "LoopManagerSubsystem.generated.h"
 
-UENUM(BlueprintType)
-enum class ELoopEndingType : uint8
-{
-	EscapeTogether UMETA(DisplayName = "Escape Together"),
-	ObedientFool UMETA(DisplayName = "Obedient Fool"),
-	ColdBetrayal UMETA(DisplayName = "Cold Betrayal"),
-	ParanoidSurvivor UMETA(DisplayName = "Paranoid Survivor"),
-	MergedMemory UMETA(DisplayName = "Merged Memory"),
-	TheReplacement UMETA(DisplayName = "The Replacement")
-};
-
-UENUM(BlueprintType)
-enum class EButtonType : uint8
-{
-	Increment UMETA(DisplayName = "Advance Loop (Next Floor)"),
-	Reset UMETA(DisplayName = "Reset Loop (Previous Floor)")
-};
+class URelationshipSubsystem;
+class ULoopEndingPresenterSubsystem;
 
 UCLASS(Blueprintable)
 class LOOP9_API ULoopManagerSubsystem : public UGameInstanceSubsystem
@@ -30,34 +14,30 @@ class LOOP9_API ULoopManagerSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	// Current loop number
 	UPROPERTY(BlueprintReadOnly, Category = "Loop")
 	int32 CurrentLoop = 1;
 
-	// TRUE if player detected anomaly (marked by player or script)
 	UPROPERTY(BlueprintReadWrite, Category = "Loop")
 	bool bAnomalyDetected = false;
 
-	// MAIN FUNCTION - Call this from button press with button type
+	UPROPERTY(BlueprintReadOnly, Category = "Loop")
+	bool bGameFinished = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void OnElevatorButtonPressed(EButtonType ButtonType);
 
-	// Manual teleport functions (for testing)
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void TeleportPlayerToEntry();
 
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void TeleportPlayerToExit();
 
-	// Check if there are active anomalies in the level
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	bool HasActiveAnomalies() const;
 
-	// Mark anomaly as detected by player (call from UI or trigger)
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void SetAnomalyDetected(bool bDetected);
 
-	// Get anomaly detection status
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	bool HasAnomalyBeenDetected() const { return bAnomalyDetected; }
 
@@ -67,7 +47,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void ResetLoop();
 
-	// Generate random anomaly for next loop iteration
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void GenerateAnomalyForNextLoop();
 
@@ -89,51 +68,45 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void TickAIStabilityDecay();
 
-	// Clear all AI chat widgets (called on loop reset/advance)
 	void ClearAllAIChats();
 
-	// Reset the entire run state to avoid retaining old values between games
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void ResetRunState();
 
 	void TriggerEndingSequence();
 	ELoopEndingType DetermineEndingType() const;
-	void ShowEndingWidget(ELoopEndingType EndingType);
-	void ShowReplacementTerminal();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	int32 TotalResets = 0;
+	UFUNCTION(BlueprintPure, Category = "Loop")
+	URelationshipSubsystem* GetRelationship() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	int32 TotalAdvances = 0;
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	int32 GetTotalResets() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	int32 TotalAIInteractions = 0;
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	int32 GetTotalAdvances() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Trust = 0.5f;
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	int32 GetTotalAIInteractions() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Kindness = 0.5f;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetTrust() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Cooperation = 0.5f;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetKindness() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Suspicion = 0.2f;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetCooperation() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Dependency = 0.2f;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetSuspicion() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float AI_Stability = 1.0f;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetDependency() const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Loop")
-	bool bGameFinished = false;
+	UFUNCTION(BlueprintPure, Category = "State")
+	float GetAIStability() const;
 
 private:
-	void ClampStateValues();
-
 	void FindTeleportPoints();
 
 	UPROPERTY()

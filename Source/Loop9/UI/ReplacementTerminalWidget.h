@@ -5,6 +5,11 @@
 #include "UI/TypewriterHelper.h"
 #include "ReplacementTerminalWidget.generated.h"
 
+class UButton;
+class UTextBlock;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTerminalContinueRequested);
+
 UCLASS()
 class LOOP9_API UReplacementTerminalWidget : public UUserWidget
 {
@@ -14,12 +19,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal")
 	void StartTerminalSequence();
 
-	// Generic helper: type a line over time with optional typo probability (0..1)
 	UFUNCTION(BlueprintCallable, Category = "Terminal")
 	void SimulateTypedText(const FString& InText, float InDuration, float InTypoProbability);
 
+	UFUNCTION(BlueprintCallable, Category = "Terminal")
+	void RequestContinue();
+
+	UPROPERTY(BlueprintAssignable, Category = "Terminal")
+	FOnTerminalContinueRequested OnContinueRequested;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Terminal")
 	FText TerminalText;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Terminal")
+	bool bSequenceFinished = false;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal")
 	void OnTerminalSequenceFinished();
@@ -34,9 +47,6 @@ public:
 	float DefaultTypoProbability = 0.08f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
-	float FadeToBlackDuration = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
 	bool bUseBlinkingCursor = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
@@ -48,15 +58,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
 	class USoundBase* TypingSound = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
+	FText ContinueButtonLabel = FText::FromString(TEXT("Return to Main Menu"));
+
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> BT_Continue;
+
+	UFUNCTION()
+	void HandleContinueClicked();
 
 private:
 	void StartNextLineFromQueue();
 	void TypeNextCharacter();
-	void BeginFinalFadeAndReturnToMainMenu();
+	void ShowContinuePrompt();
 	void ToggleCursorBlink();
 	void UpdateTerminalDisplay(const FString& BaseText);
+	void BindContinueButton();
 
 	TArray<FString> Lines;
 	int32 CurrentLineIndex = 0;
@@ -66,8 +87,11 @@ private:
 
 	FTimerHandle TypingTimerHandle;
 	FTimerHandle NextLineTimerHandle;
-	FTimerHandle ReturnToMenuTimerHandle;
 	FTimerHandle CursorBlinkTimerHandle;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> FallbackContinueButton;
+
 	bool bCursorVisible = true;
 	FString CurrentBaseText;
 };

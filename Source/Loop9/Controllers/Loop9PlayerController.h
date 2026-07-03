@@ -8,44 +8,36 @@
 
 class UBlinkOverlayWidget;
 class UHorrorUI;
+class ULoop9NotificationWidget;
 
-/**
- *  Simple first person Player Controller
- *  Manages the input mapping context.
- *  Overrides the Player Camera Manager class.
- */
 UCLASS(abstract)
 class LOOP9_API ALoop9PlayerController : public ALoop9BasePlayerController
 {
 	GENERATED_BODY()
-	
-public:
 
-	/** Constructor */
+public:
 	ALoop9PlayerController();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Gameplay")
+	TSubclassOf<ULoop9NotificationWidget> NotificationWidgetClass;
+
+	UFUNCTION(BlueprintCallable, Category="UI|Gameplay", meta=(DeprecatedFunction, DeprecationMessage="Use Gameplay Notifications subsystem Add Message instead"))
+	void ShowGameplayNotification(const FText& Message, float DisplayDuration = 4.0f);
+
 protected:
-	/** Blink overlay widget class (for intro cutscene) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI|Cutscene")
 	TSubclassOf<UBlinkOverlayWidget> BlinkOverlayWidgetClass;
 
 	UPROPERTY()
 	UBlinkOverlayWidget* BlinkOverlayInstance;
 
-	/** Gameplay initialization */
 	virtual void BeginPlay() override;
-
-	/** Possessed pawn initialization */
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual UUserWidget* GetInteractionPromptWidget() const override;
 
-	/** Per-frame prompt update */
-	virtual UHorrorUI* GetInteractionPromptUI() const override;
-
-	/** Optional HUD widget class for crosshair/prompt */
 	UPROPERTY(EditAnywhere, Category="UI|Gameplay")
 	TSubclassOf<UHorrorUI> GameplayUIClass;
 
-	/** Optional gameplay UI instance */
 	UPROPERTY(Transient)
 	TObjectPtr<UHorrorUI> GameplayUI;
 
@@ -58,5 +50,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="UI|Cutscene")
 	void RemoveBlinkOverlay();
-
 };

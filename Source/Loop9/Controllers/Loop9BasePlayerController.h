@@ -6,7 +6,6 @@
 
 class UInputMappingContext;
 class UUserWidget;
-class UHorrorUI;
 
 UCLASS(Abstract)
 class LOOP9_API ALoop9BasePlayerController : public APlayerController
@@ -33,7 +32,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupInputComponent() override;
 
-	virtual UHorrorUI* GetInteractionPromptUI() const PURE_VIRTUAL(ALoop9BasePlayerController::GetInteractionPromptUI, return nullptr;);
+	virtual class UUserWidget* GetInteractionPromptWidget() const PURE_VIRTUAL(ALoop9BasePlayerController::GetInteractionPromptWidget, return nullptr;);
 	void ClearInteractionPrompt();
 
 private:

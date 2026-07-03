@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Interaction/InteractionPromptProvider.h"
 #include "HorrorUI.generated.h"
 
 class AHorrorCharacter;
@@ -14,7 +15,7 @@ class UTextBlock;
  *  Manages character sprint meter display
  */
 UCLASS()
-class LOOP9_API UHorrorUI : public UUserWidget
+class LOOP9_API UHorrorUI : public UUserWidget, public IInteractionPromptProvider
 {
 	GENERATED_BODY()
 	
@@ -25,6 +26,7 @@ public:
 
 	/** Updates interaction prompt text/visibility */
 	void SetInteractionPrompt(const FText& PromptText, bool bVisible);
+	virtual void SetInteractionPrompt_Implementation(const FText& PromptText, bool bVisible) override;
 
 	/** Sets crosshair visibility */
 	void SetCrosshairVisible(bool bVisible);

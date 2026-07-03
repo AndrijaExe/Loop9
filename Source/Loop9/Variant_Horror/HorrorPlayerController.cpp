@@ -45,7 +45,7 @@ void AHorrorPlayerController::OnPossess(APawn* aPawn)
 		}
 	}
 }
-UHorrorUI* AHorrorPlayerController::GetInteractionPromptUI() const
+UUserWidget* AHorrorPlayerController::GetInteractionPromptWidget() const
 {
 	return HorrorUI;
 }

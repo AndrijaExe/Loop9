@@ -38,8 +38,9 @@ public:
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
-	void AddMessageToChat(const FString& Message, bool bIsFromUser);
+	void AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble = false);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	bool bUseTypewriterForAI = true;
@@ -62,6 +63,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	class USoundBase* TypingSound = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice", meta = (DisplayName = "AI Mumble Sound (Normal)"))
+	class USoundBase* AIMumbleSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice", meta = (DisplayName = "AI Mumble Sound (Anomaly / Crazy)"))
+	class USoundBase* AIMumbleAnomalySound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float AIMumbleVolume = 0.45f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float AIMumbleAnomalyVolume = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice")
+	bool bLoopAIMumbleWhileTyping = true;
+
 	UFUNCTION(BlueprintCallable, Category = "AI Chat")
 	void ClearChat();
 
@@ -83,6 +99,8 @@ private:
 	void TickAITypewriter();
 	void ToggleAICursorBlink();
 	void UpdateAITypewriterDisplay(const FString& BaseText);
+	void StartAIMumble(bool bUseAnomalyMumble);
+	void StopAIMumble();
 
 	FTimerHandle AITypewriterTimerHandle;
 	FTimerHandle AICursorBlinkTimerHandle;
@@ -93,6 +111,9 @@ private:
 	TObjectPtr<class UTextBlock> ActiveAITypewriterText = nullptr;
 	bool bAICursorVisible = true;
 	FString AICurrentBaseText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UAudioComponent> ActiveAIMumbleAudioComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Chat")
 	FName InnerButtonName = TEXT("Button_45");

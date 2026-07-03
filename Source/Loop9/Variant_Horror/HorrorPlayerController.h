@@ -39,6 +39,6 @@ protected:
 
 	/** Possessed pawn initialization */
 	virtual void OnPossess(APawn* aPawn) override;
-	virtual UHorrorUI* GetInteractionPromptUI() const override;
+	virtual UUserWidget* GetInteractionPromptWidget() const override;
 
 };

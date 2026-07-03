@@ -4,6 +4,7 @@
 
 #include "Loop9.h"
 #include "Loop9CameraManager.h"
+#include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "Variant_Horror/HorrorCharacter.h"
 #include "Variant_Horror/UI/HorrorUI.h"
@@ -58,6 +59,14 @@ void ALoop9PlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
+void ALoop9PlayerController::ShowGameplayNotification(const FText& Message, float DisplayDuration)
+{
+	if (ULoop9GameplayNotificationSubsystem* Notifications = ULoop9GameplayNotificationSubsystem::GetGameplayNotifications(this))
+	{
+		Notifications->AddMessage(Message, DisplayDuration);
+	}
+}
+
 void ALoop9PlayerController::CreateBlinkOverlay()
 {
 	if (BlinkOverlayInstance)
@@ -100,7 +109,7 @@ void ALoop9PlayerController::RemoveBlinkOverlay()
 	}
 }
 
-UHorrorUI* ALoop9PlayerController::GetInteractionPromptUI() const
+UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 {
 	return GameplayUI;
 }

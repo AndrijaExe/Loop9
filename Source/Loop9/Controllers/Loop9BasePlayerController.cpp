@@ -4,10 +4,10 @@
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
 #include "Loop9Character.h"
-#include "Loop9Interactable.h"
+#include "Interaction/Loop9Interactable.h"
+#include "Interaction/InteractionPromptProvider.h"
 #include "Camera/CameraComponent.h"
 #include "Blueprint/UserWidget.h"
-#include "Variant_Horror/UI/HorrorUI.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
 void ALoop9BasePlayerController::BeginPlay()
@@ -70,7 +70,7 @@ void ALoop9BasePlayerController::ClearInteractionPrompt()
 void ALoop9BasePlayerController::UpdateInteractionPrompt()
 {
 	ALoop9Character* LoopCharacter = Cast<ALoop9Character>(GetPawn());
-	if (!LoopCharacter || !GetInteractionPromptUI())
+	if (!LoopCharacter || !GetInteractionPromptWidget())
 	{
 		PushPromptToUI(FText::GetEmpty(), false);
 		return;
@@ -118,8 +118,8 @@ FText ALoop9BasePlayerController::ResolvePromptForActor(AActor* HitActor) const
 
 void ALoop9BasePlayerController::PushPromptToUI(const FText& PromptText, bool bVisible)
 {
-	UHorrorUI* UI = GetInteractionPromptUI();
-	if (!UI)
+	UUserWidget* PromptWidget = GetInteractionPromptWidget();
+	if (!PromptWidget)
 	{
 		return;
 	}
@@ -131,5 +131,9 @@ void ALoop9BasePlayerController::PushPromptToUI(const FText& PromptText, bool bV
 
 	bLastPromptVisible = bVisible;
 	LastPromptText = PromptText;
-	UI->SetInteractionPrompt(PromptText, bVisible);
+
+	if (PromptWidget->GetClass()->ImplementsInterface(UInteractionPromptProvider::StaticClass()))
+	{
+		IInteractionPromptProvider::Execute_SetInteractionPrompt(PromptWidget, PromptText, bVisible);
+	}
 }

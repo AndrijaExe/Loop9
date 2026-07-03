@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "Loop9Interactable.h"
+#include "Interaction/Loop9Interactable.h"
 #include "AI_Friend.generated.h"
 
 UCLASS(Config = Game)
@@ -75,8 +75,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring")
 	TObjectPtr<class USoundAttenuation> PhoneInteractAttenuationSettings = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Answer", meta = (DisplayName = "Answer Phone Sound"))
+	TObjectPtr<class USoundBase> PhoneAnswerSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Answer", meta = (DisplayName = "Answer Phone Attenuation"))
+	TObjectPtr<class USoundAttenuation> PhoneAnswerAttenuationSettings = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring", meta = (ClampMin = "0.05"))
 	float InitialRingInterval = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring")
+	bool bShowInitialRingNotification = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring")
+	FText InitialRingNotificationText = FText::FromString(TEXT("Phone ringing..."));
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring", meta = (ClampMin = "0.0"))
+	float InitialRingNotificationDuration = 4.0f;
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void OpenChatWidget(APlayerController* PlayerController);
@@ -106,6 +121,7 @@ private:
 	void StopInitialRing();
 	void StartInitialRingIfNeeded();
 	bool ShouldStopInitialRingForLoopChange() const;
+	bool ShouldUseAnomalyMumble() const;
 	class UAI_ChatWidget* GetChatWidgetTyped() const;
 	class UAI_ChatWidget* GetOrCreateChatWidgetTyped(APlayerController* PlayerController);
 	void SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled) const;
