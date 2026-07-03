@@ -1,0 +1,59 @@
+# Unreal Engine - generated / local
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+.vs/
+*.sln
+*.slnx
+*.xcodeproj
+*.xcworkspace
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Compiled objects
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.lai
+*.la
+*.a
+*.lib
+*.exe
+*.out
+*.app
+*.ipa
+
+# Built map data
+*_BuiltData.uasset
+
+# Source art (keep PNG/TGA out of repo if exported separately)
+SourceArt/**/*.png
+SourceArt/**/*.tga
+
+# Sensitive config (use .example files instead)
+Config/DefaultGame.ini
+Config/DefaultEngine.ini
+
+# Marketplace / third-party content (install locally, do not commit)
+Content/Office_Pack_Vol_1/
+Content/Deko_MatrixDemo/
+Content/MsvFx_Niagara_Explosion_Pack_01/
+Content/Characters/
+Content/Urban_Nomad/
+Content/Fab/
+Content/DAZ/
+
+# IDE / editor local
+.cursor/

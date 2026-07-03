@@ -1,0 +1,99 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "Components/EditableTextBox.h"
+#include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
+#include "Sound/SoundBase.h"
+#include "Types/SlateEnums.h"
+#include "UI/TypewriterHelper.h"
+
+#include "AI_ChatWidget.generated.h"
+
+UCLASS()
+class LOOP9_API UAI_ChatWidget : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "AI Chat")
+	void SendMessageToAI(const FString& Message);
+
+	UPROPERTY(BlueprintReadWrite, Category = "AI Chat")
+	class AAI_Friend* AIFriendRef;
+
+	UPROPERTY(meta = (BindWidget))
+	class UEditableTextBox* MessageInputBox;
+
+  UPROPERTY(meta = (BindWidget))
+	UUserWidget* SendButton1 = nullptr;
+
+	UPROPERTY(meta = (BindWidget))
+	class UScrollBox* ChatScrollBox;
+
+  UPROPERTY(meta = (BindWidget))
+	UUserWidget* CloseButton1 = nullptr;
+
+public:
+	virtual void NativeConstruct() override;
+
+	void AddMessageToChat(const FString& Message, bool bIsFromUser);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	bool bUseTypewriterForAI = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	float AITypewriterDuration = 1.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	float AITypewriterTypoProbability = 0.06f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	bool bUseBlinkingCursorForAI = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	float AICursorBlinkInterval = 0.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	FString AICursorSymbol = TEXT("_");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
+	class USoundBase* TypingSound = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "AI Chat")
+	void ClearChat();
+
+private:
+	UFUNCTION()
+	void OnSendButtonClicked();
+
+	UFUNCTION()
+	void OnCloseButtonClicked();
+
+	void HandleSendMessage();
+
+	UFUNCTION()
+	void OnMessageInputCommitted(const FText& Text, ETextCommit::Type CommitMethod);
+
+	void RequestMessageInputFocus(bool bDelayOneTick);
+	UButton* ResolveInnerButton(UUserWidget* Widget, const FName& ButtonName) const;
+
+	void TickAITypewriter();
+	void ToggleAICursorBlink();
+	void UpdateAITypewriterDisplay(const FString& BaseText);
+
+	FTimerHandle AITypewriterTimerHandle;
+	FTimerHandle AICursorBlinkTimerHandle;
+	FTimerHandle MessageInputFocusTimerHandle;
+	UButton* SendButton = nullptr;
+	UButton* CloseButton = nullptr;
+	FTypewriterState AITypewriterState;
+	TObjectPtr<class UTextBlock> ActiveAITypewriterText = nullptr;
+	bool bAICursorVisible = true;
+	FString AICurrentBaseText;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI Chat")
+	FName InnerButtonName = TEXT("Button_45");
+};

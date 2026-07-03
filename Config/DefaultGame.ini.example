@@ -1,0 +1,13 @@
+[ProjectSettings]
+ProjectID=(A=1823396784,B=1298598689,C=1743498150,D=-2048051708)
+ProjectName=Loop 9
+
+[/Script/EngineSettings.GeneralProjectSettings]
+ProjectID=AB1C13684F34781DE0B48EA4C51030BC
+
+[/Script/Loop9.AI_Friend]
+; Copy this file to Config/DefaultGame.ini and fill in your values.
+APIEndpoint=https://your-backend.example.com/api/chat
+PlayerId=player-001
+GameToken=your-game-token-here
+PreferredLanguage=sr
