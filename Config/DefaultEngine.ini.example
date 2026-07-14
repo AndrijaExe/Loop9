@@ -54,6 +54,17 @@ NearClipPlane=5.000000
 +ActiveClassRedirects=(OldClassName="TP_FirstPersonCharacter",NewClassName="Loop9Character")
 +ActiveClassRedirects=(OldClassName="TP_FirstPersonCameraManager",NewClassName="Loop9CameraManager")
 
+; --- Steam (Online Subsystem) ---
+; SteamDevAppId 480 is Valve's public test app (Spacewar); replace with your
+; real App ID from Steamworks before shipping. Steam overlay/auth only works
+; when the game is launched through Steam (or with steam_appid.txt present).
+[OnlineSubsystem]
+DefaultPlatformService=Steam
+
+[OnlineSubsystemSteam]
+bEnabled=true
+SteamDevAppId=480
+
 [/Script/HardwareTargeting.HardwareTargetingSettings]
 TargetedHardwareClass=Desktop
 AppliedTargetedHardwareClass=Desktop

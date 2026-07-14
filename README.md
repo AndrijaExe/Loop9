@@ -14,6 +14,7 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
 - Unreal Engine **5.8**
 - Plugins enabled in the project:
   - ModelContextProtocol (MCP)
+  - OnlineSubsystemSteam (Steam auth for the backend chat)
 
 ## Setup after clone
 
@@ -26,6 +27,18 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
 3. Edit `Config/DefaultGame.ini` and set your `APIEndpoint`, `PlayerId`, and `GameToken`.
 4. Install the marketplace assets listed below into `Content/` (same folder names).
 5. Open `Loop9.uproject` in UE 5.8 and let it compile.
+
+## Steam auth
+
+When the game runs through Steam (or with `SteamDevAppId=480` for testing), it
+exchanges the local Steam session ticket for a short-lived backend token via
+`POST /api/auth/steam` and uses it as `X-Session-Token` on chat requests
+(`Loop9BackendAuthSubsystem`). The backend then derives the player identity from
+the verified Steam ID. Without Steam, the game falls back to the legacy
+`GameToken` (`X-Game-Token`) from `Config/DefaultGame.ini`.
+
+Before shipping, replace `SteamDevAppId` in `Config/DefaultEngine.ini` with your
+real App ID and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID` on the backend.
 
 ## Required marketplace content (not in repo)
 

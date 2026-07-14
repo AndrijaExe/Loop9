@@ -14,6 +14,7 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
+#include "Subsystems/Loop9BackendAuthSubsystem.h"
 
 AAI_Friend::AAI_Friend()
 {
@@ -247,6 +248,14 @@ void AAI_Friend::BeginPlay()
 
 	LoadConfiguredOverrides();
 
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoop9BackendAuthSubsystem* AuthSubsystem = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+		{
+			AuthSubsystem->ConfigureFromChatEndpoint(APIEndpoint);
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("AI_Friend configured. Endpoint=%s | BackendTokenSet=%s"), *APIEndpoint, GameToken.IsEmpty() ? TEXT("NO") : TEXT("YES"));
 
 	if (TriggerBox)
@@ -315,11 +324,22 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		AnomalyManager = GI->GetSubsystem<UAnomalyManager>();
 	}
 
+	ULoop9BackendAuthSubsystem* AuthSubsystem = nullptr;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		AuthSubsystem = GI->GetSubsystem<ULoop9BackendAuthSubsystem>();
+	}
+	if (AuthSubsystem)
+	{
+		AuthSubsystem->EnsureSession();
+	}
+
 	const int32 LoopIndex = LoopManager ? FMath::Max(1, LoopManager->CurrentLoop) : 1;
 	FLoop9ChatRequestContext RequestContext;
 	RequestContext.Message = Message;
 	RequestContext.APIEndpoint = APIEndpoint;
 	RequestContext.GameToken = GameToken;
+	RequestContext.SessionToken = AuthSubsystem ? AuthSubsystem->GetSessionToken() : FString();
 	RequestContext.PlayerId = PlayerId;
 	RequestContext.PreferredLanguage = PreferredLanguage;
 	RequestContext.AIStability = LoopManager ? LoopManager->GetAIStability() : 1.0f;
@@ -345,6 +365,19 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		{
 			if (!ChatResponse.bSuccess)
 			{
+				// A 403 with an active session usually means the token expired
+				// server-side; drop it so the next message re-authenticates.
+				if (ChatResponse.HttpCode == 403)
+				{
+					if (UGameInstance* GI = GetGameInstance())
+					{
+						if (ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+						{
+							Auth->InvalidateAndReauth();
+						}
+					}
+				}
+
 				LastAIResponse = ChatResponse.ErrorMessage;
 				OnResponseReceived(LastAIResponse);
 				return;

@@ -26,7 +26,10 @@ public class Loop9 : ModuleRules
 			"Niagara"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			"OnlineSubsystem",
+			"OnlineSubsystemUtils"
+		});
 
 		PublicIncludePaths.AddRange(new string[] {
 			"Loop9",

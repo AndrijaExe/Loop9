@@ -154,7 +154,11 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	HttpRequest->SetURL(Context.APIEndpoint);
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
-	if (!Context.GameToken.IsEmpty())
+	if (!Context.SessionToken.IsEmpty())
+	{
+		HttpRequest->SetHeader(TEXT("X-Session-Token"), Context.SessionToken);
+	}
+	else if (!Context.GameToken.IsEmpty())
 	{
 		HttpRequest->SetHeader(TEXT("X-Game-Token"), Context.GameToken);
 	}

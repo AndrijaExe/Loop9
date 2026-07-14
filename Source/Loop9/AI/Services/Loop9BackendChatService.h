@@ -9,6 +9,8 @@ struct FLoop9ChatRequestContext
 	FString Message;
 	FString APIEndpoint;
 	FString GameToken;
+	/** Short-lived backend session token (Steam auth). Takes precedence over GameToken. */
+	FString SessionToken;
 	FString PlayerId;
 	FString PreferredLanguage = TEXT("sr");
 	float AIStability = 1.0f;
