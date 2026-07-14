@@ -16,8 +16,6 @@ public class Loop9 : ModuleRules
 			"EnhancedInput",
 			"AIModule",
 			"NavigationSystem",
-			"StateTreeModule",
-			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
 			"SlateCore",
@@ -34,19 +32,14 @@ public class Loop9 : ModuleRules
 			"Loop9",
 			"Loop9/Anomaly",
 			"Loop9/Anomaly/Pursuer",
+			"Loop9/Characters",
 			"Loop9/Interaction",
 			"Loop9/Loop",
 			"Loop9/AI",
 			"Loop9/AI/Services",
 			"Loop9/Subsystems",
 			"Loop9/Controllers",
-			"Loop9/UI",
-			"Loop9/Variant_Horror",
-			"Loop9/Variant_Horror/UI",
-			"Loop9/Variant_Shooter",
-			"Loop9/Variant_Shooter/AI",
-			"Loop9/Variant_Shooter/UI",
-			"Loop9/Variant_Shooter/Weapons"
+			"Loop9/UI"
 		});
 	}
 }

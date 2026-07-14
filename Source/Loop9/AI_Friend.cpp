@@ -60,6 +60,12 @@ void AAI_Friend::LoadConfiguredOverrides()
 		GameToken = LoadedGameToken;
 	}
 
+	FString LoadedPlayerId;
+	if (GConfig->GetString(TEXT("/Script/Loop9.AI_Friend"), TEXT("PlayerId"), LoadedPlayerId, GGameIni) && !LoadedPlayerId.IsEmpty())
+	{
+		PlayerId = LoadedPlayerId;
+	}
+
 	FString LoadedLanguage;
 	if (GConfig->GetString(TEXT("/Script/Loop9.AI_Friend"), TEXT("PreferredLanguage"), LoadedLanguage, GGameIni) && !LoadedLanguage.IsEmpty())
 	{
@@ -96,6 +102,22 @@ void AAI_Friend::LoadConfiguredOverrides()
 		UE_LOG(LogTemp, Warning, TEXT("AI_Friend endpoint appears truncated (%s). Falling back to local backend endpoint."), *APIEndpoint);
 		APIEndpoint = TEXT("https://loop9-backend.onrender.com/api/chat");
 	}
+
+	EnsureStablePlayerId();
+}
+
+void AAI_Friend::EnsureStablePlayerId()
+{
+	PlayerId = PlayerId.TrimStartAndEnd();
+	if (!PlayerId.IsEmpty())
+	{
+		return;
+	}
+
+	PlayerId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+	GConfig->SetString(TEXT("/Script/Loop9.AI_Friend"), TEXT("PlayerId"), *PlayerId, GGameIni);
+	GConfig->Flush(false, GGameIni);
+	UE_LOG(LogTemp, Log, TEXT("AI_Friend generated stable PlayerId=%s"), *PlayerId);
 }
 
 void AAI_Friend::StopInitialRing()

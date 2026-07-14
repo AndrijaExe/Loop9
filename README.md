@@ -13,8 +13,6 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
 
 - Unreal Engine **5.8**
 - Plugins enabled in the project:
-  - StateTree
-  - GameplayStateTree
   - ModelContextProtocol (MCP)
 
 ## Setup after clone
@@ -49,7 +47,8 @@ Without these assets, `FullOfficeMap` will have missing references.
 
 - `Source/` — C++ gameplay code
 - `Content/MyStuff/` — custom maps, blueprints, UI, audio
-- `Content/FirstPerson/`, `Variant_Horror/`, `Variant_Shooter/`, `Weapons/`, etc. — template/project content
+- `Content/FirstPerson/` — base first-person template assets still used by some blueprints
+- `Content/Weapons/` — leftover FirstPerson weapon template assets (safe to remove after Reference Viewer check)
 - `Config/*.example` and non-sensitive config files
 - `Loop9.uproject`
 

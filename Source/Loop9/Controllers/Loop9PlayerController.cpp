@@ -6,8 +6,8 @@
 #include "Loop9CameraManager.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
-#include "Variant_Horror/HorrorCharacter.h"
-#include "Variant_Horror/UI/HorrorUI.h"
+#include "HorrorCharacter.h"
+#include "HorrorUI.h"
 
 ALoop9PlayerController::ALoop9PlayerController()
 {

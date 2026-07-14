@@ -118,6 +118,7 @@ private:
 	int32 ResolveCurrentLoopIndex() const;
 	void RefreshLoopMessageLimitCounter();
 	void LoadConfiguredOverrides();
+	void EnsureStablePlayerId();
 	void StopInitialRing();
 	void StartInitialRingIfNeeded();
 	bool ShouldStopInitialRingForLoopChange() const;
