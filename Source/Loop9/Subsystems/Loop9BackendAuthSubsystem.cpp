@@ -83,6 +83,9 @@ FString ULoop9BackendAuthSubsystem::ResolveSteamAuthTicket() const
 	}
 
 	// For the Steam subsystem this returns the hex-encoded auth session ticket.
+	// NOTE: If the backend consistently rejects tickets with STEAM_TICKET_INVALID,
+	// Valve may require the newer GetAuthTicketForWebApi flow for this SDK version;
+	// in that case switch this call to the identity interface's web-api ticket API.
 	return Identity->GetAuthToken(0);
 }
 
