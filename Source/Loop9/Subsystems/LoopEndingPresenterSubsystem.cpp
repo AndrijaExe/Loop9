@@ -1,5 +1,6 @@
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 
+#include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Loop/LoopEndingEvaluator.h"
 #include "Loop9GameMode.h"
@@ -41,6 +42,11 @@ void ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	const ELoopEndingType EndingType = FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext());
 	const int32 TotalResets = Relationship->TotalResets;
 	const int32 TotalAIInteractions = Relationship->TotalAIInteractions;
+
+	if (ULoop9AchievementsSubsystem* AchievementsSubsystem = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
+	{
+		AchievementsSubsystem->NotifyRunFinished(EndingType, TotalResets, TotalAIInteractions);
+	}
 
 	FTimerHandle EndingTimer;
 	World->GetTimerManager().SetTimer(EndingTimer, [this, PC, EndingType, TotalResets, TotalAIInteractions]()

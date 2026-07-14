@@ -40,6 +40,20 @@ the verified Steam ID. Without Steam, the game falls back to the legacy
 Before shipping, replace `SteamDevAppId` in `Config/DefaultEngine.ini` with your
 real App ID and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID` on the backend.
 
+## Steam achievements
+
+`Loop9AchievementsSubsystem` tracks gameplay events (elevator decisions, AI
+chats, loops, endings, anomaly spotting) and unlocks achievements through the
+Online Subsystem (no-op without Steam). Extra achievements can be unlocked from
+Blueprint via `UnlockAchievement(ApiName)`.
+
+The full list of 25 achievements (API names, display names, unlock conditions)
+and the step-by-step Steamworks publishing guide live in
+[`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
+
+Achievements cannot be tested on the Spacewar dev App ID (480) — they require
+your real App ID, and Steamworks changes must be published before testing.
+
 ## Required marketplace content (not in repo)
 
 These folders are gitignored. Install them from the Epic Marketplace / Fab into `Content/`:

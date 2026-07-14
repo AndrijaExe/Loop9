@@ -1,6 +1,7 @@
 #include "Subsystems/LoopManagerSubsystem.h"
 
 #include "Subsystems/AnomalyManager.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 #include "Loop/LoopEndingEvaluator.h"
@@ -141,6 +142,22 @@ void ULoopManagerSubsystem::OnElevatorButtonPressed(EButtonType ButtonType)
 
 	RegisterLoopDecision(bWasCorrectDecision, bAnomaliesExist, ButtonType);
 
+	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
+	{
+		FString AnomalyKey = TEXT("none");
+		bool bRepeatAnomaly = false;
+		if (UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance()))
+		{
+			// Anomalies are still active here (reset happens below), so the
+			// snapshot reflects what the player just judged.
+			AnomalyManager->UpdateLoopAnomalyTracking(CurrentLoop);
+			AnomalyKey = AnomalyManager->GetCurrentLoopAnomalyKey();
+			bRepeatAnomaly = AnomalyManager->IsCurrentLoopAnomalyRepeat();
+		}
+
+		Achievements->NotifyLoopDecision(bWasCorrectDecision, bAnomaliesExist, AnomalyKey, bRepeatAnomaly);
+	}
+
 	const ELoopAction Action = ResolveLoopAction(bAnomaliesExist, ButtonType);
 	if (Action == ELoopAction::Advance)
 	{
@@ -175,6 +192,11 @@ void ULoopManagerSubsystem::AdvanceLoop()
 	{
 		Relationship->TotalAdvances++;
 		Relationship->TickAIStabilityDecay();
+	}
+
+	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
+	{
+		Achievements->NotifyLoopReached(CurrentLoop);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Loop: %d"), CurrentLoop);
@@ -218,6 +240,11 @@ void ULoopManagerSubsystem::RegisterAIInteraction()
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->RegisterAIInteraction();
+
+		if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
+		{
+			Achievements->NotifyAIMessageSent(Relationship->TotalAIInteractions);
+		}
 	}
 }
 
@@ -242,6 +269,11 @@ void ULoopManagerSubsystem::ResetRunState()
 	CurrentLoop = 1;
 	bAnomalyDetected = false;
 	bGameFinished = false;
+
+	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
+	{
+		Achievements->NotifyRunRestarted();
+	}
 
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
