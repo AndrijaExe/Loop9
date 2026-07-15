@@ -6,6 +6,20 @@ Novi zadaci se dodaju na dno odgovarajuće sekcije.
 
 ---
 
+## 0. Prvo na kućnoj mašini (pre svega ostalog)
+
+- [ ] `git checkout main && git pull` — sve od 15.07. je mergovano na main
+  (lokalizacija, settings, telemetrija, 3 nove anomalije, marketing slike).
+  Backend isto: `main` sadrži telemetry endpoint i nove promptove.
+- [ ] Regeneriši project fajlove (desni klik na `Loop9.uproject` →
+  *Generate Project Files*) — dodato je 10+ novih .cpp/.h fajlova
+  (`Subsystems/Loop9GameSettingsSubsystem`, `Subsystems/Loop9TelemetrySubsystem`,
+  `Anomaly/Scale|Clock|PhantomMessage...`, `Steam/Loop9SteamUtils`).
+- [ ] Kompajliraj. Ako pukne na `Steamworks` dependency-ju u `Loop9.Build.cs`,
+  javi — uslovno se linkuje samo na Win64/Linux/Mac.
+- [ ] Redeploy backenda na Render (merge na main → auto deploy) da novi
+  promptovi (10 anomalija) i `/api/telemetry/run` budu živi.
+
 ## 1. Settings widget (WBP_Settings ili kako se već zove tvoj widget)
 
 C++ (`USettingsWidget`) sada ima opcione bindove — widgeti se automatski

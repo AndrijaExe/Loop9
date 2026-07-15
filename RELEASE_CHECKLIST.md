@@ -54,7 +54,14 @@ Preostalo za lokalizaciju:
 
 ## 3. Steamworks backend (partner.steamgames.com)
 
-- [ ] Kupljen App Credit / dobijen **App ID**.
+- [~] **Steam Direct fee plaćen 15.07.2026.** Banka (NLB Komercijalna) i W-8BEN
+  uneti; **identity verification u toku (2–7 radnih dana)**. Tek posle toga
+  stiže App ID i pristup store page alatima.
+  - 30-dnevni tajmer teče od 15.07. → najraniji mogući release **~14.08.2026.**
+  - Coming Soon stranica mora biti javna **min. 2 nedelje** pre release-a.
+- [ ] Kad stigne App ID: upisati ga u lokalni `Config/DefaultEngine.ini`
+  (umesto 480) i uzeti **Web API Key** → Render env (`STEAM_APP_ID`,
+  `STEAM_WEB_API_KEY`).
 - [ ] **Achievements**: definisati svih **28** po tabeli iz STEAM_ACHIEVEMENTS.md
   (API imena moraju biti identična), upload ikonica (28 × otključana + zaključana).
   Nova 3 (15.07.): `ACH_SPOT_SCALE`, `ACH_SPOT_CLOCK`, `ACH_SPOT_PHANTOM` (hidden);
