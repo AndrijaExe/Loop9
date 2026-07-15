@@ -1,0 +1,946 @@
+﻿# Game French translation.
+# Fill out your copyright notice in the Description page of Project Settings.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Game\n"
+"POT-Creation-Date: 2026-07-15 12:53\n"
+"PO-Revision-Date: 2026-07-15 12:53\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. Key:	5C4867B64D435329D046C9B4FD8E27DF
+#. SourceLocation:	/Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.B
+#: /Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.B
+msgctxt ",5C4867B64D435329D046C9B4FD8E27DF"
+msgid "AO"
+msgstr ""
+
+#. Key:	6708F7224359A743C07A28B8B7A91F48
+#. SourceLocation:	/Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.G
+#: /Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.G
+msgctxt ",6708F7224359A743C07A28B8B7A91F48"
+msgid "Roughness"
+msgstr ""
+
+#. Key:	A20090BE4DDF8C3848C7DEB7E0F81934
+#. SourceLocation:	/Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.R
+#: /Game/Characters/Mannequins/Materials/M_Mannequin.M_Mannequin:MaterialExpressionTextureSampleParameter2D_1.ChannelNames.R
+msgctxt ",A20090BE4DDF8C3848C7DEB7E0F81934"
+msgid "Metallic"
+msgstr ""
+
+#. Key:	6E7754C24E7234F2AC6B478E769E8555
+#. SourceLocation:	/Game/MsvFx_Niagara_Explosion_Pack_01/Maps/Niagara_Explosions_Demo_Map.Niagara_Explosions_Demo_Map:PersistentLevel.TextRenderActor_1.NewTextRenderComponent.Text
+#: /Game/MsvFx_Niagara_Explosion_Pack_01/Maps/Niagara_Explosions_Demo_Map.Niagara_Explosions_Demo_Map:PersistentLevel.TextRenderActor_1.NewTextRenderComponent.Text
+msgctxt ",6E7754C24E7234F2AC6B478E769E8555"
+msgid "EXPLOSION AREA"
+msgstr ""
+
+#. Key:	E419318C4C27CDCC2E9FF99DD86E539E
+#. SourceLocation:	/Game/MsvFx_Niagara_Explosion_Pack_01/Prefabs/Niagara_Smoke_Wind_01.Niagara_Smoke_Wind_01:Pyro_Exp_01_0.NiagaraEmitterEditorData_0.StackEditorData.StackEntryKeyToDisplayName(0 - Value).StackEntryKeyToDisplayName
+#: /Game/MsvFx_Niagara_Explosion_Pack_01/Prefabs/Niagara_Smoke_Wind_01.Niagara_Smoke_Wind_01:Pyro_Exp_01_0.NiagaraEmitterEditorData_0.StackEditorData.StackEntryKeyToDisplayName(0 - Value).StackEntryKeyToDisplayName
+msgctxt ",E419318C4C27CDCC2E9FF99DD86E539E"
+msgid "Sub UVAnimation"
+msgstr ""
+
+#. Key:	C65A74E04351CAD16FDC0B90B8F7D3D5
+#. SourceLocation:	/Game/MyStuff/UI/Components/WBP_Button.WBP_Button_C:WidgetTree.TextBlock_129.Text
+#: /Game/MyStuff/UI/Components/WBP_Button.WBP_Button_C:WidgetTree.TextBlock_129.Text
+msgctxt ",C65A74E04351CAD16FDC0B90B8F7D3D5"
+msgid "Button Text"
+msgstr ""
+
+#. Key:	6C5A8C244D27DACEBA8BDDAC0D667C88
+#. SourceLocation:	/Game/MyStuff/UI/Components/WBP_CheckRow.WBP_CheckRow_C:WidgetTree.Text_Label.Text
+#: /Game/MyStuff/UI/Components/WBP_CheckRow.WBP_CheckRow_C:WidgetTree.Text_Label.Text
+msgctxt ",6C5A8C244D27DACEBA8BDDAC0D667C88"
+msgid "Label"
+msgstr ""
+
+#. Key:	E7046DC54D871C2328430CACFBF230B8
+#. SourceLocation:	/Game/MyStuff/UI/Components/WBP_ComboRow.WBP_ComboRow_C:WidgetTree.Text_Label.Text
+#: /Game/MyStuff/UI/Components/WBP_ComboRow.WBP_ComboRow_C:WidgetTree.Text_Label.Text
+msgctxt ",E7046DC54D871C2328430CACFBF230B8"
+msgid "Label"
+msgstr ""
+
+#. Key:	DA0ED83D4B033ADC775FF9A6B3438E9B
+#. SourceLocation:	/Game/MyStuff/UI/Components/WBP_SliderRow.WBP_SliderRow_C:WidgetTree.Text_Label.Text
+#: /Game/MyStuff/UI/Components/WBP_SliderRow.WBP_SliderRow_C:WidgetTree.Text_Label.Text
+msgctxt ",DA0ED83D4B033ADC775FF9A6B3438E9B"
+msgid "Label"
+msgstr ""
+
+#. Key:	9EBEFEDF4970D077DAF982BFD3A4BDB5
+#. SourceLocation:	/Game/MyStuff/UI/Components/WBP_SliderRow.WBP_SliderRow_C:WidgetTree.Text_Value.Text
+#: /Game/MyStuff/UI/Components/WBP_SliderRow.WBP_SliderRow_C:WidgetTree.Text_Value.Text
+msgctxt ",9EBEFEDF4970D077DAF982BFD3A4BDB5"
+msgid "100%"
+msgstr ""
+
+#. Key:	037BAA77460F9D84E866E99A0D93EE93
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending.WBP_Ending_C:WidgetTree.TextBlock_0.Text
+#: /Game/MyStuff/UI/Endings/WBP_Ending.WBP_Ending_C:WidgetTree.TextBlock_0.Text
+msgctxt ",037BAA77460F9D84E866E99A0D93EE93"
+msgid "THANKS FOR PLAYING!"
+msgstr ""
+
+#. Key:	FC85E1264343478B2DE6449C3577759D
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",FC85E1264343478B2DE6449C3577759D"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	C92DEE524B0BD64465552185F143852B
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",C92DEE524B0BD64465552185F143852B"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	23FE6835479821BF05C1908194DEFB51
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",23FE6835479821BF05C1908194DEFB51"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	B9BAB0D943B90D132E7F408DD41D7556
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",B9BAB0D943B90D132E7F408DD41D7556"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	TextBlockDefaultValue
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
+#: /Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
+msgctxt "UMG,TextBlockDefaultValue"
+msgid "Text Block"
+msgstr ""
+
+#. Key:	BD6E93B141579D8FA626EF8209964764
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",BD6E93B141579D8FA626EF8209964764"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	8AC00E3D4A820BDBE08BA1BA35EFAB8A
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",8AC00E3D4A820BDBE08BA1BA35EFAB8A"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	8B3D79274E23AA42843A549FCD48CF80
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
+#: /Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
+msgctxt ",8B3D79274E23AA42843A549FCD48CF80"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	0414D10F4AB79DF2515732AFC462FEED
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
+msgctxt ",0414D10F4AB79DF2515732AFC462FEED"
+msgid "PLAY"
+msgstr ""
+
+#. Key:	6CD5353A43D9DEEAC6EDEE9801E6CA35
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Quit.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Quit.ButtonText
+msgctxt ",6CD5353A43D9DEEAC6EDEE9801E6CA35"
+msgid "QUIT"
+msgstr ""
+
+#. Key:	ACD0961C461E8604D9E251949DFB190E
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Settings.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Settings.ButtonText
+msgctxt ",ACD0961C461E8604D9E251949DFB190E"
+msgid "SETTINGS"
+msgstr ""
+
+#. Key:	0DD48AE84EA72E74E6DE40AF305D340D
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.MainMenuButton.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.MainMenuButton.ButtonText
+msgctxt ",0DD48AE84EA72E74E6DE40AF305D340D"
+msgid "MAIN MENU"
+msgstr ""
+
+#. Key:	44D63E364C724FB0EBEC878F33708D49
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.QuitButton.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.QuitButton.ButtonText
+msgctxt ",44D63E364C724FB0EBEC878F33708D49"
+msgid "QUIT"
+msgstr ""
+
+#. Key:	228A86644EABD88ED24BBEBF9301B597
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.ResumeButton.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.ResumeButton.ButtonText
+msgctxt ",228A86644EABD88ED24BBEBF9301B597"
+msgid "RESUME"
+msgstr ""
+
+#. Key:	22C9EABB4A69B68087A07C8F6057FE51
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.SettingsButton.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.SettingsButton.ButtonText
+msgctxt ",22C9EABB4A69B68087A07C8F6057FE51"
+msgid "SETTINGS"
+msgstr ""
+
+#. Key:	864473384C110DF63FAFA7916C5B2519
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.TextBlock_0.Text
+#: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.TextBlock_0.Text
+msgctxt ",864473384C110DF63FAFA7916C5B2519"
+msgid "PAUSED"
+msgstr ""
+
+#. Key:	1A0D982946820109E1F72482B437DDA5
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Apply.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Apply.ButtonText
+msgctxt ",1A0D982946820109E1F72482B437DDA5"
+msgid "APPLY"
+msgstr ""
+
+#. Key:	29E9D3AA42A9D6DDA48E4EAB5D9A22FF
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Back.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Back.ButtonText
+msgctxt ",29E9D3AA42A9D6DDA48E4EAB5D9A22FF"
+msgid "BACK"
+msgstr ""
+
+#. Key:	38BF90CF42CFEDEB4AF7D4989F58EBC6
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.Label
+msgctxt ",38BF90CF42CFEDEB4AF7D4989F58EBC6"
+msgid "Invert Y Axis"
+msgstr ""
+
+#. Key:	8A8799F749FEB455A3C405AF8560DD52
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.ToolTipText
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.ToolTipText
+msgctxt ",8A8799F749FEB455A3C405AF8560DD52"
+msgid "Invert Y"
+msgstr ""
+
+#. Key:	3C8733C0482B9B7DE452BCA7EB344A30
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_VSync.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_VSync.Label
+msgctxt ",3C8733C0482B9B7DE452BCA7EB344A30"
+msgid "VSync"
+msgstr ""
+
+#. Key:	2AF9E44E4AD19F5B99AD70B9E1C7CFF1
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_FPSLimit.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_FPSLimit.Label
+msgctxt ",2AF9E44E4AD19F5B99AD70B9E1C7CFF1"
+msgid "FPS Limit"
+msgstr ""
+
+#. Key:	8E3DC3964D8E2CD7278A21940B0D548C
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Language.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Language.Label
+msgctxt ",8E3DC3964D8E2CD7278A21940B0D548C"
+msgid "Language"
+msgstr ""
+
+#. Key:	EB2CEEFF41551F04070B7A963E4E7D6E
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Quality.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Quality.Label
+msgctxt ",EB2CEEFF41551F04070B7A963E4E7D6E"
+msgid "Graphics Quality"
+msgstr ""
+
+#. Key:	07ED97A44E49B2492F806E8417B74938
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Resolution.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Resolution.Label
+msgctxt ",07ED97A44E49B2492F806E8417B74938"
+msgid "Resolution"
+msgstr ""
+
+#. Key:	5AFAE3D044AC090BFAE215B81FA9CD37
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_WindowMode.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_WindowMode.Label
+msgctxt ",5AFAE3D044AC090BFAE215B81FA9CD37"
+msgid "Window Mode"
+msgstr ""
+
+#. Key:	8E6374D54E122BA0BB6611AD8043AEDE
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_AmbientVolume.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_AmbientVolume.Label
+msgctxt ",8E6374D54E122BA0BB6611AD8043AEDE"
+msgid "Ambient Volume"
+msgstr ""
+
+#. Key:	CCECFFBA4C7ACBD5BCC46A9D82087376
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_Gamma.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_Gamma.Label
+msgctxt ",CCECFFBA4C7ACBD5BCC46A9D82087376"
+msgid "Brightness (Gamma)"
+msgstr ""
+
+#. Key:	1EE9EF184BE0D3CF149B2CA91B0AD239
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MasterVolume.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MasterVolume.Label
+msgctxt ",1EE9EF184BE0D3CF149B2CA91B0AD239"
+msgid "Master Volume"
+msgstr ""
+
+#. Key:	0685BF3D4F867D80878D6893C50994E2
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MouseSensitivity.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MouseSensitivity.Label
+msgctxt ",0685BF3D4F867D80878D6893C50994E2"
+msgid "Mouse Sensitivity"
+msgstr ""
+
+#. Key:	5D009DC94C572A07A865BFB8D8FE29EB
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_ResolutionScale.Label
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_ResolutionScale.Label
+msgctxt ",5D009DC94C572A07A865BFB8D8FE29EB"
+msgid "Resolution Scale"
+msgstr ""
+
+#. Key:	84B3EEC6488BA4CCA1B94CA4C8D33AB3
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.TextBlock_0.Text
+#: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.TextBlock_0.Text
+msgctxt ",84B3EEC6488BA4CCA1B94CA4C8D33AB3"
+msgid "SETTINGS"
+msgstr ""
+
+#. Key:	66D281DE457452B484A764942219E855
+#. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.CloseButton1.ButtonText
+#: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.CloseButton1.ButtonText
+msgctxt ",66D281DE457452B484A764942219E855"
+msgid "Close"
+msgstr ""
+
+#. Key:	AAB5B2B447A3FEA3D4B86C957329CA3F
+#. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.MessageInputBox.HintText
+#: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.MessageInputBox.HintText
+msgctxt ",AAB5B2B447A3FEA3D4B86C957329CA3F"
+msgid "Talk on phone..."
+msgstr ""
+
+#. Key:	D9EDDF9A4A594075426CD9998EA706C4
+#. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
+#: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
+msgctxt ",D9EDDF9A4A594075426CD9998EA706C4"
+msgid "Send"
+msgstr ""
+
+#. Key:	5A5415D143C4984F8A73109602079148
+#. SourceLocation:	/Game/MyStuff/UI/WBP_HorrorUI.WBP_HorrorUI_C:WidgetTree.TB_CrosshairDot.Text
+#: /Game/MyStuff/UI/WBP_HorrorUI.WBP_HorrorUI_C:WidgetTree.TB_CrosshairDot.Text
+msgctxt ",5A5415D143C4984F8A73109602079148"
+msgid "."
+msgstr ""
+
+#. Key:	A114175546F6AB4439486D84D6368A1C
+#. SourceLocation:	/Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TextBlock_0.Text
+#: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TextBlock_0.Text
+msgctxt ",A114175546F6AB4439486D84D6368A1C"
+msgid "LOADING..."
+msgstr ""
+
+#. Key:	8F43C2C54B86376327E192960FC9CC83
+#. SourceLocation:	/Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
+#: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
+msgctxt ",8F43C2C54B86376327E192960FC9CC83"
+msgid "Tip: Look for missing objects"
+msgstr ""
+
+#. Key:	PlayerPrefix
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
+#: Source/Loop9/AI_ChatWidget.cpp(150)
+msgctxt "Loop9Chat,PlayerPrefix"
+msgid "You: "
+msgstr ""
+
+#. Key:	FriendPrefix
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(151)
+#: Source/Loop9/AI_ChatWidget.cpp(151)
+msgctxt "Loop9Chat,FriendPrefix"
+msgid "Dragojlo: "
+msgstr ""
+
+#. Key:	LowSignalReply
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(304)
+#: Source/Loop9/AI_Friend.cpp(304)
+msgctxt "Loop9Chat,LowSignalReply"
+msgid "Low signal. Try again later."
+msgstr ""
+
+#. Key:	ChatConnectionLost
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(402)
+#: Source/Loop9/AI_Friend.cpp(402)
+msgctxt "Loop9Chat,ChatConnectionLost"
+msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
+msgstr ""
+
+#. Key:	ChatRateLimited
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(407)
+#: Source/Loop9/AI_Friend.cpp(407)
+msgctxt "Loop9Chat,ChatRateLimited"
+msgid "...the line is busy. He cannot take more calls right now. Try again later."
+msgstr ""
+
+#. Key:	ChatServerError
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(412)
+#: Source/Loop9/AI_Friend.cpp(412)
+msgctxt "Loop9Chat,ChatServerError"
+msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
+msgstr ""
+
+#. Key:	InitialRuleMessage
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
+#: Source/Loop9/AI_Friend.cpp(610)
+msgctxt "Loop9Chat,InitialRuleMessage"
+msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
+msgstr ""
+
+#. Key:	AnswerPhone
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)
+#: Source/Loop9/AI_Friend.cpp(660)
+msgctxt "Loop9Interaction,AnswerPhone"
+msgid "Answer"
+msgstr ""
+
+#. Key:	PhoneRinging
+#. SourceLocation:	Source/Loop9/AI_Friend.h(96)
+#: Source/Loop9/AI_Friend.h(96)
+msgctxt "Loop9Chat,PhoneRinging"
+msgid "Phone ringing..."
+msgstr ""
+
+#. Key:	PhantomMsg1
+#. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(13)
+#: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(13)
+msgctxt "Loop9Anomaly,PhantomMsg1"
+msgid "I already told you about the monitor. Why do you keep asking?"
+msgstr ""
+
+#. Key:	PhantomMsg2
+#. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(14)
+#: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(14)
+msgctxt "Loop9Anomaly,PhantomMsg2"
+msgid "help"
+msgstr ""
+
+#. Key:	PhantomMsg3
+#. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(15)
+#: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(15)
+msgctxt "Loop9Anomaly,PhantomMsg3"
+msgid "I'm not going back down there."
+msgstr ""
+
+#. Key:	PhantomMsg4
+#. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(16)
+#: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(16)
+msgctxt "Loop9Anomaly,PhantomMsg4"
+msgid "Did you hear that too?"
+msgstr ""
+
+#. Key:	Tip01
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(24)
+#: Source/Loop9/GameHelpers.cpp(24)
+msgctxt "Loop9Loading,Tip01"
+msgid "Look for objects that disappear..."
+msgstr ""
+
+#. Key:	Tip02
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(25)
+#: Source/Loop9/GameHelpers.cpp(25)
+msgctxt "Loop9Loading,Tip02"
+msgid "Pay close attention to your surroundings"
+msgstr ""
+
+#. Key:	Tip03
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(26)
+#: Source/Loop9/GameHelpers.cpp(26)
+msgctxt "Loop9Loading,Tip03"
+msgid "Trust your instincts, but verify everything"
+msgstr ""
+
+#. Key:	Tip04
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(27)
+#: Source/Loop9/GameHelpers.cpp(27)
+msgctxt "Loop9Loading,Tip04"
+msgid "Not everything is as it seems"
+msgstr ""
+
+#. Key:	Tip05
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(28)
+#: Source/Loop9/GameHelpers.cpp(28)
+msgctxt "Loop9Loading,Tip05"
+msgid "The office changes when you're not looking"
+msgstr ""
+
+#. Key:	Tip06
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(29)
+#: Source/Loop9/GameHelpers.cpp(29)
+msgctxt "Loop9Loading,Tip06"
+msgid "Dragojlo has been here for a very long time"
+msgstr ""
+
+#. Key:	Tip07
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(30)
+#: Source/Loop9/GameHelpers.cpp(30)
+msgctxt "Loop9Loading,Tip07"
+msgid "Every loop is a chance to escape"
+msgstr ""
+
+#. Key:	LoadingHeader
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(51)
+#: Source/Loop9/GameHelpers.cpp(51)
+msgctxt "Loop9Loading,LoadingHeader"
+msgid "LOADING..."
+msgstr ""
+
+#. Key:	DoorLocked
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(93)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(93)
+msgctxt "Loop9Interaction,DoorLocked"
+msgid "Locked"
+msgstr ""
+
+#. Key:	DoorClose
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(97)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(97)
+msgctxt "Loop9Interaction,DoorClose"
+msgid "Close"
+msgstr ""
+
+#. Key:	DoorOpen
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(98)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(98)
+msgctxt "Loop9Interaction,DoorOpen"
+msgid "Open"
+msgstr ""
+
+#. Key:	LiftRestartLoop
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(131)
+#: Source/Loop9/Interaction/LiftButton.cpp(131)
+msgctxt "Loop9Interaction,LiftRestartLoop"
+msgid "Restart loop (interior light ON)"
+msgstr ""
+
+#. Key:	LiftNextFloor
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(132)
+#: Source/Loop9/Interaction/LiftButton.cpp(132)
+msgctxt "Loop9Interaction,LiftNextFloor"
+msgid "Next floor (interior light OFF)"
+msgstr ""
+
+#. Key:	EscapeTogetherTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(43)
+#: Source/Loop9/UI/EndingWidget.cpp(43)
+msgctxt "Loop9Endings,EscapeTogetherTitle"
+msgid "ESCAPE TOGETHER"
+msgstr ""
+
+#. Key:	EscapeTogetherDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(44)
+#: Source/Loop9/UI/EndingWidget.cpp(44)
+msgctxt "Loop9Endings,EscapeTogetherDesc"
+msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
+msgstr ""
+
+#. Key:	ObedientFoolTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(47)
+#: Source/Loop9/UI/EndingWidget.cpp(47)
+msgctxt "Loop9Endings,ObedientFoolTitle"
+msgid "OBEDIENT FOOL"
+msgstr ""
+
+#. Key:	ObedientFoolDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(48)
+#: Source/Loop9/UI/EndingWidget.cpp(48)
+msgctxt "Loop9Endings,ObedientFoolDesc"
+msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
+msgstr ""
+
+#. Key:	ColdBetrayalTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(51)
+#: Source/Loop9/UI/EndingWidget.cpp(51)
+msgctxt "Loop9Endings,ColdBetrayalTitle"
+msgid "COLD BETRAYAL"
+msgstr ""
+
+#. Key:	ColdBetrayalDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(52)
+#: Source/Loop9/UI/EndingWidget.cpp(52)
+msgctxt "Loop9Endings,ColdBetrayalDesc"
+msgid "You relied on him but never respected him. One calm lie was enough."
+msgstr ""
+
+#. Key:	MergedMemoryTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(55)
+#: Source/Loop9/UI/EndingWidget.cpp(55)
+msgctxt "Loop9Endings,MergedMemoryTitle"
+msgid "MERGED MEMORY"
+msgstr ""
+
+#. Key:	MergedMemoryDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(56)
+#: Source/Loop9/UI/EndingWidget.cpp(56)
+msgctxt "Loop9Endings,MergedMemoryDesc"
+msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
+msgstr ""
+
+#. Key:	TheReplacementTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(59)
+#: Source/Loop9/UI/EndingWidget.cpp(59)
+msgctxt "Loop9Endings,TheReplacementTitle"
+msgid "THE REPLACEMENT"
+msgstr ""
+
+#. Key:	TheReplacementDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(60)
+#: Source/Loop9/UI/EndingWidget.cpp(60)
+msgctxt "Loop9Endings,TheReplacementDesc"
+msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
+msgstr ""
+
+#. Key:	ParanoidSurvivorTitle
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(63)
+#: Source/Loop9/UI/EndingWidget.cpp(63)
+msgctxt "Loop9Endings,ParanoidSurvivorTitle"
+msgid "PARANOID SURVIVOR"
+msgstr ""
+
+#. Key:	ParanoidSurvivorDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(64)
+#: Source/Loop9/UI/EndingWidget.cpp(64)
+msgctxt "Loop9Endings,ParanoidSurvivorDesc"
+msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
+msgstr ""
+
+#. Key:	EndingStatsFormat
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(69)
+#: Source/Loop9/UI/EndingWidget.cpp(69)
+msgctxt "Loop9Endings,EndingStatsFormat"
+msgid "Resets: {0} | AI interactions: {1}"
+msgstr ""
+
+#. Key:	ContinueButtonLabel
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.h(51)
+#: Source/Loop9/UI/EndingWidget.h(51)
+msgctxt "Loop9Endings,ContinueButtonLabel"
+msgid "Return to Main Menu"
+msgstr ""
+
+#. Key:	LoadingFallback
+#. SourceLocation:	Source/Loop9/UI/LoadingScreenWidget.cpp(101)
+#: Source/Loop9/UI/LoadingScreenWidget.cpp(101)
+msgctxt "Loop9Loading,LoadingFallback"
+msgid "Loading..."
+msgstr ""
+
+#. Key:	RowValuePercent
+#. SourceLocation:	Source/Loop9/UI/Loop9SettingRowWidgets.cpp(122)
+#: Source/Loop9/UI/Loop9SettingRowWidgets.cpp(122)
+msgctxt "Loop9Settings,RowValuePercent"
+msgid "{0}%"
+msgstr ""
+
+#. Key:	Play
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(46)
+#: Source/Loop9/UI/MainMenuWidget.cpp(46)
+msgctxt "Loop9Menu,Play"
+msgid "PLAY"
+msgstr "JOUER"
+
+#. Key:	Settings
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(47)
+#: Source/Loop9/UI/MainMenuWidget.cpp(47)
+msgctxt "Loop9Menu,Settings"
+msgid "SETTINGS"
+msgstr "PARAMÈTRES"
+
+#. Key:	Quit
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(48)
+#: Source/Loop9/UI/MainMenuWidget.cpp(48)
+msgctxt "Loop9Menu,Quit"
+msgid "QUIT"
+msgstr "QUITTER"
+
+#. Key:	Paused
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(43)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(43)
+msgctxt "Loop9Menu,Paused"
+msgid "PAUSED"
+msgstr "PAUSE"
+
+#. Key:	Resume
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(46)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(46)
+msgctxt "Loop9Menu,Resume"
+msgid "RESUME"
+msgstr "REPRENDRE"
+
+#. Key:	MainMenu
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(48)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(48)
+msgctxt "Loop9Menu,MainMenu"
+msgid "MAIN MENU"
+msgstr "MENU PRINCIPAL"
+
+#. Key:	Line01
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(56)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(56)
+msgctxt "Loop9Terminal,Line01"
+msgid "Initializing interface..."
+msgstr ""
+
+#. Key:	Line02
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
+msgctxt "Loop9Terminal,Line02"
+msgid "Loading conversation model..."
+msgstr ""
+
+#. Key:	Line03
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
+msgctxt "Loop9Terminal,Line03"
+msgid "Importing behavioral profile..."
+msgstr ""
+
+#. Key:	Line04
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
+msgctxt "Loop9Terminal,Line04"
+msgid "Importing subject language patterns..."
+msgstr ""
+
+#. Key:	Line05
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
+msgctxt "Loop9Terminal,Line05"
+msgid "Loading response profile..."
+msgstr ""
+
+#. Key:	Line06
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
+msgctxt "Loop9Terminal,Line06"
+msgid "Personality imprint complete."
+msgstr ""
+
+#. Key:	Line07
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
+msgctxt "Loop9Terminal,Line07"
+msgid "Source: Player"
+msgstr ""
+
+#. Key:	Line08
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
+msgctxt "Loop9Terminal,Line08"
+msgid "Synchronization complete."
+msgstr ""
+
+#. Key:	Line09
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
+msgctxt "Loop9Terminal,Line09"
+msgid "User connected."
+msgstr ""
+
+#. Key:	Line10
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
+msgctxt "Loop9Terminal,Line10"
+msgid "User: Hello?"
+msgstr ""
+
+#. Key:	Line11
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
+msgctxt "Loop9Terminal,Line11"
+msgid "User: Is someone there?"
+msgstr ""
+
+#. Key:	Line12
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
+msgctxt "Loop9Terminal,Line12"
+msgid "User: I think I'm stuck."
+msgstr ""
+
+#. Key:	Line13
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
+msgctxt "Loop9Terminal,Line13"
+msgid "User: Can you help me?"
+msgstr ""
+
+#. Key:	QualityEpic
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(100)
+#: Source/Loop9/UI/SettingsWidget.cpp(100)
+msgctxt "Loop9Settings,QualityEpic"
+msgid "Epic"
+msgstr "Epique"
+
+#. Key:	FPSUncapped
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(106)
+#: Source/Loop9/UI/SettingsWidget.cpp(106)
+msgctxt "Loop9Settings,FPSUncapped"
+msgid "Uncapped"
+msgstr "Illimite"
+
+#. Key:	Title
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(156)
+#: Source/Loop9/UI/SettingsWidget.cpp(156)
+msgctxt "Loop9Settings,Title"
+msgid "SETTINGS"
+msgstr "PARAMÈTRES"
+
+#. Key:	WindowMode
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(161)
+#: Source/Loop9/UI/SettingsWidget.cpp(161)
+msgctxt "Loop9Settings,WindowMode"
+msgid "Window Mode"
+msgstr "Mode fenetre"
+
+#. Key:	Resolution
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(165)
+#: Source/Loop9/UI/SettingsWidget.cpp(165)
+msgctxt "Loop9Settings,Resolution"
+msgid "Resolution"
+msgstr "Resolution"
+
+#. Key:	GraphicsQuality
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(169)
+#: Source/Loop9/UI/SettingsWidget.cpp(169)
+msgctxt "Loop9Settings,GraphicsQuality"
+msgid "Graphics Quality"
+msgstr "Qualite graphique"
+
+#. Key:	ResolutionScale
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(173)
+#: Source/Loop9/UI/SettingsWidget.cpp(173)
+msgctxt "Loop9Settings,ResolutionScale"
+msgid "Resolution Scale"
+msgstr "Echelle de resolution"
+
+#. Key:	FPSLimit
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(177)
+#: Source/Loop9/UI/SettingsWidget.cpp(177)
+msgctxt "Loop9Settings,FPSLimit"
+msgid "FPS Limit"
+msgstr "Limite FPS"
+
+#. Key:	VSync
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(181)
+#: Source/Loop9/UI/SettingsWidget.cpp(181)
+msgctxt "Loop9Settings,VSync"
+msgid "VSync"
+msgstr "VSync"
+
+#. Key:	Brightness
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(185)
+#: Source/Loop9/UI/SettingsWidget.cpp(185)
+msgctxt "Loop9Settings,Brightness"
+msgid "Brightness (Gamma)"
+msgstr "Luminosite (gamma)"
+
+#. Key:	Language
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(189)
+#: Source/Loop9/UI/SettingsWidget.cpp(189)
+msgctxt "Loop9Settings,Language"
+msgid "Language"
+msgstr "Langue"
+
+#. Key:	MasterVolume
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(193)
+#: Source/Loop9/UI/SettingsWidget.cpp(193)
+msgctxt "Loop9Settings,MasterVolume"
+msgid "Master Volume"
+msgstr "Volume principal"
+
+#. Key:	AmbientVolume
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(197)
+#: Source/Loop9/UI/SettingsWidget.cpp(197)
+msgctxt "Loop9Settings,AmbientVolume"
+msgid "Ambient Volume"
+msgstr "Volume ambiant"
+
+#. Key:	MouseSensitivity
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(201)
+#: Source/Loop9/UI/SettingsWidget.cpp(201)
+msgctxt "Loop9Settings,MouseSensitivity"
+msgid "Mouse Sensitivity"
+msgstr "Sensibilite de la souris"
+
+#. Key:	InvertY
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(205)
+#: Source/Loop9/UI/SettingsWidget.cpp(205)
+msgctxt "Loop9Settings,InvertY"
+msgid "Invert Y Axis"
+msgstr "Inverser l'axe Y"
+
+#. Key:	Apply
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(208)
+#: Source/Loop9/UI/SettingsWidget.cpp(208)
+msgctxt "Loop9Settings,Apply"
+msgid "APPLY"
+msgstr "APPLIQUER"
+
+#. Key:	Back
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(209)
+#: Source/Loop9/UI/SettingsWidget.cpp(209)
+msgctxt "Loop9Settings,Back"
+msgid "BACK"
+msgstr "RETOUR"
+
+#. Key:	WindowModeWindowed
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(80)
+#: Source/Loop9/UI/SettingsWidget.cpp(80)
+msgctxt "Loop9Settings,WindowModeWindowed"
+msgid "Windowed"
+msgstr "Fenetre"
+
+#. Key:	WindowModeFullscreen
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(81)
+#: Source/Loop9/UI/SettingsWidget.cpp(81)
+msgctxt "Loop9Settings,WindowModeFullscreen"
+msgid "Fullscreen"
+msgstr "Plein ecran"
+
+#. Key:	WindowModeBorderless
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(82)
+#: Source/Loop9/UI/SettingsWidget.cpp(82)
+msgctxt "Loop9Settings,WindowModeBorderless"
+msgid "Borderless"
+msgstr "Sans bordure"
+
+#. Key:	QualityLow
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(97)
+#: Source/Loop9/UI/SettingsWidget.cpp(97)
+msgctxt "Loop9Settings,QualityLow"
+msgid "Low"
+msgstr "Faible"
+
+#. Key:	QualityMedium
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(98)
+#: Source/Loop9/UI/SettingsWidget.cpp(98)
+msgctxt "Loop9Settings,QualityMedium"
+msgid "Medium"
+msgstr "Moyen"
+
+#. Key:	QualityHigh
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(99)
+#: Source/Loop9/UI/SettingsWidget.cpp(99)
+msgctxt "Loop9Settings,QualityHigh"
+msgid "High"
+msgstr "Eleve"
+

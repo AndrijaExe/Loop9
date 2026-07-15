@@ -78,6 +78,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void QuitGame();
 
+	/** Live-apply ambient slider to the menu loop (Master still applies globally). */
+	void ApplyAmbientVolume(float AmbientVolume);
+
 private:
 	/** Player controller reference */
 	APlayerController* PlayerController;

@@ -9,6 +9,9 @@ ProjectID=AB1C13684F34781DE0B48EA4C51030BC
 ; Cultures included in packaged builds. Add a line per supported language.
 +CulturesToStage=en
 +CulturesToStage=sr
++CulturesToStage=de
++CulturesToStage=fr
++CulturesToStage=ru
 
 [Internationalization]
 ; Where the game looks for compiled .locres files at runtime.

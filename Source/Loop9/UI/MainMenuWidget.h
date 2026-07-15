@@ -17,6 +17,10 @@ class LOOP9_API UMainMenuWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	void ApplyLocalizedTexts();
+	void HandleCultureChanged();
 
 public:
 	/** Called when Play button is clicked */
@@ -40,6 +44,11 @@ public:
 	void OnBackFromSettings();
 
 private:
+	/** Not UPROPERTY — names match WBP_Button variables in the Blueprint. */
+	UWidget* Play = nullptr;
+	UWidget* Settings = nullptr;
+	UWidget* Quit = nullptr;
+
 	/** Settings widget instance */
 	UPROPERTY()
 	UUserWidget* SettingsWidgetInstance;
@@ -47,4 +56,6 @@ private:
 	/** Cached game mode reference */
 	UPROPERTY()
 	class AMainMenuGameMode* MainMenuGameMode;
+
+	FDelegateHandle CultureChangedHandle;
 };

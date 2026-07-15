@@ -6,6 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameHelpers.h"
 #include "Subsystems/LoopManagerSubsystem.h"
+#include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Camera/CameraActor.h"
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
@@ -83,10 +84,19 @@ void AMainMenuGameMode::BeginPlay()
 
 	if (MainMenuLoopSound)
 	{
+		float AmbientMul = 1.0f;
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (ULoop9GameSettingsSubsystem* GameSettings = GI->GetSubsystem<ULoop9GameSettingsSubsystem>())
+			{
+				AmbientMul = GameSettings->GetAmbientVolume();
+			}
+		}
+
 		MainMenuAudioComponent = UGameplayStatics::SpawnSound2D(
 			GetWorld(),
 			MainMenuLoopSound,
-			MainMenuLoopVolume,
+			MainMenuLoopVolume * AmbientMul,
 			1.0f,
 			0.0f,
 			nullptr,
@@ -203,5 +213,13 @@ void AMainMenuGameMode::QuitGame()
 	{
 		// Quit the game
 		UKismetSystemLibrary::QuitGame(GetWorld(), PlayerController, EQuitPreference::Quit, false);
+	}
+}
+
+void AMainMenuGameMode::ApplyAmbientVolume(float AmbientVolume)
+{
+	if (MainMenuAudioComponent)
+	{
+		MainMenuAudioComponent->SetVolumeMultiplier(MainMenuLoopVolume * FMath::Clamp(AmbientVolume, 0.0f, 1.0f));
 	}
 }

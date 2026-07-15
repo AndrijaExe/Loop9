@@ -7,6 +7,7 @@
 
 class UButton;
 class UTextBlock;
+class UWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTerminalContinueRequested);
 
@@ -65,8 +66,9 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	/** Raw UButton or WBP_Button instance named BT_Continue. */
 	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<UButton> BT_Continue;
+	TObjectPtr<UWidget> BT_Continue;
 
 	UFUNCTION()
 	void HandleContinueClicked();

@@ -20,6 +20,8 @@ class LOOP9_API ULoop9TelemetrySubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
 	/** Derives the telemetry endpoint from the chat endpoint and stores the fallback token. */
 	void ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken);
 

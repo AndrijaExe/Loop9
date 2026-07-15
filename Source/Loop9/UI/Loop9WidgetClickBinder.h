@@ -1,0 +1,21 @@
+#pragma once
+
+#include "CoreMinimal.h"
+
+class UWidget;
+
+/**
+ * Binds/unbinds click handlers for either a raw UButton or our WBP_Button
+ * (which exposes a BlueprintAssignable OnButtonClicked dispatcher).
+ */
+struct FLoop9WidgetClickBinder
+{
+	/** Bind Target::FunctionName to Widget's click. Returns true if bound. */
+	static bool BindClicked(UWidget* Widget, UObject* Target, FName FunctionName);
+
+	/** Remove Target::FunctionName from Widget's click dispatcher. */
+	static void UnbindClicked(UWidget* Widget, UObject* Target, FName FunctionName);
+
+	/** If Widget has a ButtonText FText property (WBP_Button), set it. */
+	static void SetButtonText(UWidget* Widget, const FText& InText);
+};

@@ -5,9 +5,29 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Misc/App.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
+
+void ULoop9TelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	// Prefer config early so ending telemetry works even if AI_Friend hasn't begun play yet.
+	FString ChatEndpoint;
+	FString Token;
+	if (GConfig)
+	{
+		GConfig->GetString(TEXT("/Script/Loop9.AI_Friend"), TEXT("APIEndpoint"), ChatEndpoint, GGameIni);
+		GConfig->GetString(TEXT("/Script/Loop9.AI_Friend"), TEXT("GameToken"), Token, GGameIni);
+	}
+
+	if (!ChatEndpoint.IsEmpty())
+	{
+		ConfigureFromChatEndpoint(ChatEndpoint, Token);
+	}
+}
 
 void ULoop9TelemetrySubsystem::ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken)
 {
@@ -22,7 +42,14 @@ void ULoop9TelemetrySubsystem::ConfigureFromChatEndpoint(const FString& ChatEndp
 	}
 
 	TelemetryEndpoint = Derived;
-	GameToken = InGameToken;
+	if (!InGameToken.IsEmpty())
+	{
+		GameToken = InGameToken;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Telemetry configured. Endpoint=%s | TokenSet=%s"),
+		TelemetryEndpoint.IsEmpty() ? TEXT("(empty)") : *TelemetryEndpoint,
+		GameToken.IsEmpty() ? TEXT("NO") : TEXT("YES"));
 }
 
 FString ULoop9TelemetrySubsystem::EndingTelemetryId(ELoopEndingType EndingType)
@@ -42,8 +69,14 @@ FString ULoop9TelemetrySubsystem::EndingTelemetryId(ELoopEndingType EndingType)
 void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32 TotalResets, int32 TotalAIInteractions)
 {
 	const FString EndingId = EndingTelemetryId(EndingType);
-	if (TelemetryEndpoint.IsEmpty() || EndingId.IsEmpty())
+	if (TelemetryEndpoint.IsEmpty())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: endpoint not configured"));
+		return;
+	}
+	if (EndingId.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: unknown ending type"));
 		return;
 	}
 
@@ -72,6 +105,7 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: no session/game token"));
 		return;
 	}
 
@@ -86,13 +120,15 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 	HttpRequest->SetContentAsString(Body);
 
+	UE_LOG(LogTemp, Log, TEXT("Telemetry POST %s ending=%s resets=%d ai_messages=%d"),
+		*TelemetryEndpoint, *EndingId, TotalResets, TotalAIInteractions);
+
 	HttpRequest->OnProcessRequestComplete().BindLambda(
 		[](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful)
 		{
-			// Fire-and-forget by design; log only for debugging.
-			UE_LOG(LogTemp, Verbose, TEXT("Run telemetry sent: %s (HTTP %d)"),
-				bWasSuccessful ? TEXT("ok") : TEXT("failed"),
-				Response.IsValid() ? Response->GetResponseCode() : 0);
+			const int32 Code = Response.IsValid() ? Response->GetResponseCode() : 0;
+			UE_LOG(LogTemp, Log, TEXT("Run telemetry result: %s (HTTP %d)"),
+				bWasSuccessful ? TEXT("ok") : TEXT("failed"), Code);
 		});
 
 	HttpRequest->ProcessRequest();

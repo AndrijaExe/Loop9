@@ -7,6 +7,7 @@
 
 class UButton;
 class UTextBlock;
+class UWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndingContinueRequested);
 
@@ -59,8 +60,9 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> TB_Stats;
 
+	/** Raw UButton or WBP_Button instance named BT_Continue. */
 	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<UButton> BT_Continue;
+	TObjectPtr<UWidget> BT_Continue;
 
 	UFUNCTION()
 	void HandleContinueClicked();

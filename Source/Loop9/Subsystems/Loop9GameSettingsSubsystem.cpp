@@ -1,33 +1,30 @@
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 
+#include "AudioDevice.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
+#include "MainMenuGameMode.h"
 #include "Misc/App.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
+
+namespace Loop9Audio
+{
+	static const TCHAR* DefaultAmbientSoundClassPath = TEXT("/Game/MyStuff/Sound/SC_Music.SC_Music");
+}
 
 void ULoop9GameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	// Sound mix that carries the per-class volume overrides.
 	VolumeSoundMix = NewObject<USoundMix>(this, TEXT("Loop9VolumeMix"));
 
-	if (MusicSoundClassPath.IsValid())
-	{
-		MusicSoundClass = Cast<USoundClass>(MusicSoundClassPath.TryLoad());
-	}
-
-	if (SFXSoundClassPath.IsValid())
-	{
-		SFXSoundClass = Cast<USoundClass>(SFXSoundClassPath.TryLoad());
-	}
-
+	ResolveAmbientSoundClass();
 	ApplyMasterVolume();
 	ApplyGamma();
+	ApplySoundClassVolumes(ResolveAudioWorld());
 
-	// Sound mix modifiers live per audio device / world, so re-apply them
-	// whenever a new game world comes up (level change, main menu -> game...).
 	PostWorldInitHandle = FWorldDelegates::OnPostWorldInitialization.AddUObject(
 		this, &ULoop9GameSettingsSubsystem::HandlePostWorldInit);
 }
@@ -38,12 +35,69 @@ void ULoop9GameSettingsSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
+void ULoop9GameSettingsSubsystem::ResolveAmbientSoundClass()
+{
+	// AmbientSoundClassPath lives on a Config=GameUserSettings class, so the path
+	// in DefaultGame.ini is NOT auto-loaded. Read GGameIni explicitly, then fall back.
+	if (!AmbientSoundClassPath.IsValid() && GConfig)
+	{
+		FString PathStr;
+		if (GConfig->GetString(
+				TEXT("/Script/Loop9.Loop9GameSettingsSubsystem"),
+				TEXT("AmbientSoundClassPath"),
+				PathStr,
+				GGameIni)
+			&& !PathStr.IsEmpty())
+		{
+			AmbientSoundClassPath = FSoftObjectPath(PathStr);
+		}
+	}
+
+	if (!AmbientSoundClassPath.IsValid())
+	{
+		AmbientSoundClassPath = FSoftObjectPath(Loop9Audio::DefaultAmbientSoundClassPath);
+	}
+
+	AmbientSoundClass = Cast<USoundClass>(AmbientSoundClassPath.TryLoad());
+	if (!AmbientSoundClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 settings: AmbientSoundClass failed to load from '%s'"),
+			*AmbientSoundClassPath.ToString());
+	}
+}
+
 void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorld::InitializationValues Values)
 {
 	if (World && World->IsGameWorld() && World->GetGameInstance() == GetGameInstance())
 	{
+		bVolumeMixPushed = false;
+		ApplyMasterVolume();
 		ApplySoundClassVolumes(World);
 	}
+}
+
+UWorld* ULoop9GameSettingsSubsystem::ResolveAudioWorld() const
+{
+	if (UWorld* World = GetWorld())
+	{
+		return World;
+	}
+
+	if (GEngine)
+	{
+		for (const FWorldContext& Context : GEngine->GetWorldContexts())
+		{
+			if (UWorld* World = Context.World())
+			{
+				if (World->IsGameWorld())
+				{
+					return World;
+				}
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 // --- Audio ---
@@ -55,54 +109,76 @@ void ULoop9GameSettingsSubsystem::SetMasterVolume(float Volume)
 	PersistSettings();
 }
 
-void ULoop9GameSettingsSubsystem::SetMusicVolume(float Volume)
+void ULoop9GameSettingsSubsystem::SetAmbientVolume(float Volume)
 {
-	MusicVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
-	ApplySoundClassVolumes(GetWorld());
-	PersistSettings();
-}
+	AmbientVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
+	ApplySoundClassVolumes(ResolveAudioWorld());
 
-void ULoop9GameSettingsSubsystem::SetSFXVolume(float Volume)
-{
-	SFXVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
-	ApplySoundClassVolumes(GetWorld());
+	if (UWorld* World = ResolveAudioWorld())
+	{
+		if (AMainMenuGameMode* MainMenu = Cast<AMainMenuGameMode>(World->GetAuthGameMode()))
+		{
+			MainMenu->ApplyAmbientVolume(AmbientVolume);
+		}
+	}
+
 	PersistSettings();
 }
 
 void ULoop9GameSettingsSubsystem::ApplyMasterVolume() const
 {
-	// Application-level multiplier: affects every sound without needing any
-	// sound class setup on the content side.
 	FApp::SetVolumeMultiplier(MasterVolume);
+
+	if (GEngine)
+	{
+		FAudioDeviceHandle AudioDevice = GEngine->GetMainAudioDevice();
+		if (AudioDevice.IsValid())
+		{
+			AudioDevice->SetTransientPrimaryVolume(MasterVolume);
+		}
+	}
 }
 
 void ULoop9GameSettingsSubsystem::ApplySoundClassVolumes(UWorld* World)
 {
+	if (!AmbientSoundClass)
+	{
+		ResolveAmbientSoundClass();
+	}
+
+	if (!AmbientSoundClass)
+	{
+		return;
+	}
+
+	// Direct SoundClass volume — reliably affects active loops that use this class.
+	AmbientSoundClass->Properties.Volume = AmbientVolume;
+
 	if (!World || !VolumeSoundMix)
 	{
 		return;
 	}
 
-	bool bAnyOverride = false;
-
-	if (MusicSoundClass)
-	{
-		UGameplayStatics::SetSoundMixClassOverride(World, VolumeSoundMix, MusicSoundClass,
-			MusicVolume, /*Pitch*/ 1.0f, /*FadeIn*/ 0.2f, /*bApplyToChildren*/ true);
-		bAnyOverride = true;
-	}
-
-	if (SFXSoundClass)
-	{
-		UGameplayStatics::SetSoundMixClassOverride(World, VolumeSoundMix, SFXSoundClass,
-			SFXVolume, /*Pitch*/ 1.0f, /*FadeIn*/ 0.2f, /*bApplyToChildren*/ true);
-		bAnyOverride = true;
-	}
-
-	if (bAnyOverride)
+	if (!bVolumeMixPushed)
 	{
 		UGameplayStatics::PushSoundMixModifier(World, VolumeSoundMix);
+		bVolumeMixPushed = true;
 	}
+
+	UGameplayStatics::SetSoundMixClassOverride(
+		World,
+		VolumeSoundMix,
+		AmbientSoundClass,
+		AmbientVolume,
+		/*Pitch*/ 1.0f,
+		/*FadeInTime*/ 0.05f,
+		/*bApplyToChildren*/ true);
+}
+
+void ULoop9GameSettingsSubsystem::SetPreferredGraphicsQuality(int32 QualityLevel)
+{
+	PreferredGraphicsQuality = FMath::Clamp(QualityLevel, 0, 3);
+	PersistSettings();
 }
 
 // --- Display ---
@@ -118,7 +194,6 @@ void ULoop9GameSettingsSubsystem::ApplyGamma() const
 {
 	if (GEngine)
 	{
-		// Same mechanism as the "gamma" console command.
 		GEngine->DisplayGamma = Gamma;
 	}
 }

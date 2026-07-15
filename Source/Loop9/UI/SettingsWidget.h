@@ -18,6 +18,7 @@ class LOOP9_API USettingsWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION()
 	void HandleApplyButtonClicked();
@@ -35,16 +36,25 @@ protected:
 	void HandleMasterVolumeChanged(float Value);
 
 	UFUNCTION()
-	void HandleMusicVolumeChanged(float Value);
-
-	UFUNCTION()
-	void HandleSFXVolumeChanged(float Value);
+	void HandleAmbientVolumeChanged(float Value);
 
 	UFUNCTION()
 	void HandleMouseSensitivityChanged(float Value);
 
 	UFUNCTION()
 	void HandleInvertYChanged(bool bIsChecked);
+
+	UFUNCTION()
+	void HandleResolutionScaleChanged(float Value);
+
+	UFUNCTION()
+	void HandleVSyncChanged(bool bIsChecked);
+
+	/** True while we rebuild localized combo strings — ignores language combo callbacks. */
+	bool bIsRefreshingLocalizedUI = false;
+
+	FTimerHandle LanguageRefreshTimerHandle;
+
 
 public:
 	/** Called when Back button is clicked */
@@ -54,6 +64,13 @@ public:
 	/** Called when Apply button is clicked */
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 	void OnApplyClicked();
+
+	/** Menu that opened this settings screen (MainMenu or PauseMenu). */
+	UFUNCTION(BlueprintCallable, Category = "Settings")
+	void SetReturnTarget(UUserWidget* InReturnTarget);
+
+	/** Removes every USettingsWidget currently on the viewport (orphans included). */
+	static void RemoveAllFromViewport(UWorld* World);
 
 	// --- GRAPHICS SETTINGS ---
 	
@@ -77,9 +94,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings|Graphics")
 	void SetGraphicsQuality(int32 QualityLevel);
 
-	/** Set resolution scale percent (50-100) */
+	/** Set resolution scale (0..1 normalized across engine min/max). */
 	UFUNCTION(BlueprintCallable, Category = "Settings|Graphics")
-	void SetResolutionScalePercent(float ScalePercent);
+	void SetResolutionScalePercent(float ScaleNormalized);
 
 	/** Set FPS limit (0 = uncapped) */
 	UFUNCTION(BlueprintCallable, Category = "Settings|Graphics")
@@ -101,7 +118,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Settings|Graphics")
 	int32 GetCurrentGraphicsQuality() const;
 
-	/** Read current resolution scale percent */
+	/** Read current resolution scale (0..1 normalized). */
 	UFUNCTION(BlueprintPure, Category = "Settings|Graphics")
 	float GetCurrentResolutionScalePercent() const;
 
@@ -115,13 +132,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
 	void SetMasterVolume(float Volume);
 
-	/** Set music volume */
+	/** Set ambient volume */
 	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
-	void SetMusicVolume(float Volume);
-
-	/** Set SFX volume */
-	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
-	void SetSFXVolume(float Volume);
+	void SetAmbientVolume(float Volume);
 
 	// --- DISPLAY SETTINGS ---
 
@@ -164,59 +177,79 @@ public:
 	void LoadSettings();
 
 private:
-	/** Parent menu widget reference */
+	/** Menu that should be restored when Back is pressed. */
 	UPROPERTY()
-	class UMainMenuWidget* ParentMenuWidget;
+	TWeakObjectPtr<UUserWidget> ReturnTarget;
+
+	// Standardized row components (WBP_ComboRow / WBP_SliderRow / WBP_CheckRow
+	// instances in the designer, named exactly like these properties).
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UComboBoxString* ComboBoxString_WindowMode;
+	class ULoop9ComboRow* ComboBoxString_WindowMode;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UComboBoxString* ComboBoxString_Resolution;
+	class ULoop9ComboRow* ComboBoxString_Resolution;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UComboBoxString* ComboBoxString_Quality;
+	class ULoop9ComboRow* ComboBoxString_Quality;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UCheckBox* CheckBox_VSync;
+	class ULoop9CheckRow* CheckBox_VSync;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_ResolutionScale;
+	class ULoop9SliderRow* Slider_ResolutionScale;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UComboBoxString* ComboBoxString_FPSLimit;
+	class ULoop9ComboRow* ComboBoxString_FPSLimit;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UComboBoxString* ComboBoxString_Language;
+	class ULoop9ComboRow* ComboBoxString_Language;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_Gamma;
+	class ULoop9SliderRow* Slider_Gamma;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_MasterVolume;
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class ULoop9SliderRow* Slider_MasterVolume;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_MusicVolume;
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class ULoop9SliderRow* Slider_AmbientVolume;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_SFXVolume;
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class ULoop9SliderRow* Slider_MouseSensitivity;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class USlider* Slider_MouseSensitivity;
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class ULoop9CheckRow* CheckBox_InvertY;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	class UCheckBox* CheckBox_InvertY;
+	/** Header title text (designer name TextBlock_0). */
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class UTextBlock* TextBlock_0;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	/** Preferred footer buttons (WBP_Button). */
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class UWidget* Btn_Apply;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class UWidget* Btn_Back;
+
+	/** Legacy raw buttons (optional). Prefer Btn_Apply / Btn_Back (WBP_Button). */
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	class UButton* Button_Apply;
 
-  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	class UButton* Button_Back;
 
 	void PopulateGraphicsOptions();
 	void PopulateLanguageOptions();
 	void BindValueWidgets();
 	void SyncWidgetsFromCurrentSettings();
+	/** Re-applies labels and rebuilds localized combo option strings (by index). */
+	void RefreshLocalizedUI();
+	void ApplyLocalizedLabels();
+	/** Rebuilds only combo FString options after the language dropdown has closed. */
+	UFUNCTION()
+	void RefreshLocalizedComboOptions();
+	/** Reads current widget values and pushes them into GameUserSettings / game settings. */
+	void ApplyWidgetsToSettings();
 	class ULoop9GameSettingsSubsystem* GetGameSettings() const;
 
 	/** UI slider range for gamma; slider value 0-1 maps to this range. */

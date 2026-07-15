@@ -7,23 +7,29 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetInternationalizationLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Components/ComboBoxString.h"
-#include "Components/CheckBox.h"
-#include "Components/Slider.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "Components/Widget.h"
+#include "Engine/World.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Loop9SettingRowWidgets.h"
+#include "Loop9WidgetClickBinder.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "TimerManager.h"
 
 // Index-aligned with the options added in PopulateLanguageOptions().
-const TArray<FString> USettingsWidget::SupportedCultures = { TEXT("en"), TEXT("sr") };
+const TArray<FString> USettingsWidget::SupportedCultures = {
+	TEXT("en"), TEXT("sr"), TEXT("de"), TEXT("fr"), TEXT("ru")
+};
 
 void USettingsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	LoadSettings();
-   PopulateGraphicsOptions();
 	PopulateLanguageOptions();
 	BindValueWidgets();
+	RefreshLocalizedUI();
 	SyncWidgetsFromCurrentSettings();
 
 	if (Button_Apply)
@@ -37,6 +43,24 @@ void USettingsWidget::NativeConstruct()
 		Button_Back->OnClicked.RemoveDynamic(this, &USettingsWidget::HandleBackButtonClicked);
 		Button_Back->OnClicked.AddDynamic(this, &USettingsWidget::HandleBackButtonClicked);
 	}
+
+	// Prefer WBP_Button footer bindings from C++ so Back always closes cleanly
+	// even if the Blueprint graph is incomplete.
+	FLoop9WidgetClickBinder::BindClicked(Btn_Apply, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleApplyButtonClicked));
+	FLoop9WidgetClickBinder::BindClicked(Btn_Back, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleBackButtonClicked));
+}
+
+void USettingsWidget::NativeDestruct()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
+	}
+
+	FLoop9WidgetClickBinder::UnbindClicked(Btn_Apply, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleApplyButtonClicked));
+	FLoop9WidgetClickBinder::UnbindClicked(Btn_Back, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleBackButtonClicked));
+
+	Super::NativeDestruct();
 }
 
 void USettingsWidget::HandleApplyButtonClicked()
@@ -102,6 +126,9 @@ void USettingsWidget::PopulateLanguageOptions()
 	// Language names are shown in their own language on purpose (standard practice).
 	ComboBoxString_Language->AddOption(TEXT("English"));
 	ComboBoxString_Language->AddOption(TEXT("Srpski"));
+	ComboBoxString_Language->AddOption(TEXT("Deutsch"));
+	ComboBoxString_Language->AddOption(TEXT("Français"));
+	ComboBoxString_Language->AddOption(TEXT("Русский"));
 
 	ComboBoxString_Language->OnSelectionChanged.Clear();
 	ComboBoxString_Language->OnSelectionChanged.AddDynamic(this, &USettingsWidget::HandleLanguageSelectionChanged);
@@ -109,7 +136,7 @@ void USettingsWidget::PopulateLanguageOptions()
 
 void USettingsWidget::HandleLanguageSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-	if (SelectionType == ESelectInfo::Direct || !ComboBoxString_Language)
+	if (bIsRefreshingLocalizedUI || SelectionType == ESelectInfo::Direct || !ComboBoxString_Language)
 	{
 		return;
 	}
@@ -121,27 +148,172 @@ void USettingsWidget::HandleLanguageSelectionChanged(FString SelectedItem, ESele
 	}
 }
 
+void USettingsWidget::ApplyLocalizedLabels()
+{
+	if (TextBlock_0)
+	{
+		TextBlock_0->SetText(NSLOCTEXT("Loop9Settings", "Title", "SETTINGS"));
+	}
+
+	if (ComboBoxString_WindowMode)
+	{
+		ComboBoxString_WindowMode->SetLabel(NSLOCTEXT("Loop9Settings", "WindowMode", "Window Mode"));
+	}
+	if (ComboBoxString_Resolution)
+	{
+		ComboBoxString_Resolution->SetLabel(NSLOCTEXT("Loop9Settings", "Resolution", "Resolution"));
+	}
+	if (ComboBoxString_Quality)
+	{
+		ComboBoxString_Quality->SetLabel(NSLOCTEXT("Loop9Settings", "GraphicsQuality", "Graphics Quality"));
+	}
+	if (Slider_ResolutionScale)
+	{
+		Slider_ResolutionScale->SetLabel(NSLOCTEXT("Loop9Settings", "ResolutionScale", "Resolution Scale"));
+	}
+	if (ComboBoxString_FPSLimit)
+	{
+		ComboBoxString_FPSLimit->SetLabel(NSLOCTEXT("Loop9Settings", "FPSLimit", "FPS Limit"));
+	}
+	if (CheckBox_VSync)
+	{
+		CheckBox_VSync->SetLabel(NSLOCTEXT("Loop9Settings", "VSync", "VSync"));
+	}
+	if (Slider_Gamma)
+	{
+		Slider_Gamma->SetLabel(NSLOCTEXT("Loop9Settings", "Brightness", "Brightness (Gamma)"));
+	}
+	if (ComboBoxString_Language)
+	{
+		ComboBoxString_Language->SetLabel(NSLOCTEXT("Loop9Settings", "Language", "Language"));
+	}
+	if (Slider_MasterVolume)
+	{
+		Slider_MasterVolume->SetLabel(NSLOCTEXT("Loop9Settings", "MasterVolume", "Master Volume"));
+	}
+	if (Slider_AmbientVolume)
+	{
+		Slider_AmbientVolume->SetLabel(NSLOCTEXT("Loop9Settings", "AmbientVolume", "Ambient Volume"));
+	}
+	if (Slider_MouseSensitivity)
+	{
+		Slider_MouseSensitivity->SetLabel(NSLOCTEXT("Loop9Settings", "MouseSensitivity", "Mouse Sensitivity"));
+	}
+	if (CheckBox_InvertY)
+	{
+		CheckBox_InvertY->SetLabel(NSLOCTEXT("Loop9Settings", "InvertY", "Invert Y Axis"));
+	}
+
+	FLoop9WidgetClickBinder::SetButtonText(Btn_Apply, NSLOCTEXT("Loop9Settings", "Apply", "APPLY"));
+	FLoop9WidgetClickBinder::SetButtonText(Btn_Back, NSLOCTEXT("Loop9Settings", "Back", "BACK"));
+}
+
+void USettingsWidget::RefreshLocalizedUI()
+{
+	ApplyLocalizedLabels();
+	RefreshLocalizedComboOptions();
+}
+
+void USettingsWidget::RefreshLocalizedComboOptions()
+{
+	const TGuardValue<bool> RefreshGuard(bIsRefreshingLocalizedUI, true);
+
+	// Dropdown from the language combo must already be closed (we defer this
+	// call). Sweep any leftover popup layers, then rebuild option strings.
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().DismissAllMenus();
+		FSlateApplication::Get().ClearKeyboardFocus(EFocusCause::SetDirectly);
+	}
+
+	const int32 WindowModeIdx = ComboBoxString_WindowMode ? ComboBoxString_WindowMode->GetSelectedIndex() : INDEX_NONE;
+	const int32 ResolutionIdx = ComboBoxString_Resolution ? ComboBoxString_Resolution->GetSelectedIndex() : INDEX_NONE;
+	const int32 QualityIdx = ComboBoxString_Quality ? ComboBoxString_Quality->GetSelectedIndex() : INDEX_NONE;
+	const int32 FpsIdx = ComboBoxString_FPSLimit ? ComboBoxString_FPSLimit->GetSelectedIndex() : INDEX_NONE;
+	const int32 LanguageIdx = ComboBoxString_Language ? ComboBoxString_Language->GetSelectedIndex() : INDEX_NONE;
+
+	if (ComboBoxString_Language)
+	{
+		ComboBoxString_Language->OnSelectionChanged.Clear();
+	}
+
+	PopulateGraphicsOptions();
+
+	if (ComboBoxString_WindowMode && WindowModeIdx != INDEX_NONE)
+	{
+		ComboBoxString_WindowMode->SetSelectedIndex(WindowModeIdx);
+	}
+	if (ComboBoxString_Resolution && ResolutionIdx != INDEX_NONE)
+	{
+		ComboBoxString_Resolution->SetSelectedIndex(ResolutionIdx);
+	}
+	if (ComboBoxString_Quality && QualityIdx != INDEX_NONE)
+	{
+		ComboBoxString_Quality->SetSelectedIndex(QualityIdx);
+	}
+	if (ComboBoxString_FPSLimit && FpsIdx != INDEX_NONE)
+	{
+		ComboBoxString_FPSLimit->SetSelectedIndex(FpsIdx);
+	}
+	if (ComboBoxString_Language)
+	{
+		if (LanguageIdx != INDEX_NONE)
+		{
+			ComboBoxString_Language->SetSelectedIndex(LanguageIdx);
+		}
+		ComboBoxString_Language->OnSelectionChanged.AddDynamic(
+			this, &USettingsWidget::HandleLanguageSelectionChanged);
+	}
+}
+
 void USettingsWidget::BindValueWidgets()
 {
-	auto BindSlider = [this](USlider* Slider, void (USettingsWidget::*Handler)(float))
+	// WBP may still use the old Music row name until the designer renames it.
+	if (!Slider_AmbientVolume)
 	{
-		if (Slider)
-		{
-			Slider->OnValueChanged.Clear();
-			Slider->OnValueChanged.AddDynamic(this, Handler);
-		}
-	};
+		Slider_AmbientVolume = Cast<ULoop9SliderRow>(GetWidgetFromName(TEXT("Slider_MusicVolume")));
+	}
+	// SFX volume was removed; hide any leftover row in older WBP_Settings assets.
+	if (UWidget* LegacySfx = GetWidgetFromName(TEXT("Slider_SFXVolume")))
+	{
+		LegacySfx->SetVisibility(ESlateVisibility::Collapsed);
+	}
 
-	BindSlider(Slider_Gamma, &USettingsWidget::HandleGammaChanged);
-	BindSlider(Slider_MasterVolume, &USettingsWidget::HandleMasterVolumeChanged);
-	BindSlider(Slider_MusicVolume, &USettingsWidget::HandleMusicVolumeChanged);
-	BindSlider(Slider_SFXVolume, &USettingsWidget::HandleSFXVolumeChanged);
-	BindSlider(Slider_MouseSensitivity, &USettingsWidget::HandleMouseSensitivityChanged);
+	if (Slider_Gamma)
+	{
+		Slider_Gamma->OnValueChanged.Clear();
+		Slider_Gamma->OnValueChanged.AddDynamic(this, &USettingsWidget::HandleGammaChanged);
+	}
+	if (Slider_MasterVolume)
+	{
+		Slider_MasterVolume->OnValueChanged.Clear();
+		Slider_MasterVolume->OnValueChanged.AddDynamic(this, &USettingsWidget::HandleMasterVolumeChanged);
+	}
+	if (Slider_AmbientVolume)
+	{
+		Slider_AmbientVolume->OnValueChanged.Clear();
+		Slider_AmbientVolume->OnValueChanged.AddDynamic(this, &USettingsWidget::HandleAmbientVolumeChanged);
+	}
+	if (Slider_MouseSensitivity)
+	{
+		Slider_MouseSensitivity->OnValueChanged.Clear();
+		Slider_MouseSensitivity->OnValueChanged.AddDynamic(this, &USettingsWidget::HandleMouseSensitivityChanged);
+	}
+	if (Slider_ResolutionScale)
+	{
+		Slider_ResolutionScale->OnValueChanged.Clear();
+		Slider_ResolutionScale->OnValueChanged.AddDynamic(this, &USettingsWidget::HandleResolutionScaleChanged);
+	}
 
 	if (CheckBox_InvertY)
 	{
 		CheckBox_InvertY->OnCheckStateChanged.Clear();
 		CheckBox_InvertY->OnCheckStateChanged.AddDynamic(this, &USettingsWidget::HandleInvertYChanged);
+	}
+	if (CheckBox_VSync)
+	{
+		CheckBox_VSync->OnCheckStateChanged.Clear();
+		CheckBox_VSync->OnCheckStateChanged.AddDynamic(this, &USettingsWidget::HandleVSyncChanged);
 	}
 }
 
@@ -155,14 +327,9 @@ void USettingsWidget::HandleMasterVolumeChanged(float Value)
 	SetMasterVolume(Value);
 }
 
-void USettingsWidget::HandleMusicVolumeChanged(float Value)
+void USettingsWidget::HandleAmbientVolumeChanged(float Value)
 {
-	SetMusicVolume(Value);
-}
-
-void USettingsWidget::HandleSFXVolumeChanged(float Value)
-{
-	SetSFXVolume(Value);
+	SetAmbientVolume(Value);
 }
 
 void USettingsWidget::HandleMouseSensitivityChanged(float Value)
@@ -173,6 +340,21 @@ void USettingsWidget::HandleMouseSensitivityChanged(float Value)
 void USettingsWidget::HandleInvertYChanged(bool bIsChecked)
 {
 	SetInvertedYAxis(bIsChecked);
+}
+
+void USettingsWidget::HandleResolutionScaleChanged(float Value)
+{
+	// Slider is 0..1 normalized across the engine's min/max resolution scale range.
+	SetResolutionScalePercent(FMath::Clamp(Value, 0.0f, 1.0f));
+}
+
+void USettingsWidget::HandleVSyncChanged(bool bIsChecked)
+{
+	SetVSync(bIsChecked);
+	if (UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
+	{
+		Settings->ApplyNonResolutionSettings();
+	}
 }
 
 void USettingsWidget::SyncWidgetsFromCurrentSettings()
@@ -201,7 +383,13 @@ void USettingsWidget::SyncWidgetsFromCurrentSettings()
 
 	if (ComboBoxString_Quality)
 	{
-		ComboBoxString_Quality->SetSelectedIndex(FMath::Clamp(GetCurrentGraphicsQuality(), 0, 3));
+		int32 Quality = GetCurrentGraphicsQuality();
+		if (const ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+		{
+			// Prefer our persisted choice — engine overall level is often -1 (custom).
+			Quality = GameSettings->GetPreferredGraphicsQuality();
+		}
+		ComboBoxString_Quality->SetSelectedIndex(FMath::Clamp(Quality, 0, 3));
 	}
 
 	if (CheckBox_VSync)
@@ -211,7 +399,7 @@ void USettingsWidget::SyncWidgetsFromCurrentSettings()
 
 	if (Slider_ResolutionScale)
 	{
-		Slider_ResolutionScale->SetValue(GetCurrentResolutionScalePercent() / 100.0f);
+		Slider_ResolutionScale->SetValue(GetCurrentResolutionScalePercent());
 	}
 
 	if (const ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
@@ -224,13 +412,9 @@ void USettingsWidget::SyncWidgetsFromCurrentSettings()
 		{
 			Slider_MasterVolume->SetValue(GameSettings->GetMasterVolume());
 		}
-		if (Slider_MusicVolume)
+		if (Slider_AmbientVolume)
 		{
-			Slider_MusicVolume->SetValue(GameSettings->GetMusicVolume());
-		}
-		if (Slider_SFXVolume)
-		{
-			Slider_SFXVolume->SetValue(GameSettings->GetSFXVolume());
+			Slider_AmbientVolume->SetValue(GameSettings->GetAmbientVolume());
 		}
 		if (Slider_MouseSensitivity)
 		{
@@ -281,46 +465,162 @@ void USettingsWidget::SyncWidgetsFromCurrentSettings()
 	}
 }
 
+void USettingsWidget::SetReturnTarget(UUserWidget* InReturnTarget)
+{
+	ReturnTarget = InReturnTarget;
+}
+
+void USettingsWidget::RemoveAllFromViewport(UWorld* World)
+{
+	if (!World)
+	{
+		return;
+	}
+
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().DismissAllMenus();
+	}
+
+	TArray<UUserWidget*> Found;
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, Found, USettingsWidget::StaticClass(), /*TopLevelOnly*/ false);
+	for (UUserWidget* Widget : Found)
+	{
+		if (Widget && Widget->IsInViewport())
+		{
+			Widget->RemoveFromParent();
+		}
+	}
+}
+
 void USettingsWidget::OnBackClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Back button clicked"));
 
-	// Find ANY parent menu widget (MainMenu or PauseMenu)
-	TArray<UUserWidget*> AllWidgets;
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass());
-
-	for (UUserWidget* Widget : AllWidgets)
+	if (UWorld* World = GetWorld())
 	{
-		// Check if it's MainMenuWidget
-		if (UMainMenuWidget* MainMenu = Cast<UMainMenuWidget>(Widget))
+		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
+	}
+
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().DismissAllMenus();
+	}
+
+	if (UUserWidget* Target = ReturnTarget.Get())
+	{
+		if (UPauseMenuWidget* PauseMenu = Cast<UPauseMenuWidget>(Target))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Found MainMenuWidget - returning to it"));
+			PauseMenu->OnBackFromSettings();
+		}
+		else if (UMainMenuWidget* MainMenu = Cast<UMainMenuWidget>(Target))
+		{
 			MainMenu->OnBackFromSettings();
-			RemoveFromParent();
-			return;
+		}
+	}
+	else
+	{
+		// Fallback: prefer an active pause menu over main menu (pause can coexist
+		// with a leftover main-menu widget in edge cases).
+		TArray<UUserWidget*> AllWidgets;
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass());
+
+		UPauseMenuWidget* FoundPause = nullptr;
+		UMainMenuWidget* FoundMain = nullptr;
+		for (UUserWidget* Widget : AllWidgets)
+		{
+			if (!FoundPause)
+			{
+				FoundPause = Cast<UPauseMenuWidget>(Widget);
+			}
+			if (!FoundMain)
+			{
+				FoundMain = Cast<UMainMenuWidget>(Widget);
+			}
 		}
 
-		// Check if it's PauseMenuWidget
-		if (UPauseMenuWidget* PauseMenu = Cast<UPauseMenuWidget>(Widget))
+		if (FoundPause)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Found PauseMenuWidget - returning to it"));
-			PauseMenu->OnBackFromSettings();
-			RemoveFromParent();
-			return;
+			FoundPause->OnBackFromSettings();
+		}
+		else if (FoundMain)
+		{
+			FoundMain->OnBackFromSettings();
 		}
 	}
 
-	// Fallback: just close settings
-	UE_LOG(LogTemp, Warning, TEXT("No parent menu found - just closing settings"));
-	RemoveFromParent();
+	// Always sweep — covers orphans from double-open (C++ + BP both bound).
+	RemoveAllFromViewport(GetWorld());
 }
 
 void USettingsWidget::OnApplyClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Apply button clicked"));
-	
-	// Save settings
+	ApplyWidgetsToSettings();
 	SaveSettings();
+}
+
+void USettingsWidget::ApplyWidgetsToSettings()
+{
+	if (ComboBoxString_WindowMode)
+	{
+		SetWindowMode(ComboBoxString_WindowMode->GetSelectedIndex());
+	}
+
+	if (ComboBoxString_Resolution)
+	{
+		const FString Res = ComboBoxString_Resolution->GetSelectedOption();
+		FString WidthStr;
+		FString HeightStr;
+		if (Res.Split(TEXT("x"), &WidthStr, &HeightStr))
+		{
+			SetResolution(FCString::Atoi(*WidthStr), FCString::Atoi(*HeightStr));
+		}
+	}
+
+	if (ComboBoxString_Quality)
+	{
+		const int32 Quality = ComboBoxString_Quality->GetSelectedIndex();
+		SetGraphicsQuality(Quality);
+		if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+		{
+			GameSettings->SetPreferredGraphicsQuality(Quality);
+		}
+	}
+
+	if (CheckBox_VSync)
+	{
+		SetVSync(CheckBox_VSync->IsChecked());
+	}
+
+	if (Slider_ResolutionScale)
+	{
+		// Slider stores 0..1 normalized scale (engine min..max), not raw percent.
+		SetResolutionScalePercent(Slider_ResolutionScale->GetValue());
+	}
+
+	if (ComboBoxString_FPSLimit)
+	{
+		const FString Selected = ComboBoxString_FPSLimit->GetSelectedOption();
+		const FString Uncapped = NSLOCTEXT("Loop9Settings", "FPSUncapped", "Uncapped").ToString();
+		if (Selected.Equals(Uncapped, ESearchCase::IgnoreCase) || Selected.IsEmpty())
+		{
+			SetFrameRateLimit(0.0f);
+		}
+		else
+		{
+			SetFrameRateLimit(FCString::Atof(*Selected));
+		}
+	}
+
+	if (ComboBoxString_Language)
+	{
+		const int32 LangIndex = ComboBoxString_Language->GetSelectedIndex();
+		if (SupportedCultures.IsValidIndex(LangIndex))
+		{
+			SetLanguage(SupportedCultures[LangIndex]);
+		}
+	}
 }
 
 // --- GRAPHICS SETTINGS ---
@@ -371,6 +671,7 @@ void USettingsWidget::SetVSync(bool bEnabled)
 	if (Settings)
 	{
 		Settings->SetVSyncEnabled(bEnabled);
+		Settings->ApplyNonResolutionSettings();
 		UE_LOG(LogTemp, Log, TEXT("VSync: %s"), bEnabled ? TEXT("ON") : TEXT("OFF"));
 	}
 }
@@ -381,16 +682,25 @@ void USettingsWidget::SetGraphicsQuality(int32 QualityLevel)
 	if (Settings)
 	{
 		// QualityLevel: 0=Low, 1=Medium, 2=High, 3=Epic
-     Settings->SetOverallScalabilityLevel(FMath::Clamp(QualityLevel, 0, 3));
+		const int32 Clamped = FMath::Clamp(QualityLevel, 0, 3);
+		Settings->SetOverallScalabilityLevel(Clamped);
+		UE_LOG(LogTemp, Log, TEXT("Graphics quality set to: %d"), Clamped);
+	}
+
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetPreferredGraphicsQuality(QualityLevel);
 	}
 }
 
-void USettingsWidget::SetResolutionScalePercent(float ScalePercent)
+void USettingsWidget::SetResolutionScalePercent(float ScaleNormalized)
 {
 	UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings();
 	if (Settings)
 	{
-		Settings->SetResolutionScaleValueEx(FMath::Clamp(ScalePercent, 50.0f, 100.0f));
+		// Expects 0..1 across Scalability::MinResolutionScale..MaxResolutionScale.
+		Settings->SetResolutionScaleNormalized(FMath::Clamp(ScaleNormalized, 0.0f, 1.0f));
+		UE_LOG(LogTemp, Log, TEXT("Resolution scale normalized: %.2f"), ScaleNormalized);
 	}
 }
 
@@ -446,9 +756,20 @@ bool USettingsWidget::GetCurrentVSyncEnabled() const
 
 int32 USettingsWidget::GetCurrentGraphicsQuality() const
 {
+	if (const ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		return GameSettings->GetPreferredGraphicsQuality();
+	}
+
 	if (const UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
 	{
-		return Settings->GetOverallScalabilityLevel();
+		const int32 Overall = Settings->GetOverallScalabilityLevel();
+		if (Overall >= 0)
+		{
+			return Overall;
+		}
+		// -1 means mixed/custom scalability — fall back to view distance as a proxy.
+		return Settings->GetViewDistanceQuality();
 	}
 
 	return 2;
@@ -458,10 +779,11 @@ float USettingsWidget::GetCurrentResolutionScalePercent() const
 {
 	if (const UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
 	{
-		return Settings->GetResolutionScaleNormalized() * 100.0f;
+		// Normalized 0..1 — matches the slider and SetResolutionScaleNormalized.
+		return Settings->GetResolutionScaleNormalized();
 	}
 
-	return 100.0f;
+	return 1.0f;
 }
 
 float USettingsWidget::GetCurrentFrameRateLimit() const
@@ -494,19 +816,11 @@ void USettingsWidget::SetMasterVolume(float Volume)
 	}
 }
 
-void USettingsWidget::SetMusicVolume(float Volume)
+void USettingsWidget::SetAmbientVolume(float Volume)
 {
 	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
 	{
-		GameSettings->SetMusicVolume(Volume);
-	}
-}
-
-void USettingsWidget::SetSFXVolume(float Volume)
-{
-	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
-	{
-		GameSettings->SetSFXVolume(Volume);
+		GameSettings->SetAmbientVolume(Volume);
 	}
 }
 
@@ -552,10 +866,33 @@ void USettingsWidget::SetInvertedYAxis(bool bInverted)
 
 void USettingsWidget::SetLanguage(const FString& CultureCode)
 {
-	// bSaveToConfig persists the culture to GameUserSettings.ini,
-	// so the engine restores it automatically on next launch.
-	UKismetInternationalizationLibrary::SetCurrentCulture(CultureCode, /*SaveToConfig*/ true);
-	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Language set to '%s'"), *CultureCode);
+	if (bIsRefreshingLocalizedUI)
+	{
+		return;
+	}
+
+	const bool bOk = UKismetInternationalizationLibrary::SetCurrentCulture(CultureCode, /*SaveToConfig*/ true);
+	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Language set to '%s' (ok=%d)"), *CultureCode, bOk ? 1 : 0);
+
+	// Labels/buttons can update immediately (FText).
+	ApplyLocalizedLabels();
+
+	// Do NOT rebuild combo options in the same stack as OnSelectionChanged —
+	// the language dropdown is still open and mutating it orphans the popup.
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
+		World->GetTimerManager().SetTimer(
+			LanguageRefreshTimerHandle,
+			this,
+			&USettingsWidget::RefreshLocalizedComboOptions,
+			0.05f,
+			false);
+	}
+	else
+	{
+		RefreshLocalizedComboOptions();
+	}
 }
 
 FString USettingsWidget::GetCurrentLanguage() const

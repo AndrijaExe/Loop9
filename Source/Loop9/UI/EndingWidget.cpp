@@ -1,5 +1,6 @@
 #include "UI/EndingWidget.h"
 
+#include "UI/Loop9WidgetClickBinder.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -25,10 +26,8 @@ void UEndingWidget::NativeDestruct()
 		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UEndingWidget::HandleContinueClicked);
 	}
 
-	if (BT_Continue)
-	{
-		BT_Continue->OnClicked.RemoveDynamic(this, &UEndingWidget::HandleContinueClicked);
-	}
+	FLoop9WidgetClickBinder::UnbindClicked(
+		BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UEndingWidget, HandleContinueClicked));
 
 	Super::NativeDestruct();
 }
@@ -166,8 +165,11 @@ void UEndingWidget::BindContinueButton()
 {
 	if (BT_Continue)
 	{
-		BT_Continue->OnClicked.RemoveDynamic(this, &UEndingWidget::HandleContinueClicked);
-		BT_Continue->OnClicked.AddDynamic(this, &UEndingWidget::HandleContinueClicked);
+		FLoop9WidgetClickBinder::UnbindClicked(
+			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UEndingWidget, HandleContinueClicked));
+		FLoop9WidgetClickBinder::BindClicked(
+			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UEndingWidget, HandleContinueClicked));
+		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, ContinueButtonLabel);
 		BT_Continue->SetVisibility(ESlateVisibility::Visible);
 	}
 

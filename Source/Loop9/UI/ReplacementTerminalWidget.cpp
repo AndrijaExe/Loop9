@@ -1,4 +1,5 @@
 #include "UI/ReplacementTerminalWidget.h"
+#include "UI/Loop9WidgetClickBinder.h"
 #include "Components/Button.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
@@ -17,10 +18,8 @@ void UReplacementTerminalWidget::NativeConstruct()
 
 void UReplacementTerminalWidget::NativeDestruct()
 {
-	if (BT_Continue)
-	{
-		BT_Continue->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
-	}
+	FLoop9WidgetClickBinder::UnbindClicked(
+		BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
 
 	if (FallbackContinueButton)
 	{
@@ -210,8 +209,11 @@ void UReplacementTerminalWidget::BindContinueButton()
 {
 	if (BT_Continue)
 	{
-		BT_Continue->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
-		BT_Continue->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
+		FLoop9WidgetClickBinder::UnbindClicked(
+			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
+		FLoop9WidgetClickBinder::BindClicked(
+			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
+		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, ContinueButtonLabel);
 		BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
 	}
 

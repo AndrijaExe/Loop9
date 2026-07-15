@@ -16,10 +16,9 @@ class USoundClass;
  * Values persist in GameUserSettings.ini (Config properties + SaveConfig) and
  * are re-applied automatically on startup and on every world change.
  *
- * Master volume works out of the box (application-level multiplier). Music and
- * SFX volumes additionally need USoundClass assets assigned to the game's
- * sounds; point MusicSoundClassPath / SFXSoundClassPath at them in
- * DefaultGame.ini once those assets exist.
+ * Master volume uses the audio device primary volume. Ambient volume needs a
+ * USoundClass assigned to ambient loops; set AmbientSoundClassPath in
+ * DefaultGame.ini.
  */
 UCLASS(Config = GameUserSettings)
 class LOOP9_API ULoop9GameSettingsSubsystem : public UGameInstanceSubsystem
@@ -36,19 +35,13 @@ public:
 	void SetMasterVolume(float Volume);
 
 	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
-	void SetMusicVolume(float Volume);
-
-	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
-	void SetSFXVolume(float Volume);
+	void SetAmbientVolume(float Volume);
 
 	UFUNCTION(BlueprintPure, Category = "Settings|Audio")
 	float GetMasterVolume() const { return MasterVolume; }
 
 	UFUNCTION(BlueprintPure, Category = "Settings|Audio")
-	float GetMusicVolume() const { return MusicVolume; }
-
-	UFUNCTION(BlueprintPure, Category = "Settings|Audio")
-	float GetSFXVolume() const { return SFXVolume; }
+	float GetAmbientVolume() const { return AmbientVolume; }
 
 	// --- Display ---
 
@@ -73,10 +66,23 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Settings|Controls")
 	bool IsYAxisInverted() const { return bInvertYAxis; }
 
+	// --- Graphics preference (UI persistence) ---
+
+	/** Preferred overall quality 0=Low..3=Epic. Stored separately because
+	 *  UGameUserSettings::GetOverallScalabilityLevel() returns -1 when any
+	 *  individual scalability setting diverges, which resets the combo to Low. */
+	UFUNCTION(BlueprintCallable, Category = "Settings|Graphics")
+	void SetPreferredGraphicsQuality(int32 QualityLevel);
+
+	UFUNCTION(BlueprintPure, Category = "Settings|Graphics")
+	int32 GetPreferredGraphicsQuality() const { return PreferredGraphicsQuality; }
+
 private:
 	void ApplyMasterVolume() const;
 	void ApplyGamma() const;
 	void ApplySoundClassVolumes(UWorld* World);
+	void ResolveAmbientSoundClass();
+	UWorld* ResolveAudioWorld() const;
 	void HandlePostWorldInit(UWorld* World, const UWorld::InitializationValues Values);
 	void PersistSettings();
 
@@ -84,10 +90,7 @@ private:
 	float MasterVolume = 1.0f;
 
 	UPROPERTY(Config)
-	float MusicVolume = 1.0f;
-
-	UPROPERTY(Config)
-	float SFXVolume = 1.0f;
+	float AmbientVolume = 1.0f;
 
 	UPROPERTY(Config)
 	float Gamma = 2.2f;
@@ -98,22 +101,21 @@ private:
 	UPROPERTY(Config)
 	bool bInvertYAxis = false;
 
-	/** Optional: sound class used by music assets (set in DefaultGame.ini). */
 	UPROPERTY(Config)
-	FSoftObjectPath MusicSoundClassPath;
+	int32 PreferredGraphicsQuality = 2;
 
-	/** Optional: sound class used by SFX assets (set in DefaultGame.ini). */
+	/** Sound class used by ambient loops (set in DefaultGame.ini). */
 	UPROPERTY(Config)
-	FSoftObjectPath SFXSoundClassPath;
+	FSoftObjectPath AmbientSoundClassPath;
 
 	UPROPERTY(Transient)
 	TObjectPtr<USoundMix> VolumeSoundMix;
 
 	UPROPERTY(Transient)
-	TObjectPtr<USoundClass> MusicSoundClass;
+	TObjectPtr<USoundClass> AmbientSoundClass;
 
-	UPROPERTY(Transient)
-	TObjectPtr<USoundClass> SFXSoundClass;
+	/** True after PushSoundMixModifier for the current world/audio context. */
+	bool bVolumeMixPushed = false;
 
 	FDelegateHandle PostWorldInitHandle;
 };

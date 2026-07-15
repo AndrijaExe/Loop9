@@ -14,45 +14,38 @@ Legenda: `[ ]` nije urađeno · `[x]` urađeno · `[~]` delimično / u toku
   U toku na kućnoj mašini (debug logovi + `.ToString()` ispravka u
   `Loop9AchievementsSubsystem.cpp` čekaju push). **Prvo pušovati kućne izmene,
   pa ovde `git pull`.**
-- [ ] **Kompajlirati igru** posle merge-a svih grana (lokalizacione izmene iz ove grane
-  + kućne achievement izmene).
+- [x] **Kompajlirati igru** posle merge-a svih grana (lokalizacione izmene iz ove grane
+  + kućne achievement izmene). (15.07. — Loop9Editor Development OK nakon
+  `SettingsWidget` AddDynamic fix-a.)
 - [ ] **Pravi App ID** — zameniti `SteamDevAppId=480` (Spacewar) pravim App ID-jem u
   `Config/DefaultEngine.ini` (lokalni fajl, nije u repou — vidi `DefaultEngine.ini.example`).
 - [ ] Ako achievementi ne rade sa pravim App ID-jem a radili su na 480: proveriti da li
   `GetAuthTicketForWebApi` treba umesto `GetAuthSessionTicket` (napomena u STEAM_ACHIEVEMENTS.md).
 
-## 2. Lokalizacija (novo u ovoj grani)
+## 2. Lokalizacija
 
-Sav user-facing tekst u C++ je sada u `NSLOCTEXT`/`LOCTEXT` makroima, spreman za
-Localization Dashboard. Namespace-ovi: `Loop9Endings`, `Loop9Terminal`, `Loop9Loading`,
-`Loop9Interaction`, `Loop9Chat`, `Loop9Settings`. Nativni jezik je **engleski**.
+Sav user-facing tekst u C++ je u `NSLOCTEXT`/`LOCTEXT`. Namespace-ovi:
+`Loop9Endings`, `Loop9Terminal`, `Loop9Loading`, `Loop9Interaction`,
+`Loop9Chat`, `Loop9Settings`, `Loop9Menu`. Nativni jezik: **engleski**.
 
-**AŽURIRANO:** prevodi sada žive u repo-u kao PO fajlovi (kao web i18n).
-Srpski prevodi svih C++ stringova su **već upisani** u
-`Content/Localization/Game/sr/Game.po`, a pipeline config je u
-`Config/Localization/Game.ini`. Umesto ručnog rada u Localization Dashboard-u,
-dovoljna je jedna komanda (gather → import PO → compile locres → export PO) —
-tačna komanda i koraci su u `EDITOR_TODO.md`, sekcija 3.
+Kulture u buildu: **en, sr, de, fr, ru** (`CulturesToStage` + `.locres`).
+PO fajlovi: `Content/Localization/Game/<culture>/Game.po`.
+Gather pipeline: `Config/Localization/Game.ini` (komanda u `EDITOR_TODO.md` §3).
 
-In-game menjanje jezika: `SettingsWidget` sada ima `SetLanguage("en"/"sr")`,
-`GetCurrentLanguage()` i opcioni `ComboBoxString_Language` widget (u Blueprint settings
-ekranu dodati ComboBoxString sa **tačno tim imenom** — opcije i ponašanje se pune iz C++).
-Izbor se pamti u `GameUserSettings.ini` i engine ga sam učita pri sledećem pokretanju.
+In-game jezik: `SettingsWidget` — `ComboBoxString_Language` (C++ puni opcije),
+`SetLanguage` / `GetCurrentCulture` (persist u `GameUserSettings.ini`).
+Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
 
-Preostalo za lokalizaciju:
-
-- [x] `AI_Friend`: `InitialRuleMessage`, `InitialRingNotificationText`, "Answer" prompt i
-  "Low signal" poruka — lokalizovano. **Pažnja: `AI_Friend.h/.cpp` su menjani i ovde i na
-  kućnoj mašini — očekuj konflikt pri merge-u (rešiti prihvatanjem obe strane).**
-- [x] AI odgovori prate jezik iz Settings-a: `PreferredLanguage` u ini-ju je sada opcioni
-  override (prazan = koristi UI kulturu). Napomena: stari `DefaultGame.ini` sa
-  `PreferredLanguage=sr` i dalje forsira srpski — obrisati liniju ako ne treba.
-- [ ] Tekstovi u Blueprint widgetima (dugmad main/pause menija itd.) — hvata ih
-  `GatherTextFromAssets` korak pipeline-a; prevodi se dopisuju u isti `sr/Game.po`.
-- [ ] `LoopNumberSign` ("LOOP 9" 3D natpis u svetu) — namerno ostaje na engleskom kao
-  diegetski element; promeniti samo ako želiš.
+- [x] `AI_Friend` chat / ring / Answer / low-signal — lokalizovano
+- [x] AI jezik prati UI kulturu (`PreferredLanguage` opcioni override)
+- [x] Settings + main/pause dugmad lokalizovani iz C++ (`Loop9Settings` / `Loop9Menu`)
+- [x] GatherText + `.locres` za en/sr/de/fr/ru
+- [x] Smoke: promena jezika odmah + posle restarta (settings, chat, endingi, loading)
+- [ ] Opciono: dopuniti prazne asset `msgstr` u PO (ako neki BP tekst još curi)
+- [ ] `LoopNumberSign` ("LOOP 9") — namerno diegetski engleski
 
 ## 3. Steamworks backend (partner.steamgames.com)
+
 
 - [~] **Steam Direct fee plaćen 15.07.2026.** Banka (NLB Komercijalna) i W-8BEN
   uneti; **identity verification u toku (2–7 radnih dana)**. Tek posle toga
@@ -100,17 +93,14 @@ Preostalo za lokalizaciju:
 - [ ] **Cold start test**: prvi chat posle dužeg mirovanja backenda — timeout je podignut
   na 35s da preživi Render cold start; poruka mora stići, ne tišina.
 - [ ] Alt-Tab / Steam Overlay (Shift+Tab) ne ruši igru.
-- [ ] Promena jezika u settings-u menja UI odmah i posle restarta.
-- [ ] Audio/gamma/sensitivity podešavanja rade i pamte se (novi
-  `Loop9GameSettingsSubsystem`). Za Music/SFX slajdere napraviti SoundClass
-  assete i upisati putanje u `DefaultGame.ini` (sekcija
-  `[/Script/Loop9.Loop9GameSettingsSubsystem]`, `MusicSoundClassPath` /
-  `SFXSoundClassPath`); Master radi odmah bez toga. U settings Blueprint dodati
-  widgete: `Slider_Gamma`, `Slider_MasterVolume`, `Slider_MusicVolume`,
-  `Slider_SFXVolume`, `Slider_MouseSensitivity`, `CheckBox_InvertY`.
-- [ ] Telemetrija: run ping stiže u backend log ("Run telemetry.") na kraju runa.
+- [x] Promena jezika u settings-u menja UI odmah i posle restarta;
+  Back/Resume ne ostavljaju settings overlay u pozadini.
+- [x] Audio/gamma/sensitivity podešavanja rade i pamte se
+  (`Loop9GameSettingsSubsystem`: Master + Ambient preko `SC_Music`).
+- [x] Telemetrija: run ping stiže (`Telemetry POST` + HTTP 204 u client logu).
 - [ ] Verifikovati da build ne sadrži `DefaultGame.ini` sa pravim tokenima u repou
   (gitignore već pokriva, ali proveriti pakovani build).
+- [x] **Scale + Phantom** u nivou (smoke OK); Clock odložen.
 
 ## 6. Steam Deck
 
@@ -135,4 +125,4 @@ Preostalo za lokalizaciju:
   ACH_ALL_ENDINGS i ACH_SPOT_ALL. Čisto vizuelno; izvor istine ostaje `Game.ini`.
   (Puni Steam stats sa server-side čuvanjem i dalje backlog — zahteva definisanje
   statova u Steamworksu i migraciju.)
-- [ ] Lokalizovati preostale stringove iz §2 (Blueprint tekstovi kroz dashboard).
+- [x] Lokalizacija — C++ + settings/meni + smoke OK; opciono asset PO stringovi.

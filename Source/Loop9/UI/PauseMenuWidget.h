@@ -17,6 +17,10 @@ class LOOP9_API UPauseMenuWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	void ApplyLocalizedTexts();
+	void HandleCultureChanged();
 
 public:
 	/** Called when Resume button is clicked */
@@ -44,7 +48,18 @@ public:
 	void OnBackFromSettings();
 
 private:
+	/** Not UPROPERTY — names match WBP_Button variables in the Blueprint. */
+	UWidget* ResumeButton = nullptr;
+	UWidget* SettingsButton = nullptr;
+	UWidget* MainMenuButton = nullptr;
+	UWidget* QuitButton = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Pause Menu|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<class UTextBlock> TextBlock_0;
+
 	/** Settings widget instance */
 	UPROPERTY()
 	UUserWidget* SettingsWidgetInstance;
+
+	FDelegateHandle CultureChangedHandle;
 };
