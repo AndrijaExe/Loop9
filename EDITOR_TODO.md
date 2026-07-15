@@ -102,7 +102,49 @@ AnomalyManager, imaju `AnomalyProbability`):
 - [ ] Posle prvog odigranog runa proveri u Render logs da stiže
   `Run telemetry.` zapis (ending, resets, aiMessages).
 
-## 7. Smoke test posle svega
+## 7. Steam store page — slike i screenshotovi
+
+AI-generisani izvorni materijali su u **`Marketing/Steam/`** (commit u repo-u):
+`main_capsule_source.png`, `library_capsule_source.png`, `hero_banner_source.png`,
+`logo_source.png`. Treba ih iseći/skalirati na Steam dimenzije (GIMP/Photopea):
+
+- [ ] **Header capsule 460×215** — crop iz `main_capsule_source.png`
+- [ ] **Small capsule 231×87** — isti izvor, drži "LOOP 9" čitljivo i malo
+- [ ] **Main capsule 616×353** — isti izvor
+- [ ] **Vertical capsule 374×448** — crop iz `library_capsule_source.png`
+- [ ] **Library capsule 600×900** — `library_capsule_source.png`
+- [ ] **Library hero 3840×1240** — široki crop centra `hero_banner_source.png`
+- [ ] **Library logo 1280×720 PNG sa providnošću** — iz `logo_source.png`
+  izbaci crnu pozadinu (Select by Color → Delete)
+- [ ] **Client icon 32×32 (.ico)** i **community icon 184×184** — samo "9"
+  iz logoa
+
+### Screenshotovi iz igre (min. 5, preporuka 8–10, 1920×1080, bez UI debug-a)
+
+Predlog kadrova — redosled je i redosled utiska na stranici:
+
+- [ ] **Hodnik sa dva lifta** — jedan osvetljen iznutra, drugi mračan; ovo je
+  core mehanika i mora biti prvi screenshot.
+- [ ] **Telefon/interkom sa otvorenim chatom** — vidljiva Dragojlova poruka
+  (izaberi neku dramatičnu, npr. upozorenje na anomaliju). Ovo pokazuje
+  AI featuru — glavni selling point.
+- [ ] **Kancelarija u "čistom" stanju** — dnevna rutina, CRT monitori, papiri;
+  baseline koji igrač uči.
+- [ ] **Ista kancelarija sa vidljivom anomalijom** — npr. pomeren/uvećan
+  objekat ili flicker svetla; idealno uporedivo sa prethodnim kadrom.
+- [ ] **Pursuer momenat** — mračan hodnik sa siluetom u daljini (ne preblizu,
+  ostavi misteriju).
+- [ ] **Text anomalija** — natpis/tekst koji ne treba da postoji.
+- [ ] **Chat sa phantom porukom** — "Ti:" poruka koju igrač nije poslao
+  (dobar hook za opis ispod screenshota).
+- [ ] **Loading ekran ili ending kartica** — ali NE spojlovati endinge;
+  najbezbednije neka bude loading sa tipom.
+- [ ] Snimaj u **shipping/high settings**, gamma na default (2.2), engleski
+  UI (store je globalan), `t.MaxFPS 0`, sakrij FPS countere.
+- [ ] Za trailer (kasnije): 30–60s screen-capture istih scena redom
+  telefon → anomalija → lift odluka → rez na crno sa logom.
+
+## 8. Smoke test posle svega
 
 - [ ] Settings: gamma/volume/sensitivity/invert menjaju ponašanje i prežive
   restart igre.
