@@ -10,6 +10,12 @@ editoru (ili Steamworks-u) da bi proradilo. Kad nešto završiš, štrikliraj.
 Čeka se: **Steam App ID** (identity verification). Do tada nema obaveznog
 editor/C++ posla za release blokere.
 
+**Novo (15.07. popodne, traži recompile):** fix za combo vrednosti koje se ne
+osveže odmah posle promene jezika iz pause menija — refresh je išao preko world
+timera koji ne otkucava dok je igra pauzirana; sada ide preko `FTSTicker`.
+Smoke: pauza → settings → promeni jezik → combo vrednosti (Windowed/Quality/
+Uncapped) se odmah prevedu; Back/Resume ne ostavljaju overlay.
+
 ---
 
 ## 0–2. Setup / Settings / Audio — GOTOVO

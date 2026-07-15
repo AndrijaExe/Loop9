@@ -15,7 +15,6 @@
 #include "Loop9SettingRowWidgets.h"
 #include "Loop9WidgetClickBinder.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
-#include "TimerManager.h"
 
 // Index-aligned with the options added in PopulateLanguageOptions().
 const TArray<FString> USettingsWidget::SupportedCultures = {
@@ -52,10 +51,8 @@ void USettingsWidget::NativeConstruct()
 
 void USettingsWidget::NativeDestruct()
 {
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
-	}
+	FTSTicker::GetCoreTicker().RemoveTicker(LanguageRefreshTickerHandle);
+	LanguageRefreshTickerHandle.Reset();
 
 	FLoop9WidgetClickBinder::UnbindClicked(Btn_Apply, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleApplyButtonClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Btn_Back, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleBackButtonClicked));
@@ -497,10 +494,8 @@ void USettingsWidget::OnBackClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Back button clicked"));
 
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
-	}
+	FTSTicker::GetCoreTicker().RemoveTicker(LanguageRefreshTickerHandle);
+	LanguageRefreshTickerHandle.Reset();
 
 	if (FSlateApplication::IsInitialized())
 	{
@@ -879,20 +874,17 @@ void USettingsWidget::SetLanguage(const FString& CultureCode)
 
 	// Do NOT rebuild combo options in the same stack as OnSelectionChanged —
 	// the language dropdown is still open and mutating it orphans the popup.
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(LanguageRefreshTimerHandle);
-		World->GetTimerManager().SetTimer(
-			LanguageRefreshTimerHandle,
-			this,
-			&USettingsWidget::RefreshLocalizedComboOptions,
-			0.05f,
-			false);
-	}
-	else
-	{
-		RefreshLocalizedComboOptions();
-	}
+	// Deferred via the core ticker (NOT a world timer): world timers don't
+	// tick while the game is paused, and settings opened from the pause menu
+	// run with the game paused — a world timer would never fire there.
+	FTSTicker::GetCoreTicker().RemoveTicker(LanguageRefreshTickerHandle);
+	LanguageRefreshTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateWeakLambda(this, [this](float)
+		{
+			LanguageRefreshTickerHandle.Reset();
+			RefreshLocalizedComboOptions();
+			return false; // one-shot
+		}));
 }
 
 FString USettingsWidget::GetCurrentLanguage() const

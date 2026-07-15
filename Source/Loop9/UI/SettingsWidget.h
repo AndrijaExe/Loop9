@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Containers/Ticker.h"
 #include "SettingsWidget.generated.h"
 
 /**
@@ -53,7 +54,10 @@ protected:
 	/** True while we rebuild localized combo strings — ignores language combo callbacks. */
 	bool bIsRefreshingLocalizedUI = false;
 
-	FTimerHandle LanguageRefreshTimerHandle;
+	/** Core-ticker handle for the deferred combo refresh. World timers don't
+	 *  tick while the game is paused (settings opened from the pause menu),
+	 *  so the refresh must go through FTSTicker instead. */
+	FTSTicker::FDelegateHandle LanguageRefreshTickerHandle;
 
 
 public:
