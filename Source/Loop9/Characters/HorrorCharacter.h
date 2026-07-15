@@ -88,6 +88,9 @@ protected:
 	/** Set up input action bindings */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
+	/** Adds the sprint gamepad key on top of the base mappings. */
+	virtual void AddGamepadFallbackMappings(class UInputMappingContext* Context) override;
+
 protected:
 
 	/** Starts sprinting behavior */

@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
+#include "Engine/GameViewportClient.h"
+#include "Steam/Loop9SteamUtils.h"
 
 void UAI_ChatWidget::NativeConstruct()
 {
@@ -143,11 +145,12 @@ void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, 
 			FLinearColor(0.5f, 0.8f, 1.0f);
 		MessageText->SetColorAndOpacity(FSlateColor(TextColor));
 
-       FString PrefixedMessage = bIsFromUser ?
-			FString::Printf(TEXT("You: %s"), *Message) :
-			FString::Printf(TEXT("Dragojlo: %s"), *Message);
+		// "Dragojlo" is a character name and stays untranslated by design.
+		const FString PrefixOnly = bIsFromUser
+			? NSLOCTEXT("Loop9Chat", "PlayerPrefix", "You: ").ToString()
+			: NSLOCTEXT("Loop9Chat", "FriendPrefix", "Dragojlo: ").ToString();
 
-		const FString PrefixOnly = bIsFromUser ? TEXT("You: ") : TEXT("Dragojlo: ");
+		const FString PrefixedMessage = PrefixOnly + Message;
 		if (bIsFromUser || !bUseTypewriterForAI)
 		{
 			MessageText->SetText(FText::FromString(PrefixedMessage));
@@ -326,6 +329,8 @@ void UAI_ChatWidget::RequestMessageInputFocus(bool bDelayOneTick)
 		{
 			FSlateApplication::Get().SetKeyboardFocus(Cached, EFocusCause::SetDirectly);
 		}
+
+		ShowOnScreenKeyboardIfNeeded();
 	};
 
 	if (!bDelayOneTick)
@@ -341,6 +346,36 @@ void UAI_ChatWidget::RequestMessageInputFocus(bool bDelayOneTick)
 		FocusDelegate.BindLambda(FocusNow);
 		World->GetTimerManager().SetTimer(MessageInputFocusTimerHandle, FocusDelegate, 0.01f, false);
 	}
+}
+
+void UAI_ChatWidget::ShowOnScreenKeyboardIfNeeded()
+{
+	if (!MessageInputBox || !FLoop9SteamUtils::IsRunningOnSteamDeck())
+	{
+		return;
+	}
+
+	// Tell Steam where the input field is so the floating keyboard avoids it.
+	// Geometry can still be zero right after construction; fall back to the
+	// bottom third of the viewport in that case.
+	FVector2D FieldPos = FVector2D::ZeroVector;
+	FVector2D FieldSize = FVector2D::ZeroVector;
+
+	const FGeometry& Geometry = MessageInputBox->GetCachedGeometry();
+	if (Geometry.GetLocalSize().SizeSquared() > 0.0f)
+	{
+		FieldPos = Geometry.GetAbsolutePosition();
+		FieldSize = Geometry.GetAbsoluteSize();
+	}
+	else if (GEngine && GEngine->GameViewport)
+	{
+		FVector2D ViewportSize = FVector2D::ZeroVector;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		FieldPos = FVector2D(0.0f, ViewportSize.Y * 0.66f);
+		FieldSize = FVector2D(ViewportSize.X, ViewportSize.Y * 0.08f);
+	}
+
+	FLoop9SteamUtils::ShowOnScreenKeyboard(FieldPos, FieldSize);
 }
 
 void UAI_ChatWidget::ClearChat()

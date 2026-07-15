@@ -59,7 +59,7 @@ public:
 	class USoundBase* TypingSound = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
-	FText ContinueButtonLabel = FText::FromString(TEXT("Return to Main Menu"));
+	FText ContinueButtonLabel = NSLOCTEXT("Loop9Endings", "ContinueButtonLabel", "Return to Main Menu");
 
 protected:
 	virtual void NativeConstruct() override;

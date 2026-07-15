@@ -153,6 +153,9 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	HttpRequest->SetVerb(TEXT("POST"));
 	HttpRequest->SetURL(Context.APIEndpoint);
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	// Generous timeout: a free-tier backend can cold-start for ~15s, and the
+	// LLM itself needs a few seconds on top of that.
+	HttpRequest->SetTimeout(35.0f);
 
 	if (!Context.SessionToken.IsEmpty())
 	{

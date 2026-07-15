@@ -48,14 +48,19 @@ public:
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FString PlayerId;
 
+	/**
+	 * Explicit AI reply language override (e.g. "sr", "en").
+	 * Leave empty to follow the UI language chosen in Settings.
+	 */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "AI")
-	FString PreferredLanguage = TEXT("sr");
+	FString PreferredLanguage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> ChatWidgetClass;
 
+	/** Optional override for the scripted first message. Leave empty to use the localized default. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Scripted")
-    FString InitialRuleMessage = TEXT("Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline.");
+	FString InitialRuleMessage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring")
 	bool bAutoRingOnBeginPlay = true;
@@ -88,7 +93,7 @@ public:
 	bool bShowInitialRingNotification = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring")
-	FText InitialRingNotificationText = FText::FromString(TEXT("Phone ringing..."));
+	FText InitialRingNotificationText = NSLOCTEXT("Loop9Chat", "PhoneRinging", "Phone ringing...");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Phone Ring", meta = (ClampMin = "0.0"))
 	float InitialRingNotificationDuration = 4.0f;
@@ -113,6 +118,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	UUserWidget* GetChatWidgetInstance() const { return ChatWidgetInstance; }
+
+	/**
+	 * Phantom message anomaly support: queues a fake "player" message that is
+	 * injected into the chat history the next time the chat is opened.
+	 */
+	void QueuePhantomPlayerMessage(const FString& Message);
+	void ClearPhantomPlayerMessage();
 
 private:
 	int32 ResolveCurrentLoopIndex() const;
@@ -147,6 +159,8 @@ private:
 	int32 InitialLoopNumberAtBeginPlay = 1;
 	int32 LastLoopIndexForMessageLimit = INDEX_NONE;
 	int32 MessagesSentThisLoop = 0;
+	FString PendingPhantomMessage;
+	bool bPhantomMessageShown = false;
 
 	UFUNCTION()
    void OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

@@ -1,0 +1,131 @@
+# Loop 9 — Steam Release Checklist
+
+Praktičan spisak svega što mora da se odradi pre objave na Steamu, redosledom kojim ima smisla.
+Povezani dokumenti: [STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md) (spisak i setup achievementa),
+[ARCHITECTURE.md backend repo-a](../../Backend/Loop9_backend/ARCHITECTURE.md) (infrastruktura).
+
+Legenda: `[ ]` nije urađeno · `[x]` urađeno · `[~]` delimično / u toku
+
+---
+
+## 1. Kod — blokeri
+
+- [~] **E2E Steam auth test** — ticket → `/api/auth/steam` → session token → chat.
+  U toku na kućnoj mašini (debug logovi + `.ToString()` ispravka u
+  `Loop9AchievementsSubsystem.cpp` čekaju push). **Prvo pušovati kućne izmene,
+  pa ovde `git pull`.**
+- [ ] **Kompajlirati igru** posle merge-a svih grana (lokalizacione izmene iz ove grane
+  + kućne achievement izmene).
+- [ ] **Pravi App ID** — zameniti `SteamDevAppId=480` (Spacewar) pravim App ID-jem u
+  `Config/DefaultEngine.ini` (lokalni fajl, nije u repou — vidi `DefaultEngine.ini.example`).
+- [ ] Ako achievementi ne rade sa pravim App ID-jem a radili su na 480: proveriti da li
+  `GetAuthTicketForWebApi` treba umesto `GetAuthSessionTicket` (napomena u STEAM_ACHIEVEMENTS.md).
+
+## 2. Lokalizacija (novo u ovoj grani)
+
+Sav user-facing tekst u C++ je sada u `NSLOCTEXT`/`LOCTEXT` makroima, spreman za
+Localization Dashboard. Namespace-ovi: `Loop9Endings`, `Loop9Terminal`, `Loop9Loading`,
+`Loop9Interaction`, `Loop9Chat`, `Loop9Settings`. Nativni jezik je **engleski**.
+
+**AŽURIRANO:** prevodi sada žive u repo-u kao PO fajlovi (kao web i18n).
+Srpski prevodi svih C++ stringova su **već upisani** u
+`Content/Localization/Game/sr/Game.po`, a pipeline config je u
+`Config/Localization/Game.ini`. Umesto ručnog rada u Localization Dashboard-u,
+dovoljna je jedna komanda (gather → import PO → compile locres → export PO) —
+tačna komanda i koraci su u `EDITOR_TODO.md`, sekcija 3.
+
+In-game menjanje jezika: `SettingsWidget` sada ima `SetLanguage("en"/"sr")`,
+`GetCurrentLanguage()` i opcioni `ComboBoxString_Language` widget (u Blueprint settings
+ekranu dodati ComboBoxString sa **tačno tim imenom** — opcije i ponašanje se pune iz C++).
+Izbor se pamti u `GameUserSettings.ini` i engine ga sam učita pri sledećem pokretanju.
+
+Preostalo za lokalizaciju:
+
+- [x] `AI_Friend`: `InitialRuleMessage`, `InitialRingNotificationText`, "Answer" prompt i
+  "Low signal" poruka — lokalizovano. **Pažnja: `AI_Friend.h/.cpp` su menjani i ovde i na
+  kućnoj mašini — očekuj konflikt pri merge-u (rešiti prihvatanjem obe strane).**
+- [x] AI odgovori prate jezik iz Settings-a: `PreferredLanguage` u ini-ju je sada opcioni
+  override (prazan = koristi UI kulturu). Napomena: stari `DefaultGame.ini` sa
+  `PreferredLanguage=sr` i dalje forsira srpski — obrisati liniju ako ne treba.
+- [ ] Tekstovi u Blueprint widgetima (dugmad main/pause menija itd.) — hvata ih
+  `GatherTextFromAssets` korak pipeline-a; prevodi se dopisuju u isti `sr/Game.po`.
+- [ ] `LoopNumberSign` ("LOOP 9" 3D natpis u svetu) — namerno ostaje na engleskom kao
+  diegetski element; promeniti samo ako želiš.
+
+## 3. Steamworks backend (partner.steamgames.com)
+
+- [ ] Kupljen App Credit / dobijen **App ID**.
+- [ ] **Achievements**: definisati svih **28** po tabeli iz STEAM_ACHIEVEMENTS.md
+  (API imena moraju biti identična), upload ikonica (28 × otključana + zaključana).
+  Nova 3 (15.07.): `ACH_SPOT_SCALE`, `ACH_SPOT_CLOCK`, `ACH_SPOT_PHANTOM` (hidden);
+  `ACH_SPOT_ALL` sada traži 10 tipova anomalija.
+- [ ] **Store page**: opis (EN + SR), screenshotovi, trailer, capsule slike, tagovi
+  (Horror, Psychological, Time Loop, AI), obavezno **AI disclosure** polje — igra koristi
+  generativni AI u gameplay-u (Valve to zahteva od 2024).
+- [ ] **Depots & Builds**: napraviti depot za Windows build, upload preko `steamcmd`
+  (`app_build` skripta) ili SteamPipe GUI; postaviti default branch.
+- [ ] **Launch options**: putanja do exe-a.
+- [ ] Iz shipping builda **ne pakovati** `steam_appid.txt` (samo za lokalni development).
+- [ ] **Steam Cloud (Auto-Cloud)** — čuvanje progresa bez koda:
+  - Root: `WinAppDataLocal`, putanja: `Loop9/Saved/Config/Windows/`,
+    pattern: `Game.ini` (viđeni endinzi, spotted anomalije, player GUID)
+    i po želji `GameUserSettings.ini` (grafika/jezik).
+  - Testirati: odigraj → izađi → obriši lokalni fajl → pokreni → progres se vratio.
+- [ ] **Cena** — po analizi iz pricing canvas-a; postaviti regionalne cene (Valve matrix).
+
+## 4. Backend / Render (potvrđeno 15.07.)
+
+- [x] `/healthz` 200, auth odbija loše tokene, Redis radi, Steam kredencijali podešeni.
+- [ ] **Free tier cold start (~15s)**: pre release-a preći na plaćeni Render plan
+  (Starter) ili dodati keep-alive ping — prvi API poziv novog igrača ne sme da visi 15s.
+- [ ] Podesiti alarm/notifikaciju za `GAME_GLOBAL_DAILY_QUOTA` (kill-switch na 5000 msg/dan).
+- [ ] Proveriti da je `AUTH_ALLOW_GAME_TOKEN` isključen u prod ako Steam auth radi
+  (legacy token ostaje samo za ne-Steam buildove).
+
+## 5. QA pre uploada builda
+
+- [ ] Shipping build na **čistoj mašini** (bez UE, bez dev fajlova).
+- [ ] Steam auth E2E na pravom App ID-ju (novi Steam nalog koji poseduje igru).
+- [ ] Svih 6 endinga dostižno; achievementi se otključavaju (proveriti u Steam profilu).
+- [ ] **Offline test**: pokreni igru bez interneta — igra ne sme da pukne; chat prikazuje
+  in-fiction poruku ("...the line crackles and goes dead...") i vraća potrošeni pokušaj
+  za taj loop, pa igrač može odmah da proba ponovo.
+- [ ] **Cold start test**: prvi chat posle dužeg mirovanja backenda — timeout je podignut
+  na 35s da preživi Render cold start; poruka mora stići, ne tišina.
+- [ ] Alt-Tab / Steam Overlay (Shift+Tab) ne ruši igru.
+- [ ] Promena jezika u settings-u menja UI odmah i posle restarta.
+- [ ] Audio/gamma/sensitivity podešavanja rade i pamte se (novi
+  `Loop9GameSettingsSubsystem`). Za Music/SFX slajdere napraviti SoundClass
+  assete i upisati putanje u `DefaultGame.ini` (sekcija
+  `[/Script/Loop9.Loop9GameSettingsSubsystem]`, `MusicSoundClassPath` /
+  `SFXSoundClassPath`); Master radi odmah bez toga. U settings Blueprint dodati
+  widgete: `Slider_Gamma`, `Slider_MasterVolume`, `Slider_MusicVolume`,
+  `Slider_SFXVolume`, `Slider_MouseSensitivity`, `CheckBox_InvertY`.
+- [ ] Telemetrija: run ping stiže u backend log ("Run telemetry.") na kraju runa.
+- [ ] Verifikovati da build ne sadrži `DefaultGame.ini` sa pravim tokenima u repou
+  (gitignore već pokriva, ali proveriti pakovani build).
+
+## 6. Steam Deck
+
+- [x] **On-screen tastatura**: kad chat input dobije fokus na Deck-u, igra poziva
+  `ShowFloatingGamepadTextInput` preko `FLoop9SteamUtils` (no-op van Steama).
+  Modul sada linkuje Steamworks SDK direktno (`Loop9.Build.cs`, `LOOP9_WITH_STEAM`).
+- [x] **Gamepad bindinzi**: `IMC_Default` iz šablona već pokriva move/look/jump
+  (Gamepad_Left2D / Right2D / FaceButton_Bottom). Za keyboard-only akcije igra u
+  runtime-u dodaje `IMC_GamepadFallback` kontekst: Interact → **X/Square**,
+  Pause → **Start/Menu**, Sprint → **klik levog stika**. Bez izmena asseta.
+- [ ] QA na pravom Deck-u (ili preko Steam Input simulacije): kretanje, interakcija,
+  pauza, kucanje u chatu preko floating tastature.
+- [ ] Ako želiš drugačiji raspored dugmadi, izmene su u
+  `Loop9Character::AddGamepadFallbackMappings` / `HorrorCharacter` override-u.
+
+## 7. Poznate rupe posle launcha (backlog)
+
+- [x] Offline/error UX za chat — na grešku se prikazuje in-fiction poruka (offline /
+  zauzeto / greška servera), potrošeni pokušaj se refundira, HTTP timeout 35s.
+- [x] Achievement progres — Steam "x/y" progress toast preko
+  `IndicateAchievementProgress` za ACH_STREAK_7, ACH_GROUNDHOG, ACH_HOTLINE,
+  ACH_ALL_ENDINGS i ACH_SPOT_ALL. Čisto vizuelno; izvor istine ostaje `Game.ini`.
+  (Puni Steam stats sa server-side čuvanjem i dalje backlog — zahteva definisanje
+  statova u Steamworksu i migraciju.)
+- [ ] Lokalizovati preostale stringove iz §2 (Blueprint tekstovi kroz dashboard).

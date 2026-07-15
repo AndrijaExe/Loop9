@@ -94,6 +94,7 @@ private:
 	void OnMessageInputCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 
 	void RequestMessageInputFocus(bool bDelayOneTick);
+	void ShowOnScreenKeyboardIfNeeded();
 	UButton* ResolveInnerButton(UUserWidget* Widget, const FName& ButtonName) const;
 
 	void TickAITypewriter();

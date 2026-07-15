@@ -5,11 +5,16 @@
 #include "PauseMenuWidget.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetInternationalizationLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/ComboBoxString.h"
 #include "Components/CheckBox.h"
 #include "Components/Slider.h"
 #include "Components/Button.h"
+#include "Subsystems/Loop9GameSettingsSubsystem.h"
+
+// Index-aligned with the options added in PopulateLanguageOptions().
+const TArray<FString> USettingsWidget::SupportedCultures = { TEXT("en"), TEXT("sr") };
 
 void USettingsWidget::NativeConstruct()
 {
@@ -17,6 +22,8 @@ void USettingsWidget::NativeConstruct()
 
 	LoadSettings();
    PopulateGraphicsOptions();
+	PopulateLanguageOptions();
+	BindValueWidgets();
 	SyncWidgetsFromCurrentSettings();
 
 	if (Button_Apply)
@@ -44,12 +51,15 @@ void USettingsWidget::HandleBackButtonClicked()
 
 void USettingsWidget::PopulateGraphicsOptions()
 {
+	// UComboBoxString works with display strings; selection logic below relies on
+	// indices (window mode, quality) or numeric parsing (resolution, FPS), so
+	// localized labels are safe here.
 	if (ComboBoxString_WindowMode)
 	{
 		ComboBoxString_WindowMode->ClearOptions();
-		ComboBoxString_WindowMode->AddOption(TEXT("Windowed"));
-		ComboBoxString_WindowMode->AddOption(TEXT("Fullscreen"));
-		ComboBoxString_WindowMode->AddOption(TEXT("Borderless"));
+		ComboBoxString_WindowMode->AddOption(NSLOCTEXT("Loop9Settings", "WindowModeWindowed", "Windowed").ToString());
+		ComboBoxString_WindowMode->AddOption(NSLOCTEXT("Loop9Settings", "WindowModeFullscreen", "Fullscreen").ToString());
+		ComboBoxString_WindowMode->AddOption(NSLOCTEXT("Loop9Settings", "WindowModeBorderless", "Borderless").ToString());
 	}
 
 	if (ComboBoxString_Resolution)
@@ -64,21 +74,105 @@ void USettingsWidget::PopulateGraphicsOptions()
 	if (ComboBoxString_Quality)
 	{
 		ComboBoxString_Quality->ClearOptions();
-		ComboBoxString_Quality->AddOption(TEXT("Low"));
-		ComboBoxString_Quality->AddOption(TEXT("Medium"));
-		ComboBoxString_Quality->AddOption(TEXT("High"));
-		ComboBoxString_Quality->AddOption(TEXT("Epic"));
+		ComboBoxString_Quality->AddOption(NSLOCTEXT("Loop9Settings", "QualityLow", "Low").ToString());
+		ComboBoxString_Quality->AddOption(NSLOCTEXT("Loop9Settings", "QualityMedium", "Medium").ToString());
+		ComboBoxString_Quality->AddOption(NSLOCTEXT("Loop9Settings", "QualityHigh", "High").ToString());
+		ComboBoxString_Quality->AddOption(NSLOCTEXT("Loop9Settings", "QualityEpic", "Epic").ToString());
 	}
 
 	if (ComboBoxString_FPSLimit)
 	{
 		ComboBoxString_FPSLimit->ClearOptions();
-		ComboBoxString_FPSLimit->AddOption(TEXT("Uncapped"));
+		ComboBoxString_FPSLimit->AddOption(NSLOCTEXT("Loop9Settings", "FPSUncapped", "Uncapped").ToString());
 		ComboBoxString_FPSLimit->AddOption(TEXT("30"));
 		ComboBoxString_FPSLimit->AddOption(TEXT("60"));
 		ComboBoxString_FPSLimit->AddOption(TEXT("120"));
 		ComboBoxString_FPSLimit->AddOption(TEXT("144"));
 	}
+}
+
+void USettingsWidget::PopulateLanguageOptions()
+{
+	if (!ComboBoxString_Language)
+	{
+		return;
+	}
+
+	ComboBoxString_Language->ClearOptions();
+	// Language names are shown in their own language on purpose (standard practice).
+	ComboBoxString_Language->AddOption(TEXT("English"));
+	ComboBoxString_Language->AddOption(TEXT("Srpski"));
+
+	ComboBoxString_Language->OnSelectionChanged.Clear();
+	ComboBoxString_Language->OnSelectionChanged.AddDynamic(this, &USettingsWidget::HandleLanguageSelectionChanged);
+}
+
+void USettingsWidget::HandleLanguageSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (SelectionType == ESelectInfo::Direct || !ComboBoxString_Language)
+	{
+		return;
+	}
+
+	const int32 Index = ComboBoxString_Language->GetSelectedIndex();
+	if (SupportedCultures.IsValidIndex(Index))
+	{
+		SetLanguage(SupportedCultures[Index]);
+	}
+}
+
+void USettingsWidget::BindValueWidgets()
+{
+	auto BindSlider = [this](USlider* Slider, void (USettingsWidget::*Handler)(float))
+	{
+		if (Slider)
+		{
+			Slider->OnValueChanged.Clear();
+			Slider->OnValueChanged.AddDynamic(this, Handler);
+		}
+	};
+
+	BindSlider(Slider_Gamma, &USettingsWidget::HandleGammaChanged);
+	BindSlider(Slider_MasterVolume, &USettingsWidget::HandleMasterVolumeChanged);
+	BindSlider(Slider_MusicVolume, &USettingsWidget::HandleMusicVolumeChanged);
+	BindSlider(Slider_SFXVolume, &USettingsWidget::HandleSFXVolumeChanged);
+	BindSlider(Slider_MouseSensitivity, &USettingsWidget::HandleMouseSensitivityChanged);
+
+	if (CheckBox_InvertY)
+	{
+		CheckBox_InvertY->OnCheckStateChanged.Clear();
+		CheckBox_InvertY->OnCheckStateChanged.AddDynamic(this, &USettingsWidget::HandleInvertYChanged);
+	}
+}
+
+void USettingsWidget::HandleGammaChanged(float Value)
+{
+	SetGamma(FMath::Lerp(MinGamma, MaxGamma, FMath::Clamp(Value, 0.0f, 1.0f)));
+}
+
+void USettingsWidget::HandleMasterVolumeChanged(float Value)
+{
+	SetMasterVolume(Value);
+}
+
+void USettingsWidget::HandleMusicVolumeChanged(float Value)
+{
+	SetMusicVolume(Value);
+}
+
+void USettingsWidget::HandleSFXVolumeChanged(float Value)
+{
+	SetSFXVolume(Value);
+}
+
+void USettingsWidget::HandleMouseSensitivityChanged(float Value)
+{
+	SetMouseSensitivity(FMath::Lerp(MinSensitivity, MaxSensitivity, FMath::Clamp(Value, 0.0f, 1.0f)));
+}
+
+void USettingsWidget::HandleInvertYChanged(bool bIsChecked)
+{
+	SetInvertedYAxis(bIsChecked);
 }
 
 void USettingsWidget::SyncWidgetsFromCurrentSettings()
@@ -120,12 +214,57 @@ void USettingsWidget::SyncWidgetsFromCurrentSettings()
 		Slider_ResolutionScale->SetValue(GetCurrentResolutionScalePercent() / 100.0f);
 	}
 
+	if (const ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		if (Slider_Gamma)
+		{
+			Slider_Gamma->SetValue(FMath::GetRangePct(MinGamma, MaxGamma, GameSettings->GetGamma()));
+		}
+		if (Slider_MasterVolume)
+		{
+			Slider_MasterVolume->SetValue(GameSettings->GetMasterVolume());
+		}
+		if (Slider_MusicVolume)
+		{
+			Slider_MusicVolume->SetValue(GameSettings->GetMusicVolume());
+		}
+		if (Slider_SFXVolume)
+		{
+			Slider_SFXVolume->SetValue(GameSettings->GetSFXVolume());
+		}
+		if (Slider_MouseSensitivity)
+		{
+			Slider_MouseSensitivity->SetValue(
+				FMath::GetRangePct(MinSensitivity, MaxSensitivity, GameSettings->GetMouseSensitivity()));
+		}
+		if (CheckBox_InvertY)
+		{
+			CheckBox_InvertY->SetIsChecked(GameSettings->IsYAxisInverted());
+		}
+	}
+
+	if (ComboBoxString_Language)
+	{
+		const FString CurrentCulture = GetCurrentLanguage();
+		int32 SelectedIndex = 0;
+		for (int32 i = 0; i < SupportedCultures.Num(); ++i)
+		{
+			// Match "sr" against "sr", "sr-Latn", "sr-RS"...
+			if (CurrentCulture.StartsWith(SupportedCultures[i]))
+			{
+				SelectedIndex = i;
+				break;
+			}
+		}
+		ComboBoxString_Language->SetSelectedIndex(SelectedIndex);
+	}
+
 	if (ComboBoxString_FPSLimit)
 	{
 		const float Limit = GetCurrentFrameRateLimit();
 		if (Limit <= 0.1f)
 		{
-			ComboBoxString_FPSLimit->SetSelectedOption(TEXT("Uncapped"));
+			ComboBoxString_FPSLimit->SetSelectedOption(NSLOCTEXT("Loop9Settings", "FPSUncapped", "Uncapped").ToString());
 		}
 		else
 		{
@@ -337,43 +476,91 @@ float USettingsWidget::GetCurrentFrameRateLimit() const
 
 // --- AUDIO SETTINGS ---
 
+ULoop9GameSettingsSubsystem* USettingsWidget::GetGameSettings() const
+{
+	if (const UGameInstance* GI = GetGameInstance())
+	{
+		return GI->GetSubsystem<ULoop9GameSettingsSubsystem>();
+	}
+
+	return nullptr;
+}
+
 void USettingsWidget::SetMasterVolume(float Volume)
 {
-	// Implement audio volume control here
-	// Requires Sound Class setup in Unreal
-	UE_LOG(LogTemp, Log, TEXT("Master Volume set to: %.2f"), Volume);
-	
-	// Example (requires Sound Class setup):
-	// USoundClass* MasterClass = LoadObject<USoundClass>(nullptr, TEXT("/Game/Audio/MasterSoundClass"));
-	// if (MasterClass) { ... }
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetMasterVolume(Volume);
+	}
 }
 
 void USettingsWidget::SetMusicVolume(float Volume)
 {
-	UE_LOG(LogTemp, Log, TEXT("Music Volume set to: %.2f"), Volume);
-	// Implement music volume control
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetMusicVolume(Volume);
+	}
 }
 
 void USettingsWidget::SetSFXVolume(float Volume)
 {
-	UE_LOG(LogTemp, Log, TEXT("SFX Volume set to: %.2f"), Volume);
-	// Implement SFX volume control
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetSFXVolume(Volume);
+	}
+}
+
+// --- DISPLAY SETTINGS ---
+
+void USettingsWidget::SetGamma(float InGamma)
+{
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetGamma(InGamma);
+	}
+}
+
+float USettingsWidget::GetCurrentGamma() const
+{
+	if (const ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		return GameSettings->GetGamma();
+	}
+
+	return 2.2f;
 }
 
 // --- CONTROLS SETTINGS ---
 
 void USettingsWidget::SetMouseSensitivity(float Sensitivity)
 {
-	// Save to config or custom save system
-	UE_LOG(LogTemp, Log, TEXT("Mouse Sensitivity set to: %.2f"), Sensitivity);
-	
-	// Can be applied to player controller in-game
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetMouseSensitivity(Sensitivity);
+	}
 }
 
 void USettingsWidget::SetInvertedYAxis(bool bInverted)
 {
-	UE_LOG(LogTemp, Log, TEXT("Inverted Y-Axis: %s"), bInverted ? TEXT("ON") : TEXT("OFF"));
-	// Save preference
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->SetInvertYAxis(bInverted);
+	}
+}
+
+// --- LANGUAGE SETTINGS ---
+
+void USettingsWidget::SetLanguage(const FString& CultureCode)
+{
+	// bSaveToConfig persists the culture to GameUserSettings.ini,
+	// so the engine restores it automatically on next launch.
+	UKismetInternationalizationLibrary::SetCurrentCulture(CultureCode, /*SaveToConfig*/ true);
+	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Language set to '%s'"), *CultureCode);
+}
+
+FString USettingsWidget::GetCurrentLanguage() const
+{
+	return UKismetInternationalizationLibrary::GetCurrentCulture();
 }
 
 // --- SAVE/LOAD SETTINGS ---

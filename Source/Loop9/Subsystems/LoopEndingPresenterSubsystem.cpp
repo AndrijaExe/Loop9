@@ -1,6 +1,7 @@
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 
 #include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Loop/LoopEndingEvaluator.h"
 #include "Loop9GameMode.h"
@@ -46,6 +47,11 @@ void ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	if (ULoop9AchievementsSubsystem* AchievementsSubsystem = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{
 		AchievementsSubsystem->NotifyRunFinished(EndingType, TotalResets, TotalAIInteractions);
+	}
+
+	if (ULoop9TelemetrySubsystem* Telemetry = GetGameInstance()->GetSubsystem<ULoop9TelemetrySubsystem>())
+	{
+		Telemetry->SendRunFinished(EndingType, TotalResets, TotalAIInteractions);
 	}
 
 	FTimerHandle EndingTimer;

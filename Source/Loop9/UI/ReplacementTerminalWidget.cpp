@@ -53,21 +53,27 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 
 	bSequenceFinished = false;
 
-	Lines = {
-		TEXT("Initializing interface..."),
-		TEXT("Loading conversation model..."),
-		TEXT("Importing behavioral profile..."),
-		TEXT("Importing subject language patterns..."),
-		TEXT("Loading response profile..."),
-		TEXT("Personality imprint complete."),
-		TEXT("Source: Player"),
-		TEXT("Synchronization complete."),
-		TEXT("User connected."),
-		TEXT("User: Hello?"),
-		TEXT("User: Is someone there?"),
-		TEXT("User: I think I'm stuck."),
-		TEXT("User: Can you help me?")
+	const TArray<FText> LocalizedLines = {
+		NSLOCTEXT("Loop9Terminal", "Line01", "Initializing interface..."),
+		NSLOCTEXT("Loop9Terminal", "Line02", "Loading conversation model..."),
+		NSLOCTEXT("Loop9Terminal", "Line03", "Importing behavioral profile..."),
+		NSLOCTEXT("Loop9Terminal", "Line04", "Importing subject language patterns..."),
+		NSLOCTEXT("Loop9Terminal", "Line05", "Loading response profile..."),
+		NSLOCTEXT("Loop9Terminal", "Line06", "Personality imprint complete."),
+		NSLOCTEXT("Loop9Terminal", "Line07", "Source: Player"),
+		NSLOCTEXT("Loop9Terminal", "Line08", "Synchronization complete."),
+		NSLOCTEXT("Loop9Terminal", "Line09", "User connected."),
+		NSLOCTEXT("Loop9Terminal", "Line10", "User: Hello?"),
+		NSLOCTEXT("Loop9Terminal", "Line11", "User: Is someone there?"),
+		NSLOCTEXT("Loop9Terminal", "Line12", "User: I think I'm stuck."),
+		NSLOCTEXT("Loop9Terminal", "Line13", "User: Can you help me?")
 	};
+
+	Lines.Reset(LocalizedLines.Num());
+	for (const FText& Line : LocalizedLines)
+	{
+		Lines.Add(Line.ToString());
+	}
 
 	CurrentLineIndex = 0;
 	CompletedText.Empty();

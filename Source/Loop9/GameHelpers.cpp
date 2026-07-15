@@ -11,23 +11,26 @@
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Images/SThrobber.h"
 
+#define LOCTEXT_NAMESPACE "Loop9Loading"
+
 namespace
 {
 	TStrongObjectPtr<UUserWidget> GLoadingUMGWidget;
 
 	TSharedRef<SWidget> BuildLoadingSlateWidget()
 	{
-		static const TArray<FString> Tips = {
-			TEXT("Look for objects that disappear..."),
-			TEXT("Pay close attention to your surroundings"),
-			TEXT("Trust your instincts, but verify everything"),
-			TEXT("Not everything is as it seems"),
-			TEXT("The office changes when you're not looking"),
-			TEXT("Dragojlo has been here for a very long time"),
-			TEXT("Every loop is a chance to escape")
+		// Keep keys in sync with ULoadingScreenWidget::LoadingTips so translators see one set.
+		static const TArray<FText> Tips = {
+			LOCTEXT("Tip01", "Look for objects that disappear..."),
+			LOCTEXT("Tip02", "Pay close attention to your surroundings"),
+			LOCTEXT("Tip03", "Trust your instincts, but verify everything"),
+			LOCTEXT("Tip04", "Not everything is as it seems"),
+			LOCTEXT("Tip05", "The office changes when you're not looking"),
+			LOCTEXT("Tip06", "Dragojlo has been here for a very long time"),
+			LOCTEXT("Tip07", "Every loop is a chance to escape")
 		};
 
-		const FString& RandomTip = Tips[FMath::RandRange(0, Tips.Num() - 1)];
+		const FText& RandomTip = Tips[FMath::RandRange(0, Tips.Num() - 1)];
 
 		return SNew(SOverlay)
 		+ SOverlay::Slot()
@@ -45,7 +48,7 @@ namespace
 			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 0, 0, 20)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(TEXT("LOADING...")))
+				.Text(LOCTEXT("LoadingHeader", "LOADING..."))
 				.Font(FCoreStyle::GetDefaultFontStyle("Regular", 48))
 				.ColorAndOpacity(FLinearColor::White)
 			]
@@ -56,7 +59,7 @@ namespace
 			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(30, 0)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(RandomTip))
+				.Text(RandomTip)
 				.Font(FCoreStyle::GetDefaultFontStyle("Regular", 20))
 				.ColorAndOpacity(FLinearColor(0.8f, 0.8f, 0.8f, 1.0f))
 				.Justification(ETextJustify::Center)
@@ -144,3 +147,5 @@ void UGameHelpers::LoadLevelAsync(
 
 	UGameplayStatics::OpenLevel(World, LevelName);
 }
+
+#undef LOCTEXT_NAMESPACE

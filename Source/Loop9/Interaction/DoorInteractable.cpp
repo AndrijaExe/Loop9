@@ -90,10 +90,12 @@ FText ADoorInteractable::GetInteractionPromptText_Implementation() const
 {
 	if (bIsLocked)
 	{
-		return FText::FromString(TEXT("Locked"));
+		return NSLOCTEXT("Loop9Interaction", "DoorLocked", "Locked");
 	}
 
-	return bIsOpen ? FText::FromString(TEXT("Close")) : FText::FromString(TEXT("Open"));
+	return bIsOpen
+		? NSLOCTEXT("Loop9Interaction", "DoorClose", "Close")
+		: NSLOCTEXT("Loop9Interaction", "DoorOpen", "Open");
 }
 
 void ADoorInteractable::PlayDoorSound(USoundBase* SoundToPlay)

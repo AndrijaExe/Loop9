@@ -5,15 +5,17 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
 
+#define LOCTEXT_NAMESPACE "Loop9Loading"
+
 // Hardcoded loading tips (6-7 tips)
-const TArray<FString> ULoadingScreenWidget::LoadingTips = {
-	TEXT("Look for objects that disappear..."),
-	TEXT("Pay close attention to your surroundings"),
-	TEXT("Trust your instincts, but verify everything"),
-	TEXT("Not everything is as it seems"),
-	TEXT("The office changes when you're not looking"),
-	TEXT("Dragojlo has been here for a very long time"),
-	TEXT("Every loop is a chance to escape")
+const TArray<FText> ULoadingScreenWidget::LoadingTips = {
+	LOCTEXT("Tip01", "Look for objects that disappear..."),
+	LOCTEXT("Tip02", "Pay close attention to your surroundings"),
+	LOCTEXT("Tip03", "Trust your instincts, but verify everything"),
+	LOCTEXT("Tip04", "Not everything is as it seems"),
+	LOCTEXT("Tip05", "The office changes when you're not looking"),
+	LOCTEXT("Tip06", "Dragojlo has been here for a very long time"),
+	LOCTEXT("Tip07", "Every loop is a chance to escape")
 };
 
 void ULoadingScreenWidget::NativeConstruct()
@@ -96,12 +98,12 @@ FText ULoadingScreenWidget::GetRandomLoadingTip() const
 {
 	if (LoadingTips.Num() == 0)
 	{
-		return FText::FromString(TEXT("Loading..."));
+		return LOCTEXT("LoadingFallback", "Loading...");
 	}
 
 	// Get random tip
 	int32 RandomIndex = FMath::RandRange(0, LoadingTips.Num() - 1);
-	return FText::FromString(LoadingTips[RandomIndex]);
+	return LoadingTips[RandomIndex];
 }
 
 void ULoadingScreenWidget::ShowLoadingScreen(UObject* WorldContextObject)
@@ -113,3 +115,5 @@ void ULoadingScreenWidget::HideLoadingScreen(UObject* WorldContextObject)
 {
 	UE_LOG(LogTemp, Log, TEXT("LoadingScreenWidget: Hide"));
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -9,6 +9,7 @@
 #include "Components/SpotLightComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
+#include "InputMappingContext.h"
 
 AHorrorCharacter::AHorrorCharacter()
 {
@@ -59,6 +60,17 @@ void AHorrorCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AHorrorCharacter::DoEndSprint);
 
 		}
+	}
+}
+
+void AHorrorCharacter::AddGamepadFallbackMappings(UInputMappingContext* Context)
+{
+	Super::AddGamepadFallbackMappings(Context);
+
+	if (SprintAction)
+	{
+		// Left stick press - the usual sprint button.
+		Context->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 	}
 }
 

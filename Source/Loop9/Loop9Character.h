@@ -137,14 +137,23 @@ private:
 	UPROPERTY()
 	UUserWidget* PauseMenuInstance;
 
+	/** Runtime-built mapping context with gamepad keys for actions that only have keyboard bindings in IMC_Default. */
+	UPROPERTY(Transient)
+	TObjectPtr<class UInputMappingContext> GamepadFallbackContext;
+
 	float FootstepTimer = 0.0f;
 
 	void TryPlayFootstep(float DeltaSeconds);
+
+	void RegisterGamepadFallbackContext();
 
 protected:
 
 	/** Set up input action bindings */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	/** Adds gamepad keys for keyboard-only actions. Override to map additional actions in subclasses. */
+	virtual void AddGamepadFallbackMappings(class UInputMappingContext* Context);
 	
 
 public:

@@ -1,0 +1,322 @@
+# Loop9 Serbian translation.
+# msgctxt format: "Namespace,Key" (Unreal Engine PO convention).
+msgid ""
+msgstr ""
+"Project-Id-Version: Game\n"
+"POT-Creation-Date: 2026-07-15 00:00\n"
+"PO-Revision-Date: 2026-07-15 00:00\n"
+"Language-Team: \n"
+"Language: sr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Key: AnswerPhone
+msgctxt "Loop9Interaction,AnswerPhone"
+msgid "Answer"
+msgstr "Javi se"
+
+#. Key: DoorLocked
+msgctxt "Loop9Interaction,DoorLocked"
+msgid "Locked"
+msgstr "Zaključano"
+
+#. Key: DoorOpen
+msgctxt "Loop9Interaction,DoorOpen"
+msgid "Open"
+msgstr "Otvori"
+
+#. Key: DoorClose
+msgctxt "Loop9Interaction,DoorClose"
+msgid "Close"
+msgstr "Zatvori"
+
+#. Key: LiftRestartLoop
+msgctxt "Loop9Interaction,LiftRestartLoop"
+msgid "Restart loop (interior light ON)"
+msgstr "Restartuj petlju (svetlo u liftu UPALJENO)"
+
+#. Key: LiftNextFloor
+msgctxt "Loop9Interaction,LiftNextFloor"
+msgid "Next floor (interior light OFF)"
+msgstr "Sledeći sprat (svetlo u liftu UGAŠENO)"
+
+#. Key: PlayerPrefix
+msgctxt "Loop9Chat,PlayerPrefix"
+msgid "You: "
+msgstr "Ti: "
+
+#. Key: FriendPrefix
+msgctxt "Loop9Chat,FriendPrefix"
+msgid "Dragojlo: "
+msgstr "Dragojlo: "
+
+#. Key: PhoneRinging
+msgctxt "Loop9Chat,PhoneRinging"
+msgid "Phone ringing..."
+msgstr "Telefon zvoni..."
+
+#. Key: LowSignalReply
+msgctxt "Loop9Chat,LowSignalReply"
+msgid "Low signal. Try again later."
+msgstr "Slab signal. Pokušaj kasnije."
+
+#. Key: ChatConnectionLost
+msgctxt "Loop9Chat,ChatConnectionLost"
+msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
+msgstr "...veza krči i prekida se. (Nema konekcije. Proveri internet i pokušaj ponovo.)"
+
+#. Key: ChatRateLimited
+msgctxt "Loop9Chat,ChatRateLimited"
+msgid "...the line is busy. He cannot take more calls right now. Try again later."
+msgstr "...linija je zauzeta. Ne može trenutno da prima više poziva. Pokušaj kasnije."
+
+#. Key: ChatServerError
+msgctxt "Loop9Chat,ChatServerError"
+msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
+msgstr "...šum krči kroz slušalicu. Nešto nije u redu sa druge strane. Pokušaj ponovo."
+
+#. Key: InitialRuleMessage
+msgctxt "Loop9Chat,InitialRuleMessage"
+msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
+msgstr "Slušaj me pažljivo: ako primetiš bilo kakvu nepravilnost, uđi u lift u kom je upaljeno svetlo (RESTART). Ako ne nađeš anomaliju, uđi u lift bez svetla (DALJE). Prva petlja je čista, zato ne žuri i dobro upamti kako sve izgleda."
+
+#. Key: ContinueButtonLabel
+msgctxt "Loop9Endings,ContinueButtonLabel"
+msgid "Return to Main Menu"
+msgstr "Nazad na glavni meni"
+
+#. Key: EscapeTogetherTitle
+msgctxt "Loop9Endings,EscapeTogetherTitle"
+msgid "ESCAPE TOGETHER"
+msgstr "BEKSTVO ZAJEDNO"
+
+#. Key: EscapeTogetherDesc
+msgctxt "Loop9Endings,EscapeTogetherDesc"
+msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
+msgstr "Ti i Dragojlo ste izgradili poverenje, a ti nisi izgubio sebe. Pobegli ste iz petlje zajedno."
+
+#. Key: ObedientFoolTitle
+msgctxt "Loop9Endings,ObedientFoolTitle"
+msgid "OBEDIENT FOOL"
+msgstr "POSLUŠNA BUDALA"
+
+#. Key: ObedientFoolDesc
+msgctxt "Loop9Endings,ObedientFoolDesc"
+msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
+msgstr "Verovao si bezuslovno i prestao sam da odlučuješ. Pogrešan glas je izabrao tvoju sudbinu."
+
+#. Key: ColdBetrayalTitle
+msgctxt "Loop9Endings,ColdBetrayalTitle"
+msgid "COLD BETRAYAL"
+msgstr "HLADNA IZDAJA"
+
+#. Key: ColdBetrayalDesc
+msgctxt "Loop9Endings,ColdBetrayalDesc"
+msgid "You relied on him but never respected him. One calm lie was enough."
+msgstr "Oslanjao si se na njega, ali ga nikad nisi poštovao. Jedna mirna laž je bila dovoljna."
+
+#. Key: MergedMemoryTitle
+msgctxt "Loop9Endings,MergedMemoryTitle"
+msgid "MERGED MEMORY"
+msgstr "SPOJENO SEĆANJE"
+
+#. Key: MergedMemoryDesc
+msgctxt "Loop9Endings,MergedMemoryDesc"
+msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
+msgstr "Tvoja sećanja i njegova curenja su se preplela. Više ne znaš ko se čega seća."
+
+#. Key: TheReplacementTitle
+msgctxt "Loop9Endings,TheReplacementTitle"
+msgid "THE REPLACEMENT"
+msgstr "ZAMENA"
+
+#. Key: TheReplacementDesc
+msgctxt "Loop9Endings,TheReplacementDesc"
+msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
+msgstr "Nije te uništio. Naučio te je. Sada si ti glas sa druge strane linije."
+
+#. Key: ParanoidSurvivorTitle
+msgctxt "Loop9Endings,ParanoidSurvivorTitle"
+msgid "PARANOID SURVIVOR"
+msgstr "PARANOIČNI PREŽIVELI"
+
+#. Key: ParanoidSurvivorDesc
+msgctxt "Loop9Endings,ParanoidSurvivorDesc"
+msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
+msgstr "Pobegao si sam jer nisi verovao nikome. Možda te je to spasilo. Možda te je koštalo istine."
+
+#. Key: EndingStatsFormat
+msgctxt "Loop9Endings,EndingStatsFormat"
+msgid "Resets: {0} | AI interactions: {1}"
+msgstr "Resetovanja: {0} | Razgovori sa AI: {1}"
+
+#. Key: Line01
+msgctxt "Loop9Terminal,Line01"
+msgid "Initializing interface..."
+msgstr "Pokretanje interfejsa..."
+
+#. Key: Line02
+msgctxt "Loop9Terminal,Line02"
+msgid "Loading conversation model..."
+msgstr "Učitavanje konverzacionog modela..."
+
+#. Key: Line03
+msgctxt "Loop9Terminal,Line03"
+msgid "Importing behavioral profile..."
+msgstr "Uvoz profila ponašanja..."
+
+#. Key: Line04
+msgctxt "Loop9Terminal,Line04"
+msgid "Importing subject language patterns..."
+msgstr "Uvoz jezičkih obrazaca subjekta..."
+
+#. Key: Line05
+msgctxt "Loop9Terminal,Line05"
+msgid "Loading response profile..."
+msgstr "Učitavanje profila odgovora..."
+
+#. Key: Line06
+msgctxt "Loop9Terminal,Line06"
+msgid "Personality imprint complete."
+msgstr "Otisak ličnosti kompletiran."
+
+#. Key: Line07
+msgctxt "Loop9Terminal,Line07"
+msgid "Source: Player"
+msgstr "Izvor: Igrač"
+
+#. Key: Line08
+msgctxt "Loop9Terminal,Line08"
+msgid "Synchronization complete."
+msgstr "Sinhronizacija završena."
+
+#. Key: Line09
+msgctxt "Loop9Terminal,Line09"
+msgid "User connected."
+msgstr "Korisnik povezan."
+
+#. Key: Line10
+msgctxt "Loop9Terminal,Line10"
+msgid "User: Hello?"
+msgstr "Korisnik: Halo?"
+
+#. Key: Line11
+msgctxt "Loop9Terminal,Line11"
+msgid "User: Is someone there?"
+msgstr "Korisnik: Ima li koga?"
+
+#. Key: Line12
+msgctxt "Loop9Terminal,Line12"
+msgid "User: I think I'm stuck."
+msgstr "Korisnik: Mislim da sam zaglavljen."
+
+#. Key: Line13
+msgctxt "Loop9Terminal,Line13"
+msgid "User: Can you help me?"
+msgstr "Korisnik: Možeš li da mi pomogneš?"
+
+#. Key: Tip01
+msgctxt "Loop9Loading,Tip01"
+msgid "Look for objects that disappear..."
+msgstr "Traži predmete koji nestaju..."
+
+#. Key: Tip02
+msgctxt "Loop9Loading,Tip02"
+msgid "Pay close attention to your surroundings"
+msgstr "Obrati pažnju na okolinu"
+
+#. Key: Tip03
+msgctxt "Loop9Loading,Tip03"
+msgid "Trust your instincts, but verify everything"
+msgstr "Veruj instinktu, ali proveri sve"
+
+#. Key: Tip04
+msgctxt "Loop9Loading,Tip04"
+msgid "Not everything is as it seems"
+msgstr "Nije sve onako kako izgleda"
+
+#. Key: Tip05
+msgctxt "Loop9Loading,Tip05"
+msgid "The office changes when you're not looking"
+msgstr "Kancelarija se menja kad ne gledaš"
+
+#. Key: Tip06
+msgctxt "Loop9Loading,Tip06"
+msgid "Dragojlo has been here for a very long time"
+msgstr "Dragojlo je ovde već jako dugo"
+
+#. Key: Tip07
+msgctxt "Loop9Loading,Tip07"
+msgid "Every loop is a chance to escape"
+msgstr "Svaka petlja je prilika za bekstvo"
+
+#. Key: LoadingHeader
+msgctxt "Loop9Loading,LoadingHeader"
+msgid "LOADING..."
+msgstr "UČITAVANJE..."
+
+#. Key: LoadingFallback
+msgctxt "Loop9Loading,LoadingFallback"
+msgid "Loading..."
+msgstr "Učitavanje..."
+
+#. Key: WindowModeWindowed
+msgctxt "Loop9Settings,WindowModeWindowed"
+msgid "Windowed"
+msgstr "U prozoru"
+
+#. Key: WindowModeFullscreen
+msgctxt "Loop9Settings,WindowModeFullscreen"
+msgid "Fullscreen"
+msgstr "Ceo ekran"
+
+#. Key: WindowModeBorderless
+msgctxt "Loop9Settings,WindowModeBorderless"
+msgid "Borderless"
+msgstr "Bez ivica"
+
+#. Key: QualityLow
+msgctxt "Loop9Settings,QualityLow"
+msgid "Low"
+msgstr "Nizak"
+
+#. Key: QualityMedium
+msgctxt "Loop9Settings,QualityMedium"
+msgid "Medium"
+msgstr "Srednji"
+
+#. Key: QualityHigh
+msgctxt "Loop9Settings,QualityHigh"
+msgid "High"
+msgstr "Visok"
+
+#. Key: QualityEpic
+msgctxt "Loop9Settings,QualityEpic"
+msgid "Epic"
+msgstr "Epski"
+
+#. Key: FPSUncapped
+msgctxt "Loop9Settings,FPSUncapped"
+msgid "Uncapped"
+msgstr "Neograničeno"
+
+#. Key: PhantomMsg1
+msgctxt "Loop9Anomaly,PhantomMsg1"
+msgid "I already told you about the monitor. Why do you keep asking?"
+msgstr "Već sam ti rekao za monitor. Zašto stalno pitaš?"
+
+#. Key: PhantomMsg2
+msgctxt "Loop9Anomaly,PhantomMsg2"
+msgid "help"
+msgstr "upomoć"
+
+#. Key: PhantomMsg3
+msgctxt "Loop9Anomaly,PhantomMsg3"
+msgid "I'm not going back down there."
+msgstr "Ne vraćam se dole."
+
+#. Key: PhantomMsg4
+msgctxt "Loop9Anomaly,PhantomMsg4"
+msgid "Did you hear that too?"
+msgstr "Jesi li i ti to čuo?"

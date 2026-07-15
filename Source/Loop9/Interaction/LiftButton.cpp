@@ -128,6 +128,6 @@ FText ALiftButton::GetInteractionPromptText_Implementation() const
 	}
 
 	return ButtonType == ELiftButtonType::Reset
-		? FText::FromString(TEXT("Restart loop (interior light ON)"))
-		: FText::FromString(TEXT("Next floor (interior light OFF)"));
+		? NSLOCTEXT("Loop9Interaction", "LiftRestartLoop", "Restart loop (interior light ON)")
+		: NSLOCTEXT("Loop9Interaction", "LiftNextFloor", "Next floor (interior light OFF)");
 }

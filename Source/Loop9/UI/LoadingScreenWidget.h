@@ -53,7 +53,7 @@ public:
 
 private:
 	/** Hardcoded loading tips */
-	static const TArray<FString> LoadingTips;
+	static const TArray<FText> LoadingTips;
 
 	/** Fade out state */
 	bool bIsFadingOut = false;

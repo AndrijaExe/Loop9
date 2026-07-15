@@ -6,10 +6,14 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InputMappingContext.h"
+#include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Loop9.h"
 #include "Interaction/Loop9Interactable.h"
+#include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"
@@ -162,6 +166,54 @@ void ALoop9Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		UE_LOG(LogLoop9, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+
+	RegisterGamepadFallbackContext();
+}
+
+void ALoop9Character::RegisterGamepadFallbackContext()
+{
+	// IMC_Default (from the FP template) already maps move/look/jump to the
+	// gamepad, but the custom actions (Interact, Pause, Sprint) are
+	// keyboard-only assets. Build a transient context here so the game is
+	// playable with a controller / on Steam Deck without editing content.
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return;
+	}
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	if (!GamepadFallbackContext)
+	{
+		GamepadFallbackContext = NewObject<UInputMappingContext>(this, TEXT("IMC_GamepadFallback"));
+		AddGamepadFallbackMappings(GamepadFallbackContext);
+	}
+
+	if (!Subsystem->HasMappingContext(GamepadFallbackContext))
+	{
+		Subsystem->AddMappingContext(GamepadFallbackContext, 0);
+	}
+}
+
+void ALoop9Character::AddGamepadFallbackMappings(UInputMappingContext* Context)
+{
+	if (InteractAction)
+	{
+		// X on Xbox / Square on PlayStation - the usual "use" button.
+		Context->MapKey(InteractAction, EKeys::Gamepad_FaceButton_Left);
+	}
+
+	if (PauseAction)
+	{
+		// Start / Menu button.
+		Context->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
+	}
 }
 
 
@@ -180,9 +232,20 @@ void ALoop9Character::LookInput(const FInputActionValue& Value)
 	// get the Vector2D look axis
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
+	float Sensitivity = 1.0f;
+	float InvertY = 1.0f;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (const ULoop9GameSettingsSubsystem* GameSettings = GI->GetSubsystem<ULoop9GameSettingsSubsystem>())
+		{
+			Sensitivity = GameSettings->GetMouseSensitivity();
+			InvertY = GameSettings->IsYAxisInverted() ? -1.0f : 1.0f;
+		}
+	}
+
 	// pass the axis values to the aim input
 	// Invert Y so mouse-up looks up (standard FPS behavior)
-	DoAim(LookAxisVector.X, -LookAxisVector.Y);
+	DoAim(LookAxisVector.X * Sensitivity, -LookAxisVector.Y * Sensitivity * InvertY);
 
 }
 

@@ -22,7 +22,10 @@ namespace
 		ELoopAnomalyType::Audio,
 		ELoopAnomalyType::Text,
 		ELoopAnomalyType::DoorLock,
-		ELoopAnomalyType::Pursuer
+		ELoopAnomalyType::Pursuer,
+		ELoopAnomalyType::Scale,
+		ELoopAnomalyType::Clock,
+		ELoopAnomalyType::PhantomMessage
 	};
 
 	int32 GetTypeIndex(ELoopAnomalyType Type)
@@ -141,9 +144,6 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 {
 	CleanupInvalidComponents();
 
-	const ELoopAnomalyType FirstType = bDebugOnlyMoveAnomaly ? ELoopAnomalyType::Move : ELoopAnomalyType::Hide;
-	const ELoopAnomalyType LastTypeExclusive = bDebugOnlyMoveAnomaly ? ELoopAnomalyType::Light : ELoopAnomalyType::Pursuer;
-
 	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
 	{
 		UAnomalyComponentBase* Component = ComponentPtr.Get();
@@ -153,7 +153,12 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 		}
 
 		const ELoopAnomalyType Type = Component->GetAnomalyType();
-		if (Type >= FirstType && Type <= LastTypeExclusive)
+		if (bDebugOnlyMoveAnomaly && Type != ELoopAnomalyType::Move)
+		{
+			continue;
+		}
+
+		if (GetTypeIndex(Type) != INDEX_NONE)
 		{
 			Component->ActivateAnomaly();
 			return true;

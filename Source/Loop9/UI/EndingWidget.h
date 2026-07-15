@@ -47,7 +47,7 @@ public:
 	FText ContinueButtonLabel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ending")
-	FText DefaultContinueButtonLabel = FText::FromString(TEXT("Return to Main Menu"));
+	FText DefaultContinueButtonLabel = NSLOCTEXT("Loop9Endings", "ContinueButtonLabel", "Return to Main Menu");
 
 protected:
 	UPROPERTY(meta = (BindWidgetOptional))

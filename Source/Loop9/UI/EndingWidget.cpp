@@ -8,6 +8,8 @@
 #include "Blueprint/WidgetTree.h"
 #include "Styling/CoreStyle.h"
 
+#define LOCTEXT_NAMESPACE "Loop9Endings"
+
 void UEndingWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -39,32 +41,34 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 	switch (EndingType)
 	{
 	case ELoopEndingType::EscapeTogether:
-		EndingTitle = FText::FromString(TEXT("ESCAPE TOGETHER"));
-		EndingDescription = FText::FromString(TEXT("You and Dragojlo built trust without losing yourself. You escaped the loop together."));
+		EndingTitle = LOCTEXT("EscapeTogetherTitle", "ESCAPE TOGETHER");
+		EndingDescription = LOCTEXT("EscapeTogetherDesc", "You and Dragojlo built trust without losing yourself. You escaped the loop together.");
 		break;
 	case ELoopEndingType::ObedientFool:
-		EndingTitle = FText::FromString(TEXT("OBEDIENT FOOL"));
-		EndingDescription = FText::FromString(TEXT("You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."));
+		EndingTitle = LOCTEXT("ObedientFoolTitle", "OBEDIENT FOOL");
+		EndingDescription = LOCTEXT("ObedientFoolDesc", "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate.");
 		break;
 	case ELoopEndingType::ColdBetrayal:
-		EndingTitle = FText::FromString(TEXT("COLD BETRAYAL"));
-		EndingDescription = FText::FromString(TEXT("You relied on him but never respected him. One calm lie was enough."));
+		EndingTitle = LOCTEXT("ColdBetrayalTitle", "COLD BETRAYAL");
+		EndingDescription = LOCTEXT("ColdBetrayalDesc", "You relied on him but never respected him. One calm lie was enough.");
 		break;
 	case ELoopEndingType::MergedMemory:
-		EndingTitle = FText::FromString(TEXT("MERGED MEMORY"));
-		EndingDescription = FText::FromString(TEXT("Your memories and his leaks intertwined. You can no longer tell who remembers what."));
+		EndingTitle = LOCTEXT("MergedMemoryTitle", "MERGED MEMORY");
+		EndingDescription = LOCTEXT("MergedMemoryDesc", "Your memories and his leaks intertwined. You can no longer tell who remembers what.");
 		break;
 	case ELoopEndingType::TheReplacement:
-		EndingTitle = FText::FromString(TEXT("THE REPLACEMENT"));
-		EndingDescription = FText::FromString(TEXT("He did not destroy you. He learned you. Now you are the voice on the other side of the line."));
+		EndingTitle = LOCTEXT("TheReplacementTitle", "THE REPLACEMENT");
+		EndingDescription = LOCTEXT("TheReplacementDesc", "He did not destroy you. He learned you. Now you are the voice on the other side of the line.");
 		break;
 	default:
-		EndingTitle = FText::FromString(TEXT("PARANOID SURVIVOR"));
-		EndingDescription = FText::FromString(TEXT("You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."));
+		EndingTitle = LOCTEXT("ParanoidSurvivorTitle", "PARANOID SURVIVOR");
+		EndingDescription = LOCTEXT("ParanoidSurvivorDesc", "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth.");
 		break;
 	}
 
-	EndingStats = FText::FromString(FString::Printf(TEXT("Resets: %d | AI interactions: %d"), InResets, InAIInteractions));
+	EndingStats = FText::Format(
+		LOCTEXT("EndingStatsFormat", "Resets: {0} | AI interactions: {1}"),
+		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
 
 	if (EndingType == ELoopEndingType::TheReplacement)
 	{
@@ -174,3 +178,5 @@ void UEndingWidget::BindContinueButton()
 		FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

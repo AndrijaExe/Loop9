@@ -5,6 +5,7 @@
 #include "OnlineStats.h"
 #include "Interfaces/OnlineAchievementsInterface.h"
 #include "Interfaces/OnlineIdentityInterface.h"
+#include "Steam/Loop9SteamUtils.h"
 
 namespace
 {
@@ -13,7 +14,7 @@ namespace
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
 	constexpr int32 EndingTypeCount = 6;
-	constexpr int32 AnomalyTypeCount = 7;
+	constexpr int32 AnomalyTypeCount = 10;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
@@ -71,6 +72,9 @@ FName ULoop9AchievementsSubsystem::SpotAchievementId(const FString& AnomalyTypeL
 	if (AnomalyTypeLabel == TEXT("TextAnomaly")) { return FName(TEXT("ACH_SPOT_TEXT")); }
 	if (AnomalyTypeLabel == TEXT("DoorLockAnomaly")) { return FName(TEXT("ACH_SPOT_DOORLOCK")); }
 	if (AnomalyTypeLabel == TEXT("PursuerAnomaly")) { return FName(TEXT("ACH_SPOT_PURSUER")); }
+	if (AnomalyTypeLabel == TEXT("ScaleAnomaly")) { return FName(TEXT("ACH_SPOT_SCALE")); }
+	if (AnomalyTypeLabel == TEXT("ClockAnomaly")) { return FName(TEXT("ACH_SPOT_CLOCK")); }
+	if (AnomalyTypeLabel == TEXT("PhantomMessageAnomaly")) { return FName(TEXT("ACH_SPOT_PHANTOM")); }
 	return NAME_None;
 }
 
@@ -82,6 +86,11 @@ void ULoop9AchievementsSubsystem::NotifyLoopDecision(bool bWasCorrect, bool bAno
 		if (CorrectDecisionStreak >= StreakTarget)
 		{
 			UnlockAchievement(FName(TEXT("ACH_STREAK_7")));
+		}
+		else
+		{
+			FLoop9SteamUtils::IndicateAchievementProgress(
+				FName(TEXT("ACH_STREAK_7")), CorrectDecisionStreak, StreakTarget);
 		}
 	}
 	else
@@ -98,6 +107,11 @@ void ULoop9AchievementsSubsystem::NotifyLoopDecision(bool bWasCorrect, bool bAno
 		if (ResetsThisRun >= GroundhogResetTarget)
 		{
 			UnlockAchievement(FName(TEXT("ACH_GROUNDHOG")));
+		}
+		else
+		{
+			FLoop9SteamUtils::IndicateAchievementProgress(
+				FName(TEXT("ACH_GROUNDHOG")), ResetsThisRun, GroundhogResetTarget);
 		}
 	}
 
@@ -127,6 +141,11 @@ void ULoop9AchievementsSubsystem::NotifyAIMessageSent(int32 TotalInteractions)
 	if (TotalInteractions >= HotlineMessageTarget)
 	{
 		UnlockAchievement(FName(TEXT("ACH_HOTLINE")));
+	}
+	else
+	{
+		FLoop9SteamUtils::IndicateAchievementProgress(
+			FName(TEXT("ACH_HOTLINE")), TotalInteractions, HotlineMessageTarget);
 	}
 }
 
@@ -171,6 +190,11 @@ void ULoop9AchievementsSubsystem::RecordSeenEnding(ELoopEndingType EndingType)
 	{
 		UnlockAchievement(FName(TEXT("ACH_ALL_ENDINGS")));
 	}
+	else
+	{
+		FLoop9SteamUtils::IndicateAchievementProgress(
+			FName(TEXT("ACH_ALL_ENDINGS")), Seen.Num(), EndingTypeCount);
+	}
 }
 
 void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyKey)
@@ -206,6 +230,11 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 	if (Spotted.Num() >= AnomalyTypeCount)
 	{
 		UnlockAchievement(FName(TEXT("ACH_SPOT_ALL")));
+	}
+	else if (bChanged)
+	{
+		FLoop9SteamUtils::IndicateAchievementProgress(
+			FName(TEXT("ACH_SPOT_ALL")), Spotted.Num(), AnomalyTypeCount);
 	}
 }
 

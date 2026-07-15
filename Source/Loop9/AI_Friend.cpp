@@ -15,6 +15,8 @@
 #include "Sound/SoundAttenuation.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
+#include "Subsystems/Loop9TelemetrySubsystem.h"
+#include "Internationalization/Culture.h"
 
 AAI_Friend::AAI_Friend()
 {
@@ -254,6 +256,11 @@ void AAI_Friend::BeginPlay()
 		{
 			AuthSubsystem->ConfigureFromChatEndpoint(APIEndpoint);
 		}
+
+		if (ULoop9TelemetrySubsystem* Telemetry = GI->GetSubsystem<ULoop9TelemetrySubsystem>())
+		{
+			Telemetry->ConfigureFromChatEndpoint(APIEndpoint, GameToken);
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("AI_Friend configured. Endpoint=%s | BackendTokenSet=%s"), *APIEndpoint, GameToken.IsEmpty() ? TEXT("NO") : TEXT("YES"));
@@ -294,7 +301,7 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	{
 		const FString LimitReply = bUseSignalDropOnLimit
 			? BuildSignalDropMessage()
-			: TEXT("Low signal. Try again later.");
+			: NSLOCTEXT("Loop9Chat", "LowSignalReply", "Low signal. Try again later.").ToString();
 
 		LastAIResponse = LimitReply;
 
@@ -341,7 +348,10 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	RequestContext.GameToken = GameToken;
 	RequestContext.SessionToken = AuthSubsystem ? AuthSubsystem->GetSessionToken() : FString();
 	RequestContext.PlayerId = PlayerId;
-	RequestContext.PreferredLanguage = PreferredLanguage;
+	// Explicit config/env override wins; otherwise the AI follows the UI language.
+	RequestContext.PreferredLanguage = !PreferredLanguage.IsEmpty()
+		? PreferredLanguage
+		: FInternationalization::Get().GetCurrentCulture()->GetTwoLetterISOLanguageName();
 	RequestContext.AIStability = LoopManager ? LoopManager->GetAIStability() : 1.0f;
 	RequestContext.LoopIndex = LoopIndex;
 	RequestContext.Trust = LoopManager ? LoopManager->GetTrust() : 0.5f;
@@ -378,8 +388,38 @@ FString AAI_Friend::SayToAI(const FString& Message)
 					}
 				}
 
-				LastAIResponse = ChatResponse.ErrorMessage;
-				OnResponseReceived(LastAIResponse);
+				UE_LOG(LogTemp, Warning, TEXT("AI request failed. HttpCode=%d | %s"),
+					ChatResponse.HttpCode, *ChatResponse.ErrorMessage);
+
+				// Refund the per-loop message allowance so the player can simply retry.
+				MessagesSentThisLoop = FMath::Max(0, MessagesSentThisLoop - 1);
+
+				// Show an in-fiction failure line instead of silence.
+				FString UserFacingReply;
+				if (ChatResponse.HttpCode == 0)
+				{
+					// The request never reached the backend (offline / timeout).
+					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatConnectionLost",
+						"...the line crackles and goes dead. (No connection. Check your internet and try again.)").ToString();
+				}
+				else if (ChatResponse.HttpCode == 429)
+				{
+					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatRateLimited",
+						"...the line is busy. He cannot take more calls right now. Try again later.").ToString();
+				}
+				else
+				{
+					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatServerError",
+						"...static hisses through the receiver. Something is wrong on the other side. Try again.").ToString();
+				}
+
+				LastAIResponse = UserFacingReply;
+				if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+				{
+					ChatWidget->AddMessageToChat(UserFacingReply, false, true);
+				}
+
+				OnResponseReceived(UserFacingReply);
 				return;
 			}
 
@@ -564,13 +604,49 @@ void AAI_Friend::OpenChatWidget(APlayerController* PlayerController)
 
 		if (ChatWidget && !bInitialMessageInjected)
 		{
-			ChatWidget->AddMessageToChat(InitialRuleMessage, false, ShouldUseAnomalyMumble());
+			// Resolve the localized default at use time so a language switch
+			// mid-session still produces the right text.
+			const FString RuleMessage = InitialRuleMessage.IsEmpty()
+				? NSLOCTEXT("Loop9Chat", "InitialRuleMessage",
+					"Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline.").ToString()
+				: InitialRuleMessage;
+
+			ChatWidget->AddMessageToChat(RuleMessage, false, ShouldUseAnomalyMumble());
 			bInitialMessageInjected = true;
+		}
+
+		// Phantom message anomaly: a "player" message the player never sent.
+		if (ChatWidget && !PendingPhantomMessage.IsEmpty() && !bPhantomMessageShown)
+		{
+			ChatWidget->AddMessageToChat(PendingPhantomMessage, true);
+			bPhantomMessageShown = true;
 		}
 
 		SetPlayerMovementEnabled(PlayerController, false);
 		ApplyInteractionInputMode(PlayerController, true);
 	}
+}
+
+void AAI_Friend::QueuePhantomPlayerMessage(const FString& Message)
+{
+	PendingPhantomMessage = Message;
+	bPhantomMessageShown = false;
+
+	// If the chat is already open, inject immediately.
+	if (ChatWidgetInstance && ChatWidgetInstance->IsInViewport())
+	{
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->AddMessageToChat(PendingPhantomMessage, true);
+			bPhantomMessageShown = true;
+		}
+	}
+}
+
+void AAI_Friend::ClearPhantomPlayerMessage()
+{
+	PendingPhantomMessage.Empty();
+	bPhantomMessageShown = false;
 }
 
 bool AAI_Friend::TryInteract_Implementation(APlayerController* InteractingController)
@@ -581,7 +657,7 @@ bool AAI_Friend::TryInteract_Implementation(APlayerController* InteractingContro
 
 FText AAI_Friend::GetInteractionPromptText_Implementation() const
 {
-	return FText::FromString(TEXT("Answer"));
+	return NSLOCTEXT("Loop9Interaction", "AnswerPhone", "Answer");
 }
 
 void AAI_Friend::CloseChatWidget(APlayerController* PlayerController)

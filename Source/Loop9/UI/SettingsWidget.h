@@ -25,6 +25,27 @@ protected:
 	UFUNCTION()
 	void HandleBackButtonClicked();
 
+	UFUNCTION()
+	void HandleLanguageSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
+
+	UFUNCTION()
+	void HandleGammaChanged(float Value);
+
+	UFUNCTION()
+	void HandleMasterVolumeChanged(float Value);
+
+	UFUNCTION()
+	void HandleMusicVolumeChanged(float Value);
+
+	UFUNCTION()
+	void HandleSFXVolumeChanged(float Value);
+
+	UFUNCTION()
+	void HandleMouseSensitivityChanged(float Value);
+
+	UFUNCTION()
+	void HandleInvertYChanged(bool bIsChecked);
+
 public:
 	/** Called when Back button is clicked */
 	UFUNCTION(BlueprintCallable, Category = "Settings")
@@ -102,6 +123,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings|Audio")
 	void SetSFXVolume(float Volume);
 
+	// --- DISPLAY SETTINGS ---
+
+	/** Set display gamma (2.2 = neutral, higher = brighter). */
+	UFUNCTION(BlueprintCallable, Category = "Settings|Display")
+	void SetGamma(float InGamma);
+
+	/** Read current display gamma. */
+	UFUNCTION(BlueprintPure, Category = "Settings|Display")
+	float GetCurrentGamma() const;
+
 	// --- CONTROLS SETTINGS ---
 
 	/** Set mouse sensitivity */
@@ -111,6 +142,16 @@ public:
 	/** Set inverted Y-axis */
 	UFUNCTION(BlueprintCallable, Category = "Settings|Controls")
 	void SetInvertedYAxis(bool bInverted);
+
+	// --- LANGUAGE SETTINGS ---
+
+	/** Set UI language by culture code (e.g. "en", "sr"). Persists across sessions. */
+	UFUNCTION(BlueprintCallable, Category = "Settings|Language")
+	void SetLanguage(const FString& CultureCode);
+
+	/** Current UI culture code (e.g. "en"). */
+	UFUNCTION(BlueprintPure, Category = "Settings|Language")
+	FString GetCurrentLanguage() const;
 
 	// --- SAVE/LOAD SETTINGS ---
 
@@ -146,11 +187,46 @@ private:
 	class UComboBoxString* ComboBoxString_FPSLimit;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class UComboBoxString* ComboBoxString_Language;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class USlider* Slider_Gamma;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class USlider* Slider_MasterVolume;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class USlider* Slider_MusicVolume;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class USlider* Slider_SFXVolume;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class USlider* Slider_MouseSensitivity;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	class UCheckBox* CheckBox_InvertY;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	class UButton* Button_Apply;
 
   UPROPERTY(BlueprintReadOnly, Category = "Settings|Widgets", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	class UButton* Button_Back;
 
 	void PopulateGraphicsOptions();
+	void PopulateLanguageOptions();
+	void BindValueWidgets();
 	void SyncWidgetsFromCurrentSettings();
+	class ULoop9GameSettingsSubsystem* GetGameSettings() const;
+
+	/** UI slider range for gamma; slider value 0-1 maps to this range. */
+	static constexpr float MinGamma = 1.6f;
+	static constexpr float MaxGamma = 3.2f;
+
+	/** UI slider range for mouse sensitivity. */
+	static constexpr float MinSensitivity = 0.1f;
+	static constexpr float MaxSensitivity = 3.0f;
+
+	/** Culture codes supported by the game, index-aligned with ComboBoxString_Language options. */
+	static const TArray<FString> SupportedCultures;
 };
