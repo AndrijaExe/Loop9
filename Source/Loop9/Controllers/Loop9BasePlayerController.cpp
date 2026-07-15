@@ -8,6 +8,7 @@
 #include "Interaction/InteractionPromptProvider.h"
 #include "Camera/CameraComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
 void ALoop9BasePlayerController::BeginPlay()
@@ -69,6 +70,14 @@ void ALoop9BasePlayerController::ClearInteractionPrompt()
 
 void ALoop9BasePlayerController::UpdateInteractionPrompt()
 {
+	// Controller ticks even while paused (pause menu / item inspection) —
+	// don't show world prompts over those screens.
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		PushPromptToUI(FText::GetEmpty(), false);
+		return;
+	}
+
 	ALoop9Character* LoopCharacter = Cast<ALoop9Character>(GetPawn());
 	if (!LoopCharacter || !GetInteractionPromptWidget())
 	{

@@ -944,3 +944,10 @@ msgctxt "Loop9Settings,QualityHigh"
 msgid "High"
 msgstr "Eleve"
 
+
+#. Key:	Inspect
+#. SourceLocation:	Source/Loop9/Interaction/InspectableItem.h(36)
+#: Source/Loop9/Interaction/InspectableItem.h(36)
+msgctxt "Loop9Interaction,Inspect"
+msgid "Examine"
+msgstr "Examiner"
