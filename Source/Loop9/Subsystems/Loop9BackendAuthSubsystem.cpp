@@ -73,12 +73,28 @@ FString ULoop9BackendAuthSubsystem::ResolveSteamAuthTicket() const
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get(FName(TEXT("Steam")));
 	if (!OnlineSubsystem)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: OnlineSubsystemSteam not available (Steam client running? use Standalone, not PIE)."));
 		return FString();
 	}
 
 	IOnlineIdentityPtr Identity = OnlineSubsystem->GetIdentityInterface();
 	if (!Identity.IsValid())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam identity interface missing."));
+		return FString();
+	}
+
+	const ELoginStatus::Type LoginStatus = Identity->GetLoginStatus(0);
+	if (LoginStatus != ELoginStatus::LoggedIn)
+	{
+		// Steam handles login via the running client; AutoLogin just refreshes local state.
+		Identity->AutoLogin(0);
+	}
+
+	if (Identity->GetLoginStatus(0) != ELoginStatus::LoggedIn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam user not logged in (status=%d). Open Steam client and use Play > Standalone Game."),
+			static_cast<int32>(Identity->GetLoginStatus(0)));
 		return FString();
 	}
 
@@ -86,7 +102,12 @@ FString ULoop9BackendAuthSubsystem::ResolveSteamAuthTicket() const
 	// NOTE: If the backend consistently rejects tickets with STEAM_TICKET_INVALID,
 	// Valve may require the newer GetAuthTicketForWebApi flow for this SDK version;
 	// in that case switch this call to the identity interface's web-api ticket API.
-	return Identity->GetAuthToken(0);
+	const FString Ticket = Identity->GetAuthToken(0);
+	if (Ticket.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam logged in but GetAuthToken returned empty."));
+	}
+	return Ticket;
 }
 
 void ULoop9BackendAuthSubsystem::RequestSessionToken()
@@ -94,7 +115,7 @@ void ULoop9BackendAuthSubsystem::RequestSessionToken()
 	const FString Ticket = ResolveSteamAuthTicket();
 	if (Ticket.IsEmpty())
 	{
-		UE_LOG(LogTemp, Verbose, TEXT("Loop9 auth: no Steam ticket available, staying on legacy game token."));
+		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: no Steam ticket available, staying on legacy game token."));
 		return;
 	}
 
