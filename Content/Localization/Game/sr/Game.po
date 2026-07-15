@@ -88,35 +88,35 @@ msgstr ""
 #: /Game/MyStuff/UI/Endings/WBP_Ending.WBP_Ending_C:WidgetTree.TextBlock_0.Text
 msgctxt ",037BAA77460F9D84E866E99A0D93EE93"
 msgid "THANKS FOR PLAYING!"
-msgstr ""
+msgstr "HVALA ŠTO SI IGRAO!"
 
 #. Key:	FC85E1264343478B2DE6449C3577759D
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",FC85E1264343478B2DE6449C3577759D"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	C92DEE524B0BD64465552185F143852B
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",C92DEE524B0BD64465552185F143852B"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	23FE6835479821BF05C1908194DEFB51
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",23FE6835479821BF05C1908194DEFB51"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	B9BAB0D943B90D132E7F408DD41D7556
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",B9BAB0D943B90D132E7F408DD41D7556"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	TextBlockDefaultValue
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
@@ -130,21 +130,21 @@ msgstr ""
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",BD6E93B141579D8FA626EF8209964764"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	8AC00E3D4A820BDBE08BA1BA35EFAB8A
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",8AC00E3D4A820BDBE08BA1BA35EFAB8A"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	8B3D79274E23AA42843A549FCD48CF80
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",8B3D79274E23AA42843A549FCD48CF80"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Nazad na glavni meni"
 
 #. Key:	0414D10F4AB79DF2515732AFC462FEED
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
@@ -326,14 +326,14 @@ msgstr ""
 #: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.MessageInputBox.HintText
 msgctxt ",AAB5B2B447A3FEA3D4B86C957329CA3F"
 msgid "Talk on phone..."
-msgstr ""
+msgstr "Pričaj telefonom..."
 
 #. Key:	D9EDDF9A4A594075426CD9998EA706C4
 #. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
 #: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
 msgctxt ",D9EDDF9A4A594075426CD9998EA706C4"
 msgid "Send"
-msgstr ""
+msgstr "Pošalji"
 
 #. Key:	5A5415D143C4984F8A73109602079148
 #. SourceLocation:	/Game/MyStuff/UI/WBP_HorrorUI.WBP_HorrorUI_C:WidgetTree.TB_CrosshairDot.Text
@@ -347,14 +347,14 @@ msgstr ""
 #: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TextBlock_0.Text
 msgctxt ",A114175546F6AB4439486D84D6368A1C"
 msgid "LOADING..."
-msgstr ""
+msgstr "UČITAVANJE..."
 
 #. Key:	8F43C2C54B86376327E192960FC9CC83
 #. SourceLocation:	/Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
 #: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
 msgctxt ",8F43C2C54B86376327E192960FC9CC83"
 msgid "Tip: Look for missing objects"
-msgstr ""
+msgstr "Savet: Traži predmete koji nedostaju"
 
 #. Key:	PlayerPrefix
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
@@ -648,7 +648,7 @@ msgstr "Učitavanje..."
 #: Source/Loop9/UI/Loop9SettingRowWidgets.cpp(122)
 msgctxt "Loop9Settings,RowValuePercent"
 msgid "{0}%"
-msgstr ""
+msgstr "{0}%"
 
 #. Key:	Play
 #. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(46)

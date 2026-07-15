@@ -88,35 +88,35 @@ msgstr ""
 #: /Game/MyStuff/UI/Endings/WBP_Ending.WBP_Ending_C:WidgetTree.TextBlock_0.Text
 msgctxt ",037BAA77460F9D84E866E99A0D93EE93"
 msgid "THANKS FOR PLAYING!"
-msgstr ""
+msgstr "DANKE FÜRS SPIELEN!"
 
 #. Key:	FC85E1264343478B2DE6449C3577759D
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal.WBP_Ending_ColdBetrayal_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",FC85E1264343478B2DE6449C3577759D"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	C92DEE524B0BD64465552185F143852B
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether.WBP_Ending_EscapeTogether_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",C92DEE524B0BD64465552185F143852B"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	23FE6835479821BF05C1908194DEFB51
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory.WBP_Ending_MergedMemory_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",23FE6835479821BF05C1908194DEFB51"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	B9BAB0D943B90D132E7F408DD41D7556
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",B9BAB0D943B90D132E7F408DD41D7556"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	TextBlockDefaultValue
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
@@ -130,21 +130,21 @@ msgstr ""
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",BD6E93B141579D8FA626EF8209964764"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	8AC00E3D4A820BDBE08BA1BA35EFAB8A
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",8AC00E3D4A820BDBE08BA1BA35EFAB8A"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	8B3D79274E23AA42843A549FCD48CF80
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",8B3D79274E23AA42843A549FCD48CF80"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	0414D10F4AB79DF2515732AFC462FEED
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
@@ -326,14 +326,14 @@ msgstr ""
 #: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.MessageInputBox.HintText
 msgctxt ",AAB5B2B447A3FEA3D4B86C957329CA3F"
 msgid "Talk on phone..."
-msgstr ""
+msgstr "Am Telefon sprechen..."
 
 #. Key:	D9EDDF9A4A594075426CD9998EA706C4
 #. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
 #: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.SendButton1.ButtonText
 msgctxt ",D9EDDF9A4A594075426CD9998EA706C4"
 msgid "Send"
-msgstr ""
+msgstr "Senden"
 
 #. Key:	5A5415D143C4984F8A73109602079148
 #. SourceLocation:	/Game/MyStuff/UI/WBP_HorrorUI.WBP_HorrorUI_C:WidgetTree.TB_CrosshairDot.Text
@@ -347,308 +347,308 @@ msgstr ""
 #: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TextBlock_0.Text
 msgctxt ",A114175546F6AB4439486D84D6368A1C"
 msgid "LOADING..."
-msgstr ""
+msgstr "LADEN..."
 
 #. Key:	8F43C2C54B86376327E192960FC9CC83
 #. SourceLocation:	/Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
 #: /Game/MyStuff/UI/WBP_LoadingScreen.WBP_LoadingScreen_C:WidgetTree.TipText.Text
 msgctxt ",8F43C2C54B86376327E192960FC9CC83"
 msgid "Tip: Look for missing objects"
-msgstr ""
+msgstr "Tipp: Achte auf fehlende Objekte"
 
 #. Key:	PlayerPrefix
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
 #: Source/Loop9/AI_ChatWidget.cpp(150)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
-msgstr ""
+msgstr "Du: "
 
 #. Key:	FriendPrefix
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(151)
 #: Source/Loop9/AI_ChatWidget.cpp(151)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
-msgstr ""
+msgstr "Dragojlo: "
 
 #. Key:	LowSignalReply
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(304)
 #: Source/Loop9/AI_Friend.cpp(304)
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
-msgstr ""
+msgstr "Schwaches Signal. Versuch es später noch mal."
 
 #. Key:	ChatConnectionLost
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(402)
 #: Source/Loop9/AI_Friend.cpp(402)
 msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
-msgstr ""
+msgstr "...die Leitung knistert und bricht ab. (Keine Verbindung. Prüfe dein Internet und versuch es erneut.)"
 
 #. Key:	ChatRateLimited
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(407)
 #: Source/Loop9/AI_Friend.cpp(407)
 msgctxt "Loop9Chat,ChatRateLimited"
 msgid "...the line is busy. He cannot take more calls right now. Try again later."
-msgstr ""
+msgstr "...die Leitung ist besetzt. Er kann gerade keine weiteren Anrufe annehmen. Versuch es später noch mal."
 
 #. Key:	ChatServerError
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(412)
 #: Source/Loop9/AI_Friend.cpp(412)
 msgctxt "Loop9Chat,ChatServerError"
 msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
-msgstr ""
+msgstr "...Rauschen zischt durch den Hörer. Auf der anderen Seite stimmt etwas nicht. Versuch es noch mal."
 
 #. Key:	InitialRuleMessage
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
 #: Source/Loop9/AI_Friend.cpp(610)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
-msgstr ""
+msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den Aufzug mit eingeschaltetem Innenlicht (RESTART). Findest du keine Anomalie, nimm den Aufzug ohne Innenlicht (WEITER). Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
 
 #. Key:	AnswerPhone
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)
 #: Source/Loop9/AI_Friend.cpp(660)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
-msgstr ""
+msgstr "Abheben"
 
 #. Key:	PhoneRinging
 #. SourceLocation:	Source/Loop9/AI_Friend.h(96)
 #: Source/Loop9/AI_Friend.h(96)
 msgctxt "Loop9Chat,PhoneRinging"
 msgid "Phone ringing..."
-msgstr ""
+msgstr "Das Telefon klingelt..."
 
 #. Key:	PhantomMsg1
 #. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(13)
 #: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(13)
 msgctxt "Loop9Anomaly,PhantomMsg1"
 msgid "I already told you about the monitor. Why do you keep asking?"
-msgstr ""
+msgstr "Ich hab dir doch schon von dem Monitor erzählt. Warum fragst du ständig?"
 
 #. Key:	PhantomMsg2
 #. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(14)
 #: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(14)
 msgctxt "Loop9Anomaly,PhantomMsg2"
 msgid "help"
-msgstr ""
+msgstr "hilfe"
 
 #. Key:	PhantomMsg3
 #. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(15)
 #: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(15)
 msgctxt "Loop9Anomaly,PhantomMsg3"
 msgid "I'm not going back down there."
-msgstr ""
+msgstr "Ich gehe da nicht wieder runter."
 
 #. Key:	PhantomMsg4
 #. SourceLocation:	Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(16)
 #: Source/Loop9/Anomaly/PhantomMessageAnomalyComponent.cpp(16)
 msgctxt "Loop9Anomaly,PhantomMsg4"
 msgid "Did you hear that too?"
-msgstr ""
+msgstr "Hast du das auch gehört?"
 
 #. Key:	Tip01
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(24)
 #: Source/Loop9/GameHelpers.cpp(24)
 msgctxt "Loop9Loading,Tip01"
 msgid "Look for objects that disappear..."
-msgstr ""
+msgstr "Achte auf Objekte, die verschwinden..."
 
 #. Key:	Tip02
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(25)
 #: Source/Loop9/GameHelpers.cpp(25)
 msgctxt "Loop9Loading,Tip02"
 msgid "Pay close attention to your surroundings"
-msgstr ""
+msgstr "Achte genau auf deine Umgebung"
 
 #. Key:	Tip03
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(26)
 #: Source/Loop9/GameHelpers.cpp(26)
 msgctxt "Loop9Loading,Tip03"
 msgid "Trust your instincts, but verify everything"
-msgstr ""
+msgstr "Vertraue deinem Instinkt, aber überprüfe alles"
 
 #. Key:	Tip04
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(27)
 #: Source/Loop9/GameHelpers.cpp(27)
 msgctxt "Loop9Loading,Tip04"
 msgid "Not everything is as it seems"
-msgstr ""
+msgstr "Nicht alles ist so, wie es scheint"
 
 #. Key:	Tip05
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(28)
 #: Source/Loop9/GameHelpers.cpp(28)
 msgctxt "Loop9Loading,Tip05"
 msgid "The office changes when you're not looking"
-msgstr ""
+msgstr "Das Büro verändert sich, wenn du nicht hinsiehst"
 
 #. Key:	Tip06
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(29)
 #: Source/Loop9/GameHelpers.cpp(29)
 msgctxt "Loop9Loading,Tip06"
 msgid "Dragojlo has been here for a very long time"
-msgstr ""
+msgstr "Dragojlo ist schon sehr lange hier"
 
 #. Key:	Tip07
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(30)
 #: Source/Loop9/GameHelpers.cpp(30)
 msgctxt "Loop9Loading,Tip07"
 msgid "Every loop is a chance to escape"
-msgstr ""
+msgstr "Jede Schleife ist eine Chance zu entkommen"
 
 #. Key:	LoadingHeader
 #. SourceLocation:	Source/Loop9/GameHelpers.cpp(51)
 #: Source/Loop9/GameHelpers.cpp(51)
 msgctxt "Loop9Loading,LoadingHeader"
 msgid "LOADING..."
-msgstr ""
+msgstr "LADEN..."
 
 #. Key:	DoorLocked
 #. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(93)
 #: Source/Loop9/Interaction/DoorInteractable.cpp(93)
 msgctxt "Loop9Interaction,DoorLocked"
 msgid "Locked"
-msgstr ""
+msgstr "Verschlossen"
 
 #. Key:	DoorClose
 #. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(97)
 #: Source/Loop9/Interaction/DoorInteractable.cpp(97)
 msgctxt "Loop9Interaction,DoorClose"
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #. Key:	DoorOpen
 #. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(98)
 #: Source/Loop9/Interaction/DoorInteractable.cpp(98)
 msgctxt "Loop9Interaction,DoorOpen"
 msgid "Open"
-msgstr ""
+msgstr "Öffnen"
 
 #. Key:	LiftRestartLoop
 #. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(131)
 #: Source/Loop9/Interaction/LiftButton.cpp(131)
 msgctxt "Loop9Interaction,LiftRestartLoop"
 msgid "Restart loop (interior light ON)"
-msgstr ""
+msgstr "Schleife neu starten (Innenlicht AN)"
 
 #. Key:	LiftNextFloor
 #. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(132)
 #: Source/Loop9/Interaction/LiftButton.cpp(132)
 msgctxt "Loop9Interaction,LiftNextFloor"
 msgid "Next floor (interior light OFF)"
-msgstr ""
+msgstr "Nächste Etage (Innenlicht AUS)"
 
 #. Key:	EscapeTogetherTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(43)
 #: Source/Loop9/UI/EndingWidget.cpp(43)
 msgctxt "Loop9Endings,EscapeTogetherTitle"
 msgid "ESCAPE TOGETHER"
-msgstr ""
+msgstr "GEMEINSAME FLUCHT"
 
 #. Key:	EscapeTogetherDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(44)
 #: Source/Loop9/UI/EndingWidget.cpp(44)
 msgctxt "Loop9Endings,EscapeTogetherDesc"
 msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
-msgstr ""
+msgstr "Du und Dragojlo habt Vertrauen aufgebaut, ohne dass du dich selbst verloren hast. Ihr seid der Schleife gemeinsam entkommen."
 
 #. Key:	ObedientFoolTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(47)
 #: Source/Loop9/UI/EndingWidget.cpp(47)
 msgctxt "Loop9Endings,ObedientFoolTitle"
 msgid "OBEDIENT FOOL"
-msgstr ""
+msgstr "GEHORSAMER NARR"
 
 #. Key:	ObedientFoolDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(48)
 #: Source/Loop9/UI/EndingWidget.cpp(48)
 msgctxt "Loop9Endings,ObedientFoolDesc"
 msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
-msgstr ""
+msgstr "Du hast blind vertraut und aufgehört, selbst zu entscheiden. Die falsche Stimme hat dein Schicksal gewählt."
 
 #. Key:	ColdBetrayalTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(51)
 #: Source/Loop9/UI/EndingWidget.cpp(51)
 msgctxt "Loop9Endings,ColdBetrayalTitle"
 msgid "COLD BETRAYAL"
-msgstr ""
+msgstr "KALTER VERRAT"
 
 #. Key:	ColdBetrayalDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(52)
 #: Source/Loop9/UI/EndingWidget.cpp(52)
 msgctxt "Loop9Endings,ColdBetrayalDesc"
 msgid "You relied on him but never respected him. One calm lie was enough."
-msgstr ""
+msgstr "Du hast dich auf ihn verlassen, ihn aber nie respektiert. Eine ruhige Lüge hat genügt."
 
 #. Key:	MergedMemoryTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(55)
 #: Source/Loop9/UI/EndingWidget.cpp(55)
 msgctxt "Loop9Endings,MergedMemoryTitle"
 msgid "MERGED MEMORY"
-msgstr ""
+msgstr "VERSCHMOLZENE ERINNERUNG"
 
 #. Key:	MergedMemoryDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(56)
 #: Source/Loop9/UI/EndingWidget.cpp(56)
 msgctxt "Loop9Endings,MergedMemoryDesc"
 msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
-msgstr ""
+msgstr "Deine Erinnerungen und seine Lecks haben sich verflochten. Du weißt nicht mehr, wer sich an was erinnert."
 
 #. Key:	TheReplacementTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(59)
 #: Source/Loop9/UI/EndingWidget.cpp(59)
 msgctxt "Loop9Endings,TheReplacementTitle"
 msgid "THE REPLACEMENT"
-msgstr ""
+msgstr "DER ERSATZ"
 
 #. Key:	TheReplacementDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(60)
 #: Source/Loop9/UI/EndingWidget.cpp(60)
 msgctxt "Loop9Endings,TheReplacementDesc"
 msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
-msgstr ""
+msgstr "Er hat dich nicht zerstört. Er hat dich gelernt. Jetzt bist du die Stimme am anderen Ende der Leitung."
 
 #. Key:	ParanoidSurvivorTitle
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(63)
 #: Source/Loop9/UI/EndingWidget.cpp(63)
 msgctxt "Loop9Endings,ParanoidSurvivorTitle"
 msgid "PARANOID SURVIVOR"
-msgstr ""
+msgstr "PARANOIDER ÜBERLEBENDER"
 
 #. Key:	ParanoidSurvivorDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(64)
 #: Source/Loop9/UI/EndingWidget.cpp(64)
 msgctxt "Loop9Endings,ParanoidSurvivorDesc"
 msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
-msgstr ""
+msgstr "Du bist allein entkommen, weil du niemandem vertraut hast. Vielleicht hat dich das gerettet. Vielleicht hat es dich die Wahrheit gekostet."
 
 #. Key:	EndingStatsFormat
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(69)
 #: Source/Loop9/UI/EndingWidget.cpp(69)
 msgctxt "Loop9Endings,EndingStatsFormat"
 msgid "Resets: {0} | AI interactions: {1}"
-msgstr ""
+msgstr "Resets: {0} | KI-Interaktionen: {1}"
 
 #. Key:	ContinueButtonLabel
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.h(51)
 #: Source/Loop9/UI/EndingWidget.h(51)
 msgctxt "Loop9Endings,ContinueButtonLabel"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "Zurück zum Hauptmenü"
 
 #. Key:	LoadingFallback
 #. SourceLocation:	Source/Loop9/UI/LoadingScreenWidget.cpp(101)
 #: Source/Loop9/UI/LoadingScreenWidget.cpp(101)
 msgctxt "Loop9Loading,LoadingFallback"
 msgid "Loading..."
-msgstr ""
+msgstr "Laden..."
 
 #. Key:	RowValuePercent
 #. SourceLocation:	Source/Loop9/UI/Loop9SettingRowWidgets.cpp(122)
 #: Source/Loop9/UI/Loop9SettingRowWidgets.cpp(122)
 msgctxt "Loop9Settings,RowValuePercent"
 msgid "{0}%"
-msgstr ""
+msgstr "{0}%"
 
 #. Key:	Play
 #. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(46)
@@ -697,91 +697,91 @@ msgstr "HAUPTMENÜ"
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(56)
 msgctxt "Loop9Terminal,Line01"
 msgid "Initializing interface..."
-msgstr ""
+msgstr "Initialisiere Schnittstelle..."
 
 #. Key:	Line02
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
 msgctxt "Loop9Terminal,Line02"
 msgid "Loading conversation model..."
-msgstr ""
+msgstr "Lade Konversationsmodell..."
 
 #. Key:	Line03
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
 msgctxt "Loop9Terminal,Line03"
 msgid "Importing behavioral profile..."
-msgstr ""
+msgstr "Importiere Verhaltensprofil..."
 
 #. Key:	Line04
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
 msgctxt "Loop9Terminal,Line04"
 msgid "Importing subject language patterns..."
-msgstr ""
+msgstr "Importiere Sprachmuster des Subjekts..."
 
 #. Key:	Line05
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
 msgctxt "Loop9Terminal,Line05"
 msgid "Loading response profile..."
-msgstr ""
+msgstr "Lade Antwortprofil..."
 
 #. Key:	Line06
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
 msgctxt "Loop9Terminal,Line06"
 msgid "Personality imprint complete."
-msgstr ""
+msgstr "Persönlichkeitsabdruck abgeschlossen."
 
 #. Key:	Line07
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
 msgctxt "Loop9Terminal,Line07"
 msgid "Source: Player"
-msgstr ""
+msgstr "Quelle: Spieler"
 
 #. Key:	Line08
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
 msgctxt "Loop9Terminal,Line08"
 msgid "Synchronization complete."
-msgstr ""
+msgstr "Synchronisation abgeschlossen."
 
 #. Key:	Line09
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
 msgctxt "Loop9Terminal,Line09"
 msgid "User connected."
-msgstr ""
+msgstr "Benutzer verbunden."
 
 #. Key:	Line10
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
 msgctxt "Loop9Terminal,Line10"
 msgid "User: Hello?"
-msgstr ""
+msgstr "Benutzer: Hallo?"
 
 #. Key:	Line11
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
 msgctxt "Loop9Terminal,Line11"
 msgid "User: Is someone there?"
-msgstr ""
+msgstr "Benutzer: Ist da jemand?"
 
 #. Key:	Line12
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
 msgctxt "Loop9Terminal,Line12"
 msgid "User: I think I'm stuck."
-msgstr ""
+msgstr "Benutzer: Ich glaube, ich stecke fest."
 
 #. Key:	Line13
 #. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
 #: Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
 msgctxt "Loop9Terminal,Line13"
 msgid "User: Can you help me?"
-msgstr ""
+msgstr "Benutzer: Kannst du mir helfen?"
 
 #. Key:	QualityEpic
 #. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(100)

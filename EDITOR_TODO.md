@@ -20,7 +20,13 @@ editor/C++ posla za release blokere.
 
 - [x] en/sr/de/fr/ru locres + settings/meni smoke (uključujući restart)
 - [ ] Kad dodaš novi NSLOCTEXT: GatherText → PO → GatherText
-- [ ] Opciono: prazni asset `msgstr` u PO
+- [x] Prazni `msgstr` u PO dopunjeni (15.07.): svi C++ stringovi za de/fr/ru
+  (chat, endinzi, terminal, tips, anomalije, interakcije) + vidljivi asset
+  stringovi za sve jezike ("THANKS FOR PLAYING!", "Return to Main Menu",
+  "Talk on phone...", "Send"...). Preostali prazni su BP defaulti koje C++
+  pregazi u runtime-u (PLAY/SETTINGS/Master Volume...) i editor-interno.
+- [ ] **Pokrenuti GatherText ponovo** da se novi prevodi kompajluju u `.locres`
+  (PO je izmenjen, locres u repou je još stari) + smoke de/fr/ru.
 
 ## 4. Anomalije
 
