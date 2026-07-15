@@ -46,6 +46,9 @@ SourceArt/**/*.tga
 Config/DefaultGame.ini
 Config/DefaultEngine.ini
 
+# Local Steam test App ID only — never ship this in the packaged build
+steam_appid.txt
+
 # Marketplace / third-party content (install locally, do not commit)
 Content/Office_Pack_Vol_1/
 Content/Deko_MatrixDemo/

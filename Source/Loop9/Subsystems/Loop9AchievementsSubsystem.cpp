@@ -344,7 +344,7 @@ void ULoop9AchievementsSubsystem::WriteUnlock(FName AchievementId)
 	UnlockedThisSession.Add(AchievementId);
 
 	FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
-	WriteObject->SetFloatStat(AchievementId, 100.0f);
+	WriteObject->SetFloatStat(AchievementId.ToString(), 100.0f);
 
 	FOnlineAchievementsWriteRef WriteRef = WriteObject.ToSharedRef();
 	Achievements->WriteAchievements(*PlayerId, WriteRef,
