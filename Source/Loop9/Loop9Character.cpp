@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Loop9.h"
 #include "Interaction/Loop9Interactable.h"
+#include "Interaction/InspectionStageActor.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -283,12 +284,23 @@ void ALoop9Character::DoJumpEnd()
 
 void ALoop9Character::OnInteract()
 {
+	if (AInspectionStageActor::TryEndActiveInspection())
+	{
+		return;
+	}
+
 	PerformInteractTrace();
 }
 
 void ALoop9Character::OnPause()
 {
 	UE_LOG(LogLoop9, Log, TEXT("Pause key pressed"));
+
+	// Esc during item inspection closes the inspect view instead of opening pause.
+	if (AInspectionStageActor::TryEndActiveInspection())
+	{
+		return;
+	}
 
 	if (!PauseMenuWidgetClass)
 	{

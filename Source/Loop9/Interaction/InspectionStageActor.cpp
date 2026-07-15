@@ -20,6 +20,11 @@ namespace
 	// the inspection doesn't close it in the same or next frame.
 	constexpr float ExitInputGraceSeconds = 0.25f;
 
+	// After closing with E, Enhanced Input still fires Interact on the same press —
+	// block re-open briefly so the item isn't inspected again immediately.
+	constexpr float ReinspectCooldownSeconds = 0.45f;
+	double GReinspectBlockedUntilRealtime = 0.0;
+
 	// Right-stick rotation speed, degrees per second at full deflection.
 	constexpr float GamepadRotateDegPerSec = 160.0f;
 }
@@ -46,9 +51,24 @@ bool AInspectionStageActor::IsInspectionActive()
 	return GActiveInspection.IsValid();
 }
 
+bool AInspectionStageActor::TryEndActiveInspection()
+{
+	if (AInspectionStageActor* Active = GActiveInspection.Get())
+	{
+		Active->EndInspection();
+		return true;
+	}
+	return false;
+}
+
 bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceComponent, APlayerController* InController)
 {
 	if (!SourceComponent || !InController || GActiveInspection.IsValid())
+	{
+		return false;
+	}
+
+	if (FPlatformTime::Seconds() < GReinspectBlockedUntilRealtime)
 	{
 		return false;
 	}
@@ -125,19 +145,34 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	SetActorRotation(StartRotation);
 	AddActorLocalRotation(SourceComponent->InitialRotationOffset);
 
-	// --- Camera blur (depth of field) + light vignette ---
+	// --- Camera blur (depth of field) + darker vignette ---
 	SavedPostProcess = Cam->PostProcessSettings;
 	FPostProcessSettings& PP = Cam->PostProcessSettings;
 	// First-person primitives render at scaled depth, so focus there.
 	const float FocusScale = Cam->bEnableFirstPersonScale ? Cam->FirstPersonScale : 1.0f;
 	PP.bOverride_DepthOfFieldFocalDistance = true;
 	PP.DepthOfFieldFocalDistance = SourceComponent->DistanceCm * FocusScale;
+	// Wide sharp pocket around the prop so its own thickness stays crisp;
+	// room geometry farther away still softens.
+	PP.bOverride_DepthOfFieldFocalRegion = true;
+	PP.DepthOfFieldFocalRegion = FMath::Max(SourceComponent->TargetRadiusCm * 4.0f, 80.0f) * FocusScale;
+	PP.bOverride_DepthOfFieldNearTransitionRegion = true;
+	PP.DepthOfFieldNearTransitionRegion = 40.0f * FocusScale;
+	PP.bOverride_DepthOfFieldFarTransitionRegion = true;
+	PP.DepthOfFieldFarTransitionRegion = 600.0f * FocusScale;
 	PP.bOverride_DepthOfFieldFstop = true;
-	PP.DepthOfFieldFstop = 0.4f;
+	PP.DepthOfFieldFstop = 0.7f;
 	PP.bOverride_DepthOfFieldMinFstop = true;
-	PP.DepthOfFieldMinFstop = 0.4f;
+	PP.DepthOfFieldMinFstop = 0.7f;
 	PP.bOverride_VignetteIntensity = true;
-	PP.VignetteIntensity = 0.7f;
+	PP.VignetteIntensity = 0.9f;
+	// Slightly dimmer than gameplay, but not as crushed as the -2.75 pass.
+	PP.bOverride_AutoExposureBias = true;
+	PP.AutoExposureBias = -1.5f;
+	PP.bOverride_ColorSaturation = true;
+	PP.ColorSaturation = FVector4(0.85f, 0.85f, 0.85f, 1.0f);
+	PP.bOverride_ColorGain = true;
+	PP.ColorGain = FVector4(0.82f, 0.82f, 0.84f, 1.0f);
 
 	// --- Hide the first-person arms so they don't overlap the item ---
 	if (USkeletalMeshComponent* Arms = Character->GetFirstPersonMesh())
@@ -155,6 +190,9 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	GActiveInspection = this;
 	bActive = true;
 	TimeActive = 0.0f;
+	// Treat opening keys as already held so the interact press that opened
+	// the view cannot immediately close it on the rising-edge check.
+	bExitKeyWasDown = IsExitKeyDown();
 	SetActorTickEnabled(true);
 
 	return true;
@@ -178,11 +216,13 @@ void AInspectionStageActor::Tick(float DeltaSeconds)
 
 	TimeActive += DeltaSeconds;
 
-	if (TimeActive > ExitInputGraceSeconds && WantsExit())
+	const bool bExitDown = IsExitKeyDown();
+	if (TimeActive > ExitInputGraceSeconds && bExitDown && !bExitKeyWasDown)
 	{
 		EndInspection();
 		return;
 	}
+	bExitKeyWasDown = bExitDown;
 
 	// --- Rotation input: mouse always rotates; right stick on gamepad ---
 	float DeltaX = 0.0f;
@@ -210,7 +250,7 @@ void AInspectionStageActor::Tick(float DeltaSeconds)
 	SetActorRotation((YawDelta * PitchDelta * GetActorQuat()).Rotator());
 }
 
-bool AInspectionStageActor::WantsExit() const
+bool AInspectionStageActor::IsExitKeyDown() const
 {
 	const APlayerController* PC = Controller.Get();
 	if (!PC)
@@ -218,11 +258,11 @@ bool AInspectionStageActor::WantsExit() const
 		return true;
 	}
 
-	return PC->WasInputKeyJustPressed(EKeys::Escape)
-		|| PC->WasInputKeyJustPressed(EKeys::E)
-		|| PC->WasInputKeyJustPressed(EKeys::RightMouseButton)
-		|| PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Right)
-		|| PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Left);
+	return PC->IsInputKeyDown(EKeys::Escape)
+		|| PC->IsInputKeyDown(EKeys::E)
+		|| PC->IsInputKeyDown(EKeys::RightMouseButton)
+		|| PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Right)
+		|| PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Left);
 }
 
 void AInspectionStageActor::EndInspection()
@@ -262,6 +302,9 @@ void AInspectionStageActor::RestoreState()
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
+
+	// Block immediate re-inspect from the same E that closed the view.
+	GReinspectBlockedUntilRealtime = FPlatformTime::Seconds() + ReinspectCooldownSeconds;
 
 	if (GActiveInspection.Get() == this)
 	{

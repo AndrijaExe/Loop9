@@ -31,6 +31,9 @@ public:
 	/** True while any inspection session is running. */
 	static bool IsInspectionActive();
 
+	/** Ends the active session if any. Returns true if one was closed. */
+	static bool TryEndActiveInspection();
+
 	/** Sets up the view and pauses the game. Returns false if it cannot start. */
 	bool BeginInspection(UInspectableComponent* SourceComponent, APlayerController* InController);
 
@@ -65,6 +68,9 @@ private:
 
 	float RotationSpeed = 0.6f;
 
+	/** Edge-detect exit keys (WasInputKeyJustPressed is unreliable with Enhanced Input while paused). */
+	bool bExitKeyWasDown = false;
+
 	void RestoreState();
-	bool WantsExit() const;
+	bool IsExitKeyDown() const;
 };
