@@ -70,6 +70,7 @@ private:
 
 	bool bActive = false;
 	bool bDidPause = false;
+	bool bDidIgnoreInput = false;
 	bool bRestored = false;
 
 	/** Real seconds since the session opened; input is ignored briefly so the

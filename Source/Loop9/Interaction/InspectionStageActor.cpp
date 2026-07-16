@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/PlayerController.h"
+#include "HAL/IConsoleManager.h"
 #include "Interaction/InspectableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loop9.h"
@@ -123,6 +124,24 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	// matter the aperture. Recipe for the material: EDITOR_TODO.md §4b.
 	UMaterialInterface* BlurMaterial = Cast<UMaterialInterface>(BackgroundBlurMaterialPath.TryLoad());
 
+	// The stencil mask only exists when the project renders the custom depth
+	// pass with stencil (r.CustomDepth=3, "Enabled with Stencil"). Without it
+	// the blur material would blur the item too — fall back to DOF and say why.
+	if (BlurMaterial)
+	{
+		static const IConsoleVariable* CustomDepthCVar =
+			IConsoleManager::Get().FindConsoleVariable(TEXT("r.CustomDepth"));
+		const int32 CustomDepthMode = CustomDepthCVar ? CustomDepthCVar->GetInt() : 0;
+		if (CustomDepthMode < 3)
+		{
+			UE_LOG(LogLoop9, Warning,
+				TEXT("InspectionStage: BackgroundBlurMaterial is configured but r.CustomDepth=%d "
+					 "(needs 3, 'Enabled with Stencil' in Project Settings > Rendering). Using DOF fallback."),
+				CustomDepthMode);
+			BlurMaterial = nullptr;
+		}
+	}
+
 	if (BlurMaterial)
 	{
 		// Render as a first-person primitive (same trick as the player arms):
@@ -213,6 +232,14 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	// --- Pause ---
 	bDidPause = UGameplayStatics::SetGamePaused(GetWorld(), true);
 
+	// Belt and braces: if pausing was disallowed (e.g. a game mode with
+	// bIsPauseAllowed=false), the mouse would otherwise turn the camera while
+	// rotating the item. Ignoring look/move is harmless when paused and
+	// correct when not; RestoreState pairs the decrement exactly once.
+	InController->SetIgnoreLookInput(true);
+	InController->SetIgnoreMoveInput(true);
+	bDidIgnoreInput = true;
+
 	GActiveInspection = this;
 	bActive = true;
 	TimeActive = 0.0f;
@@ -255,8 +282,13 @@ void AInspectionStageActor::Tick(float DeltaSeconds)
 	float DeltaY = 0.0f;
 	PC->GetInputMouseDelta(DeltaX, DeltaY);
 
-	DeltaX += PC->GetInputAnalogKeyState(EKeys::Gamepad_RightX) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
-	DeltaY += PC->GetInputAnalogKeyState(EKeys::Gamepad_RightY) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
+	// Raw analog values need a deadzone, or a worn stick slowly spins the item.
+	auto WithDeadzone = [](float Value)
+	{
+		return FMath::Abs(Value) > 0.15f ? Value : 0.0f;
+	};
+	DeltaX += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightX)) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
+	DeltaY += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightY)) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
 
 	if (FMath::IsNearlyZero(DeltaX) && FMath::IsNearlyZero(DeltaY))
 	{
@@ -327,6 +359,16 @@ void AInspectionStageActor::RestoreState()
 	if (bDidPause)
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
+	}
+
+	if (bDidIgnoreInput)
+	{
+		if (APlayerController* PC = Controller.Get())
+		{
+			PC->SetIgnoreLookInput(false);
+			PC->SetIgnoreMoveInput(false);
+		}
+		bDidIgnoreInput = false;
 	}
 
 	// Block immediate re-inspect from the same E that closed the view.

@@ -40,6 +40,7 @@ void UMaterialSwapAnomalyComponent::BeginPlay()
 	if (TargetMesh && TargetMesh->GetNumMaterials() > MaterialSlot)
 	{
 		NormalMaterial = TargetMesh->GetMaterial(MaterialSlot);
+		bNormalMaterialCaptured = true;
 	}
 
 	Super::BeginPlay();
@@ -54,9 +55,10 @@ bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 
 	// Remember the normal material lazily too, in case the slot changed
 	// after BeginPlay (e.g. some other system set a material).
-	if (!NormalMaterial && TargetMesh->GetNumMaterials() > MaterialSlot)
+	if (!bNormalMaterialCaptured && TargetMesh->GetNumMaterials() > MaterialSlot)
 	{
 		NormalMaterial = TargetMesh->GetMaterial(MaterialSlot);
+		bNormalMaterialCaptured = true;
 	}
 
 	UMaterialInterface* Chosen = AnomalyMaterials[FMath::RandRange(0, AnomalyMaterials.Num() - 1)];
@@ -71,7 +73,7 @@ bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 
 void UMaterialSwapAnomalyComponent::RestoreNormalState()
 {
-	if (TargetMesh && NormalMaterial)
+	if (TargetMesh && bNormalMaterialCaptured)
 	{
 		TargetMesh->SetMaterial(MaterialSlot, NormalMaterial);
 	}

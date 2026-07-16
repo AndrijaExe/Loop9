@@ -58,5 +58,8 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UMaterialInterface> NormalMaterial;
 
+	/** Explicit capture flag — NormalMaterial may legitimately be null (empty slot). */
+	bool bNormalMaterialCaptured = false;
+
 	UMeshComponent* ResolveTargetMesh() const;
 };
