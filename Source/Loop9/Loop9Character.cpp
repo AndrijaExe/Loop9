@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Loop9.h"
 #include "Interaction/Loop9Interactable.h"
+#include "Interaction/InspectableComponent.h"
 #include "Interaction/InspectionStageActor.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -413,6 +414,15 @@ void ALoop9Character::PerformInteractTrace()
 			{
 				UE_LOG(LogLoop9, Log, TEXT("Interacted with actor through interface: %s"), *HitActor->GetClass()->GetName());
 			}
+			return;
+		}
+
+		// Drop-in inspection: any actor with an InspectableComponent can be
+		// examined without implementing the interactable interface.
+		if (UInspectableComponent* Inspectable = HitActor->FindComponentByClass<UInspectableComponent>())
+		{
+			APlayerController* PC = Cast<APlayerController>(GetController());
+			Inspectable->StartInspection(PC);
 			return;
 		}
 

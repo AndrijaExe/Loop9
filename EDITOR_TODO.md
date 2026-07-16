@@ -67,6 +67,33 @@ U editoru:
   pause meni ne može da se otvori dok traje inspekcija; ruke se ne vide
   tokom inspekcije, posle se vrate.
 
+### 4c (16.07.): MaterialSwapAnomalyComponent — "pogrešne novine"
+
+Nova anomalija: mesh na actoru dobije drugi materijal dok je anomalija aktivna
+(novine sa drugim naslovom, poster sa pogrešnim slovima...). **Računa se kao
+postojeći Text tip** — ništa se ne menja u backendu/achievementima.
+
+- [ ] Drugi AI generiše 2–3 varijante tekstura novina → napravi materijale
+  (npr. `MI_Newspaper_Anomaly1/2/3` — kopija normalnog materijala sa
+  zamenjenom teksturom).
+- [ ] Na actor novina dodaj `MaterialSwapAnomalyComponent`:
+  - `AnomalyMaterials` = anomalne varijante (bira nasumičnu pri aktivaciji),
+  - `MaterialSlot` = slot novinskog materijala (obično 0),
+  - `TargetComponentName` ostavi None (uzima prvi mesh) ili upiši ime
+    komponente ako actor ima više mesheva.
+- [ ] Kombinacija sa inspekcijom: inspekcija kopira TRENUTNO primenjene
+  materijale — kad je anomalija aktivna, igrač u ruci vidi "pogrešne" novine.
+  (Napomena: to važi kad se mesh čita sa actora; ako koristiš `MeshOverride`
+  na `InspectableComponent`, materijali dolaze iz override mesha.)
+- [ ] Smoke: forsiraj anomaliju → novine promenjene → sledeći loop vraćene.
+
+### 4d (16.07.): InspectableComponent je sada drop-in
+
+Više NE moraš da koristiš `InspectableItem` actor: dodaj `InspectableComponent`
+na **bilo koji actor** u sceni (Details → Add → Inspectable) i actor odmah
+dobija "Examine" prompt + inspekciju (E). `PromptText` na komponenti menja
+tekst prompta po actoru. `InspectableItem` i dalje radi kao i do sad.
+
 ### 4b-blur (16.07.): oštar predmet + mutna pozadina — M_InspectBackgroundBlur
 
 DOF fizički ne može da drži ovako blizak predmet oštrim (makro fokus — ivice

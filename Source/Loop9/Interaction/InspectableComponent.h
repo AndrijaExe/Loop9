@@ -31,6 +31,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
 	FText DisplayName;
 
+	/**
+	 * Prompt shown when the player looks at the owner. Used when the owner
+	 * does not implement ILoop9Interactable itself — just add this component
+	 * to any actor and it becomes inspectable with this prompt.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
+	FText PromptText = NSLOCTEXT("Loop9Interaction", "Inspect", "Examine");
+
 	/** Mesh shown while inspecting. If unset, the owner's first StaticMeshComponent is used. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
 	TObjectPtr<UStaticMesh> MeshOverride;
