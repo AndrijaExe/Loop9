@@ -17,9 +17,6 @@ GlobalDefaultGameMode=/Game/FirstPerson/Blueprints/BP_FirstPersonGameMode.BP_Fir
 GlobalDefaultServerGameMode=None
 
 [/Script/Engine.RendererSettings]
-; Custom Depth-Stencil Pass "Enabled with Stencil" — needed by the
-; item-inspection background blur mask (EDITOR_TODO.md section 4b).
-r.CustomDepth=3
 r.ReflectionMethod=1
 r.GenerateMeshDistanceFields=True
 r.DynamicGlobalIlluminationMethod=1

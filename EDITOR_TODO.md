@@ -40,11 +40,12 @@ Uncapped) se odmah prevedu; Back/Resume ne ostavljaju overlay.
 - [~] Clock — kod ostaje, nije u nivou (namerno)
 - [ ] Steam toast za `ACH_SPOT_SCALE` / `ACH_SPOT_PHANTOM` — tek sa pravim App ID
 
-## 4b. NOVO (15.07.): Item inspection (Resident Evil stil)
+## 4b. NOVO (15.07., redizajn 16.07.): Item inspection (Resident Evil stil)
 
-Novi feature u C++: pokupiš predmet pogledom + E, igra se pauzira, pozadina se
-zamuti (depth-of-field, providna), predmet lebdi ispred kamere i rotira se
-mišem (ili desnim stikom). Izlaz: **Esc / E / desni klik / B na gamepadu**.
+Novi feature u C++: pokupiš predmet pogledom + E, igra se pauzira, kamera se
+prebaci u **crnu sobu** (izolovana scena visoko iznad mape — pozadina potpuno
+crna, predmet oštar i osvetljen key+fill svetlom) i rotiraš ga mišem (ili
+desnim stikom). Izlaz: **Esc / E / desni klik / B na gamepadu**.
 
 Klase: `UInspectableComponent` (dodaj na bilo koji actor + pozovi
 `StartInspection`), `AInspectableItem` (gotov actor), `AInspectionStageActor`
@@ -63,9 +64,8 @@ U editoru:
   `OnInspectionStarted/Ended` postoje za lore/anomaly logiku.
 - [ ] GatherText (dodat je novi string `Loop9Interaction,Inspect` = "Examine",
   prevodi već upisani u PO za svih 5 jezika).
-- [ ] Smoke: E na predmet → pauza + blur + rotacija mišem; Esc vraća igru;
-  pause meni ne može da se otvori dok traje inspekcija; ruke se ne vide
-  tokom inspekcije, posle se vrate.
+- [ ] Smoke: E na predmet → pauza + crna soba + rotacija mišem; Esc vraća
+  igru i kameru; pause meni ne može da se otvori dok traje inspekcija.
 
 ### 4c (16.07.): MaterialSwapAnomalyComponent — "pogrešne novine"
 
@@ -94,45 +94,38 @@ na **bilo koji actor** u sceni (Details → Add → Inspectable) i actor odmah
 dobija "Examine" prompt + inspekciju (E). `PromptText` na komponenti menja
 tekst prompta po actoru. `InspectableItem` i dalje radi kao i do sad.
 
-### 4b-blur (16.07.): oštar predmet + mutna pozadina — M_InspectBackgroundBlur
+### 4b-crna-soba (16.07. popodne): REDIZAJN — nema više blura
 
-DOF fizički ne može da drži ovako blizak predmet oštrim (makro fokus — ivice
-uvek hvataju blur, zato štelovanje Fstop-a nije pomagalo). Novi kod umesto
-toga koristi **stencil masku + post-process blur materijal**: predmet upiše
-custom depth stencil = 1, materijal zamuti sve OSIM te maske. Ako materijal
-ne postoji, radi DOF fallback (blaži, fokus tačan, ali predmet nikad neće
-biti savršeno oštar — zato napravi materijal).
+Blur pristup (DOF pa stencil maska) je izbačen: predmet je ispadao providan
+i mutan. Novo rešenje je **crna soba**: `AInspectionStageActor` se teleportuje
+300 m iznad igrača, oko njega je crna kutija, predmet stoji na pivotu,
+osvetljen sa dva point light-a (key + fill), kamera se prebaci na stage preko
+`SetViewTarget`. Nula post-process trikova → predmet je uvek 100% oštar i
+neproziran, pozadina garantovano crna.
 
-Koraci u editoru:
+Šta se briše/menja kod tebe lokalno:
 
-1. **Project Settings → Rendering → Postprocessing → Custom Depth-Stencil
-   Pass = "Enabled with Stencil"** (ili u `DefaultEngine.ini` pod
-   `[/Script/Engine.RendererSettings]` dodaj `r.CustomDepth=3` — dodato u
-   `DefaultEngine.ini.example`). Traži restart editora.
-2. Napravi materijal `M_InspectBackgroundBlur` u `Content/MyStuff/Materials/`:
-   - Details panela materijala: **Material Domain = Post Process**;
-     **Blendable Location = Scene Color After Tonemapping** (u starijim
-     verzijama se zove "After Tonemapping").
-   - Nodovi:
-     - `SpiralBlur-SceneTexture` (gotova engine material funkcija — nađi je u
-       paleti). Inputs: **Distance = 0.015** (jačina blura — slobodno šteluj,
-       može i ScalarParameter), **DistanceSteps = 12**, **RadialSteps = 12**.
-     - `SceneTexture` node, Scene Texture Id = **PostProcessInput0** → to je
-       oštra slika.
-     - `SceneTexture` node, Scene Texture Id = **CustomStencil** → uzmi **R**
-       kanal (Mask R) → `Clamp` 0–1 → to je maska (1 = predmet).
-     - `Lerp`: **A = SpiralBlur output** (mutno), **B = PostProcessInput0.rgb**
-       (oštro), **Alpha = maska** → u **Emissive Color**.
-3. U lokalnom `DefaultGame.ini` dodaj (već je u `DefaultGame.ini.example`):
+- [ ] **NE treba** više `M_InspectBackgroundBlur` materijal (slobodno obriši
+  ako si ga napravio), ni `BackgroundBlurMaterialPath` u `DefaultGame.ini`
+  (linija se sada ignoriše, ali očisti radi reda).
+- [ ] `r.CustomDepth=3` u `DefaultEngine.ini` više nije potreban za inspekciju
+  (ostavi ga samo ako ti treba za nešto drugo).
+- [ ] Recompile + smoke: E na predmet → crna pozadina, osvetljen predmet,
+  rotacija mišem radi, Esc/E vraća igru i kameru na pawna.
+- [ ] Ako je predmet pretaman/presvetao, štełuj u `DefaultGame.ini`:
 
-   ```
-   [/Script/Loop9.InspectionStageActor]
-   BackgroundBlurMaterialPath=/Game/MyStuff/Materials/M_InspectBackgroundBlur.M_InspectBackgroundBlur
-   ```
+  ```
+  [/Script/Loop9.InspectionStageActor]
+  ExposureBias=0.0              ; više = svetlije (u stopovima)
+  KeyLightIntensityCandela=300.0
+  FillLightIntensityCandela=75.0
+  ```
 
-4. Recompile + smoke: predmet potpuno oštar, pozadina ravnomerno mutna.
-   Ako vidiš blagi "halo" oko predmeta u bluru, smanji Distance ili povećaj
-   DistanceSteps u materijalu.
+- [ ] (Samo ako u PAKOVANOM buildu zidovi sobe nisu skroz crni: engine debug
+  materijal nije ušao u cook — u `DefaultGame.ini` pod
+  `[/Script/UnrealEd.ProjectPackagingSettings]` dodaj
+  `+DirectoriesToAlwaysCook=(Path="/Engine/EngineDebugMaterials")`.
+  U editoru/PIE ovo nije potrebno.)
 
 ## 5. Steamworks — ČEKA APP ID
 

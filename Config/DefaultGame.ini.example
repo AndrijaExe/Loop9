@@ -18,10 +18,12 @@ ProjectID=AB1C13684F34781DE0B48EA4C51030BC
 +LocalizationPaths=%GAMEDIR%Content/Localization/Game
 
 [/Script/Loop9.InspectionStageActor]
-; Post-process material for the item-inspection background blur
-; (keeps the inspected item perfectly sharp via custom depth stencil).
-; Recipe: EDITOR_TODO.md section 4b. If unset, a DOF fallback is used.
-BackgroundBlurMaterialPath=/Game/MyStuff/Materials/M_InspectBackgroundBlur.M_InspectBackgroundBlur
+; Item inspection "black room" tuning (all optional).
+; ExposureBias: stops, higher = brighter (default 0.0).
+; Key/FillLightIntensityCandela: stage lights (defaults 300 / 75).
+;ExposureBias=0.0
+;KeyLightIntensityCandela=300.0
+;FillLightIntensityCandela=75.0
 
 [/Script/Loop9.AI_Friend]
 ; Copy this file to Config/DefaultGame.ini and fill in your values.

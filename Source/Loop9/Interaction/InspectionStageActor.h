@@ -2,21 +2,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Engine/Scene.h"
-#include "UObject/SoftObjectPath.h"
 #include "InspectionStageActor.generated.h"
 
 class APlayerController;
 class UCameraComponent;
 class UInspectableComponent;
-class USkeletalMeshComponent;
+class UPointLightComponent;
 class UStaticMeshComponent;
 
 /**
- * Internal actor that runs a single item-inspection session:
- * pauses the game, blurs the background with camera depth of field,
- * shows a copy of the item's mesh in front of the camera and lets the
- * player rotate it with the mouse / right gamepad stick.
+ * Internal actor that runs a single item-inspection session in an isolated
+ * "black room": the stage teleports far above the map, a black box encloses
+ * a copy of the item's mesh, a key + fill light illuminate it and the
+ * player's view switches to the stage camera. The game is paused and the
+ * player rotates the item with the mouse / right gamepad stick.
+ *
+ * No post-process tricks (blur/DOF/custom depth) — the item renders normally,
+ * fully opaque and sharp, against a guaranteed black background.
  *
  * Spawned by UInspectableComponent::StartInspection; destroys itself
  * when the player exits (Esc / E / right mouse / gamepad B).
@@ -29,14 +31,17 @@ class LOOP9_API AInspectionStageActor : public AActor
 public:
 	AInspectionStageActor();
 
-	/**
-	 * Post-process material that blurs the screen except custom-stencil
-	 * pixels (the inspected item stays perfectly sharp). Set the path in
-	 * DefaultGame.ini; material recipe in EDITOR_TODO.md §4b. When unset
-	 * or not found, a depth-of-field fallback is used instead.
-	 */
+	/** Exposure bias (stops) for the black room's manual exposure. Higher = brighter. Tunable via DefaultGame.ini. */
 	UPROPERTY(Config)
-	FSoftObjectPath BackgroundBlurMaterialPath;
+	float ExposureBias = 0.0f;
+
+	/** Key light intensity (candela). Sized for manual exposure with default physical-camera settings. Tunable via DefaultGame.ini. */
+	UPROPERTY(Config)
+	float KeyLightIntensityCandela = 300.0f;
+
+	/** Fill light intensity (candela). Tunable via DefaultGame.ini. */
+	UPROPERTY(Config)
+	float FillLightIntensityCandela = 75.0f;
 
 	/** True while any inspection session is running. */
 	static bool IsInspectionActive();
@@ -44,7 +49,7 @@ public:
 	/** Ends the active session if any. Returns true if one was closed. */
 	static bool TryEndActiveInspection();
 
-	/** Sets up the view and pauses the game. Returns false if it cannot start. */
+	/** Sets up the black room, switches the view and pauses the game. Returns false if it cannot start. */
 	bool BeginInspection(UInspectableComponent* SourceComponent, APlayerController* InController);
 
 	/** Restores everything and destroys this actor. */
@@ -56,21 +61,38 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-	/** Copy of the inspected mesh, rendered as a first-person primitive so it never clips into walls. */
+	/** Rotated by input; the display mesh hangs off it so the item spins around its visual center. */
+	UPROPERTY()
+	TObjectPtr<USceneComponent> ItemPivot;
+
+	/** Copy of the inspected mesh. */
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> DisplayMesh;
 
+	/** Inverted (negative-scale) black cube enclosing the stage — the background. */
+	UPROPERTY()
+	TObjectPtr<UStaticMeshComponent> Backdrop;
+
+	/** The view during inspection; looks down +X at the item. */
+	UPROPERTY()
+	TObjectPtr<UCameraComponent> StageCamera;
+
+	UPROPERTY()
+	TObjectPtr<UPointLightComponent> KeyLight;
+
+	UPROPERTY()
+	TObjectPtr<UPointLightComponent> FillLight;
+
 	TWeakObjectPtr<UInspectableComponent> Source;
 	TWeakObjectPtr<APlayerController> Controller;
-	TWeakObjectPtr<UCameraComponent> Camera;
-	TWeakObjectPtr<USkeletalMeshComponent> HiddenArms;
 
-	/** Camera post-process state before we applied the inspection blur. */
-	FPostProcessSettings SavedPostProcess;
+	/** View target before the inspection started, restored on exit. */
+	TWeakObjectPtr<AActor> PreviousViewTarget;
 
 	bool bActive = false;
 	bool bDidPause = false;
 	bool bDidIgnoreInput = false;
+	bool bPreviousFullTickWhenPaused = false;
 	bool bRestored = false;
 
 	/** Real seconds since the session opened; input is ignored briefly so the

@@ -1,16 +1,17 @@
 #include "Interaction/InspectionStageActor.h"
 
 #include "Camera/CameraComponent.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/Scene.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/PlayerController.h"
-#include "HAL/IConsoleManager.h"
 #include "Interaction/InspectableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loop9.h"
-#include "Loop9Character.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "UObject/ConstructorHelpers.h"
 
 namespace
 {
@@ -28,6 +29,13 @@ namespace
 
 	// Right-stick rotation speed, degrees per second at full deflection.
 	constexpr float GamepadRotateDegPerSec = 160.0f;
+
+	// The black room floats high above the map: height fog thins out with
+	// altitude (it gets denser downwards), so up there nothing tints the walls.
+	constexpr float StageAltitudeOffset = 30000.0f;
+
+	// How far the stage camera sits from the item pivot.
+	constexpr float CameraDistanceCm = 45.0f;
 }
 
 AInspectionStageActor::AInspectionStageActor()
@@ -40,11 +48,73 @@ AInspectionStageActor::AInspectionStageActor()
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
 
+	ItemPivot = CreateDefaultSubobject<USceneComponent>(TEXT("ItemPivot"));
+	ItemPivot->SetupAttachment(Root);
+
 	DisplayMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DisplayMesh"));
-	DisplayMesh->SetupAttachment(Root);
+	DisplayMesh->SetupAttachment(ItemPivot);
 	DisplayMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	DisplayMesh->SetGenerateOverlapEvents(false);
 	DisplayMesh->CastShadow = false;
+	// Lighting channel 1 only: the level's sun/skylight (channel 0) cannot
+	// touch the item — it is lit exclusively by the stage lights below.
+	DisplayMesh->SetLightingChannels(false, true, false);
+
+	Backdrop = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Backdrop"));
+	Backdrop->SetupAttachment(Root);
+	Backdrop->SetCollisionProfileName(TEXT("NoCollision"));
+	Backdrop->SetGenerateOverlapEvents(false);
+	Backdrop->CastShadow = false;
+	// Negative uniform scale flips the winding, so the cube is visible from
+	// the inside — a 40 m box enclosing the whole stage.
+	Backdrop->SetRelativeScale3D(FVector(-40.0f));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (CubeMesh.Succeeded())
+	{
+		Backdrop->SetStaticMesh(CubeMesh.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShapeMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	if (ShapeMaterial.Succeeded())
+	{
+		Backdrop->SetMaterial(0, ShapeMaterial.Object);
+	}
+
+	// Camera looks down +X at the item sitting on the actor origin.
+	StageCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("StageCamera"));
+	StageCamera->SetupAttachment(Root);
+	StageCamera->SetRelativeLocation(FVector(-CameraDistanceCm, 0.0f, 0.0f));
+
+	// Manual exposure: with a mostly-black screen, auto exposure would crank
+	// itself up until the item blows out white. Manual is also independent of
+	// the project's "extended luminance range" setting, unlike min/max brightness.
+	FPostProcessSettings& PP = StageCamera->PostProcessSettings;
+	PP.bOverride_AutoExposureMethod = true;
+	PP.AutoExposureMethod = AEM_Manual;
+	PP.bOverride_AutoExposureBias = true;
+	PP.AutoExposureBias = ExposureBias;
+	PP.bOverride_VignetteIntensity = true;
+	PP.VignetteIntensity = 0.6f;
+
+	// Museum-style lighting: key from upper right near the camera, dim fill
+	// from the lower left. Short attenuation so the box walls stay pitch black.
+	KeyLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("KeyLight"));
+	KeyLight->SetupAttachment(Root);
+	KeyLight->SetMobility(EComponentMobility::Movable);
+	KeyLight->SetRelativeLocation(FVector(-35.0f, 25.0f, 30.0f));
+	KeyLight->SetIntensityUnits(ELightUnits::Candelas);
+	KeyLight->SetAttenuationRadius(600.0f);
+	KeyLight->SetCastShadows(false);
+	KeyLight->SetLightingChannels(false, true, false);
+
+	FillLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("FillLight"));
+	FillLight->SetupAttachment(Root);
+	FillLight->SetMobility(EComponentMobility::Movable);
+	FillLight->SetRelativeLocation(FVector(-35.0f, -30.0f, -15.0f));
+	FillLight->SetIntensityUnits(ELightUnits::Candelas);
+	FillLight->SetAttenuationRadius(600.0f);
+	FillLight->SetCastShadows(false);
+	FillLight->SetLightingChannels(false, true, false);
 }
 
 bool AInspectionStageActor::IsInspectionActive()
@@ -80,18 +150,6 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 		return false;
 	}
 
-	ALoop9Character* Character = Cast<ALoop9Character>(InController->GetPawn());
-	if (!Character)
-	{
-		return false;
-	}
-
-	UCameraComponent* Cam = Character->GetFirstPersonCameraComponent();
-	if (!Cam)
-	{
-		return false;
-	}
-
 	TArray<UMaterialInterface*> MaterialOverrides;
 	UStaticMesh* Mesh = SourceComponent->ResolveMesh(MaterialOverrides);
 	if (!Mesh)
@@ -103,8 +161,31 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 
 	Source = SourceComponent;
 	Controller = InController;
-	Camera = Cam;
 	RotationSpeed = SourceComponent->RotationSpeed;
+
+	// Respect the per-item framing distance.
+	StageCamera->SetRelativeLocation(FVector(-FMath::Max(SourceComponent->DistanceCm, 20.0f), 0.0f, 0.0f));
+
+	// Apply the runtime-tunable light/exposure config (values may come from
+	// DefaultGame.ini overrides, so set them here rather than in the ctor).
+	KeyLight->SetIntensity(KeyLightIntensityCandela);
+	FillLight->SetIntensity(FillLightIntensityCandela);
+	StageCamera->PostProcessSettings.AutoExposureBias = ExposureBias;
+
+	// Pure black walls. Preferred: the engine's unlit black material — unlit
+	// means the sun/skylight physically cannot put any sheen on the walls.
+	// Fallback: dynamic instance of the shape material with black albedo.
+	if (UMaterialInterface* UnlitBlack = LoadObject<UMaterialInterface>(
+			nullptr, TEXT("/Engine/EngineDebugMaterials/BlackUnlitMaterial.BlackUnlitMaterial")))
+	{
+		Backdrop->SetMaterial(0, UnlitBlack);
+	}
+	else if (UMaterialInterface* BackdropBase = Backdrop->GetMaterial(0))
+	{
+		UMaterialInstanceDynamic* BackdropMID = UMaterialInstanceDynamic::Create(BackdropBase, this);
+		BackdropMID->SetVectorParameterValue(TEXT("Color"), FLinearColor::Black);
+		Backdrop->SetMaterial(0, BackdropMID);
+	}
 
 	// --- Display mesh setup ---
 	DisplayMesh->SetStaticMesh(Mesh);
@@ -116,126 +197,41 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 		}
 	}
 
-	// Preferred path: a post-process material (configured via
-	// BackgroundBlurMaterialPath in DefaultGame.ini) blurs everything except
-	// pixels the item marks through the custom depth stencil. The item stays
-	// perfectly sharp — real depth of field can never do that for an object
-	// this close to the camera: its edges always catch part of the blur no
-	// matter the aperture. Recipe for the material: EDITOR_TODO.md §4b.
-	UMaterialInterface* BlurMaterial = Cast<UMaterialInterface>(BackgroundBlurMaterialPath.TryLoad());
-
-	// The stencil mask only exists when the project renders the custom depth
-	// pass with stencil (r.CustomDepth=3, "Enabled with Stencil"). Without it
-	// the blur material would blur the item too — fall back to DOF and say why.
-	if (BlurMaterial)
-	{
-		static const IConsoleVariable* CustomDepthCVar =
-			IConsoleManager::Get().FindConsoleVariable(TEXT("r.CustomDepth"));
-		const int32 CustomDepthMode = CustomDepthCVar ? CustomDepthCVar->GetInt() : 0;
-		if (CustomDepthMode < 3)
-		{
-			UE_LOG(LogLoop9, Warning,
-				TEXT("InspectionStage: BackgroundBlurMaterial is configured but r.CustomDepth=%d "
-					 "(needs 3, 'Enabled with Stencil' in Project Settings > Rendering). Using DOF fallback."),
-				CustomDepthMode);
-			BlurMaterial = nullptr;
-		}
-	}
-
-	if (BlurMaterial)
-	{
-		// Render as a first-person primitive (same trick as the player arms):
-		// drawn with the camera's first-person scale, so it does not clip
-		// into nearby walls. Safe here because no depth-based effect is used.
-		DisplayMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::FirstPerson;
-		DisplayMesh->SetRenderCustomDepth(true);
-		DisplayMesh->SetCustomDepthStencilValue(1);
-	}
-	else
-	{
-		// DOF fallback needs the item's rendered depth to be exactly
-		// DistanceCm so the focal plane is guaranteed to match — no
-		// first-person scale trick here.
-		DisplayMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::None;
-	}
-
 	// Normalize the size: whatever the source item is, show it at a
 	// comfortable, consistent size in front of the camera.
 	const FBoxSphereBounds MeshBounds = Mesh->GetBounds();
 	const float BoundsRadius = FMath::Max(MeshBounds.SphereRadius, 1.0f);
 	const float Scale = SourceComponent->TargetRadiusCm / BoundsRadius;
-	DisplayMesh->SetWorldScale3D(FVector(Scale));
+	DisplayMesh->SetRelativeScale3D(FVector(Scale));
 
-	// Offset the mesh so its bounds center sits at the actor origin —
-	// rotating the actor then spins the item around its visual center,
-	// regardless of where the mesh pivot is.
+	// Offset the mesh so its bounds center sits on the pivot — rotating the
+	// pivot then spins the item around its visual center, regardless of
+	// where the mesh pivot is.
 	DisplayMesh->SetRelativeLocation(-MeshBounds.Origin * Scale);
 
-	// --- Placement ---
-	const FVector CamLocation = Cam->GetComponentLocation();
-	const FVector CamForward = Cam->GetForwardVector();
-	SetActorLocation(CamLocation + CamForward * SourceComponent->DistanceCm);
+	ItemPivot->SetRelativeRotation(SourceComponent->InitialRotationOffset);
 
-	// Start facing the camera the same way the item faced in the world,
-	// then apply the per-item presentation offset.
-	FRotator StartRotation = Cam->GetComponentRotation();
-	StartRotation.Pitch = 0.0f;
-	StartRotation.Roll = 0.0f;
-	SetActorRotation(StartRotation);
-	AddActorLocalRotation(SourceComponent->InitialRotationOffset);
+	// --- Placement: park the whole room high above the player, in the void ---
+	const FVector PlayerLocation = InController->GetPawn()
+		? InController->GetPawn()->GetActorLocation()
+		: FVector::ZeroVector;
+	SetActorLocation(PlayerLocation + FVector(0.0f, 0.0f, StageAltitudeOffset));
+	SetActorRotation(FRotator::ZeroRotator);
 
-	// --- Background separation (blur) + darker vignette ---
-	SavedPostProcess = Cam->PostProcessSettings;
-	FPostProcessSettings& PP = Cam->PostProcessSettings;
-
-	if (BlurMaterial)
-	{
-		// Stencil-masked screen blur: background fully blurred, item untouched.
-		// Restoring SavedPostProcess removes the blendable again.
-		PP.AddBlendable(BlurMaterial, 1.0f);
-	}
-	else
-	{
-		// Fallback: cinematic depth of field focused exactly at the item's
-		// depth. Moderate aperture — strong enough to soften the room, mild
-		// enough that the item's own thickness stays acceptable. (FocalRegion
-		// and transition-region settings are Gaussian/mobile-only; they do
-		// nothing with desktop cinematic DOF, so they are not set here.)
-		PP.bOverride_DepthOfFieldFocalDistance = true;
-		PP.DepthOfFieldFocalDistance = SourceComponent->DistanceCm;
-		PP.bOverride_DepthOfFieldFstop = true;
-		PP.DepthOfFieldFstop = 2.0f;
-		PP.bOverride_DepthOfFieldMinFstop = true;
-		PP.DepthOfFieldMinFstop = 2.0f;
-	}
-
-	PP.bOverride_VignetteIntensity = true;
-	PP.VignetteIntensity = 0.9f;
-	// Slightly dimmer than gameplay, but not as crushed as the -2.75 pass.
-	PP.bOverride_AutoExposureBias = true;
-	PP.AutoExposureBias = -1.5f;
-	PP.bOverride_ColorSaturation = true;
-	PP.ColorSaturation = FVector4(0.85f, 0.85f, 0.85f, 1.0f);
-	PP.bOverride_ColorGain = true;
-	PP.ColorGain = FVector4(0.82f, 0.82f, 0.84f, 1.0f);
-
-	// --- Hide the first-person arms so they don't overlap the item ---
-	if (USkeletalMeshComponent* Arms = Character->GetFirstPersonMesh())
-	{
-		if (Arms->IsVisible())
-		{
-			Arms->SetVisibility(false, false);
-			HiddenArms = Arms;
-		}
-	}
+	// --- Switch the view to the stage camera ---
+	PreviousViewTarget = InController->GetViewTarget();
+	InController->SetViewTargetWithBlend(this, 0.0f);
 
 	// --- Pause ---
+	// The camera manager normally skips its update while the game is paused,
+	// which would leave the old view on screen — full tick keeps it running.
+	bPreviousFullTickWhenPaused = InController->bShouldPerformFullTickWhenPaused;
+	InController->bShouldPerformFullTickWhenPaused = true;
+
 	bDidPause = UGameplayStatics::SetGamePaused(GetWorld(), true);
 
-	// Belt and braces: if pausing was disallowed (e.g. a game mode with
-	// bIsPauseAllowed=false), the mouse would otherwise turn the camera while
-	// rotating the item. Ignoring look/move is harmless when paused and
-	// correct when not; RestoreState pairs the decrement exactly once.
+	// Belt and braces: full tick above also processes look input while
+	// paused, so silence it; RestoreState pairs the decrement exactly once.
 	InController->SetIgnoreLookInput(true);
 	InController->SetIgnoreMoveInput(true);
 	bDidIgnoreInput = true;
@@ -295,17 +291,12 @@ void AInspectionStageActor::Tick(float DeltaSeconds)
 		return;
 	}
 
-	const UCameraComponent* Cam = Camera.Get();
-	if (!Cam)
-	{
-		return;
-	}
-
 	// "Grab" feel: dragging right pulls the front face to the right,
-	// dragging up tips the top away from the player.
-	const FQuat YawDelta(Cam->GetUpVector(), FMath::DegreesToRadians(-DeltaX * RotationSpeed));
-	const FQuat PitchDelta(Cam->GetRightVector(), FMath::DegreesToRadians(-DeltaY * RotationSpeed));
-	SetActorRotation((YawDelta * PitchDelta * GetActorQuat()).Rotator());
+	// dragging up tips the top away from the player. The stage camera looks
+	// down +X with no roll, so camera up is world Z and camera right is +Y.
+	const FQuat YawDelta(FVector::UpVector, FMath::DegreesToRadians(-DeltaX * RotationSpeed));
+	const FQuat PitchDelta(FVector::RightVector, FMath::DegreesToRadians(-DeltaY * RotationSpeed));
+	ItemPivot->SetWorldRotation((YawDelta * PitchDelta * ItemPivot->GetComponentQuat()).Rotator());
 }
 
 bool AInspectionStageActor::IsExitKeyDown() const
@@ -346,14 +337,21 @@ void AInspectionStageActor::RestoreState()
 	bActive = false;
 	SetActorTickEnabled(false);
 
-	if (UCameraComponent* Cam = Camera.Get())
-	{
-		Cam->PostProcessSettings = SavedPostProcess;
-	}
+	APlayerController* PC = Controller.Get();
 
-	if (USkeletalMeshComponent* Arms = HiddenArms.Get())
+	// Put the view back where it was (while the controller still fully ticks,
+	// so the camera manager applies the switch even though the game is paused).
+	if (PC)
 	{
-		Arms->SetVisibility(true, false);
+		AActor* ViewTarget = PreviousViewTarget.Get();
+		if (!ViewTarget)
+		{
+			ViewTarget = PC->GetPawn();
+		}
+		if (ViewTarget)
+		{
+			PC->SetViewTargetWithBlend(ViewTarget, 0.0f);
+		}
 	}
 
 	if (bDidPause)
@@ -361,9 +359,14 @@ void AInspectionStageActor::RestoreState()
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
 
+	if (PC)
+	{
+		PC->bShouldPerformFullTickWhenPaused = bPreviousFullTickWhenPaused;
+	}
+
 	if (bDidIgnoreInput)
 	{
-		if (APlayerController* PC = Controller.Get())
+		if (PC)
 		{
 			PC->SetIgnoreLookInput(false);
 			PC->SetIgnoreMoveInput(false);

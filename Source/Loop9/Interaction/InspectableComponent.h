@@ -12,9 +12,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLoop9InspectionEvent);
 
 /**
  * Makes the owning actor inspectable Resident Evil style: the game pauses,
- * the background gets a depth-of-field blur and a copy of the item's mesh is
- * shown in front of the camera where the player can rotate it with the mouse
- * (or the right gamepad stick).
+ * the view switches to an isolated black room where a lit copy of the item's
+ * mesh is shown and the player can rotate it with the mouse (or the right
+ * gamepad stick).
  *
  * Add this component to any actor and call StartInspection() from its
  * interaction code (see AInspectableItem for a ready-made actor).
