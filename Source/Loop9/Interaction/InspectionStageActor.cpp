@@ -115,10 +115,30 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 		}
 	}
 
-	// Render as a first-person primitive (same trick as the player arms):
-	// the mesh is drawn with the camera's first-person scale, so it does not
-	// clip into nearby walls even in tight corridors.
-	DisplayMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::FirstPerson;
+	// Preferred path: a post-process material (configured via
+	// BackgroundBlurMaterialPath in DefaultGame.ini) blurs everything except
+	// pixels the item marks through the custom depth stencil. The item stays
+	// perfectly sharp — real depth of field can never do that for an object
+	// this close to the camera: its edges always catch part of the blur no
+	// matter the aperture. Recipe for the material: EDITOR_TODO.md §4b.
+	UMaterialInterface* BlurMaterial = Cast<UMaterialInterface>(BackgroundBlurMaterialPath.TryLoad());
+
+	if (BlurMaterial)
+	{
+		// Render as a first-person primitive (same trick as the player arms):
+		// drawn with the camera's first-person scale, so it does not clip
+		// into nearby walls. Safe here because no depth-based effect is used.
+		DisplayMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::FirstPerson;
+		DisplayMesh->SetRenderCustomDepth(true);
+		DisplayMesh->SetCustomDepthStencilValue(1);
+	}
+	else
+	{
+		// DOF fallback needs the item's rendered depth to be exactly
+		// DistanceCm so the focal plane is guaranteed to match — no
+		// first-person scale trick here.
+		DisplayMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::None;
+	}
 
 	// Normalize the size: whatever the source item is, show it at a
 	// comfortable, consistent size in front of the camera.
@@ -145,25 +165,31 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	SetActorRotation(StartRotation);
 	AddActorLocalRotation(SourceComponent->InitialRotationOffset);
 
-	// --- Camera blur (depth of field) + darker vignette ---
+	// --- Background separation (blur) + darker vignette ---
 	SavedPostProcess = Cam->PostProcessSettings;
 	FPostProcessSettings& PP = Cam->PostProcessSettings;
-	// First-person primitives render at scaled depth, so focus there.
-	const float FocusScale = Cam->bEnableFirstPersonScale ? Cam->FirstPersonScale : 1.0f;
-	PP.bOverride_DepthOfFieldFocalDistance = true;
-	PP.DepthOfFieldFocalDistance = SourceComponent->DistanceCm * FocusScale;
-	// Wide sharp pocket around the prop so its own thickness stays crisp;
-	// room geometry farther away still softens.
-	PP.bOverride_DepthOfFieldFocalRegion = true;
-	PP.DepthOfFieldFocalRegion = FMath::Max(SourceComponent->TargetRadiusCm * 4.0f, 80.0f) * FocusScale;
-	PP.bOverride_DepthOfFieldNearTransitionRegion = true;
-	PP.DepthOfFieldNearTransitionRegion = 40.0f * FocusScale;
-	PP.bOverride_DepthOfFieldFarTransitionRegion = true;
-	PP.DepthOfFieldFarTransitionRegion = 600.0f * FocusScale;
-	PP.bOverride_DepthOfFieldFstop = true;
-	PP.DepthOfFieldFstop = 0.7f;
-	PP.bOverride_DepthOfFieldMinFstop = true;
-	PP.DepthOfFieldMinFstop = 0.7f;
+
+	if (BlurMaterial)
+	{
+		// Stencil-masked screen blur: background fully blurred, item untouched.
+		// Restoring SavedPostProcess removes the blendable again.
+		PP.AddBlendable(BlurMaterial, 1.0f);
+	}
+	else
+	{
+		// Fallback: cinematic depth of field focused exactly at the item's
+		// depth. Moderate aperture — strong enough to soften the room, mild
+		// enough that the item's own thickness stays acceptable. (FocalRegion
+		// and transition-region settings are Gaussian/mobile-only; they do
+		// nothing with desktop cinematic DOF, so they are not set here.)
+		PP.bOverride_DepthOfFieldFocalDistance = true;
+		PP.DepthOfFieldFocalDistance = SourceComponent->DistanceCm;
+		PP.bOverride_DepthOfFieldFstop = true;
+		PP.DepthOfFieldFstop = 2.0f;
+		PP.bOverride_DepthOfFieldMinFstop = true;
+		PP.DepthOfFieldMinFstop = 2.0f;
+	}
+
 	PP.bOverride_VignetteIntensity = true;
 	PP.VignetteIntensity = 0.9f;
 	// Slightly dimmer than gameplay, but not as crushed as the -2.75 pass.

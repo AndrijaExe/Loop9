@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/Scene.h"
+#include "UObject/SoftObjectPath.h"
 #include "InspectionStageActor.generated.h"
 
 class APlayerController;
@@ -20,13 +21,22 @@ class UStaticMeshComponent;
  * Spawned by UInspectableComponent::StartInspection; destroys itself
  * when the player exits (Esc / E / right mouse / gamepad B).
  */
-UCLASS(NotBlueprintable)
+UCLASS(NotBlueprintable, Config = Game)
 class LOOP9_API AInspectionStageActor : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	AInspectionStageActor();
+
+	/**
+	 * Post-process material that blurs the screen except custom-stencil
+	 * pixels (the inspected item stays perfectly sharp). Set the path in
+	 * DefaultGame.ini; material recipe in EDITOR_TODO.md §4b. When unset
+	 * or not found, a depth-of-field fallback is used instead.
+	 */
+	UPROPERTY(Config)
+	FSoftObjectPath BackgroundBlurMaterialPath;
 
 	/** True while any inspection session is running. */
 	static bool IsInspectionActive();

@@ -67,6 +67,46 @@ U editoru:
   pause meni ne može da se otvori dok traje inspekcija; ruke se ne vide
   tokom inspekcije, posle se vrate.
 
+### 4b-blur (16.07.): oštar predmet + mutna pozadina — M_InspectBackgroundBlur
+
+DOF fizički ne može da drži ovako blizak predmet oštrim (makro fokus — ivice
+uvek hvataju blur, zato štelovanje Fstop-a nije pomagalo). Novi kod umesto
+toga koristi **stencil masku + post-process blur materijal**: predmet upiše
+custom depth stencil = 1, materijal zamuti sve OSIM te maske. Ako materijal
+ne postoji, radi DOF fallback (blaži, fokus tačan, ali predmet nikad neće
+biti savršeno oštar — zato napravi materijal).
+
+Koraci u editoru:
+
+1. **Project Settings → Rendering → Postprocessing → Custom Depth-Stencil
+   Pass = "Enabled with Stencil"** (ili u `DefaultEngine.ini` pod
+   `[/Script/Engine.RendererSettings]` dodaj `r.CustomDepth=3` — dodato u
+   `DefaultEngine.ini.example`). Traži restart editora.
+2. Napravi materijal `M_InspectBackgroundBlur` u `Content/MyStuff/Materials/`:
+   - Details panela materijala: **Material Domain = Post Process**;
+     **Blendable Location = Scene Color After Tonemapping** (u starijim
+     verzijama se zove "After Tonemapping").
+   - Nodovi:
+     - `SpiralBlur-SceneTexture` (gotova engine material funkcija — nađi je u
+       paleti). Inputs: **Distance = 0.015** (jačina blura — slobodno šteluj,
+       može i ScalarParameter), **DistanceSteps = 12**, **RadialSteps = 12**.
+     - `SceneTexture` node, Scene Texture Id = **PostProcessInput0** → to je
+       oštra slika.
+     - `SceneTexture` node, Scene Texture Id = **CustomStencil** → uzmi **R**
+       kanal (Mask R) → `Clamp` 0–1 → to je maska (1 = predmet).
+     - `Lerp`: **A = SpiralBlur output** (mutno), **B = PostProcessInput0.rgb**
+       (oštro), **Alpha = maska** → u **Emissive Color**.
+3. U lokalnom `DefaultGame.ini` dodaj (već je u `DefaultGame.ini.example`):
+
+   ```
+   [/Script/Loop9.InspectionStageActor]
+   BackgroundBlurMaterialPath=/Game/MyStuff/Materials/M_InspectBackgroundBlur.M_InspectBackgroundBlur
+   ```
+
+4. Recompile + smoke: predmet potpuno oštar, pozadina ravnomerno mutna.
+   Ako vidiš blagi "halo" oko predmeta u bluru, smanji Distance ili povećaj
+   DistanceSteps u materijalu.
+
 ## 5. Steamworks — ČEKA APP ID
 
 - [ ] App ID u `DefaultEngine.ini` + Web API Key → Render
