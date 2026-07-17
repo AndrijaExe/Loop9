@@ -3,6 +3,8 @@
 #include "TeleportPoint.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BillboardComponent.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATeleportPoint::ATeleportPoint()
@@ -31,10 +33,31 @@ ATeleportPoint::ATeleportPoint()
 void ATeleportPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UE_LOG(LogTemp, Log, TEXT("TeleportPoint '%s' initialized as %s"), 
-		*GetName(), 
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
+		{
+			LoopManager->RegisterTeleportPoint(this);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("TeleportPoint '%s' initialized as %s"),
+		*GetName(),
 		TeleportType == ECustomTeleportType::Entry ? TEXT("Entry") : TEXT("Exit"));
+}
+
+void ATeleportPoint::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
+		{
+			LoopManager->UnregisterTeleportPoint(this);
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ATeleportPoint::Tick(float DeltaTime)

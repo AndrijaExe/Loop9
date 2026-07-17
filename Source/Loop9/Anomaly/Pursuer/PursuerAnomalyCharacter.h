@@ -61,7 +61,7 @@ public:
 
 private:
 	float MoveRefreshAccumulator = 0.0f;
-   float ObservationCheckAccumulator = 0.0f;
+	float ObservationCheckAccumulator = 0.0f;
 	float LifetimeElapsed = 0.0f;
 	bool bHasCaughtPlayer = false;
 	bool bIsObservedByPlayer = false;
@@ -71,9 +71,14 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> MovingMurmurAudioComponent = nullptr;
 
+	TWeakObjectPtr<APawn> CachedPlayerPawn;
+	TWeakObjectPtr<APlayerController> CachedPlayerController;
+
+	APawn* ResolvePlayerPawn();
+	APlayerController* ResolvePlayerController();
 	void UpdateChase();
 	void CatchAndDespawn();
-  bool ComputeIsObservedByPlayer(APawn* PlayerPawn) const;
-  void ApplyObservationFreeze(bool bObservedNow);
-  void UpdateMovingAudio();
+	bool ComputeIsObservedByPlayer(APawn* PlayerPawn, APlayerController* PlayerController) const;
+	void ApplyObservationFreeze(bool bObservedNow);
+	void UpdateMovingAudio();
 };

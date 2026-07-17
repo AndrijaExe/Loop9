@@ -6,8 +6,9 @@
 // Sets default values
 ALiftDoorWing::ALiftDoorWing()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Tick only while the wing is animating.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
     // sensible defaults
     ShouldMove = false;
@@ -42,6 +43,7 @@ void ALiftDoorWing::Tick(float DeltaTime)
 
     if (!ShouldMove)
     {
+        SetActorTickEnabled(false);
         return;
     }
 
@@ -55,6 +57,7 @@ void ALiftDoorWing::Tick(float DeltaTime)
         SetActorLocation(TargetLocation);
         ShouldMove = false;
         IsOpened = bMovingToOpen;
+        SetActorTickEnabled(false);
         return;
     }
 
@@ -66,6 +69,7 @@ void ALiftDoorWing::Tick(float DeltaTime)
         SetActorLocation(TargetLocation);
         ShouldMove = false;
         IsOpened = bMovingToOpen;
+        SetActorTickEnabled(false);
     }
     else
     {
@@ -84,6 +88,7 @@ void ALiftDoorWing::OpenDoorWing()
     TargetLocation = ClosedLocation + MovementDirection.GetSafeNormal() * TravelDistance;
     bMovingToOpen = true;
     ShouldMove = true;
+    SetActorTickEnabled(true);
 
     UE_LOG(LogTemp, Log, TEXT("OpenDoorWing called. Speed=%.1f Travel=%.1f Dir=(%.2f,%.2f,%.2f) Start=(%.1f,%.1f,%.1f) Target=(%.1f,%.1f,%.1f)"),
         MovementSpeed, TravelDistance,
@@ -103,6 +108,7 @@ void ALiftDoorWing::CloseDoorWing()
     TargetLocation = ClosedLocation;
     bMovingToOpen = false;
     ShouldMove = true;
+    SetActorTickEnabled(true);
 
     UE_LOG(LogTemp, Log, TEXT("CloseDoorWing called. Start=(%.1f,%.1f,%.1f) Target=(%.1f,%.1f,%.1f)"),
         StartLocation.X, StartLocation.Y, StartLocation.Z,

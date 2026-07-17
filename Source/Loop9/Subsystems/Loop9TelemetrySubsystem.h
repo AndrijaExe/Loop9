@@ -21,6 +21,7 @@ class LOOP9_API ULoop9TelemetrySubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	/** Derives the telemetry endpoint from the chat endpoint and stores the fallback token. */
 	void ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken);
@@ -32,6 +33,17 @@ public:
 	static FString EndingTelemetryId(ELoopEndingType EndingType);
 
 private:
+	void DispatchRunFinished(ELoopEndingType EndingType, int32 TotalResets, int32 TotalAIInteractions, const FString& SessionToken);
+	void ClearPendingTelemetryAuth();
+	void OnTelemetryAuthReady();
+	void OnTelemetryAuthFailed(const FString& Reason);
+
 	FString TelemetryEndpoint;
 	FString GameToken;
+	bool bPendingRunFinished = false;
+	ELoopEndingType PendingEndingType = ELoopEndingType::EscapeTogether;
+	int32 PendingTotalResets = 0;
+	int32 PendingTotalAIInteractions = 0;
+	FDelegateHandle AuthReadyHandle;
+	FDelegateHandle AuthFailedHandle;
 };

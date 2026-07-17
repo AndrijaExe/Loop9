@@ -117,5 +117,7 @@ private:
 	/** True after PushSoundMixModifier for the current world/audio context. */
 	bool bVolumeMixPushed = false;
 
+	TWeakObjectPtr<UWorld> VolumeMixWorld;
+
 	FDelegateHandle PostWorldInitHandle;
 };

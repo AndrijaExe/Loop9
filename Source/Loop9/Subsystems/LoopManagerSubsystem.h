@@ -56,6 +56,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterPlayerMessage(const FString& Message);
 
+	/** Cache live AI_Friend actors so ClearAllAIChats does not scan the world. */
+	void RegisterAIFriend(class AAI_Friend* AIFriend);
+	void UnregisterAIFriend(class AAI_Friend* AIFriend);
+
+	/** Cache teleport points so FindTeleportPoints does not repeatedly scan. */
+	void RegisterTeleportPoint(class ATeleportPoint* Point);
+	void UnregisterTeleportPoint(class ATeleportPoint* Point);
+
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void ApplyAIDiagnosedKindnessDelta(int32 Delta);
 
@@ -108,10 +116,17 @@ public:
 
 private:
 	void FindTeleportPoints();
+	void PruneStaleTeleportCaches();
+	void NotifyAIFriendsLoopChanged();
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<class ATeleportPoint>> EntryPoints;
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<class ATeleportPoint>> ExitPoints;
+
+	UPROPERTY()
+	TArray<TWeakObjectPtr<class AAI_Friend>> RegisteredAIFriends;
+
+	TWeakObjectPtr<UWorld> FallbackTeleportScanWorld;
 };

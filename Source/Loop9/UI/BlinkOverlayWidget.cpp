@@ -9,6 +9,12 @@ void UBlinkOverlayWidget::NativeConstruct()
 	SetBlinkAlpha(0.0f);
 }
 
+void UBlinkOverlayWidget::NativeDestruct()
+{
+	StopBlinkTicker();
+	Super::NativeDestruct();
+}
+
 void UBlinkOverlayWidget::PlayBlink(float Duration)
 {
 	BlinkDuration = FMath::Max(0.12f, Duration);
@@ -16,18 +22,30 @@ void UBlinkOverlayWidget::PlayBlink(float Duration)
 	BlinkElapsed = 0.0f;
 	BlinkPhase = EBlinkPhase::Closing;
 	bBlinkPlaying = true;
+
+	StopBlinkTicker();
+	BlinkTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateWeakLambda(this, [this](float DeltaTime)
+		{
+			return TickBlink(DeltaTime);
+		}));
 }
 
-void UBlinkOverlayWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void UBlinkOverlayWidget::StopBlinkTicker()
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	FTSTicker::GetCoreTicker().RemoveTicker(BlinkTickerHandle);
+	BlinkTickerHandle.Reset();
+}
 
+bool UBlinkOverlayWidget::TickBlink(float DeltaTime)
+{
 	if (!bBlinkPlaying)
 	{
-		return;
+		BlinkTickerHandle.Reset();
+		return false;
 	}
 
-	BlinkElapsed += InDeltaTime;
+	BlinkElapsed += FMath::Max(0.0f, DeltaTime);
 
 	if (BlinkPhase == EBlinkPhase::Closing)
 	{
@@ -50,8 +68,12 @@ void UBlinkOverlayWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 			bBlinkPlaying = false;
 			BlinkPhase = EBlinkPhase::None;
 			SetBlinkAlpha(0.0f);
+			BlinkTickerHandle.Reset();
+			return false;
 		}
 	}
+
+	return true;
 }
 
 void UBlinkOverlayWidget::SetBlinkAlpha(float Alpha)

@@ -126,11 +126,69 @@ UButton* UAI_ChatWidget::ResolveInnerButton(UUserWidget* Widget, const FName& Bu
 	return Cast<UButton>(Found);
 }
 
+void UAI_ChatWidget::ShowThinkingIndicator()
+{
+	if (!ChatScrollBox || ThinkingIndicatorText)
+	{
+		return;
+	}
+
+	ThinkingIndicatorText = NewObject<UTextBlock>(this);
+	if (!ThinkingIndicatorText)
+	{
+		return;
+	}
+
+	FSlateFontInfo FontInfo = ThinkingIndicatorText->GetFont();
+	FontInfo.Size = 22;
+	ThinkingIndicatorText->SetFont(FontInfo);
+	ThinkingIndicatorText->SetColorAndOpacity(FSlateColor(FLinearColor(0.35f, 0.55f, 0.7f)));
+	ThinkingIndicatorText->SetAutoWrapText(true);
+
+	const FString Prefix = NSLOCTEXT("Loop9Chat", "FriendPrefix", "Dragojlo: ").ToString();
+	const FString Thinking = NSLOCTEXT("Loop9Chat", "ThinkingIndicator", "Thinking...").ToString();
+	ThinkingIndicatorText->SetText(FText::FromString(Prefix + Thinking));
+
+	ChatScrollBox->AddChild(ThinkingIndicatorText);
+	ChatScrollBox->ScrollToEnd();
+	if (MessageInputBox)
+	{
+		MessageInputBox->SetIsEnabled(false);
+	}
+	if (SendButton)
+	{
+		SendButton->SetIsEnabled(false);
+	}
+}
+
+void UAI_ChatWidget::HideThinkingIndicator()
+{
+	if (ThinkingIndicatorText && ChatScrollBox)
+	{
+		ChatScrollBox->RemoveChild(ThinkingIndicatorText);
+	}
+
+	ThinkingIndicatorText = nullptr;
+	if (MessageInputBox)
+	{
+		MessageInputBox->SetIsEnabled(true);
+	}
+	if (SendButton)
+	{
+		SendButton->SetIsEnabled(true);
+	}
+}
+
 void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble)
 {
 	if (!ChatScrollBox)
 	{
 		return;
+	}
+
+	if (!bIsFromUser)
+	{
+		HideThinkingIndicator();
 	}
 
 	UTextBlock* MessageText = NewObject<UTextBlock>(this);
@@ -393,6 +451,7 @@ void UAI_ChatWidget::ClearChat()
 		World->GetTimerManager().ClearTimer(AICursorBlinkTimerHandle);
 	}
 	ActiveAITypewriterText = nullptr;
+	HideThinkingIndicator();
 
 	ChatScrollBox->ClearChildren();
 }
@@ -422,14 +481,15 @@ void UAI_ChatWidget::SendMessageToAI(const FString& Message)
 
 	AddMessageToChat(Message, true);
 
- UE_LOG(LogTemp, Log, TEXT("AI_ChatWidget: Sending message to AI_Friend. Len=%d"), Message.Len());
-	AIFriendRef->SayToAI(Message);
+	UE_LOG(LogTemp, Log, TEXT("AI_ChatWidget: Sending message to AI_Friend. Len=%d"), Message.Len());
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
 		{
-			LoopManager->RegisterAIInteraction();
+			LoopManager->RegisterPlayerMessage(Message);
 		}
 	}
+
+	AIFriendRef->SayToAI(Message);
 }

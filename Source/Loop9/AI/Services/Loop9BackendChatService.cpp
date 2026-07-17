@@ -153,9 +153,8 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	HttpRequest->SetVerb(TEXT("POST"));
 	HttpRequest->SetURL(Context.APIEndpoint);
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-	// Generous timeout: a free-tier backend can cold-start for ~15s, and the
-	// LLM itself needs a few seconds on top of that.
-	HttpRequest->SetTimeout(35.0f);
+	// End-to-end budget: backend AI deadline is 45s plus free-tier cold start and RTT headroom.
+	HttpRequest->SetTimeout(65.0f);
 
 	if (!Context.SessionToken.IsEmpty())
 	{
@@ -166,7 +165,8 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		HttpRequest->SetHeader(TEXT("X-Game-Token"), Context.GameToken);
 	}
 
-	if (!Context.PlayerId.IsEmpty())
+	// Session token already carries verified Steam player identity — don't send a redundant client id.
+	if (Context.SessionToken.IsEmpty() && !Context.PlayerId.IsEmpty())
 	{
 		HttpRequest->AppendToHeader(TEXT("X-Player-Id"), Context.PlayerId);
 	}
@@ -178,7 +178,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	JsonObject->SetStringField(TEXT("message"), Context.Message);
 	JsonObject->SetStringField(TEXT("language"), Context.PreferredLanguage);
 	JsonObject->SetNumberField(TEXT("ai_stability"), FMath::Clamp(Context.AIStability, 0.0f, 1.0f));
-	JsonObject->SetNumberField(TEXT("loop_index"), FMath::Max(1, Context.LoopIndex));
+	JsonObject->SetNumberField(TEXT("loop_index"), FMath::Clamp(Context.LoopIndex, 1, 9));
 	JsonObject->SetStringField(TEXT("anomaly_context"),
 		Context.bRepeatAnomaly
 			? FString::Printf(TEXT("%s Repeat anomaly from previous loop."), *Context.AnomalyContext)
@@ -199,8 +199,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 	HttpRequest->SetContentAsString(OutputString);
 
-	TWeakObjectPtr<ULoop9BackendChatService> WeakThis(this);
-	HttpRequest->OnProcessRequestComplete().BindLambda([WeakThis, OnComplete](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+	HttpRequest->OnProcessRequestComplete().BindLambda([OnComplete](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 	{
 		FLoop9ChatResponse ChatResult;
 
@@ -239,16 +238,18 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		}
 
 		FString CleanReply = BackendMessage;
-		if (WeakThis.IsValid())
-		{
-			TryExtractStateDeltas(BackendMessage, CleanReply, ChatResult.KindnessDelta, ChatResult.SuspicionDelta);
-			CleanReply = SanitizeReplyText(CleanReply);
-		}
+		TryExtractStateDeltas(BackendMessage, CleanReply, ChatResult.KindnessDelta, ChatResult.SuspicionDelta);
+		CleanReply = SanitizeReplyText(CleanReply);
 
 		ChatResult.bSuccess = true;
 		ChatResult.Reply = CleanReply;
 		OnComplete.ExecuteIfBound(ChatResult);
 	});
 
-	HttpRequest->ProcessRequest();
+	if (!HttpRequest->ProcessRequest())
+	{
+		FLoop9ChatResponse DispatchFailure;
+		DispatchFailure.ErrorMessage = TEXT("Error: Request could not be started");
+		OnComplete.ExecuteIfBound(DispatchFailure);
+	}
 }

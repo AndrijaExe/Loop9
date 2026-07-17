@@ -32,6 +32,14 @@ void ULoop9GameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 void ULoop9GameSettingsSubsystem::Deinitialize()
 {
 	FWorldDelegates::OnPostWorldInitialization.Remove(PostWorldInitHandle);
+
+	if (bVolumeMixPushed && VolumeMixWorld.IsValid() && VolumeSoundMix)
+	{
+		UGameplayStatics::PopSoundMixModifier(VolumeMixWorld.Get(), VolumeSoundMix);
+		bVolumeMixPushed = false;
+		VolumeMixWorld.Reset();
+	}
+
 	Super::Deinitialize();
 }
 
@@ -70,7 +78,16 @@ void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorl
 {
 	if (World && World->IsGameWorld() && World->GetGameInstance() == GetGameInstance())
 	{
-		bVolumeMixPushed = false;
+		if (bVolumeMixPushed && (!VolumeMixWorld.IsValid() || VolumeMixWorld.Get() != World))
+		{
+			if (VolumeMixWorld.IsValid() && VolumeSoundMix)
+			{
+				UGameplayStatics::PopSoundMixModifier(VolumeMixWorld.Get(), VolumeSoundMix);
+			}
+			bVolumeMixPushed = false;
+			VolumeMixWorld.Reset();
+		}
+
 		ApplyMasterVolume();
 		ApplySoundClassVolumes(World);
 	}
@@ -146,23 +163,27 @@ void ULoop9GameSettingsSubsystem::ApplySoundClassVolumes(UWorld* World)
 		ResolveAmbientSoundClass();
 	}
 
-	if (!AmbientSoundClass)
+	if (!AmbientSoundClass || !World || !VolumeSoundMix)
 	{
 		return;
 	}
 
-	// Direct SoundClass volume — reliably affects active loops that use this class.
-	AmbientSoundClass->Properties.Volume = AmbientVolume;
-
-	if (!World || !VolumeSoundMix)
+	// Prefer sound-mix overrides — never mutate USoundClass asset defaults in-place.
+	if (bVolumeMixPushed && (!VolumeMixWorld.IsValid() || VolumeMixWorld.Get() != World))
 	{
-		return;
+		if (VolumeMixWorld.IsValid())
+		{
+			UGameplayStatics::PopSoundMixModifier(VolumeMixWorld.Get(), VolumeSoundMix);
+		}
+		bVolumeMixPushed = false;
+		VolumeMixWorld.Reset();
 	}
 
 	if (!bVolumeMixPushed)
 	{
 		UGameplayStatics::PushSoundMixModifier(World, VolumeSoundMix);
 		bVolumeMixPushed = true;
+		VolumeMixWorld = World;
 	}
 
 	UGameplayStatics::SetSoundMixClassOverride(

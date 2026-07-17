@@ -25,6 +25,9 @@ void APursuerAnomalyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SpawnDefaultController();
+	CachedPlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	CachedPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	ObservationCheckAccumulator = FMath::Max(0.01f, ObservationCheckInterval);
 }
 
 void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
@@ -43,49 +46,61 @@ void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
 		return;
 	}
 
-	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+	APawn* PlayerPawn = ResolvePlayerPawn();
+	if (PlayerPawn)
 	{
-		const float DistToPlayer = FVector::Dist(GetActorLocation(), PlayerPawn->GetActorLocation());
-		if (DistToPlayer <= CatchDistance)
+		const float DistSquared = FVector::DistSquared(GetActorLocation(), PlayerPawn->GetActorLocation());
+		if (DistSquared <= FMath::Square(CatchDistance))
 		{
 			CatchAndDespawn();
 			return;
 		}
 	}
 
- MoveRefreshAccumulator += DeltaSeconds;
+	MoveRefreshAccumulator += DeltaSeconds;
 
 	if (bOnlyChaseWhenNotObserved)
 	{
-		if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+		ObservationCheckAccumulator += DeltaSeconds;
+		const float ObservationInterval = FMath::Max(0.01f, ObservationCheckInterval);
+		if (ObservationCheckAccumulator >= ObservationInterval)
 		{
-            bIsObservedByPlayer = ComputeIsObservedByPlayer(PlayerPawn);
-			ApplyObservationFreeze(bIsObservedByPlayer);
+			ObservationCheckAccumulator = 0.0f;
+			if (PlayerPawn)
+			{
+				bIsObservedByPlayer = ComputeIsObservedByPlayer(PlayerPawn, ResolvePlayerController());
+			}
+			else
+			{
+				bIsObservedByPlayer = false;
+			}
+		}
+
+		ApplyObservationFreeze(bIsObservedByPlayer);
+
+		if (APursuerAnomalyAIController* PursuerAI = Cast<APursuerAnomalyAIController>(GetController()))
+		{
+			PursuerAI->SetTargetActor(PlayerPawn);
+			PursuerAI->SetObservationState(bIsObservedByPlayer);
+		}
+
+		if (PlayerPawn && bIsObservedByPlayer)
+		{
+			if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+			{
+				MoveComp->StopMovementImmediately();
+			}
 
 			if (APursuerAnomalyAIController* PursuerAI = Cast<APursuerAnomalyAIController>(GetController()))
 			{
-				PursuerAI->SetTargetActor(PlayerPawn);
-				PursuerAI->SetObservationState(bIsObservedByPlayer);
-			}
-
-			if (bIsObservedByPlayer)
-			{
-				if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-				{
-					MoveComp->StopMovementImmediately();
-				}
-
-				if (APursuerAnomalyAIController* PursuerAI = Cast<APursuerAnomalyAIController>(GetController()))
-				{
-					PursuerAI->StopChaseMovement();
-				}
+				PursuerAI->StopChaseMovement();
 			}
 		}
 	}
 	else
 	{
 		bIsObservedByPlayer = false;
-       ApplyObservationFreeze(false);
+		ApplyObservationFreeze(false);
 	}
 
 	if (MoveRefreshAccumulator >= MoveRefreshInterval)
@@ -97,9 +112,34 @@ void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
 	UpdateMovingAudio();
 }
 
+APawn* APursuerAnomalyCharacter::ResolvePlayerPawn()
+{
+	if (APlayerController* PlayerController = ResolvePlayerController())
+	{
+		if (PlayerController->GetPawn() != CachedPlayerPawn.Get())
+		{
+			CachedPlayerPawn = PlayerController->GetPawn();
+		}
+	}
+	else if (!CachedPlayerPawn.IsValid())
+	{
+		CachedPlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	}
+	return CachedPlayerPawn.Get();
+}
+
+APlayerController* APursuerAnomalyCharacter::ResolvePlayerController()
+{
+	if (!CachedPlayerController.IsValid())
+	{
+		CachedPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+	return CachedPlayerController.Get();
+}
+
 void APursuerAnomalyCharacter::UpdateChase()
 {
-	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	APawn* PlayerPawn = ResolvePlayerPawn();
 	if (!PlayerPawn)
 	{
 		return;
@@ -128,21 +168,15 @@ void APursuerAnomalyCharacter::UpdateChase()
 	}
 }
 
-bool APursuerAnomalyCharacter::ComputeIsObservedByPlayer(APawn* PlayerPawn) const
+bool APursuerAnomalyCharacter::ComputeIsObservedByPlayer(APawn* PlayerPawn, APlayerController* PlayerController) const
 {
-	if (!PlayerPawn)
+	if (!PlayerPawn || !PlayerController || !PlayerController->PlayerCameraManager)
 	{
 		return false;
 	}
 
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC || !PC->PlayerCameraManager)
-	{
-		return false;
-	}
-
-	const FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
-	const FVector CameraForward = PC->PlayerCameraManager->GetActorForwardVector().GetSafeNormal();
+	const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+	const FVector CameraForward = PlayerController->PlayerCameraManager->GetActorForwardVector().GetSafeNormal();
 	const FVector ToPursuer = (GetActorLocation() - CameraLocation).GetSafeNormal();
 
 	const float Dot = FVector::DotProduct(CameraForward, ToPursuer);
@@ -152,7 +186,7 @@ bool APursuerAnomalyCharacter::ComputeIsObservedByPlayer(APawn* PlayerPawn) cons
 	}
 
 	FHitResult Hit;
- FCollisionQueryParams Params(SCENE_QUERY_STAT(PursuerObservedTrace), true, PlayerPawn);
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(PursuerObservedTrace), true, PlayerPawn);
 
 	const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(
 		Hit,

@@ -188,6 +188,7 @@ void ULoopManagerSubsystem::AdvanceLoop()
 	}
 
 	CurrentLoop++;
+	NotifyAIFriendsLoopChanged();
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->TotalAdvances++;
@@ -221,6 +222,7 @@ void ULoopManagerSubsystem::ResetLoop()
 	}
 
 	CurrentLoop = 1;
+	NotifyAIFriendsLoopChanged();
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->TotalResets++;
@@ -267,6 +269,7 @@ void ULoopManagerSubsystem::ApplyAIDiagnosedKindnessDelta(int32 Delta)
 void ULoopManagerSubsystem::ResetRunState()
 {
 	CurrentLoop = 1;
+	NotifyAIFriendsLoopChanged();
 	bAnomalyDetected = false;
 	bGameFinished = false;
 
@@ -333,10 +336,89 @@ void ULoopManagerSubsystem::TriggerEndingSequence()
 	}
 }
 
+void ULoopManagerSubsystem::RegisterAIFriend(AAI_Friend* AIFriend)
+{
+	if (!AIFriend)
+	{
+		return;
+	}
+
+	RegisteredAIFriends.RemoveAll([](const TWeakObjectPtr<AAI_Friend>& Ptr) { return !Ptr.IsValid(); });
+	for (const TWeakObjectPtr<AAI_Friend>& Existing : RegisteredAIFriends)
+	{
+		if (Existing.Get() == AIFriend)
+		{
+			return;
+		}
+	}
+	RegisteredAIFriends.Add(AIFriend);
+}
+
+void ULoopManagerSubsystem::UnregisterAIFriend(AAI_Friend* AIFriend)
+{
+	RegisteredAIFriends.RemoveAll([AIFriend](const TWeakObjectPtr<AAI_Friend>& Ptr)
+	{
+		return !Ptr.IsValid() || Ptr.Get() == AIFriend;
+	});
+}
+
+void ULoopManagerSubsystem::NotifyAIFriendsLoopChanged()
+{
+	RegisteredAIFriends.RemoveAll([](const TWeakObjectPtr<AAI_Friend>& Ptr) { return !Ptr.IsValid(); });
+	for (const TWeakObjectPtr<AAI_Friend>& WeakFriend : RegisteredAIFriends)
+	{
+		if (AAI_Friend* AIFriend = WeakFriend.Get())
+		{
+			AIFriend->HandleLoopChanged();
+		}
+	}
+}
+
+void ULoopManagerSubsystem::RegisterTeleportPoint(ATeleportPoint* Point)
+{
+	if (!Point)
+	{
+		return;
+	}
+
+	PruneStaleTeleportCaches();
+
+	TArray<TWeakObjectPtr<ATeleportPoint>>& Target =
+		(Point->TeleportType == ECustomTeleportType::Entry) ? EntryPoints : ExitPoints;
+
+	for (const TWeakObjectPtr<ATeleportPoint>& Existing : Target)
+	{
+		if (Existing.Get() == Point)
+		{
+			return;
+		}
+	}
+	Target.Add(Point);
+}
+
+void ULoopManagerSubsystem::UnregisterTeleportPoint(ATeleportPoint* Point)
+{
+	auto RemovePoint = [Point](TArray<TWeakObjectPtr<ATeleportPoint>>& Points)
+	{
+		Points.RemoveAll([Point](const TWeakObjectPtr<ATeleportPoint>& Ptr)
+		{
+			return !Ptr.IsValid() || Ptr.Get() == Point;
+		});
+	};
+
+	RemovePoint(EntryPoints);
+	RemovePoint(ExitPoints);
+}
+
+void ULoopManagerSubsystem::PruneStaleTeleportCaches()
+{
+	EntryPoints.RemoveAll([](const TWeakObjectPtr<ATeleportPoint>& Ptr) { return !Ptr.IsValid(); });
+	ExitPoints.RemoveAll([](const TWeakObjectPtr<ATeleportPoint>& Ptr) { return !Ptr.IsValid(); });
+}
+
 void ULoopManagerSubsystem::FindTeleportPoints()
 {
-	EntryPoints.Empty();
-	ExitPoints.Empty();
+	PruneStaleTeleportCaches();
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -344,6 +426,13 @@ void ULoopManagerSubsystem::FindTeleportPoints()
 		return;
 	}
 
+	if (FallbackTeleportScanWorld.Get() == World)
+	{
+		return;
+	}
+
+	// One-time fallback for points that somehow skipped registration.
+	FallbackTeleportScanWorld = World;
 	TArray<AActor*> FoundPoints;
 	UGameplayStatics::GetAllActorsOfClass(World, ATeleportPoint::StaticClass(), FoundPoints);
 
@@ -351,14 +440,7 @@ void ULoopManagerSubsystem::FindTeleportPoints()
 	{
 		if (ATeleportPoint* TeleportPoint = Cast<ATeleportPoint>(Actor))
 		{
-			if (TeleportPoint->TeleportType == ECustomTeleportType::Entry)
-			{
-				EntryPoints.Add(TeleportPoint);
-			}
-			else if (TeleportPoint->TeleportType == ECustomTeleportType::Exit)
-			{
-				ExitPoints.Add(TeleportPoint);
-			}
+			RegisterTeleportPoint(TeleportPoint);
 		}
 	}
 }
@@ -430,18 +512,11 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 
 void ULoopManagerSubsystem::ClearAllAIChats()
 {
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
+	RegisteredAIFriends.RemoveAll([](const TWeakObjectPtr<AAI_Friend>& Ptr) { return !Ptr.IsValid(); });
 
-	TArray<AActor*> FoundAIFriends;
-	UGameplayStatics::GetAllActorsOfClass(World, AAI_Friend::StaticClass(), FoundAIFriends);
-
-	for (AActor* Actor : FoundAIFriends)
+	for (const TWeakObjectPtr<AAI_Friend>& WeakFriend : RegisteredAIFriends)
 	{
-		if (const AAI_Friend* AIFriend = Cast<AAI_Friend>(Actor))
+		if (const AAI_Friend* AIFriend = WeakFriend.Get())
 		{
 			if (UAI_ChatWidget* AIChatWidget = Cast<UAI_ChatWidget>(AIFriend->GetChatWidgetInstance()))
 			{

@@ -23,10 +23,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	virtual void Tick(float DeltaTime) override;
-
 	virtual bool TryInteract_Implementation(APlayerController* InteractingController) override;
 	virtual FText GetInteractionPromptText_Implementation() const override;
 
@@ -38,6 +37,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	FString SayToAI(const FString& Message);
+
+	/** Called by the loop manager so ringing stops immediately on loop transitions. */
+	void HandleLoopChanged();
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FString APIEndpoint;
@@ -145,11 +147,17 @@ private:
 	FString BuildSignalDropMessage() const;
 
 	void TriggerInitialRing();
+	void DispatchChatRequest(const FString& Message);
+	void HandleLocalizedChatFailure(int32 HttpCode);
+	void ClearPendingAuthChat();
+	void OnAuthSessionReadyForPendingChat();
+	void OnAuthSessionFailedForPendingChat(const FString& Reason);
 
 	UPROPERTY()
 	UUserWidget* ChatWidgetInstance;
 
 	FTimerHandle InitialRingTimerHandle;
+	FTimerHandle PendingAuthTimeoutHandle;
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> ActiveInitialRingAudioComponent = nullptr;
@@ -161,6 +169,12 @@ private:
 	int32 MessagesSentThisLoop = 0;
 	FString PendingPhantomMessage;
 	bool bPhantomMessageShown = false;
+	FString PendingAuthChatMessage;
+	bool bPendingAuthChat = false;
+	bool bInteractionInputCaptured = false;
+	uint64 ChatRequestGeneration = 0;
+	FDelegateHandle AuthReadyHandle;
+	FDelegateHandle AuthFailedHandle;
 
 	UFUNCTION()
    void OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

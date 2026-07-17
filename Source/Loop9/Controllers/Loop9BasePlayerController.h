@@ -28,6 +28,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Gameplay", meta = (ClampMin = "50.0"))
 	float InteractionPromptDistance = 300.0f;
 
+	/** Complex interaction prompt traces run at this rate (Hz). Pause still clears immediately. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Gameplay", meta = (ClampMin = "1.0", ClampMax = "60.0"))
+	float InteractionPromptTraceHz = 20.0f;
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupInputComponent() override;
@@ -42,4 +46,5 @@ private:
 
 	FText LastPromptText;
 	bool bLastPromptVisible = false;
+	float InteractionPromptTraceAccumulator = 0.0f;
 };

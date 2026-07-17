@@ -34,8 +34,9 @@ When the game runs through Steam (or with `SteamDevAppId=480` for testing), it
 exchanges the local Steam session ticket for a short-lived backend token via
 `POST /api/auth/steam` and uses it as `X-Session-Token` on chat requests
 (`Loop9BackendAuthSubsystem`). The backend then derives the player identity from
-the verified Steam ID. Without Steam, the game falls back to the legacy
-`GameToken` (`X-Game-Token`) from `Config/DefaultGame.ini`.
+the verified Steam ID. Legacy `GameToken` (`X-Game-Token`) auth is available only
+for explicit non-production testing: set `bRequireSteamSession=false` in the
+client config and `AUTH_ALLOW_GAME_TOKEN=true` on a non-production backend.
 
 Before shipping, replace `SteamDevAppId` in `Config/DefaultEngine.ini` with your
 real App ID and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID` on the backend.

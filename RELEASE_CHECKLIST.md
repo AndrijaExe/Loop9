@@ -76,27 +76,43 @@ Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
 ## 4. Backend / Render (potvrđeno 15.07.)
 
 - [x] `/healthz` 200, auth odbija loše tokene, Redis radi, Steam kredencijali podešeni.
+- [x] **`/readyz`** — dependency-aware readiness (config + Redis rate-limiter storage);
+  `/healthz` ostaje lagani liveness probe.
+- [ ] Render **Health Check Path** potvrditi kao `/readyz` (ne `/healthz`) pre deploy-a.
+- [x] Production fail-closed defaults: Steam-only (`AUTH_ALLOW_GAME_TOKEN=false`),
+  body cap 64 KiB, AI total deadline 45s, redacted provider logs, PHPUnit pre Render deploy.
 - [ ] **Free tier cold start (~15s)**: pre release-a preći na plaćeni Render plan
   (Starter) ili dodati keep-alive ping — prvi API poziv novog igrača ne sme da visi 15s.
 - [ ] Podesiti alarm/notifikaciju za `GAME_GLOBAL_DAILY_QUOTA` (kill-switch na 5000 msg/dan).
-- [ ] Proveriti da je `AUTH_ALLOW_GAME_TOKEN` isključen u prod ako Steam auth radi
-  (legacy token ostaje samo za ne-Steam buildove).
+- [x] `AUTH_ALLOW_GAME_TOKEN` isključen u prod defaults (legacy token samo preko
+  eksplicitnog non-prod config-a / `.env.test`).
 
 ## 5. QA pre uploada builda
 
-- [ ] Shipping build na **čistoj mašini** (bez UE, bez dev fajlova).
+- [ ] Shipping / packaged **Steam** build na **čistoj mašini** (bez UE, bez dev fajlova).
+- [ ] **Cold launch → first message auth**: Standalone (ne PIE) sa Steam klijentom —
+  prva poruka čeka session (authorize-then-dispatch), ne šalje unauthenticated request;
+  auth failure / offline refunduje pokušaj + in-fiction poruka.
 - [ ] Steam auth E2E na pravom App ID-ju (novi Steam nalog koji poseduje igru).
+- [ ] **Loop 9 boundary**: context `loop_index` clamp 1–9 na clientu i backendu.
+- [ ] **Telemetry / relationship counts**: `RegisterPlayerMessage` na submit;
+  `RegisterAIInteraction` / achievement / `ai_messages` telemetrija samo posle
+  uspešnog validiranog AI odgovora (ne na failed/timeout).
 - [ ] Svih 6 endinga dostižno; achievementi se otključavaju (proveriti u Steam profilu).
 - [ ] **Offline test**: pokreni igru bez interneta — igra ne sme da pukne; chat prikazuje
   in-fiction poruku ("...the line crackles and goes dead...") i vraća potrošeni pokušaj
   za taj loop, pa igrač može odmah da proba ponovo.
-- [ ] **Cold start test**: prvi chat posle dužeg mirovanja backenda — timeout je podignut
-  na 35s da preživi Render cold start; poruka mora stići, ne tišina.
+- [ ] **Cold start / timeout test**: client chat timeout **65s** (backend AI deadline 45s
+  + cold-start headroom); poruka mora stići ili failati sa lokalizovanom greškom, ne tišina.
+- [ ] **Perf smoke (home machine)**: 10-min Unreal Insights capture + `stat unit` /
+  `stat game` / `stat gpu` na desktopu i Steam Deck targetu. Renderer (Lumen/RT/VSM)
+  ne dirati dok Insights ne dokaže bottleneck.
 - [ ] Alt-Tab / Steam Overlay (Shift+Tab) ne ruši igru.
 - [x] Promena jezika u settings-u menja UI odmah i posle restarta;
   Back/Resume ne ostavljaju settings overlay u pozadini.
 - [x] Audio/gamma/sensitivity podešavanja rade i pamte se
-  (`Loop9GameSettingsSubsystem`: Master + Ambient preko `SC_Music`).
+  (`Loop9GameSettingsSubsystem`: Master + Ambient preko sound-mix override, bez
+  direktne mutacije `USoundClass` asseta).
 - [x] Telemetrija: run ping stiže (`Telemetry POST` + HTTP 204 u client logu).
 - [ ] Verifikovati da build ne sadrži `DefaultGame.ini` sa pravim tokenima u repou
   (gitignore već pokriva, ali proveriti pakovani build).
@@ -112,14 +128,15 @@ Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
   runtime-u dodaje `IMC_GamepadFallback` kontekst: Interact → **X/Square**,
   Pause → **Start/Menu**, Sprint → **klik levog stika**. Bez izmena asseta.
 - [ ] QA na pravom Deck-u (ili preko Steam Input simulacije): kretanje, interakcija,
-  pauza, kucanje u chatu preko floating tastature.
+  pauza, kucanje u chatu preko floating tastature; `stat unit` / `stat gpu`.
 - [ ] Ako želiš drugačiji raspored dugmadi, izmene su u
   `Loop9Character::AddGamepadFallbackMappings` / `HorrorCharacter` override-u.
 
 ## 7. Poznate rupe posle launcha (backlog)
 
 - [x] Offline/error UX za chat — na grešku se prikazuje in-fiction poruka (offline /
-  zauzeto / greška servera), potrošeni pokušaj se refundira, HTTP timeout 35s.
+  zauzeto / greška servera), potrošeni pokušaj se refundira, HTTP timeout 65s;
+  Steam session gate pre chat dispatch.
 - [x] Achievement progres — Steam "x/y" progress toast preko
   `IndicateAchievementProgress` za ACH_STREAK_7, ACH_GROUNDHOG, ACH_HOTLINE,
   ACH_ALL_ENDINGS i ACH_SPOT_ALL. Čisto vizuelno; izvor istine ostaje `Game.ini`.

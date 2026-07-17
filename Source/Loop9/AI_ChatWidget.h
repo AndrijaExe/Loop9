@@ -41,6 +41,8 @@ public:
 	virtual void NativeDestruct() override;
 
 	void AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble = false);
+	void ShowThinkingIndicator();
+	void HideThinkingIndicator();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	bool bUseTypewriterForAI = true;
@@ -110,6 +112,8 @@ private:
 	UButton* CloseButton = nullptr;
 	FTypewriterState AITypewriterState;
 	TObjectPtr<class UTextBlock> ActiveAITypewriterText = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<class UTextBlock> ThinkingIndicatorText = nullptr;
 	bool bAICursorVisible = true;
 	FString AICurrentBaseText;
 

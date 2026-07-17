@@ -14,6 +14,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
@@ -67,6 +68,7 @@ private:
 	float GlitchAccumulator = 0.0f;
 	float GlitchElapsed = 0.0f;
 	bool bGlitchActive = false;
+	FTimerHandle IdleRefreshTimerHandle;
 
 	void RefreshLoopText();
   void UpdateDynamicColor(int32 LoopValue);

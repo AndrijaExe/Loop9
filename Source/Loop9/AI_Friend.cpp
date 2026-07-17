@@ -1,6 +1,7 @@
 ﻿#include "AI_Friend.h"
 #include "AI_ChatWidget.h"
 #include "AI/Services/Loop9BackendChatService.h"
+#include "AI/Services/Loop9BackendEndpointUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -20,7 +21,8 @@
 
 AAI_Friend::AAI_Friend()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	// Ring / loop-change work runs on timers and interaction callbacks — no idle tick.
+	PrimaryActorTick.bCanEverTick = false;
 
 	PhoneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PhoneMesh"));
 	RootComponent = PhoneMesh;
@@ -278,23 +280,151 @@ void AAI_Friend::BeginPlay()
 		}
 	}
 
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
+		{
+			LoopManager->RegisterAIFriend(this);
+		}
+	}
+
 	StartInitialRingIfNeeded();
 }
 
-void AAI_Friend::Tick(float DeltaTime)
+void AAI_Friend::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::Tick(DeltaTime);
+	StopInitialRing();
+	ClearPendingAuthChat();
+
+	if (TriggerBox)
+	{
+		TriggerBox->OnComponentBeginOverlap.RemoveDynamic(this, &AAI_Friend::OnTriggerBeginOverlap);
+		TriggerBox->OnComponentEndOverlap.RemoveDynamic(this, &AAI_Friend::OnTriggerEndOverlap);
+	}
+
+	if (bInteractionInputCaptured && CurrentPlayerController)
+	{
+		SetPlayerMovementEnabled(CurrentPlayerController, true);
+		ApplyInteractionInputMode(CurrentPlayerController, false);
+		bInteractionInputCaptured = false;
+	}
+
+	if (ChatWidgetInstance)
+	{
+		ChatWidgetInstance->RemoveFromParent();
+		ChatWidgetInstance = nullptr;
+	}
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
+		{
+			LoopManager->UnregisterAIFriend(this);
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void AAI_Friend::HandleLoopChanged()
+{
+	// Ignore responses and pending auth callbacks that belong to the previous loop/run.
+	++ChatRequestGeneration;
+	ClearPendingAuthChat();
+	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+	{
+		ChatWidget->HideThinkingIndicator();
+	}
 
 	if (ShouldStopInitialRingForLoopChange())
 	{
 		StopInitialRing();
 	}
+}
 
+void AAI_Friend::ClearPendingAuthChat()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(PendingAuthTimeoutHandle);
+	}
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+		{
+			if (AuthReadyHandle.IsValid())
+			{
+				Auth->OnSessionReady.Remove(AuthReadyHandle);
+			}
+			if (AuthFailedHandle.IsValid())
+			{
+				Auth->OnSessionFailed.Remove(AuthFailedHandle);
+			}
+		}
+	}
+
+	AuthReadyHandle.Reset();
+	AuthFailedHandle.Reset();
+	PendingAuthChatMessage.Reset();
+	bPendingAuthChat = false;
+}
+
+void AAI_Friend::OnAuthSessionReadyForPendingChat()
+{
+	if (!bPendingAuthChat)
+	{
+		return;
+	}
+
+	const FString Message = PendingAuthChatMessage;
+	ClearPendingAuthChat();
+	DispatchChatRequest(Message);
+}
+
+void AAI_Friend::OnAuthSessionFailedForPendingChat(const FString& Reason)
+{
+	if (!bPendingAuthChat)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("AI_Friend: pending chat aborted — auth failed (%s)"), *Reason);
+	ClearPendingAuthChat();
+	MessagesSentThisLoop = FMath::Max(0, MessagesSentThisLoop - 1);
+	HandleLocalizedChatFailure(0);
+}
+
+void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode)
+{
+	FString UserFacingReply;
+	if (HttpCode == 0)
+	{
+		UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatConnectionLost",
+			"...the line crackles and goes dead. (No connection. Check your internet and try again.)").ToString();
+	}
+	else if (HttpCode == 429)
+	{
+		UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatRateLimited",
+			"...the line is busy. He cannot take more calls right now. Try again later.").ToString();
+	}
+	else
+	{
+		UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatServerError",
+			"...static hisses through the receiver. Something is wrong on the other side. Try again.").ToString();
+	}
+
+	LastAIResponse = UserFacingReply;
+	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+	{
+		ChatWidget->AddMessageToChat(UserFacingReply, false, true);
+	}
+
+	OnResponseReceived(UserFacingReply);
 }
 
 FString AAI_Friend::SayToAI(const FString& Message)
 {
-	const int32 CurrentLoopIndex = ResolveCurrentLoopIndex();
 	RefreshLoopMessageLimitCounter();
 
 	if (MaxMessagesPerLoop > 0 && MessagesSentThisLoop >= MaxMessagesPerLoop)
@@ -314,39 +444,101 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		return TEXT("Blocked: message limit reached for this loop");
 	}
 
-	MessagesSentThisLoop++;
-
 	if (APIEndpoint.IsEmpty())
 	{
 		return TEXT("Error: API Endpoint not configured");
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("AI request start. Endpoint=%s | Mode=BackendContract | MsgLen=%d"), *APIEndpoint, Message.Len());
-
-	ULoopManagerSubsystem* LoopManager = nullptr;
-	UAnomalyManager* AnomalyManager = nullptr;
-	if (UGameInstance* GI = GetGameInstance())
+	if (bPendingAuthChat)
 	{
-		LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>();
-		AnomalyManager = GI->GetSubsystem<UAnomalyManager>();
+		return TEXT("Request pending auth...");
 	}
+
+	MessagesSentThisLoop++;
 
 	ULoop9BackendAuthSubsystem* AuthSubsystem = nullptr;
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		AuthSubsystem = GI->GetSubsystem<ULoop9BackendAuthSubsystem>();
 	}
-	if (AuthSubsystem)
+
+	const bool bSteamAuthRequired = AuthSubsystem && AuthSubsystem->RequiresSteamSession();
+	const bool bHasSession = AuthSubsystem && AuthSubsystem->HasValidSession();
+
+	if (bSteamAuthRequired && !bHasSession)
 	{
-		AuthSubsystem->EnsureSession();
+		// Authorize then dispatch — never send an unauthenticated Steam production request.
+		PendingAuthChatMessage = Message;
+		bPendingAuthChat = true;
+
+		AuthReadyHandle = AuthSubsystem->OnSessionReady.AddUObject(this, &AAI_Friend::OnAuthSessionReadyForPendingChat);
+		AuthFailedHandle = AuthSubsystem->OnSessionFailed.AddUObject(this, &AAI_Friend::OnAuthSessionFailedForPendingChat);
+
+		if (UWorld* World = GetWorld())
+		{
+			TWeakObjectPtr<AAI_Friend> WeakThis(this);
+			World->GetTimerManager().SetTimer(
+				PendingAuthTimeoutHandle,
+				[WeakThis]()
+				{
+					if (WeakThis.IsValid() && WeakThis->bPendingAuthChat)
+					{
+						WeakThis->OnAuthSessionFailedForPendingChat(TEXT("chat auth wait timed out"));
+					}
+				},
+				17.0f,
+				false);
+		}
+
+		const bool bAuthAttemptActive = AuthSubsystem->EnsureSession();
+		if (!bAuthAttemptActive && bPendingAuthChat)
+		{
+			OnAuthSessionFailedForPendingChat(TEXT("Steam authentication is cooling down or unavailable"));
+		}
+		if (!bPendingAuthChat)
+		{
+			return TEXT("Error: Steam authentication failed");
+		}
+
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->ShowThinkingIndicator();
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("AI request queued until Steam session is ready. MsgLen=%d"), Message.Len());
+		return TEXT("Request queued (awaiting Steam auth)...");
 	}
 
-	const int32 LoopIndex = LoopManager ? FMath::Max(1, LoopManager->CurrentLoop) : 1;
+	DispatchChatRequest(Message);
+	return TEXT("Request sent... (async)");
+}
+
+void AAI_Friend::DispatchChatRequest(const FString& Message)
+{
+	UE_LOG(LogTemp, Log, TEXT("AI request start. Endpoint=%s | Mode=BackendContract | MsgLen=%d"), *APIEndpoint, Message.Len());
+	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+	{
+		ChatWidget->ShowThinkingIndicator();
+	}
+
+	ULoopManagerSubsystem* LoopManager = nullptr;
+	UAnomalyManager* AnomalyManager = nullptr;
+	ULoop9BackendAuthSubsystem* AuthSubsystem = nullptr;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>();
+		AnomalyManager = GI->GetSubsystem<UAnomalyManager>();
+		AuthSubsystem = GI->GetSubsystem<ULoop9BackendAuthSubsystem>();
+	}
+
+	const FString SessionToken = AuthSubsystem ? AuthSubsystem->GetSessionToken() : FString();
+	const int32 LoopIndex = LoopManager ? FMath::Clamp(LoopManager->CurrentLoop, 1, 9) : 1;
+
 	FLoop9ChatRequestContext RequestContext;
 	RequestContext.Message = Message;
-	RequestContext.APIEndpoint = APIEndpoint;
+	RequestContext.APIEndpoint = Loop9BackendEndpointUtils::DeriveChatEndpoint(APIEndpoint);
 	RequestContext.GameToken = GameToken;
-	RequestContext.SessionToken = AuthSubsystem ? AuthSubsystem->GetSessionToken() : FString();
+	RequestContext.SessionToken = SessionToken;
 	RequestContext.PlayerId = PlayerId;
 	// Explicit config/env override wins; otherwise the AI follows the UI language.
 	RequestContext.PreferredLanguage = !PreferredLanguage.IsEmpty()
@@ -369,15 +561,23 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		RequestContext.AnomalyKey = AnomalyManager->GetCurrentLoopAnomalyKey();
 	}
 
+	const bool bUsedSessionToken = !SessionToken.IsEmpty();
+	const uint64 RequestGeneration = ChatRequestGeneration;
+
 	ULoop9BackendChatService* ChatService = NewObject<ULoop9BackendChatService>(this);
 	ChatService->SendChatRequest(RequestContext, FOnLoop9ChatResponseReceived::CreateWeakLambda(this,
-		[this](const FLoop9ChatResponse& ChatResponse)
+		[this, bUsedSessionToken, RequestGeneration, LoopIndex](const FLoop9ChatResponse& ChatResponse)
 		{
+			if (RequestGeneration != ChatRequestGeneration || ResolveCurrentLoopIndex() != LoopIndex)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Ignoring stale AI response from loop %d."), LoopIndex);
+				return;
+			}
+
 			if (!ChatResponse.bSuccess)
 			{
-				// A 403 with an active session usually means the token expired
-				// server-side; drop it so the next message re-authenticates.
-				if (ChatResponse.HttpCode == 403)
+				// Re-auth only when the failed request actually carried a session token.
+				if (ChatResponse.HttpCode == 403 && bUsedSessionToken)
 				{
 					if (UGameInstance* GI = GetGameInstance())
 					{
@@ -391,35 +591,8 @@ FString AAI_Friend::SayToAI(const FString& Message)
 				UE_LOG(LogTemp, Warning, TEXT("AI request failed. HttpCode=%d | %s"),
 					ChatResponse.HttpCode, *ChatResponse.ErrorMessage);
 
-				// Refund the per-loop message allowance so the player can simply retry.
 				MessagesSentThisLoop = FMath::Max(0, MessagesSentThisLoop - 1);
-
-				// Show an in-fiction failure line instead of silence.
-				FString UserFacingReply;
-				if (ChatResponse.HttpCode == 0)
-				{
-					// The request never reached the backend (offline / timeout).
-					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatConnectionLost",
-						"...the line crackles and goes dead. (No connection. Check your internet and try again.)").ToString();
-				}
-				else if (ChatResponse.HttpCode == 429)
-				{
-					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatRateLimited",
-						"...the line is busy. He cannot take more calls right now. Try again later.").ToString();
-				}
-				else
-				{
-					UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatServerError",
-						"...static hisses through the receiver. Something is wrong on the other side. Try again.").ToString();
-				}
-
-				LastAIResponse = UserFacingReply;
-				if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
-				{
-					ChatWidget->AddMessageToChat(UserFacingReply, false, true);
-				}
-
-				OnResponseReceived(UserFacingReply);
+				HandleLocalizedChatFailure(ChatResponse.HttpCode);
 				return;
 			}
 
@@ -429,6 +602,8 @@ FString AAI_Friend::SayToAI(const FString& Message)
 				{
 					LoopMgr->ApplyAIDiagnosedKindnessDelta(ChatResponse.KindnessDelta);
 					LoopMgr->ApplyAIDiagnosedSuspicionDelta(ChatResponse.SuspicionDelta);
+					// Count successful validated replies only (achievements / telemetry).
+					LoopMgr->RegisterAIInteraction();
 				}
 			}
 
@@ -440,8 +615,6 @@ FString AAI_Friend::SayToAI(const FString& Message)
 
 			OnResponseReceived(ChatResponse.Reply);
 		}));
-
-	return TEXT("Request sent... (async)");
 }
 
 FString AAI_Friend::BuildSignalDropMessage() const
@@ -484,6 +657,12 @@ void AAI_Friend::TriggerInitialRing()
 {
 	if (!GetWorld() || !InitialRingSound)
 	{
+		return;
+	}
+
+	if (ShouldStopInitialRingForLoopChange())
+	{
+		StopInitialRing();
 		return;
 	}
 
@@ -624,6 +803,7 @@ void AAI_Friend::OpenChatWidget(APlayerController* PlayerController)
 
 		SetPlayerMovementEnabled(PlayerController, false);
 		ApplyInteractionInputMode(PlayerController, true);
+		bInteractionInputCaptured = true;
 	}
 }
 
@@ -672,5 +852,6 @@ void AAI_Friend::CloseChatWidget(APlayerController* PlayerController)
 		ChatWidgetInstance->RemoveFromParent();
 		SetPlayerMovementEnabled(PlayerController, true);
 		ApplyInteractionInputMode(PlayerController, false);
+		bInteractionInputCaptured = false;
 	}
 }

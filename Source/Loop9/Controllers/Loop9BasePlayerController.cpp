@@ -35,6 +35,22 @@ void ALoop9BasePlayerController::Tick(float DeltaSeconds)
 		return;
 	}
 
+	// Always clear immediately while paused; throttle expensive complex traces otherwise.
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		InteractionPromptTraceAccumulator = 0.0f;
+		PushPromptToUI(FText::GetEmpty(), false);
+		return;
+	}
+
+	const float TraceInterval = 1.0f / FMath::Max(1.0f, InteractionPromptTraceHz);
+	InteractionPromptTraceAccumulator += DeltaSeconds;
+	if (InteractionPromptTraceAccumulator < TraceInterval)
+	{
+		return;
+	}
+	InteractionPromptTraceAccumulator = 0.0f;
+
 	UpdateInteractionPrompt();
 }
 
@@ -71,14 +87,6 @@ void ALoop9BasePlayerController::ClearInteractionPrompt()
 
 void ALoop9BasePlayerController::UpdateInteractionPrompt()
 {
-	// Controller ticks even while paused (pause menu / item inspection) —
-	// don't show world prompts over those screens.
-	if (UGameplayStatics::IsGamePaused(GetWorld()))
-	{
-		PushPromptToUI(FText::GetEmpty(), false);
-		return;
-	}
-
 	ALoop9Character* LoopCharacter = Cast<ALoop9Character>(GetPawn());
 	if (!LoopCharacter || !GetInteractionPromptWidget())
 	{

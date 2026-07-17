@@ -19,6 +19,7 @@ class LOOP9_API UHorrorUI : public UUserWidget, public IInteractionPromptProvide
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeDestruct() override;
 
 	/** Sets up delegate listeners for the passed character */
 	void SetupCharacter(AHorrorCharacter* HorrorCharacter);
@@ -60,4 +61,7 @@ protected:
 	/** Passes control to Blueprint to toggle crosshair */
 	UFUNCTION(BlueprintImplementableEvent, Category="UI", meta = (DisplayName = "Crosshair Visibility Changed"))
 	void BP_CrosshairVisibilityChanged(bool bVisible);
+
+private:
+	TWeakObjectPtr<AHorrorCharacter> BoundHorrorCharacter;
 };

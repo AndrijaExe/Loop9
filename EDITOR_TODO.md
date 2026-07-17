@@ -155,11 +155,13 @@ praviti motion blur, DOF iz globalnog post-process volumena i TAA/TSR.
 - [ ] 28 achievements (+ Scale/Clock/Phantom ikone)
 - [ ] Publish
 
-## 6. Backend — GOTOVO za telemetry
+## 6. Backend — GOTOVO za telemetry + production hardening
 
 - [x] Telemetry E2E (HTTP 204)
+- [x] Production hardening (fail-closed Steam auth, `/readyz`, body/JSON bounds,
+  AI deadline/redaction, deploy PHPUnit gate) — backend PHPUnit green
 - [ ] Pre release: Render Starter / keep-alive (cold start)
-- [ ] Quota alarm; `AUTH_ALLOW_GAME_TOKEN` off kad Steam auth radi
+- [ ] Quota alarm
 
 ## 7. Store page (može paralelno bez App ID-a)
 
@@ -169,8 +171,24 @@ praviti motion blur, DOF iz globalnog post-process volumena i TAA/TSR.
 
 ## 8. QA (može paralelno)
 
-- [ ] Shipping build na čistoj mašini
-- [ ] Offline chat + cold start chat
+- [ ] Shipping / packaged Steam build na čistoj mašini
+- [ ] **Standalone** cold launch: first chat waits for Steam session; auth fail / offline refund
+- [ ] Loop 9 clamp + success-only AI interaction / telemetry counts
+- [ ] Offline chat + cold start chat (client timeout 65s)
+- [ ] 10-min Unreal Insights + `stat unit` / `stat game` / `stat gpu` (desktop + Deck)
 - [ ] Alt-Tab / Steam Overlay
 - [ ] Deck QA
 - [ ] Pakovani build bez tokena u `DefaultGame.ini`
+
+## 9. Production/perf hardening — editor recompile (home machine)
+
+Novi C++ (auth gate, endpoint utils, tick throttles, sound-mix pop/re-push). Posle
+`Loop9Editor` Development rebuild:
+
+- [ ] Standalone Game + Steam: first message authorize-then-dispatch
+- [ ] Za lokalni non-Steam backend test eksplicitno postavi
+  `[/Script/Loop9.Loop9BackendAuthSubsystem] bRequireSteamSession=false`;
+  Shipping/prod mora ostati podrazumevano `true`.
+- [ ] Pause clears interaction prompt immediately; prompt trace ~20 Hz in play
+- [ ] Ambient volume still responds via sound-mix (no permanent `SC_Music` asset edit)
+- [ ] Doors / lift wings idle without ticks; blink overlay only ticks while playing

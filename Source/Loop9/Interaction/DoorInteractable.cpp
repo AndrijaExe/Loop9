@@ -8,6 +8,7 @@
 ADoorInteractable::ADoorInteractable()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
@@ -47,6 +48,7 @@ void ADoorInteractable::Tick(float DeltaSeconds)
 	{
 		DoorMesh->SetRelativeRotation(TargetRelativeRotation);
 		bIsMoving = false;
+		SetActorTickEnabled(false);
 	}
 }
 
@@ -61,6 +63,7 @@ bool ADoorInteractable::Interact()
 	bIsOpen = !bIsOpen;
 	TargetRelativeRotation = bIsOpen ? OpenRelativeRotation : ClosedRelativeRotation;
 	bIsMoving = true;
+	SetActorTickEnabled(true);
 
 	PlayDoorSound(OpenCloseSound);
 	return true;

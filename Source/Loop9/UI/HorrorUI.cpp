@@ -5,6 +5,18 @@
 #include "HorrorCharacter.h"
 #include "Components/TextBlock.h"
 
+void UHorrorUI::NativeDestruct()
+{
+	if (BoundHorrorCharacter.IsValid())
+	{
+		BoundHorrorCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
+		BoundHorrorCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
+		BoundHorrorCharacter.Reset();
+	}
+
+	Super::NativeDestruct();
+}
+
 void UHorrorUI::SetupCharacter(AHorrorCharacter* HorrorCharacter)
 {
 	if (!HorrorCharacter)
@@ -12,6 +24,18 @@ void UHorrorUI::SetupCharacter(AHorrorCharacter* HorrorCharacter)
 		return;
 	}
 
+	if (BoundHorrorCharacter.IsValid())
+	{
+		if (BoundHorrorCharacter.Get() == HorrorCharacter)
+		{
+			return;
+		}
+
+		BoundHorrorCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
+		BoundHorrorCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
+	}
+
+	BoundHorrorCharacter = HorrorCharacter;
 	HorrorCharacter->OnSprintMeterUpdated.AddDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
 	HorrorCharacter->OnSprintStateChanged.AddDynamic(this, &UHorrorUI::OnSprintStateChanged);
 }

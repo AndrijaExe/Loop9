@@ -2,10 +2,14 @@
 #include "Components/TextRenderComponent.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "TimerManager.h"
 
 ALoopNumberSign::ALoopNumberSign()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	// Visual FX do not need full frame rate; text refresh is further gated by UpdateInterval.
+	PrimaryActorTick.TickInterval = 0.05f;
 
 	TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TextRender"));
 	RootComponent = TextRender;
@@ -21,7 +25,32 @@ void ALoopNumberSign::BeginPlay()
 {
 	Super::BeginPlay();
 	TextRender->SetTextRenderColor(TextColor);
+
+	const bool bNeedsContinuousFx = bEnableFlicker || bEnableGlitch;
+	PrimaryActorTick.TickInterval = bNeedsContinuousFx ? 0.05f : FMath::Max(0.1f, UpdateInterval);
+	SetActorTickEnabled(bNeedsContinuousFx);
+
+	if (!bNeedsContinuousFx && GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			IdleRefreshTimerHandle,
+			this,
+			&ALoopNumberSign::RefreshLoopText,
+			FMath::Max(0.1f, UpdateInterval),
+			true);
+	}
+
 	RefreshLoopText();
+}
+
+void ALoopNumberSign::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(IdleRefreshTimerHandle);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ALoopNumberSign::Tick(float DeltaTime)

@@ -9,6 +9,7 @@
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
+#include "AI/Services/Loop9BackendEndpointUtils.h"
 
 void ULoop9TelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -29,19 +30,15 @@ void ULoop9TelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
+void ULoop9TelemetrySubsystem::Deinitialize()
+{
+	ClearPendingTelemetryAuth();
+	Super::Deinitialize();
+}
+
 void ULoop9TelemetrySubsystem::ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken)
 {
-	FString Derived = ChatEndpoint;
-	if (Derived.EndsWith(TEXT("/api/chat")))
-	{
-		Derived = Derived.LeftChop(9) + TEXT("/api/telemetry/run");
-	}
-	else
-	{
-		Derived.Empty();
-	}
-
-	TelemetryEndpoint = Derived;
+	TelemetryEndpoint = Loop9BackendEndpointUtils::DeriveTelemetryEndpoint(ChatEndpoint);
 	if (!InGameToken.IsEmpty())
 	{
 		GameToken = InGameToken;
@@ -80,16 +77,12 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 		return;
 	}
 
-	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
-	HttpRequest->SetVerb(TEXT("POST"));
-	HttpRequest->SetURL(TelemetryEndpoint);
-	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-	HttpRequest->SetTimeout(15.0f);
-
 	FString SessionToken;
+	ULoop9BackendAuthSubsystem* Auth = nullptr;
 	if (UGameInstance* GI = GetGameInstance())
 	{
-		if (const ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+		Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>();
+		if (Auth)
 		{
 			SessionToken = Auth->GetSessionToken();
 		}
@@ -97,16 +90,56 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 
 	if (!SessionToken.IsEmpty())
 	{
-		HttpRequest->SetHeader(TEXT("X-Session-Token"), SessionToken);
+		DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, SessionToken);
+		return;
 	}
-	else if (!GameToken.IsEmpty())
+
+	if (Auth && Auth->RequiresSteamSession())
 	{
-		HttpRequest->SetHeader(TEXT("X-Game-Token"), GameToken);
+		ClearPendingTelemetryAuth();
+		bPendingRunFinished = true;
+		PendingEndingType = EndingType;
+		PendingTotalResets = TotalResets;
+		PendingTotalAIInteractions = TotalAIInteractions;
+		AuthReadyHandle = Auth->OnSessionReady.AddUObject(this, &ULoop9TelemetrySubsystem::OnTelemetryAuthReady);
+		AuthFailedHandle = Auth->OnSessionFailed.AddUObject(this, &ULoop9TelemetrySubsystem::OnTelemetryAuthFailed);
+
+		if (!Auth->EnsureSession() && bPendingRunFinished)
+		{
+			OnTelemetryAuthFailed(TEXT("authentication is cooling down or unavailable"));
+		}
+		return;
 	}
-	else
+
+	if (GameToken.IsEmpty())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: no session/game token"));
 		return;
+	}
+
+	DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, FString());
+}
+
+void ULoop9TelemetrySubsystem::DispatchRunFinished(
+	ELoopEndingType EndingType,
+	int32 TotalResets,
+	int32 TotalAIInteractions,
+	const FString& SessionToken)
+{
+	const FString EndingId = EndingTelemetryId(EndingType);
+	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	HttpRequest->SetVerb(TEXT("POST"));
+	HttpRequest->SetURL(TelemetryEndpoint);
+	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	HttpRequest->SetTimeout(15.0f);
+
+	if (!SessionToken.IsEmpty())
+	{
+		HttpRequest->SetHeader(TEXT("X-Session-Token"), SessionToken);
+	}
+	else
+	{
+		HttpRequest->SetHeader(TEXT("X-Game-Token"), GameToken);
 	}
 
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
@@ -131,5 +164,69 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 				bWasSuccessful ? TEXT("ok") : TEXT("failed"), Code);
 		});
 
-	HttpRequest->ProcessRequest();
+	if (!HttpRequest->ProcessRequest())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Run telemetry request could not be started"));
+	}
+}
+
+void ULoop9TelemetrySubsystem::ClearPendingTelemetryAuth()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+		{
+			if (AuthReadyHandle.IsValid())
+			{
+				Auth->OnSessionReady.Remove(AuthReadyHandle);
+			}
+			if (AuthFailedHandle.IsValid())
+			{
+				Auth->OnSessionFailed.Remove(AuthFailedHandle);
+			}
+		}
+	}
+
+	AuthReadyHandle.Reset();
+	AuthFailedHandle.Reset();
+	bPendingRunFinished = false;
+}
+
+void ULoop9TelemetrySubsystem::OnTelemetryAuthReady()
+{
+	if (!bPendingRunFinished)
+	{
+		return;
+	}
+
+	const ELoopEndingType EndingType = PendingEndingType;
+	const int32 TotalResets = PendingTotalResets;
+	const int32 TotalAIInteractions = PendingTotalAIInteractions;
+	ClearPendingTelemetryAuth();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
+		{
+			const FString SessionToken = Auth->GetSessionToken();
+			if (!SessionToken.IsEmpty())
+			{
+				DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, SessionToken);
+				return;
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: auth completed without a valid session"));
+}
+
+void ULoop9TelemetrySubsystem::OnTelemetryAuthFailed(const FString& Reason)
+{
+	if (!bPendingRunFinished)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: Steam authentication failed (%s)"), *Reason);
+	ClearPendingTelemetryAuth();
 }
