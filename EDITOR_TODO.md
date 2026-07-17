@@ -37,7 +37,6 @@ Uncapped) se odmah prevedu; Back/Resume ne ostavljaju overlay.
 ## 4. Anomalije
 
 - [x] Scale + Phantom u nivou, smoke OK
-- [~] Clock — kod ostaje, nije u nivou (namerno)
 - [ ] Steam toast za `ACH_SPOT_SCALE` / `ACH_SPOT_PHANTOM` — tek sa pravim App ID
 
 ## 4b. NOVO (15.07., redizajn 16.07.): Item inspection (Resident Evil stil)
@@ -149,10 +148,10 @@ praviti motion blur, DOF iz globalnog post-process volumena i TAA/TSR.
   dither ili world-position efekte; tada dodeli neprozirnu varijantu u
   `InspectionMaterialOverrides`.
 
-## 5. Steamworks — ČEKA APP ID
+## 5. Steamworks
 
-- [ ] App ID u `DefaultEngine.ini` + Web API Key → Render
-- [ ] 28 achievements (+ Scale/Clock/Phantom ikone)
+- [ ] App ID `4982260` u `DefaultEngine.ini` + Web API Key → Render
+- [ ] 27 achievements (+ Scale/Phantom ikone)
 - [ ] Publish
 
 ## 6. Backend — GOTOVO za telemetry + production hardening

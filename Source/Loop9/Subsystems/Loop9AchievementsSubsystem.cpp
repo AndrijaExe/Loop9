@@ -14,7 +14,7 @@ namespace
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
 	constexpr int32 EndingTypeCount = 6;
-	constexpr int32 AnomalyTypeCount = 10;
+	constexpr int32 AnomalyTypeCount = 9;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
@@ -46,6 +46,15 @@ namespace
 void ULoop9AchievementsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	// Clock never shipped as a playable anomaly. Strip its old development
+	// marker so it cannot inflate ACH_SPOT_ALL progress after removal.
+	TArray<FString> Spotted = LoadPersistedList(SpottedAnomaliesKey);
+	if (Spotted.Remove(TEXT("ClockAnomaly")) > 0)
+	{
+		SavePersistedList(SpottedAnomaliesKey, Spotted);
+	}
+
 	QueryAchievementsCache();
 }
 
@@ -73,7 +82,6 @@ FName ULoop9AchievementsSubsystem::SpotAchievementId(const FString& AnomalyTypeL
 	if (AnomalyTypeLabel == TEXT("DoorLockAnomaly")) { return FName(TEXT("ACH_SPOT_DOORLOCK")); }
 	if (AnomalyTypeLabel == TEXT("PursuerAnomaly")) { return FName(TEXT("ACH_SPOT_PURSUER")); }
 	if (AnomalyTypeLabel == TEXT("ScaleAnomaly")) { return FName(TEXT("ACH_SPOT_SCALE")); }
-	if (AnomalyTypeLabel == TEXT("ClockAnomaly")) { return FName(TEXT("ACH_SPOT_CLOCK")); }
 	if (AnomalyTypeLabel == TEXT("PhantomMessageAnomaly")) { return FName(TEXT("ACH_SPOT_PHANTOM")); }
 	return NAME_None;
 }
@@ -203,7 +211,7 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 	AnomalyKey.ParseIntoArray(Labels, TEXT("|"), true);
 
 	TArray<FString> Spotted = LoadPersistedList(SpottedAnomaliesKey);
-	bool bChanged = false;
+	bool bChanged = Spotted.Remove(TEXT("ClockAnomaly")) > 0;
 
 	for (const FString& Label : Labels)
 	{

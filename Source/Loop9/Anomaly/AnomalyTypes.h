@@ -14,7 +14,6 @@ enum class ELoopAnomalyType : uint8
 	DoorLock UMETA(DisplayName = "Door Lock"),
 	Pursuer UMETA(DisplayName = "Pursuer"),
 	Scale UMETA(DisplayName = "Scale"),
-	Clock UMETA(DisplayName = "Clock"),
 	PhantomMessage UMETA(DisplayName = "Phantom Message"),
 };
 
@@ -30,7 +29,6 @@ inline FName GetLoopAnomalyTypeLabel(ELoopAnomalyType Type)
 	case ELoopAnomalyType::DoorLock: return TEXT("DoorLockAnomaly");
 	case ELoopAnomalyType::Pursuer: return TEXT("PursuerAnomaly");
 	case ELoopAnomalyType::Scale: return TEXT("ScaleAnomaly");
-	case ELoopAnomalyType::Clock: return TEXT("ClockAnomaly");
 	case ELoopAnomalyType::PhantomMessage: return TEXT("PhantomMessageAnomaly");
 	default: return TEXT("UnknownAnomaly");
 	}

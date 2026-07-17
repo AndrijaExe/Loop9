@@ -55,10 +55,10 @@ Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
 - [ ] Kad stigne App ID: upisati ga u lokalni `Config/DefaultEngine.ini`
   (umesto 480) i uzeti **Web API Key** → Render env (`STEAM_APP_ID`,
   `STEAM_WEB_API_KEY`).
-- [ ] **Achievements**: definisati svih **28** po tabeli iz STEAM_ACHIEVEMENTS.md
-  (API imena moraju biti identična), upload ikonica (28 × otključana + zaključana).
-  Nova 3 (15.07.): `ACH_SPOT_SCALE`, `ACH_SPOT_CLOCK`, `ACH_SPOT_PHANTOM` (hidden);
-  `ACH_SPOT_ALL` sada traži 10 tipova anomalija.
+- [ ] **Achievements**: definisati svih **27** po tabeli iz STEAM_ACHIEVEMENTS.md
+  (API imena moraju biti identična), upload ikonica (27 × otključana + zaključana).
+  Nova 2 (15.07.): `ACH_SPOT_SCALE`, `ACH_SPOT_PHANTOM` (hidden);
+  `ACH_SPOT_ALL` sada traži 9 tipova anomalija.
 - [ ] **Store page**: opis (EN + SR), screenshotovi, trailer, capsule slike, tagovi
   (Horror, Psychological, Time Loop, AI), obavezno **AI disclosure** polje — igra koristi
   generativni AI u gameplay-u (Valve to zahteva od 2024).
@@ -116,7 +116,7 @@ Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
 - [x] Telemetrija: run ping stiže (`Telemetry POST` + HTTP 204 u client logu).
 - [ ] Verifikovati da build ne sadrži `DefaultGame.ini` sa pravim tokenima u repou
   (gitignore već pokriva, ali proveriti pakovani build).
-- [x] **Scale + Phantom** u nivou (smoke OK); Clock odložen.
+- [x] **Scale + Phantom** u nivou (smoke OK); Clock uklonjen iz scope-a.
 
 ## 6. Steam Deck
 

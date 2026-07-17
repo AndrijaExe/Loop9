@@ -30,7 +30,7 @@ EN je primarni (store je globalan), SR ide u localized store description.
 > **Year 2003. A government office building. End of shift. You cannot leave.**
 >
 > The second floor repeats itself — nine loops deep. Each time, something
-> may be wrong: an object missing, a chair turned, a clock running backwards,
+> may be wrong: an object missing, a chair turned, a light flickering,
 > a message in your chat that you never sent. Learn the floor. Trust your
 > memory. Then choose:
 >
@@ -54,7 +54,7 @@ EN je primarni (store je globalan), SR ide u localized store description.
 > **FEATURES**
 >
 > - A time-loop "spot the difference" horror built on close observation
-> - 10 types of anomalies, from moved furniture to things that follow you
+> - 9 types of anomalies, from moved furniture to things that follow you
 > - A fully conversational AI character with memory and moods — no dialogue trees
 > - Six endings shaped by how you treat the only voice you can hear
 > - Achievements, English and Serbian localization, ~60–90 minute runs built for replay
@@ -67,7 +67,7 @@ EN je primarni (store je globalan), SR ide u localized store description.
 > **Godina 2003. Državna institucija. Kraj smene. Ne možeš da odeš.**
 >
 > Drugi sprat se ponavlja — devet petlji u dubinu. Svaki put nešto može biti
-> pogrešno: predmet koji fali, okrenuta stolica, sat koji ide unazad, poruka
+> pogrešno: predmet koji fali, okrenuta stolica, svetlo koje treperi, poruka
 > u tvom chatu koju nikad nisi poslao. Nauči sprat. Veruj svom pamćenju.
 > Onda biraj:
 >
@@ -90,7 +90,7 @@ EN je primarni (store je globalan), SR ide u localized store description.
 > **ŠTA TE ČEKA**
 >
 > - Time-loop "uoči razliku" horor zasnovan na pažljivom posmatranju
-> - 10 tipova anomalija — od pomerenog nameštaja do stvari koje te prate
+> - 9 tipova anomalija — od pomerenog nameštaja do stvari koje te prate
 > - AI lik sa kojim zaista razgovaraš — bez dialogue tree-ja, sa pamćenjem i raspoloženjima
 > - Šest krajeva oblikovanih time kako se ophodiš prema jedinom glasu koji čuješ
 > - Achievementi, engleski i srpski, partije od ~60–90 minuta pravljene za ponavljanje
@@ -123,15 +123,13 @@ EN je primarni (store je globalan), SR ide u localized store description.
 
 **EN (za "AI Generated Content Disclosure" formular):**
 
-> The in-game character "Dragojlo" generates dialogue at runtime using a
-> large language model hosted on our own backend service. Player chat
-> messages are sent to the model together with game-state context; replies
-> are generated live and are not pre-written. The system prompt constrains
-> the character to in-fiction, game-relevant responses, the output format is
-> validated before display, and player messages are length-limited and
-> rate-limited server-side. No AI-generated content is created ahead of time
-> and shipped as static assets, except marketing capsule artwork which was
-> AI-assisted and human-reviewed.
+> The in-game character "Dragojlo" generates text-only dialogue at runtime.
+> Player-written messages and limited game-state context are sent through our
+> backend to Groq, with OpenAI available as a fallback. Input and output are
+> moderated server-side; unsafe or unavailable responses are replaced with a
+> safe in-fiction message. Messages are length-limited and rate-limited, and
+> generated content is never shared with other players. Some store marketing
+> artwork was AI-assisted and reviewed and edited by the developer.
 
 ## Ostala polja
 

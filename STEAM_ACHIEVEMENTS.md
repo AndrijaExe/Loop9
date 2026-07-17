@@ -20,7 +20,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
 
 ---
 
-## Lista achievementa (28)
+## Lista achievementa (27)
 
 Kolona "Hidden" = označi kao skriven u Steamworks-u (spoiler). Predlozi imena i
 opisa su na engleskom (Steam prikazuje lokalizaciju kasnije ako je dodaš).
@@ -81,12 +81,11 @@ odluka dok je aktivna repeat anomalija.
 | 23 | `ACH_SPOT_DOORLOCK` | Locked Out | Correctly call out a door anomaly. | NE |
 | 24 | `ACH_SPOT_PURSUER` | Don't Look Back | Survive a pursuer and call it out. | NE |
 | 25 | `ACH_SPOT_SCALE` | Size Matters | Correctly call out a wrong-sized object. | NE |
-| 26 | `ACH_SPOT_CLOCK` | Counterclockwise | Correctly call out the clock running backwards. | NE |
-| 27 | `ACH_SPOT_PHANTOM` | I Never Sent That | Correctly call out a message you never sent. | DA |
-| 28 | `ACH_SPOT_ALL` | Anomaly Almanac | Correctly call out every type of anomaly. | NE |
+| 26 | `ACH_SPOT_PHANTOM` | I Never Sent That | Correctly call out a message you never sent. | DA |
+| 27 | `ACH_SPOT_ALL` | Anomaly Almanac | Correctly call out every type of anomaly. | NE |
 
-**Uslov u kodu:** 18–27 — tačna odluka (lit elevator) dok je aktivna anomalija
-tog tipa; 28 — svih 10 tipova uočeno (kumulativno kroz prolaze, persistovano).
+**Uslov u kodu:** 18–26 — tačna odluka (lit elevator) dok je aktivna anomalija
+tog tipa; 27 — svih 9 tipova uočeno (kumulativno kroz prolaze, persistovano).
 `ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju.
 
 ---
@@ -105,7 +104,7 @@ Za svaki achievement trebaju **dve ikonice, 256×256 px, JPG ili 24-bit PNG
 - **Locked** (siva varijanta) — prikazuje se dok je zaključan
 
 Praktičan pristup: napravi jednu baznu ikonicu po grupi (ending / progresija /
-veština / anomalije) u varijacijama, ili 28 jedinstvenih ako imaš vremena.
+veština / anomalije) u varijacijama, ili 27 jedinstvenih ako imaš vremena.
 Imenuj fajlove po API imenu (`ACH_SPOT_HIDE_on.png`, `ACH_SPOT_HIDE_off.png`)
 da ne pomešaš pri uploadu.
 
@@ -125,7 +124,7 @@ da ne pomešaš pri uploadu.
      Déjà Vu). Skriveni achievementi prikazuju "???" dok se ne otključaju.
    - **Achieved Icon** / **Unachieved Icon** — upload dve ikonice.
 6. **Save** posle svakog achievementa.
-7. Kad uneseš svih 28, idi na **Publish** tab (u Steamworks Settings):
+7. Kad uneseš svih 27, idi na **Publish** tab (u Steamworks Settings):
    - **Prepare for Publishing → Publish to Steam** (traži confirm kod).
    - Promene u Stats & Achievements NE VAŽE dok ne publish-uješ — ovo je
      najčešća greška ("uneo sam ali ne radi").
@@ -149,9 +148,9 @@ da ne pomešaš pri uploadu.
 
 ### D. Checklist pre launcha
 
-- [ ] Svih 28 API imena uneto slovo-za-slovo kao u tabeli
+- [ ] Svih 27 API imena uneto slovo-za-slovo kao u tabeli
 - [ ] Hidden flag postavljen za 7 spoiler achievementa (6 endinga + Déjà Vu)
-- [ ] Sve ikonice (28 × 2) uploadovane
+- [ ] Sve ikonice (27 × 2) uploadovane
 - [ ] Steamworks promene **publish-ovane**
 - [ ] Svaka grupa testirana kroz Steam klijent (bar: jedan ending, first call,
       first reset, jedan spot, streak)

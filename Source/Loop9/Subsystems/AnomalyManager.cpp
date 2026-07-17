@@ -24,7 +24,6 @@ namespace
 		ELoopAnomalyType::DoorLock,
 		ELoopAnomalyType::Pursuer,
 		ELoopAnomalyType::Scale,
-		ELoopAnomalyType::Clock,
 		ELoopAnomalyType::PhantomMessage
 	};
 
