@@ -17,8 +17,9 @@ class UStaticMeshComponent;
  * player's view switches to the stage camera. The game is paused and the
  * player rotates the item with the mouse / right gamepad stick.
  *
- * No post-process tricks (blur/DOF/custom depth) — the item renders normally,
- * fully opaque and sharp, against a guaranteed black background.
+ * No blur/custom-depth tricks — the item renders normally against an isolated
+ * black background. Camera overrides disable temporal smearing, DOF and other
+ * effects that would soften the item.
  *
  * Spawned by UInspectableComponent::StartInspection; destroys itself
  * when the player exits (Esc / E / right mouse / gamepad B).
@@ -46,7 +47,10 @@ public:
 	/** True while any inspection session is running. */
 	static bool IsInspectionActive();
 
-	/** Ends the active session if any. Returns true if one was closed. */
+	/**
+	 * Ends the active session, or consumes the closing key during the short
+	 * debounce window. True means the caller must not process that input again.
+	 */
 	static bool TryEndActiveInspection();
 
 	/** Sets up the black room, switches the view and pauses the game. Returns false if it cannot start. */

@@ -29,10 +29,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inspection")
 	TObjectPtr<UInspectableComponent> Inspectable;
 
-	/** Prompt shown when the player looks at the item. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
-	FText PromptText = NSLOCTEXT("Loop9Interaction", "Inspect", "Examine");
-
 	virtual bool TryInteract_Implementation(APlayerController* InteractingController) override;
 	virtual FText GetInteractionPromptText_Implementation() const override;
 };

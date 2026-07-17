@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Scene.h"
 #include "Engine/StaticMesh.h"
+#include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
 #include "Interaction/InspectableComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,6 +30,7 @@ namespace
 
 	// Right-stick rotation speed, degrees per second at full deflection.
 	constexpr float GamepadRotateDegPerSec = 160.0f;
+	constexpr float DefaultRotationSpeed = 0.6f;
 
 	// The black room floats high above the map: height fog thins out with
 	// altitude (it gets denser downwards), so up there nothing tints the walls.
@@ -36,6 +38,7 @@ namespace
 
 	// How far the stage camera sits from the item pivot.
 	constexpr float CameraDistanceCm = 45.0f;
+	constexpr float CameraRadiusSafetyMultiplier = 1.5f;
 }
 
 AInspectionStageActor::AInspectionStageActor()
@@ -66,9 +69,13 @@ AInspectionStageActor::AInspectionStageActor()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShapeMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 
-	constexpr float RoomHalfSizeCm = 2000.0f;
+	// Wall planes overlap beyond the room corners so the 90-degree camera
+	// frustum cannot expose seams (the camera sits behind the room center).
+	constexpr float RoomHalfSizeCm = 3000.0f;
+	constexpr float WallOverlapCm = 500.0f;
 	constexpr float PlaneBaseSizeCm = 100.0f;
-	const float WallScale = (2.0f * RoomHalfSizeCm) / PlaneBaseSizeCm;
+	const float WallScale =
+		(2.0f * (RoomHalfSizeCm + WallOverlapCm)) / PlaneBaseSizeCm;
 
 	struct FWallDef
 	{
@@ -81,8 +88,8 @@ AInspectionStageActor::AInspectionStageActor()
 		{ TEXT("WallCeiling"), FVector(0, 0, RoomHalfSizeCm),  FRotator(180, 0, 0) },
 		{ TEXT("WallPosX"),    FVector(RoomHalfSizeCm, 0, 0),  FRotator(90, 0, 0) },
 		{ TEXT("WallNegX"),    FVector(-RoomHalfSizeCm, 0, 0), FRotator(-90, 0, 0) },
-		{ TEXT("WallPosY"),    FVector(0, RoomHalfSizeCm, 0),  FRotator(0, 0, 90) },
-		{ TEXT("WallNegY"),    FVector(0, -RoomHalfSizeCm, 0), FRotator(0, 0, -90) },
+		{ TEXT("WallPosY"),    FVector(0, RoomHalfSizeCm, 0),  FRotator(0, 0, -90) },
+		{ TEXT("WallNegY"),    FVector(0, -RoomHalfSizeCm, 0), FRotator(0, 0, 90) },
 	};
 
 	for (const FWallDef& Wall : Walls)
@@ -113,6 +120,7 @@ AInspectionStageActor::AInspectionStageActor()
 	StageCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("StageCamera"));
 	StageCamera->SetupAttachment(Root);
 	StageCamera->SetRelativeLocation(FVector(-CameraDistanceCm, 0.0f, 0.0f));
+	StageCamera->PostProcessBlendWeight = 1.0f;
 
 	// Manual exposure: with a mostly-black screen, auto exposure would crank
 	// itself up until the item blows out white. Manual is also independent of
@@ -137,6 +145,14 @@ AInspectionStageActor::AInspectionStageActor()
 	// and add a touch of tonemapper sharpening to counter TAA/TSR softness.
 	PP.bOverride_MotionBlurAmount = true;
 	PP.MotionBlurAmount = 0.0f;
+	PP.bOverride_DepthOfFieldScale = true;
+	PP.DepthOfFieldScale = 0.0f;
+	PP.bOverride_SceneFringeIntensity = true;
+	PP.SceneFringeIntensity = 0.0f;
+	PP.bOverride_FilmGrainIntensity = true;
+	PP.FilmGrainIntensity = 0.0f;
+	PP.bOverride_BloomIntensity = true;
+	PP.BloomIntensity = 0.0f;
 	PP.bOverride_Sharpen = true;
 	PP.Sharpen = 0.4f;
 
@@ -173,7 +189,12 @@ bool AInspectionStageActor::TryEndActiveInspection()
 		Active->EndInspection();
 		return true;
 	}
-	return false;
+
+	// Consume the same key press briefly after closing. Without this, the raw
+	// paused-tick handler can close inspection before Enhanced Input dispatches
+	// OnPause/OnInteract, causing that same press to open the pause menu or
+	// immediately start another inspection.
+	return FPlatformTime::Seconds() < GReinspectBlockedUntilRealtime;
 }
 
 bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceComponent, APlayerController* InController)
@@ -207,22 +228,17 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	Controller = InController;
 	RotationSpeed = SourceComponent->RotationSpeed;
 
-	// Respect the per-item framing distance.
-	StageCamera->SetRelativeLocation(FVector(-FMath::Max(SourceComponent->DistanceCm, 20.0f), 0.0f, 0.0f));
-
 	// Apply the runtime-tunable light/exposure config (values may come from
 	// DefaultGame.ini overrides, so set them here rather than in the ctor).
 	KeyLight->SetIntensity(KeyLightIntensityCandela);
 	FillLight->SetIntensity(FillLightIntensityCandela);
 	StageCamera->PostProcessSettings.AutoExposureBias = ExposureBias;
 
-	// Pure black walls. Preferred: the engine's unlit black material — unlit
-	// physically cannot show any lighting. Fallback: dynamic instance of the
-	// shape material with black albedo (walls receive no lights anyway,
-	// since all their lighting channels are off).
-	UMaterialInterface* WallMaterial = LoadObject<UMaterialInterface>(
-		nullptr, TEXT("/Engine/EngineDebugMaterials/BlackUnlitMaterial.BlackUnlitMaterial"));
-	if (!WallMaterial && BackdropWalls.Num() > 0 && BackdropWalls[0]->GetMaterial(0))
+	// BasicShapeMaterial is a hard constructor reference, so it is cooked in
+	// Shipping builds. Avoid EngineDebugMaterials: runtime LoadObject paths to
+	// debug assets are not guaranteed to be included by the cooker.
+	UMaterialInterface* WallMaterial = nullptr;
+	if (BackdropWalls.Num() > 0 && BackdropWalls[0]->GetMaterial(0))
 	{
 		UMaterialInstanceDynamic* BackdropMID =
 			UMaterialInstanceDynamic::Create(BackdropWalls[0]->GetMaterial(0), this);
@@ -244,6 +260,14 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 		if (MaterialOverrides[i])
 		{
 			DisplayMesh->SetMaterial(i, MaterialOverrides[i]);
+			const EBlendMode BlendMode = MaterialOverrides[i]->GetBlendMode();
+			if (BlendMode != BLEND_Opaque && BlendMode != BLEND_Masked)
+			{
+				UE_LOG(LogLoop9, Warning,
+					TEXT("InspectionStage: material slot %d on '%s' is translucent. "
+						 "Use InspectionMaterialOverrides for a fully opaque inspection view."),
+					i, *GetNameSafe(SourceComponent->GetOwner()));
+			}
 		}
 	}
 
@@ -253,6 +277,13 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	const float BoundsRadius = FMath::Max(MeshBounds.SphereRadius, 1.0f);
 	const float Scale = SourceComponent->TargetRadiusCm / BoundsRadius;
 	DisplayMesh->SetRelativeScale3D(FVector(Scale));
+
+	// Keep the full normalized bounding sphere in front of the near plane.
+	// DistanceCm remains a preferred framing distance, not an unsafe promise.
+	const float SafeCameraDistance = FMath::Max(
+		FMath::Max(SourceComponent->DistanceCm, 20.0f),
+		SourceComponent->TargetRadiusCm * CameraRadiusSafetyMultiplier);
+	StageCamera->SetRelativeLocation(FVector(-SafeCameraDistance, 0.0f, 0.0f));
 
 	// Offset the mesh so its bounds center sits on the pivot — rotating the
 	// pivot then spins the item around its visual center, regardless of
@@ -271,6 +302,12 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	// --- Switch the view to the stage camera ---
 	PreviousViewTarget = InController->GetViewTarget();
 	InController->SetViewTargetWithBlend(this, 0.0f);
+	if (APlayerCameraManager* CameraManager = InController->PlayerCameraManager)
+	{
+		// The view teleports 300 m. Mark a camera cut so TSR/TAA does not
+		// reproject stale gameplay history into purple blocks around the item.
+		CameraManager->SetGameCameraCutThisFrame();
+	}
 
 	// --- Pause ---
 	// The camera manager normally skips its update while the game is paused,
@@ -333,8 +370,12 @@ void AInspectionStageActor::Tick(float DeltaSeconds)
 	{
 		return FMath::Abs(Value) > 0.15f ? Value : 0.0f;
 	};
-	DeltaX += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightX)) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
-	DeltaY += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightY)) * GamepadRotateDegPerSec * DeltaSeconds / FMath::Max(RotationSpeed, 0.05f);
+	// Normalize against the default so RotationSpeed scales mouse and gamepad
+	// consistently while preserving 160 deg/s at the default 0.6 value.
+	DeltaX += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightX))
+		* GamepadRotateDegPerSec * DeltaSeconds / DefaultRotationSpeed;
+	DeltaY += WithDeadzone(PC->GetInputAnalogKeyState(EKeys::Gamepad_RightY))
+		* GamepadRotateDegPerSec * DeltaSeconds / DefaultRotationSpeed;
 
 	if (FMath::IsNearlyZero(DeltaX) && FMath::IsNearlyZero(DeltaY))
 	{
@@ -383,6 +424,7 @@ void AInspectionStageActor::RestoreState()
 	{
 		return;
 	}
+	const bool bWasActive = bActive;
 	bRestored = true;
 	bActive = false;
 	SetActorTickEnabled(false);
@@ -398,9 +440,19 @@ void AInspectionStageActor::RestoreState()
 		{
 			ViewTarget = PC->GetPawn();
 		}
+		if (!ViewTarget)
+		{
+			// Avoid leaving the camera manager targeting this stage while it is
+			// being destroyed during pawn death or level teardown.
+			ViewTarget = PC;
+		}
 		if (ViewTarget)
 		{
 			PC->SetViewTargetWithBlend(ViewTarget, 0.0f);
+			if (APlayerCameraManager* CameraManager = PC->PlayerCameraManager)
+			{
+				CameraManager->SetGameCameraCutThisFrame();
+			}
 		}
 	}
 
@@ -424,16 +476,23 @@ void AInspectionStageActor::RestoreState()
 		bDidIgnoreInput = false;
 	}
 
-	// Block immediate re-inspect from the same E that closed the view.
-	GReinspectBlockedUntilRealtime = FPlatformTime::Seconds() + ReinspectCooldownSeconds;
+	// Failed BeginInspection attempts also destroy the stage actor and reach
+	// EndPlay. Only a session that actually opened may consume input/cool down.
+	if (bWasActive)
+	{
+		GReinspectBlockedUntilRealtime = FPlatformTime::Seconds() + ReinspectCooldownSeconds;
+	}
 
 	if (GActiveInspection.Get() == this)
 	{
 		GActiveInspection.Reset();
 	}
 
-	if (UInspectableComponent* SourceComponent = Source.Get())
+	if (bWasActive)
 	{
-		SourceComponent->NotifyInspectionEnded();
+		if (UInspectableComponent* SourceComponent = Source.Get())
+		{
+			SourceComponent->NotifyInspectionEnded();
+		}
 	}
 }

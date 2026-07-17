@@ -12,32 +12,72 @@ UInspectableComponent::UInspectableComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-UStaticMesh* UInspectableComponent::ResolveMesh(TArray<UMaterialInterface*>& OutMaterialOverrides) const
+UStaticMeshComponent* UInspectableComponent::ResolveTargetMeshComponent() const
 {
-	OutMaterialOverrides.Reset();
-
-	if (MeshOverride)
-	{
-		return MeshOverride;
-	}
-
-	const AActor* Owner = GetOwner();
+	AActor* Owner = GetOwner();
 	if (!Owner)
 	{
 		return nullptr;
 	}
 
-	if (const UStaticMeshComponent* MeshComp = Owner->FindComponentByClass<UStaticMeshComponent>())
+	TArray<UStaticMeshComponent*> MeshComponents;
+	Owner->GetComponents<UStaticMeshComponent>(MeshComponents);
+
+	if (!TargetMeshComponentName.IsNone())
 	{
-		if (UStaticMesh* Mesh = MeshComp->GetStaticMesh())
+		for (UStaticMeshComponent* MeshComponent : MeshComponents)
 		{
-			// Keep per-instance material overrides so the copy looks identical.
-			OutMaterialOverrides = MeshComp->GetMaterials();
-			return Mesh;
+			if (MeshComponent && MeshComponent->GetFName() == TargetMeshComponentName)
+			{
+				return MeshComponent;
+			}
+		}
+
+		UE_LOG(LogLoop9, Warning,
+			TEXT("InspectableComponent on '%s': target mesh component '%s' was not found."),
+			*GetNameSafe(Owner), *TargetMeshComponentName.ToString());
+		return nullptr;
+	}
+
+	return MeshComponents.Num() > 0 ? MeshComponents[0] : nullptr;
+}
+
+UStaticMesh* UInspectableComponent::ResolveMesh(TArray<UMaterialInterface*>& OutMaterialOverrides) const
+{
+	OutMaterialOverrides.Reset();
+
+	UStaticMeshComponent* MeshComponent = ResolveTargetMeshComponent();
+	UStaticMesh* ResolvedMesh = MeshOverride;
+	if (!ResolvedMesh && MeshComponent)
+	{
+		ResolvedMesh = MeshComponent->GetStaticMesh();
+	}
+
+	if (!ResolvedMesh)
+	{
+		return nullptr;
+	}
+
+	if (MeshComponent && (!MeshOverride || bCopyOwnerMaterialsWithMeshOverride))
+	{
+		// Preserve live per-instance changes, including material anomalies.
+		OutMaterialOverrides = MeshComponent->GetMaterials();
+	}
+
+	if (InspectionMaterialOverrides.Num() > 0)
+	{
+		OutMaterialOverrides.SetNum(FMath::Max(
+			OutMaterialOverrides.Num(), InspectionMaterialOverrides.Num()));
+		for (int32 Index = 0; Index < InspectionMaterialOverrides.Num(); ++Index)
+		{
+			if (InspectionMaterialOverrides[Index])
+			{
+				OutMaterialOverrides[Index] = InspectionMaterialOverrides[Index];
+			}
 		}
 	}
 
-	return nullptr;
+	return ResolvedMesh;
 }
 
 bool UInspectableComponent::StartInspection(APlayerController* InteractingController)

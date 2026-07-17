@@ -413,8 +413,10 @@ void ALoop9Character::PerformInteractTrace()
 			if (ILoop9Interactable::Execute_TryInteract(HitActor, PC))
 			{
 				UE_LOG(LogLoop9, Log, TEXT("Interacted with actor through interface: %s"), *HitActor->GetClass()->GetName());
+				return;
 			}
-			return;
+			// A false interface result means "not handled", so an attached
+			// InspectableComponent still gets a chance to handle the action.
 		}
 
 		// Drop-in inspection: any actor with an InspectableComponent can be

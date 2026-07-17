@@ -45,7 +45,7 @@ Uncapped) se odmah prevedu; Back/Resume ne ostavljaju overlay.
 Novi feature u C++: pokupiš predmet pogledom + E, igra se pauzira, kamera se
 prebaci u **crnu sobu** (izolovana scena visoko iznad mape — pozadina potpuno
 crna, predmet oštar i osvetljen key+fill svetlom) i rotiraš ga mišem (ili
-desnim stikom). Izlaz: **Esc / E / desni klik / B na gamepadu**.
+desnim stikom). Izlaz: **Esc / E / desni klik / B ili X na gamepadu**.
 
 Klase: `UInspectableComponent` (dodaj na bilo koji actor + pozovi
 `StartInspection`), `AInspectableItem` (gotov actor), `AInspectionStageActor`
@@ -94,14 +94,20 @@ na **bilo koji actor** u sceni (Details → Add → Inspectable) i actor odmah
 dobija "Examine" prompt + inspekciju (E). `PromptText` na komponenti menja
 tekst prompta po actoru. `InspectableItem` i dalje radi kao i do sad.
 
+Ako actor ima više static mesh komponenti, postavi `TargetMeshComponentName`.
+Ako koristiš `MeshOverride`, `bCopyOwnerMaterialsWithMeshOverride` čuva trenutne
+materijale sa actora (uključujući anomaliju). Za translucent/dither materijale
+popuni `InspectionMaterialOverrides` neprozirnim inspection varijantama.
+
 ### 4b-crna-soba (16.07. popodne): REDIZAJN — nema više blura
 
 Blur pristup (DOF pa stencil maska) je izbačen: predmet je ispadao providan
 i mutan. Novo rešenje je **crna soba**: `AInspectionStageActor` se teleportuje
 300 m iznad igrača, oko njega je crna kutija, predmet stoji na pivotu,
 osvetljen sa dva point light-a (key + fill), kamera se prebaci na stage preko
-`SetViewTarget`. Nula post-process trikova → predmet je uvek 100% oštar i
-neproziran, pozadina garantovano crna.
+`SetViewTarget`. Kamera eksplicitno gasi DOF, motion blur, bloom, film grain,
+chromatic aberration, Lumen GI i refleksije, i resetuje TSR/TAA istoriju pri
+ulasku i izlasku.
 
 Šta se briše/menja kod tebe lokalno:
 
@@ -121,29 +127,27 @@ neproziran, pozadina garantovano crna.
   FillLightIntensityCandela=75.0
   ```
 
-- [ ] (Samo ako u PAKOVANOM buildu zidovi sobe nisu skroz crni: engine debug
-  materijal nije ušao u cook — u `DefaultGame.ini` pod
-  `[/Script/UnrealEd.ProjectPackagingSettings]` dodaj
-  `+DirectoriesToAlwaysCook=(Path="/Engine/EngineDebugMaterials")`.
-  U editoru/PIE ovo nije potrebno.)
-
 #### Popravka 17.07. — ljubičasti blokovi + mekoća
 
-Uzrok ljubičastih blokova: kutija sa negativnim skejlom (izvrnut cube) +
-pozicija 300 m iznad mape zbune Lumen surface cache. Uzrok mekoće: motion
-blur na predmetu koji se rotira + TAA/TSR.
+Verovatni uzroci ljubičastih blokova bili su temporalna istorija nakon
+teleporta kamere i/ili Lumen surface cache izvrnute kutije. Mekoću su mogli
+praviti motion blur, DOF iz globalnog post-process volumena i TAA/TSR.
 
 Šta je promenjeno u kodu (samo recompile, ništa u editoru):
 - zidovi sobe su sada 6 običnih ravni okrenutih ka unutra (bez negativnog
   skejla), potpuno isključene iz osvetljenja;
 - na stage kameri su ugašeni **Lumen GI i refleksije** (crnoj sobi ne trebaju,
-  a oni su pravili ljubičaste blokove);
-- ugašen **motion blur** + dodat blagi tonemapper **sharpen (0.4)**.
+  pa uklanjamo mogući izvor blokova);
+- ugašeni **DOF, motion blur, bloom, film grain i chromatic aberration**,
+  dodat blagi tonemapper **sharpen (0.4)**;
+- camera cut resetuje TSR/TAA istoriju pri ulasku i izlasku;
+- zidovi koriste hard-referenced `BasicShapeMaterial`, pa više ne zavise od
+  necookovanog `EngineDebugMaterials` asseta.
 - [ ] Smoke: rotiraj predmet 10-15 s po svim osama — nema ljubičastih
   blokova, ivice ostaju oštre i dok se predmet okreće.
-- [ ] Ako je i dalje mekano, javi — sledeći korak je forsiranje 100%
-  screen percentage tokom inspekcije (rezolucija upscale-a je onda jedini
-  preostali izvor mekoće).
+- [ ] Ako je i dalje mekano proveri da li source materijal koristi translucency,
+  dither ili world-position efekte; tada dodeli neprozirnu varijantu u
+  `InspectionMaterialOverrides`.
 
 ## 5. Steamworks — ČEKA APP ID
 

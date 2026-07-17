@@ -25,5 +25,5 @@ bool AInspectableItem::TryInteract_Implementation(APlayerController* Interacting
 
 FText AInspectableItem::GetInteractionPromptText_Implementation() const
 {
-	return PromptText;
+	return Inspectable ? Inspectable->PromptText : FText::GetEmpty();
 }

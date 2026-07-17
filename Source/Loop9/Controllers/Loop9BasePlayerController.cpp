@@ -120,7 +120,12 @@ FText ALoop9BasePlayerController::ResolvePromptForActor(AActor* HitActor) const
 
 	if (HitActor->GetClass()->ImplementsInterface(ULoop9Interactable::StaticClass()))
 	{
-		return ILoop9Interactable::Execute_GetInteractionPromptText(HitActor);
+		const FText InterfacePrompt =
+			ILoop9Interactable::Execute_GetInteractionPromptText(HitActor);
+		if (!InterfacePrompt.IsEmpty())
+		{
+			return InterfacePrompt;
+		}
 	}
 
 	// Actors with an InspectableComponent are examinable without the interface.

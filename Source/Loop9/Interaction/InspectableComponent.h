@@ -7,6 +7,7 @@
 class APlayerController;
 class UMaterialInterface;
 class UStaticMesh;
+class UStaticMeshComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLoop9InspectionEvent);
 
@@ -16,8 +17,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLoop9InspectionEvent);
  * mesh is shown and the player can rotate it with the mouse (or the right
  * gamepad stick).
  *
- * Add this component to any actor and call StartInspection() from its
- * interaction code (see AInspectableItem for a ready-made actor).
+ * Add this component to an actor with a static mesh and call StartInspection()
+ * from its interaction code (see AInspectableItem for a ready-made actor).
  */
 UCLASS(ClassGroup = (Loop9), meta = (BlueprintSpawnableComponent))
 class LOOP9_API UInspectableComponent : public UActorComponent
@@ -42,6 +43,29 @@ public:
 	/** Mesh shown while inspecting. If unset, the owner's first StaticMeshComponent is used. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
 	TObjectPtr<UStaticMesh> MeshOverride;
+
+	/**
+	 * Optional component name when the owner has multiple static meshes.
+	 * If unset, the first StaticMeshComponent is used.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
+	FName TargetMeshComponentName = NAME_None;
+
+	/**
+	 * With MeshOverride set, copy the target component's current materials.
+	 * Keep enabled for runtime material anomalies; disable when the override
+	 * mesh has incompatible material slots.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
+	bool bCopyOwnerMaterialsWithMeshOverride = true;
+
+	/**
+	 * Optional per-slot materials used only during inspection. Use opaque
+	 * variants here when a world material is translucent/dithered or depends
+	 * on world position. Non-null entries override copied source materials.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
+	TArray<TObjectPtr<UMaterialInterface>> InspectionMaterialOverrides;
 
 	/** Extra rotation applied when the inspection opens, so the item starts on its "nice" side. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection")
@@ -79,4 +103,7 @@ public:
 
 	/** Resolves the mesh (and material overrides, if taken from a component) to display. */
 	UStaticMesh* ResolveMesh(TArray<UMaterialInterface*>& OutMaterialOverrides) const;
+
+private:
+	UStaticMeshComponent* ResolveTargetMeshComponent() const;
 };
