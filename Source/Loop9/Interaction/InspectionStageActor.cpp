@@ -60,24 +60,53 @@ AInspectionStageActor::AInspectionStageActor()
 	// touch the item — it is lit exclusively by the stage lights below.
 	DisplayMesh->SetLightingChannels(false, true, false);
 
-	Backdrop = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Backdrop"));
-	Backdrop->SetupAttachment(Root);
-	Backdrop->SetCollisionProfileName(TEXT("NoCollision"));
-	Backdrop->SetGenerateOverlapEvents(false);
-	Backdrop->CastShadow = false;
-	// Negative uniform scale flips the winding, so the cube is visible from
-	// the inside — a 40 m box enclosing the whole stage.
-	Backdrop->SetRelativeScale3D(FVector(-40.0f));
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
-	{
-		Backdrop->SetStaticMesh(CubeMesh.Object);
-	}
+	// Black room: six inward-facing planes forming a 40 m box. Plain positive
+	// scale — a negative-scale (inverted) cube confuses Lumen's surface cache
+	// and produced magenta blocks on screen.
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShapeMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-	if (ShapeMaterial.Succeeded())
+
+	constexpr float RoomHalfSizeCm = 2000.0f;
+	constexpr float PlaneBaseSizeCm = 100.0f;
+	const float WallScale = (2.0f * RoomHalfSizeCm) / PlaneBaseSizeCm;
+
+	struct FWallDef
 	{
-		Backdrop->SetMaterial(0, ShapeMaterial.Object);
+		const TCHAR* Name;
+		FVector Location;
+		FRotator Rotation; // Engine plane faces +Z; rotate so it faces the room center.
+	};
+	const FWallDef Walls[6] = {
+		{ TEXT("WallFloor"),   FVector(0, 0, -RoomHalfSizeCm), FRotator(0, 0, 0) },
+		{ TEXT("WallCeiling"), FVector(0, 0, RoomHalfSizeCm),  FRotator(180, 0, 0) },
+		{ TEXT("WallPosX"),    FVector(RoomHalfSizeCm, 0, 0),  FRotator(90, 0, 0) },
+		{ TEXT("WallNegX"),    FVector(-RoomHalfSizeCm, 0, 0), FRotator(-90, 0, 0) },
+		{ TEXT("WallPosY"),    FVector(0, RoomHalfSizeCm, 0),  FRotator(0, 0, 90) },
+		{ TEXT("WallNegY"),    FVector(0, -RoomHalfSizeCm, 0), FRotator(0, 0, -90) },
+	};
+
+	for (const FWallDef& Wall : Walls)
+	{
+		UStaticMeshComponent* WallComp = CreateDefaultSubobject<UStaticMeshComponent>(Wall.Name);
+		WallComp->SetupAttachment(Root);
+		WallComp->SetCollisionProfileName(TEXT("NoCollision"));
+		WallComp->SetGenerateOverlapEvents(false);
+		WallComp->CastShadow = false;
+		// No lighting channels at all: no light in the level (sun, skylight,
+		// stage lights) can put even a specular sheen on the walls.
+		WallComp->SetLightingChannels(false, false, false);
+		WallComp->SetRelativeLocation(Wall.Location);
+		WallComp->SetRelativeRotation(Wall.Rotation);
+		WallComp->SetRelativeScale3D(FVector(WallScale, WallScale, 1.0f));
+		if (PlaneMesh.Succeeded())
+		{
+			WallComp->SetStaticMesh(PlaneMesh.Object);
+		}
+		if (ShapeMaterial.Succeeded())
+		{
+			WallComp->SetMaterial(0, ShapeMaterial.Object);
+		}
+		BackdropWalls.Add(WallComp);
 	}
 
 	// Camera looks down +X at the item sitting on the actor origin.
@@ -95,6 +124,21 @@ AInspectionStageActor::AInspectionStageActor()
 	PP.AutoExposureBias = ExposureBias;
 	PP.bOverride_VignetteIntensity = true;
 	PP.VignetteIntensity = 0.6f;
+
+	// The black room only needs direct lighting. Lumen GI/reflections have
+	// nothing useful to compute here and their surface-cache misses were the
+	// source of magenta blocks while the item rotated — turn them off.
+	PP.bOverride_DynamicGlobalIlluminationMethod = true;
+	PP.DynamicGlobalIlluminationMethod = EDynamicGlobalIlluminationMethod::None;
+	PP.bOverride_ReflectionMethod = true;
+	PP.ReflectionMethod = EReflectionMethod::None;
+
+	// A rotating item + motion blur = permanently soft edges. Kill the blur
+	// and add a touch of tonemapper sharpening to counter TAA/TSR softness.
+	PP.bOverride_MotionBlurAmount = true;
+	PP.MotionBlurAmount = 0.0f;
+	PP.bOverride_Sharpen = true;
+	PP.Sharpen = 0.4f;
 
 	// Museum-style lighting: key from upper right near the camera, dim fill
 	// from the lower left. Short attenuation so the box walls stay pitch black.
@@ -173,18 +217,24 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	StageCamera->PostProcessSettings.AutoExposureBias = ExposureBias;
 
 	// Pure black walls. Preferred: the engine's unlit black material — unlit
-	// means the sun/skylight physically cannot put any sheen on the walls.
-	// Fallback: dynamic instance of the shape material with black albedo.
-	if (UMaterialInterface* UnlitBlack = LoadObject<UMaterialInterface>(
-			nullptr, TEXT("/Engine/EngineDebugMaterials/BlackUnlitMaterial.BlackUnlitMaterial")))
+	// physically cannot show any lighting. Fallback: dynamic instance of the
+	// shape material with black albedo (walls receive no lights anyway,
+	// since all their lighting channels are off).
+	UMaterialInterface* WallMaterial = LoadObject<UMaterialInterface>(
+		nullptr, TEXT("/Engine/EngineDebugMaterials/BlackUnlitMaterial.BlackUnlitMaterial"));
+	if (!WallMaterial && BackdropWalls.Num() > 0 && BackdropWalls[0]->GetMaterial(0))
 	{
-		Backdrop->SetMaterial(0, UnlitBlack);
-	}
-	else if (UMaterialInterface* BackdropBase = Backdrop->GetMaterial(0))
-	{
-		UMaterialInstanceDynamic* BackdropMID = UMaterialInstanceDynamic::Create(BackdropBase, this);
+		UMaterialInstanceDynamic* BackdropMID =
+			UMaterialInstanceDynamic::Create(BackdropWalls[0]->GetMaterial(0), this);
 		BackdropMID->SetVectorParameterValue(TEXT("Color"), FLinearColor::Black);
-		Backdrop->SetMaterial(0, BackdropMID);
+		WallMaterial = BackdropMID;
+	}
+	if (WallMaterial)
+	{
+		for (UStaticMeshComponent* Wall : BackdropWalls)
+		{
+			Wall->SetMaterial(0, WallMaterial);
+		}
 	}
 
 	// --- Display mesh setup ---

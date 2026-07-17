@@ -127,6 +127,24 @@ neproziran, pozadina garantovano crna.
   `+DirectoriesToAlwaysCook=(Path="/Engine/EngineDebugMaterials")`.
   U editoru/PIE ovo nije potrebno.)
 
+#### Popravka 17.07. — ljubičasti blokovi + mekoća
+
+Uzrok ljubičastih blokova: kutija sa negativnim skejlom (izvrnut cube) +
+pozicija 300 m iznad mape zbune Lumen surface cache. Uzrok mekoće: motion
+blur na predmetu koji se rotira + TAA/TSR.
+
+Šta je promenjeno u kodu (samo recompile, ništa u editoru):
+- zidovi sobe su sada 6 običnih ravni okrenutih ka unutra (bez negativnog
+  skejla), potpuno isključene iz osvetljenja;
+- na stage kameri su ugašeni **Lumen GI i refleksije** (crnoj sobi ne trebaju,
+  a oni su pravili ljubičaste blokove);
+- ugašen **motion blur** + dodat blagi tonemapper **sharpen (0.4)**.
+- [ ] Smoke: rotiraj predmet 10-15 s po svim osama — nema ljubičastih
+  blokova, ivice ostaju oštre i dok se predmet okreće.
+- [ ] Ako je i dalje mekano, javi — sledeći korak je forsiranje 100%
+  screen percentage tokom inspekcije (rezolucija upscale-a je onda jedini
+  preostali izvor mekoće).
+
 ## 5. Steamworks — ČEKA APP ID
 
 - [ ] App ID u `DefaultEngine.ini` + Web API Key → Render

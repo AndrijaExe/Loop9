@@ -69,9 +69,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> DisplayMesh;
 
-	/** Inverted (negative-scale) black cube enclosing the stage — the background. */
+	/** Six inward-facing black planes enclosing the stage — the background. */
 	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> Backdrop;
+	TArray<TObjectPtr<UStaticMeshComponent>> BackdropWalls;
 
 	/** The view during inspection; looks down +X at the item. */
 	UPROPERTY()
