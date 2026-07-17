@@ -147,7 +147,8 @@ private:
 	FString BuildSignalDropMessage() const;
 
 	void TriggerInitialRing();
-	void DispatchChatRequest(const FString& Message);
+	void DispatchChatRequest(const FString& Message, bool bIsAuthRetry = false);
+	bool QueuePendingAuthChat(const FString& Message, bool bIsAuthRetry, bool bForceReauth);
 	void HandleLocalizedChatFailure(int32 HttpCode);
 	void ClearPendingAuthChat();
 	void OnAuthSessionReadyForPendingChat();
@@ -171,6 +172,7 @@ private:
 	bool bPhantomMessageShown = false;
 	FString PendingAuthChatMessage;
 	bool bPendingAuthChat = false;
+	bool bPendingAuthChatIsRetry = false;
 	bool bInteractionInputCaptured = false;
 	uint64 ChatRequestGeneration = 0;
 	FDelegateHandle AuthReadyHandle;

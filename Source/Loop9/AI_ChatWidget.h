@@ -62,6 +62,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	FString AICursorSymbol = TEXT("_");
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Status", meta = (ClampMin = "1.0"))
+	float LongWaitStatusDelay = 10.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	class USoundBase* TypingSound = nullptr;
 
@@ -102,12 +105,14 @@ private:
 	void TickAITypewriter();
 	void ToggleAICursorBlink();
 	void UpdateAITypewriterDisplay(const FString& BaseText);
+	void ShowLongWaitThinkingStatus();
 	void StartAIMumble(bool bUseAnomalyMumble);
 	void StopAIMumble();
 
 	FTimerHandle AITypewriterTimerHandle;
 	FTimerHandle AICursorBlinkTimerHandle;
 	FTimerHandle MessageInputFocusTimerHandle;
+	FTimerHandle ThinkingLongWaitTimerHandle;
 	UButton* SendButton = nullptr;
 	UButton* CloseButton = nullptr;
 	FTypewriterState AITypewriterState;

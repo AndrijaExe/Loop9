@@ -159,10 +159,36 @@ void UAI_ChatWidget::ShowThinkingIndicator()
 	{
 		SendButton->SetIsEnabled(false);
 	}
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			ThinkingLongWaitTimerHandle,
+			this,
+			&UAI_ChatWidget::ShowLongWaitThinkingStatus,
+			FMath::Max(1.0f, LongWaitStatusDelay),
+			false);
+	}
+}
+
+void UAI_ChatWidget::ShowLongWaitThinkingStatus()
+{
+	if (!ThinkingIndicatorText)
+	{
+		return;
+	}
+
+	const FString Prefix = NSLOCTEXT("Loop9Chat", "FriendPrefix", "Dragojlo: ").ToString();
+	const FString StillThinking = NSLOCTEXT("Loop9Chat", "StillThinkingIndicator", "Still thinking...").ToString();
+	ThinkingIndicatorText->SetText(FText::FromString(Prefix + StillThinking));
 }
 
 void UAI_ChatWidget::HideThinkingIndicator()
 {
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(ThinkingLongWaitTimerHandle);
+	}
+
 	if (ThinkingIndicatorText && ChatScrollBox)
 	{
 		ChatScrollBox->RemoveChild(ThinkingIndicatorText);

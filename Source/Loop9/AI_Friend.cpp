@@ -18,6 +18,7 @@
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Internationalization/Culture.h"
+#include "Misc/Guid.h"
 
 AAI_Friend::AAI_Friend()
 {
@@ -311,6 +312,10 @@ void AAI_Friend::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (ChatWidgetInstance)
 	{
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->HideThinkingIndicator();
+		}
 		ChatWidgetInstance->RemoveFromParent();
 		ChatWidgetInstance = nullptr;
 	}
@@ -368,6 +373,7 @@ void AAI_Friend::ClearPendingAuthChat()
 	AuthFailedHandle.Reset();
 	PendingAuthChatMessage.Reset();
 	bPendingAuthChat = false;
+	bPendingAuthChatIsRetry = false;
 }
 
 void AAI_Friend::OnAuthSessionReadyForPendingChat()
@@ -378,8 +384,9 @@ void AAI_Friend::OnAuthSessionReadyForPendingChat()
 	}
 
 	const FString Message = PendingAuthChatMessage;
+	const bool bIsAuthRetry = bPendingAuthChatIsRetry;
 	ClearPendingAuthChat();
-	DispatchChatRequest(Message);
+	DispatchChatRequest(Message, bIsAuthRetry);
 }
 
 void AAI_Friend::OnAuthSessionFailedForPendingChat(const FString& Reason)
@@ -393,6 +400,56 @@ void AAI_Friend::OnAuthSessionFailedForPendingChat(const FString& Reason)
 	ClearPendingAuthChat();
 	MessagesSentThisLoop = FMath::Max(0, MessagesSentThisLoop - 1);
 	HandleLocalizedChatFailure(0);
+}
+
+bool AAI_Friend::QueuePendingAuthChat(const FString& Message, bool bIsAuthRetry, bool bForceReauth)
+{
+	if (bPendingAuthChat)
+	{
+		return false;
+	}
+
+	ULoop9BackendAuthSubsystem* AuthSubsystem = nullptr;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		AuthSubsystem = GI->GetSubsystem<ULoop9BackendAuthSubsystem>();
+	}
+	if (!AuthSubsystem)
+	{
+		return false;
+	}
+
+	PendingAuthChatMessage = Message;
+	bPendingAuthChat = true;
+	bPendingAuthChatIsRetry = bIsAuthRetry;
+	AuthReadyHandle = AuthSubsystem->OnSessionReady.AddUObject(this, &AAI_Friend::OnAuthSessionReadyForPendingChat);
+	AuthFailedHandle = AuthSubsystem->OnSessionFailed.AddUObject(this, &AAI_Friend::OnAuthSessionFailedForPendingChat);
+
+	if (UWorld* World = GetWorld())
+	{
+		TWeakObjectPtr<AAI_Friend> WeakThis(this);
+		World->GetTimerManager().SetTimer(
+			PendingAuthTimeoutHandle,
+			[WeakThis]()
+			{
+				if (WeakThis.IsValid() && WeakThis->bPendingAuthChat)
+				{
+					WeakThis->OnAuthSessionFailedForPendingChat(TEXT("chat auth wait timed out"));
+				}
+			},
+			17.0f,
+			false);
+	}
+
+	const bool bAuthAttemptActive = bForceReauth
+		? AuthSubsystem->InvalidateAndReauth()
+		: AuthSubsystem->EnsureSession();
+	if (!bAuthAttemptActive && bPendingAuthChat)
+	{
+		OnAuthSessionFailedForPendingChat(TEXT("Steam authentication is cooling down or unavailable"));
+	}
+
+	return bPendingAuthChat;
 }
 
 void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode)
@@ -468,34 +525,7 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	if (bSteamAuthRequired && !bHasSession)
 	{
 		// Authorize then dispatch — never send an unauthenticated Steam production request.
-		PendingAuthChatMessage = Message;
-		bPendingAuthChat = true;
-
-		AuthReadyHandle = AuthSubsystem->OnSessionReady.AddUObject(this, &AAI_Friend::OnAuthSessionReadyForPendingChat);
-		AuthFailedHandle = AuthSubsystem->OnSessionFailed.AddUObject(this, &AAI_Friend::OnAuthSessionFailedForPendingChat);
-
-		if (UWorld* World = GetWorld())
-		{
-			TWeakObjectPtr<AAI_Friend> WeakThis(this);
-			World->GetTimerManager().SetTimer(
-				PendingAuthTimeoutHandle,
-				[WeakThis]()
-				{
-					if (WeakThis.IsValid() && WeakThis->bPendingAuthChat)
-					{
-						WeakThis->OnAuthSessionFailedForPendingChat(TEXT("chat auth wait timed out"));
-					}
-				},
-				17.0f,
-				false);
-		}
-
-		const bool bAuthAttemptActive = AuthSubsystem->EnsureSession();
-		if (!bAuthAttemptActive && bPendingAuthChat)
-		{
-			OnAuthSessionFailedForPendingChat(TEXT("Steam authentication is cooling down or unavailable"));
-		}
-		if (!bPendingAuthChat)
+		if (!QueuePendingAuthChat(Message, false, false))
 		{
 			return TEXT("Error: Steam authentication failed");
 		}
@@ -513,7 +543,7 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	return TEXT("Request sent... (async)");
 }
 
-void AAI_Friend::DispatchChatRequest(const FString& Message)
+void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 {
 	UE_LOG(LogTemp, Log, TEXT("AI request start. Endpoint=%s | Mode=BackendContract | MsgLen=%d"), *APIEndpoint, Message.Len());
 	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
@@ -535,6 +565,7 @@ void AAI_Friend::DispatchChatRequest(const FString& Message)
 	const int32 LoopIndex = LoopManager ? FMath::Clamp(LoopManager->CurrentLoop, 1, 9) : 1;
 
 	FLoop9ChatRequestContext RequestContext;
+	RequestContext.RequestId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
 	RequestContext.Message = Message;
 	RequestContext.APIEndpoint = Loop9BackendEndpointUtils::DeriveChatEndpoint(APIEndpoint);
 	RequestContext.GameToken = GameToken;
@@ -566,7 +597,7 @@ void AAI_Friend::DispatchChatRequest(const FString& Message)
 
 	ULoop9BackendChatService* ChatService = NewObject<ULoop9BackendChatService>(this);
 	ChatService->SendChatRequest(RequestContext, FOnLoop9ChatResponseReceived::CreateWeakLambda(this,
-		[this, bUsedSessionToken, RequestGeneration, LoopIndex](const FLoop9ChatResponse& ChatResponse)
+		[this, Message, bUsedSessionToken, bIsAuthRetry, RequestGeneration, LoopIndex](const FLoop9ChatResponse& ChatResponse)
 		{
 			if (RequestGeneration != ChatRequestGeneration || ResolveCurrentLoopIndex() != LoopIndex)
 			{
@@ -576,16 +607,15 @@ void AAI_Friend::DispatchChatRequest(const FString& Message)
 
 			if (!ChatResponse.bSuccess)
 			{
-				// Re-auth only when the failed request actually carried a session token.
-				if (ChatResponse.HttpCode == 403 && bUsedSessionToken)
+				// Authentication runs before quotas/provider dispatch, so one retry
+				// after refreshing a rejected session cannot duplicate AI spend.
+				if (ChatResponse.HttpCode == 403 && bUsedSessionToken && !bIsAuthRetry)
 				{
-					if (UGameInstance* GI = GetGameInstance())
+					if (QueuePendingAuthChat(Message, true, true))
 					{
-						if (ULoop9BackendAuthSubsystem* Auth = GI->GetSubsystem<ULoop9BackendAuthSubsystem>())
-						{
-							Auth->InvalidateAndReauth();
-						}
+						UE_LOG(LogTemp, Log, TEXT("AI request waiting for one-time reauthentication retry."));
 					}
+					return;
 				}
 
 				UE_LOG(LogTemp, Warning, TEXT("AI request failed. HttpCode=%d | %s"),

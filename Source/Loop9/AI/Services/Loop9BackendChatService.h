@@ -6,6 +6,7 @@
 
 struct FLoop9ChatRequestContext
 {
+	FString RequestId;
 	FString Message;
 	FString APIEndpoint;
 	FString GameToken;

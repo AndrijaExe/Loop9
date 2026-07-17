@@ -51,7 +51,7 @@ public:
 	bool RequiresSteamSession() const { return bRequireSteamSession; }
 
 	/** Drops the current session and re-authenticates (e.g. after a 403 from chat). */
-	void InvalidateAndReauth();
+	bool InvalidateAndReauth();
 
 	FOnLoop9AuthSessionReady OnSessionReady;
 	FOnLoop9AuthSessionFailed OnSessionFailed;

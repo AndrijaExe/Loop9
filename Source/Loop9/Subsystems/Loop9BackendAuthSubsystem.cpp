@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Json.h"
+#include "Misc/Guid.h"
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "TimerManager.h"
@@ -121,7 +122,7 @@ bool ULoop9BackendAuthSubsystem::EnsureSession()
 	return bRequestInFlight || HasValidSession();
 }
 
-void ULoop9BackendAuthSubsystem::InvalidateAndReauth()
+bool ULoop9BackendAuthSubsystem::InvalidateAndReauth()
 {
 	// Invalidate any late callback from the previous exchange.
 	++AuthRequestGeneration;
@@ -134,7 +135,7 @@ void ULoop9BackendAuthSubsystem::InvalidateAndReauth()
 	LastAttemptSeconds = 0.0;
 	ConsecutiveFailures = 0;
 	TicketRetryCount = 0;
-	EnsureSession();
+	return EnsureSession();
 }
 
 void ULoop9BackendAuthSubsystem::ClearAuthTimeout()
@@ -251,14 +252,17 @@ void ULoop9BackendAuthSubsystem::RequestSessionToken()
 	HttpRequest->SetVerb(TEXT("POST"));
 	HttpRequest->SetURL(AuthEndpoint);
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	const FString RequestId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+	HttpRequest->SetHeader(TEXT("X-Request-Id"), RequestId);
 	HttpRequest->SetTimeout(static_cast<float>(RemainingSeconds));
 	HttpRequest->SetContentAsString(Body);
 
 	const uint64 RequestGeneration = AuthRequestGeneration;
+	const double AuthStartedAt = AuthDeadlineSeconds - AuthTimeoutSeconds;
 
 	TWeakObjectPtr<ULoop9BackendAuthSubsystem> WeakThis(this);
 	HttpRequest->OnProcessRequestComplete().BindLambda(
-		[WeakThis, RequestGeneration](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+		[WeakThis, RequestGeneration, RequestId, AuthStartedAt](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 		{
 			if (!WeakThis.IsValid())
 			{
@@ -278,6 +282,10 @@ void ULoop9BackendAuthSubsystem::RequestSessionToken()
 			if (!bWasSuccessful || !Response.IsValid() || Response->GetResponseCode() != 200)
 			{
 				const int32 Code = Response.IsValid() ? Response->GetResponseCode() : 0;
+				UE_LOG(LogTemp, Warning, TEXT("Loop9 auth request failed. RequestId=%s | HttpCode=%d | DurationMs=%.1f"),
+					*RequestId,
+					Code,
+					(FPlatformTime::Seconds() - AuthStartedAt) * 1000.0);
 				Self->HandleAuthFailure(FString::Printf(TEXT("session token exchange failed (HTTP %d)"), Code));
 				return;
 			}
@@ -307,8 +315,10 @@ void ULoop9BackendAuthSubsystem::RequestSessionToken()
 			Self->ConsecutiveFailures = 0;
 			Self->AuthDeadlineSeconds = 0.0;
 
-			UE_LOG(LogTemp, Log, TEXT("Loop9 auth: session token acquired (expires in %llds)."),
-				Self->SessionExpiresAtUnix - FDateTime::UtcNow().ToUnixTimestamp());
+			UE_LOG(LogTemp, Log, TEXT("Loop9 auth: session token acquired. RequestId=%s | ExpiresInSeconds=%lld | DurationMs=%.1f"),
+				*RequestId,
+				Self->SessionExpiresAtUnix - FDateTime::UtcNow().ToUnixTimestamp(),
+				(FPlatformTime::Seconds() - AuthStartedAt) * 1000.0);
 
 			Self->OnSessionReady.Broadcast();
 		});

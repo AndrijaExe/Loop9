@@ -153,6 +153,10 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	HttpRequest->SetVerb(TEXT("POST"));
 	HttpRequest->SetURL(Context.APIEndpoint);
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	if (!Context.RequestId.IsEmpty())
+	{
+		HttpRequest->SetHeader(TEXT("X-Request-Id"), Context.RequestId);
+	}
 	// End-to-end budget: backend AI deadline is 45s plus free-tier cold start and RTT headroom.
 	HttpRequest->SetTimeout(65.0f);
 
@@ -199,14 +203,26 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 	HttpRequest->SetContentAsString(OutputString);
 
-	HttpRequest->OnProcessRequestComplete().BindLambda([OnComplete](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+	const double StartedAt = FPlatformTime::Seconds();
+	const FString RequestId = Context.RequestId;
+	HttpRequest->OnProcessRequestComplete().BindLambda([OnComplete, RequestId, StartedAt](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 	{
 		FLoop9ChatResponse ChatResult;
+		auto Complete = [OnComplete, RequestId, StartedAt](const FLoop9ChatResponse& FinalResult)
+		{
+			const double DurationMs = (FPlatformTime::Seconds() - StartedAt) * 1000.0;
+			UE_LOG(LogTemp, Log, TEXT("Chat request complete. RequestId=%s | Success=%s | HttpCode=%d | DurationMs=%.1f"),
+				RequestId.IsEmpty() ? TEXT("(none)") : *RequestId,
+				FinalResult.bSuccess ? TEXT("YES") : TEXT("NO"),
+				FinalResult.HttpCode,
+				DurationMs);
+			OnComplete.ExecuteIfBound(FinalResult);
+		};
 
 		if (!bWasSuccessful || !Response.IsValid())
 		{
 			ChatResult.ErrorMessage = TEXT("Error: Request failed");
-			OnComplete.ExecuteIfBound(ChatResult);
+			Complete(ChatResult);
 			return;
 		}
 
@@ -216,7 +232,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		if (ChatResult.HttpCode != 200)
 		{
 			ChatResult.ErrorMessage = FString::Printf(TEXT("Error: Backend returned HTTP %d"), ChatResult.HttpCode);
-			OnComplete.ExecuteIfBound(ChatResult);
+			Complete(ChatResult);
 			return;
 		}
 
@@ -225,7 +241,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		if (!FJsonSerializer::Deserialize(Reader, JsonResponse) || !JsonResponse.IsValid())
 		{
 			ChatResult.ErrorMessage = TEXT("Error: Invalid backend response format");
-			OnComplete.ExecuteIfBound(ChatResult);
+			Complete(ChatResult);
 			return;
 		}
 
@@ -233,7 +249,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		if (!JsonResponse->TryGetStringField(TEXT("message"), BackendMessage) || BackendMessage.IsEmpty())
 		{
 			ChatResult.ErrorMessage = TEXT("Error: Invalid backend response format");
-			OnComplete.ExecuteIfBound(ChatResult);
+			Complete(ChatResult);
 			return;
 		}
 
@@ -243,13 +259,15 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 
 		ChatResult.bSuccess = true;
 		ChatResult.Reply = CleanReply;
-		OnComplete.ExecuteIfBound(ChatResult);
+		Complete(ChatResult);
 	});
 
 	if (!HttpRequest->ProcessRequest())
 	{
 		FLoop9ChatResponse DispatchFailure;
 		DispatchFailure.ErrorMessage = TEXT("Error: Request could not be started");
+		UE_LOG(LogTemp, Warning, TEXT("Chat request could not start. RequestId=%s"),
+			RequestId.IsEmpty() ? TEXT("(none)") : *RequestId);
 		OnComplete.ExecuteIfBound(DispatchFailure);
 	}
 }
