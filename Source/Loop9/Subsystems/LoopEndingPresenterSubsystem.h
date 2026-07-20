@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/Ticker.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Loop/LoopTypes.h"
 #include "LoopEndingPresenterSubsystem.generated.h"
@@ -79,6 +80,6 @@ private:
 	FTimerHandle SequenceCleanupAfterFadeTimerHandle;
 	FTimerHandle ReplacementTerminalTimerHandle;
 	FTimerHandle MainMenuTravelTimerHandle;
-	FDelegateHandle EndingSequenceWatchdogTickerHandle;
+	FTSTicker::FDelegateHandle EndingSequenceWatchdogTickerHandle;
 	FDelegateHandle WorldCleanupDelegateHandle;
 };
