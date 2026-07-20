@@ -45,6 +45,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Material Swap Anomaly")
 	FName TargetComponentName = NAME_None;
 
+	/**
+	 * Debug/testing: next activation uses this AnomalyMaterials index instead of
+	 * a random pick. INDEX_NONE = random. Consumed after one ApplyAnomalyState.
+	 */
+	UPROPERTY(Transient, BlueprintReadWrite, Category = "Material Swap Anomaly|Debug")
+	int32 ForcedMaterialIndex = INDEX_NONE;
+
+	UFUNCTION(BlueprintCallable, Category = "Material Swap Anomaly|Debug")
+	void SetForcedMaterialIndex(int32 Index) { ForcedMaterialIndex = Index; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual bool ApplyAnomalyState() override;

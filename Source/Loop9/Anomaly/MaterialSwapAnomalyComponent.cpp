@@ -48,8 +48,13 @@ void UMaterialSwapAnomalyComponent::BeginPlay()
 
 bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 {
+	TargetMesh = ResolveTargetMesh();
 	if (!TargetMesh || AnomalyMaterials.Num() == 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("MaterialSwapAnomaly on '%s': Apply failed (mesh=%s, mats=%d)"),
+			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+			TargetMesh ? TEXT("ok") : TEXT("null"),
+			AnomalyMaterials.Num());
 		return false;
 	}
 
@@ -61,13 +66,28 @@ bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 		bNormalMaterialCaptured = true;
 	}
 
-	UMaterialInterface* Chosen = AnomalyMaterials[FMath::RandRange(0, AnomalyMaterials.Num() - 1)];
+	int32 ChosenIndex = FMath::RandRange(0, AnomalyMaterials.Num() - 1);
+	if (ForcedMaterialIndex != INDEX_NONE)
+	{
+		ChosenIndex = FMath::Clamp(ForcedMaterialIndex, 0, AnomalyMaterials.Num() - 1);
+		ForcedMaterialIndex = INDEX_NONE;
+	}
+
+	UMaterialInterface* Chosen = AnomalyMaterials[ChosenIndex];
 	if (!Chosen)
 	{
 		return false;
 	}
 
 	TargetMesh->SetMaterial(MaterialSlot, Chosen);
+	TargetMesh->MarkRenderStateDirty();
+
+	UE_LOG(LogTemp, Log, TEXT("MaterialSwapAnomaly on '%s': slot %d -> %s (idx %d)"),
+		GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+		MaterialSlot,
+		*Chosen->GetName(),
+		ChosenIndex);
+
 	return true;
 }
 

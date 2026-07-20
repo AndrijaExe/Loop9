@@ -4,10 +4,12 @@
 
 #include "Loop9.h"
 #include "Loop9CameraManager.h"
+#include "Subsystems/AnomalyManager.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "HorrorCharacter.h"
 #include "HorrorUI.h"
+#include "Engine/GameInstance.h"
 
 ALoop9PlayerController::ALoop9PlayerController()
 {
@@ -112,4 +114,95 @@ void ALoop9PlayerController::RemoveBlinkOverlay()
 UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 {
 	return GameplayUI;
+}
+
+namespace
+{
+	UAnomalyManager* GetAnomalyManager(const UObject* WorldContext)
+	{
+		if (!WorldContext)
+		{
+			return nullptr;
+		}
+		if (const UWorld* World = WorldContext->GetWorld())
+		{
+			if (UGameInstance* GI = World->GetGameInstance())
+			{
+				return GI->GetSubsystem<UAnomalyManager>();
+			}
+		}
+		return nullptr;
+	}
+}
+
+void ALoop9PlayerController::AnomalyList()
+{
+	if (UAnomalyManager* Manager = GetAnomalyManager(this))
+	{
+		Manager->PrintAnomalyStats();
+	}
+	else
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("AnomalyList: AnomalyManager not available"));
+	}
+}
+
+void ALoop9PlayerController::AnomalyReset()
+{
+	if (UAnomalyManager* Manager = GetAnomalyManager(this))
+	{
+		Manager->ResetAllAnomalies();
+		UE_LOG(LogLoop9, Log, TEXT("AnomalyReset: all anomalies cleared"));
+	}
+}
+
+void ALoop9PlayerController::AnomalyForceAny()
+{
+	if (UAnomalyManager* Manager = GetAnomalyManager(this))
+	{
+		const bool bOk = Manager->ForceActivateAnyAnomaly();
+		UE_LOG(LogLoop9, Log, TEXT("AnomalyForceAny: %s"), bOk ? TEXT("ok") : TEXT("failed"));
+	}
+}
+
+void ALoop9PlayerController::AnomalyForce(const FString& Args)
+{
+	UAnomalyManager* Manager = GetAnomalyManager(this);
+	if (!Manager)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("AnomalyForce: AnomalyManager not available"));
+		return;
+	}
+
+	TArray<FString> Tokens;
+	Args.ParseIntoArrayWS(Tokens);
+	if (Tokens.Num() == 0)
+	{
+		AnomalyHelp();
+		return;
+	}
+
+	const FString& Filter = Tokens[0];
+	int32 MaterialIndex = INDEX_NONE;
+	if (Tokens.Num() >= 2 && Tokens[1].IsNumeric())
+	{
+		MaterialIndex = FCString::Atoi(*Tokens[1]);
+	}
+
+	const bool bOk = Manager->ForceActivateByFilter(Filter, MaterialIndex);
+	UE_LOG(LogLoop9, Log, TEXT("AnomalyForce '%s' mat=%d -> %s"),
+		*Filter, MaterialIndex, bOk ? TEXT("ok") : TEXT("failed"));
+}
+
+void ALoop9PlayerController::AnomalyHelp()
+{
+	UE_LOG(LogLoop9, Log, TEXT(
+		"Anomaly debug commands:\n"
+		"  AnomalyList                         - list all registered anomalies\n"
+		"  AnomalyReset                        - clear all active anomalies\n"
+		"  AnomalyForceAny                     - force one random inactive anomaly\n"
+		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
+		"    filter examples: MaterialSwap, Text, Move, OldMagazine, I01, F01, D01\n"
+		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
+		"  AnomalyHelp                         - this message"));
 }

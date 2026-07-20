@@ -1,8 +1,10 @@
 #include "Subsystems/AnomalyManager.h"
 
 #include "Anomaly/AnomalyTypes.h"
+#include "Anomaly/MaterialSwapAnomalyComponent.h"
 #include "Algo/Sort.h"
 #include "Containers/Set.h"
+#include "GameFramework/Actor.h"
 
 namespace
 {
@@ -159,12 +161,157 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 
 		if (GetTypeIndex(Type) != INDEX_NONE)
 		{
-			Component->ActivateAnomaly();
+			ForceActivateComponent(Component, INDEX_NONE);
+			return Component->bIsAnomalyActive;
+		}
+	}
+
+	return false;
+}
+
+bool UAnomalyManager::ForceActivateByType(ELoopAnomalyType Type)
+{
+	CleanupInvalidComponents();
+
+	TArray<UAnomalyComponentBase*> Matches;
+	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
+	{
+		UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (Component && Component->GetAnomalyType() == Type)
+		{
+			Matches.Add(Component);
+		}
+	}
+
+	if (Matches.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AnomalyManager: no registered anomalies of type %d"), static_cast<int32>(Type));
+		return false;
+	}
+
+	UAnomalyComponentBase* Chosen = Matches[FMath::RandRange(0, Matches.Num() - 1)];
+	ForceActivateComponent(Chosen, INDEX_NONE);
+	return Chosen && Chosen->bIsAnomalyActive;
+}
+
+bool UAnomalyManager::ForceActivateByFilter(const FString& Filter, int32 MaterialIndex)
+{
+	CleanupInvalidComponents();
+
+	if (Filter.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AnomalyManager: empty filter"));
+		return false;
+	}
+
+	TArray<UAnomalyComponentBase*> Matches;
+	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
+	{
+		UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (Component && DoesComponentMatchFilter(Component, Filter))
+		{
+			Matches.Add(Component);
+		}
+	}
+
+	if (Matches.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AnomalyManager: no anomalies matching filter '%s'"), *Filter);
+		return false;
+	}
+
+	int32 Activated = 0;
+	for (UAnomalyComponentBase* Chosen : Matches)
+	{
+		ForceActivateComponent(Chosen, MaterialIndex);
+		if (Chosen && Chosen->bIsAnomalyActive)
+		{
+			++Activated;
+			const AActor* Owner = Chosen->GetOwner();
+			FString MatInfo;
+			if (const UMaterialSwapAnomalyComponent* MaterialSwap = Cast<UMaterialSwapAnomalyComponent>(Chosen))
+			{
+				if (UMeshComponent* Mesh = Chosen->GetOwner()
+					? Chosen->GetOwner()->FindComponentByClass<UMeshComponent>()
+					: nullptr)
+				{
+					if (UMaterialInterface* Applied = Mesh->GetMaterial(MaterialSwap->MaterialSlot))
+					{
+						MatInfo = FString::Printf(TEXT(" applied=%s"), *Applied->GetName());
+					}
+				}
+			}
+
+			UE_LOG(LogTemp, Log, TEXT("AnomalyManager: forced '%s' on '%s'%s"),
+				*Chosen->GetClass()->GetName(),
+				Owner ? *Owner->GetActorNameOrLabel() : TEXT("None"),
+				*MatInfo);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AnomalyManager: filter '%s' activated %d / %d"), *Filter, Activated, Matches.Num());
+	return Activated > 0;
+}
+
+bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Component, const FString& Filter)
+{
+	if (!Component)
+	{
+		return false;
+	}
+
+	const FString TypeLabel = Component->GetAnomalyTypeLabel().ToString();
+	if (TypeLabel.Contains(Filter, ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+
+	// Allow short type names: Text, Move, Hide, ...
+	const FString TypeName = UEnum::GetDisplayValueAsText(Component->GetAnomalyType()).ToString();
+	if (TypeName.Contains(Filter, ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+
+	const FString ClassName = Component->GetClass()->GetName();
+	if (ClassName.Contains(Filter, ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+
+	if (const AActor* Owner = Component->GetOwner())
+	{
+		if (Owner->GetName().Contains(Filter, ESearchCase::IgnoreCase)
+			|| Owner->GetActorNameOrLabel().Contains(Filter, ESearchCase::IgnoreCase))
+		{
 			return true;
 		}
 	}
 
 	return false;
+}
+
+void UAnomalyManager::ForceActivateComponent(UAnomalyComponentBase* Component, int32 MaterialIndex)
+{
+	if (!Component)
+	{
+		return;
+	}
+
+	if (UMaterialSwapAnomalyComponent* MaterialSwap = Cast<UMaterialSwapAnomalyComponent>(Component))
+	{
+		if (MaterialIndex >= 0)
+		{
+			MaterialSwap->SetForcedMaterialIndex(MaterialIndex);
+		}
+	}
+
+	if (Component->bIsAnomalyActive)
+	{
+		Component->DeactivateAnomaly();
+	}
+
+	Component->ActivateAnomaly();
 }
 
 void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability)
@@ -302,4 +449,36 @@ int32 UAnomalyManager::GetActiveAnomalyCount() const
 
 void UAnomalyManager::PrintAnomalyStats()
 {
+	CleanupInvalidComponents();
+
+	UE_LOG(LogTemp, Log, TEXT("===== Anomaly Stats (%d registered, %d active) ====="),
+		RegisteredComponents.Num(), GetActiveAnomalyCount());
+
+	int32 Index = 0;
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (!Component)
+		{
+			continue;
+		}
+
+		const AActor* Owner = Component->GetOwner();
+		FString Extra;
+		if (const UMaterialSwapAnomalyComponent* MaterialSwap = Cast<UMaterialSwapAnomalyComponent>(Component))
+		{
+			Extra = FString::Printf(TEXT(" mats=%d"), MaterialSwap->AnomalyMaterials.Num());
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("[%d] %s | %s | %s | active=%d | p=%.2f%s"),
+			Index++,
+			Owner ? *Owner->GetActorNameOrLabel() : TEXT("None"),
+			*Component->GetAnomalyTypeLabel().ToString(),
+			*Component->GetClass()->GetName(),
+			Component->bIsAnomalyActive ? 1 : 0,
+			Component->AnomalyProbability,
+			*Extra);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Commands: AnomalyList | AnomalyReset | AnomalyForce <filter> [matIndex] | AnomalyForceAny"));
 }

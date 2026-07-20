@@ -50,4 +50,35 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="UI|Cutscene")
 	void RemoveBlinkOverlay();
+
+	// ---- Debug / testing console commands (tilde ~) ----
+	/** List all registered anomalies. */
+	UFUNCTION(Exec)
+	void AnomalyList();
+
+	/** Reset every anomaly to normal. */
+	UFUNCTION(Exec)
+	void AnomalyReset();
+
+	/** Force any one inactive anomaly. */
+	UFUNCTION(Exec)
+	void AnomalyForceAny();
+
+	/**
+	 * Force an anomaly matching a filter.
+	 * Examples:
+	 *   AnomalyForce MaterialSwap
+	 *   AnomalyForce Text
+	 *   AnomalyForce OldMagazine
+	 *   AnomalyForce I01
+	 *   AnomalyForce I01 0
+	 *   AnomalyForce Magazine 1
+	 * Optional second arg = MaterialSwap variant index (0-based).
+	 */
+	UFUNCTION(Exec)
+	void AnomalyForce(const FString& Args);
+
+	/** Print command help. */
+	UFUNCTION(Exec)
+	void AnomalyHelp();
 };

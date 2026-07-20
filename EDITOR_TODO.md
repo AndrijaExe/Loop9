@@ -72,19 +72,13 @@ Nova anomalija: mesh na actoru dobije drugi materijal dok je anomalija aktivna
 (novine sa drugim naslovom, poster sa pogrešnim slovima...). **Računa se kao
 postojeći Text tip** — ništa se ne menja u backendu/achievementima.
 
-- [ ] Drugi AI generiše 2–3 varijante tekstura novina → napravi materijale
-  (npr. `MI_Newspaper_Anomaly1/2/3` — kopija normalnog materijala sa
-  zamenjenom teksturom).
-- [ ] Na actor novina dodaj `MaterialSwapAnomalyComponent`:
-  - `AnomalyMaterials` = anomalne varijante (bira nasumičnu pri aktivaciji),
-  - `MaterialSlot` = slot novinskog materijala (obično 0),
-  - `TargetComponentName` ostavi None (uzima prvi mesh) ili upiši ime
-    komponente ako actor ima više mesheva.
-- [ ] Kombinacija sa inspekcijom: inspekcija kopira TRENUTNO primenjene
-  materijale — kad je anomalija aktivna, igrač u ruci vidi "pogrešne" novine.
-  (Napomena: to važi kad se mesh čita sa actora; ako koristiš `MeshOverride`
-  na `InspectableComponent`, materijali dolaze iz override mesha.)
-- [ ] Smoke: forsiraj anomaliju → novine promenjene → sledeći loop vraćene.
+- [x] Varijante tekstura + MI (Magazine DIE/HELP/RUN; I01 headlines; F01 HELP/HELL;
+  D01 CRT DIE/HELP/RUN) u `/Game/MyStuff/Anomalies/` — Albedo override, VT on.
+- [x] `MaterialSwapAnomalyComponent` na `BP_OldMagazine` + I01/F01/D01 actorima u
+  `FullOfficeMap` (`AnomalyMaterials`, slot 0).
+- [x] Debug konzola: `AnomalyList` / `AnomalyReset` / `AnomalyForce` /
+  `AnomalyForceAny` / `AnomalyHelp` (na `ALoop9PlayerController`).
+- [x] Smoke: forsiraj anomaliju → materijal promenjen → sledeći loop vraćen.
 
 ### 4d (16.07.): InspectableComponent je sada drop-in
 
