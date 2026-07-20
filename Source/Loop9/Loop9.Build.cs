@@ -20,6 +20,8 @@ public class Loop9 : ModuleRules
 			"Slate",
 			"SlateCore",
 			"MoviePlayer",
+			"MovieScene",
+			"LevelSequence",
 			"HTTP",
 			"Json",
 			"JsonUtilities",

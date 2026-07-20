@@ -120,8 +120,9 @@ da ne pomešaš pri uploadu.
      ovde znači da se achievement nikad neće otključati.
    - **Display Name** — iz tabele (ili svoja varijanta).
    - **Description** — iz tabele.
-   - **Hidden** — postavi na "Yes" za redove označene sa DA (endinzi i
-     Déjà Vu). Skriveni achievementi prikazuju "???" dok se ne otključaju.
+   - **Hidden** — postavi na "Yes" za redove označene sa DA (šest endinga,
+     Déjà Vu i Phantom Message). Skriveni achievementi prikazuju "???" dok
+     se ne otključaju.
    - **Achieved Icon** / **Unachieved Icon** — upload dve ikonice.
 6. **Save** posle svakog achievementa.
 7. Kad uneseš svih 27, idi na **Publish** tab (u Steamworks Settings):
@@ -148,13 +149,9 @@ da ne pomešaš pri uploadu.
 
 ### D. Checklist pre launcha
 
-- [ ] Svih 27 API imena uneto slovo-za-slovo kao u tabeli
-- [ ] Hidden flag postavljen za 7 spoiler achievementa (6 endinga + Déjà Vu)
-- [ ] Sve ikonice (27 × 2) uploadovane
-- [ ] Steamworks promene **publish-ovane**
-- [ ] Svaka grupa testirana kroz Steam klijent (bar: jedan ending, first call,
-      first reset, jedan spot, streak)
-- [ ] `SteamDevAppId` u `Config/DefaultEngine.ini` zamenjen pravim App ID-om
+Aktuelni status i jedini release checklist nalaze se u
+[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md), sekcija **Steam achievements**.
+Ovaj dokument ostaje izvor tačnih API imena, opisa i setup koraka.
 
 ---
 

@@ -76,6 +76,11 @@ void AHorrorCharacter::AddGamepadFallbackMappings(UInputMappingContext* Context)
 
 void AHorrorCharacter::DoStartSprint()
 {
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
 	// set the sprinting flag
 	bSprinting = true;
 

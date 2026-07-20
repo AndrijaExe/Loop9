@@ -5,7 +5,8 @@ Horror loop game built in Unreal Engine 5.8.
 ## Repo size
 
 This repo intentionally excludes large marketplace assets and generated Unreal folders.  
-Expected GitHub size: **~50 MB** (source code + custom content).
+Current tracked project size is approximately **215 MB** (source code + custom
+content). The July MaterialSwap texture variants account for roughly 158 MB.
 
 Locally the full project is ~19 GB because of third-party content in `Content/`.
 
@@ -24,13 +25,14 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
    copy Config\DefaultGame.ini.example Config\DefaultGame.ini
    copy Config\DefaultEngine.ini.example Config\DefaultEngine.ini
    ```
-3. Edit `Config/DefaultGame.ini` and set your `APIEndpoint`, `PlayerId`, and `GameToken`.
+3. Edit `Config/DefaultGame.ini` and set the production `APIEndpoint`.
+   Steam supplies player identity/session auth; do not package a game token.
 4. Install the marketplace assets listed below into `Content/` (same folder names).
 5. Open `Loop9.uproject` in UE 5.8 and let it compile.
 
 ## Steam auth
 
-When the game runs through Steam (or with `SteamDevAppId=480` for testing), it
+When the game runs through Steam with App ID `4982260`, it
 exchanges the local Steam session ticket for a short-lived backend token via
 `POST /api/auth/steam` and uses it as `X-Session-Token` on chat requests
 (`Loop9BackendAuthSubsystem`). The backend then derives the player identity from
@@ -38,8 +40,8 @@ the verified Steam ID. Legacy `GameToken` (`X-Game-Token`) auth is available onl
 for explicit non-production testing: set `bRequireSteamSession=false` in the
 client config and `AUTH_ALLOW_GAME_TOKEN=true` on a non-production backend.
 
-Before shipping, replace `SteamDevAppId` in `Config/DefaultEngine.ini` with your
-real App ID and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID` on the backend.
+Before shipping, confirm `SteamDevAppId=4982260` in `Config/DefaultEngine.ini`
+and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID=4982260` on the backend.
 
 ## Steam achievements
 
@@ -53,7 +55,15 @@ and the step-by-step Steamworks publishing guide live in
 [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
 
 Achievements cannot be tested on the Spacewar dev App ID (480) — they require
-your real App ID, and Steamworks changes must be published before testing.
+Loop 9 App ID `4982260`, and Steamworks changes must be published before testing.
+
+## Release preparation
+
+The single source of truth for remaining release work is
+[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Elevator and ending cinematics
+are documented in [`CINEMATIC_SEQUENCE_PLAN.md`](CINEMATIC_SEQUENCE_PLAN.md);
+the Unreal MCP editor handoff is
+[`UNREAL_MCP_SEQUENCE_HANDOFF.md`](UNREAL_MCP_SEQUENCE_HANDOFF.md).
 
 ## Required marketplace content (not in repo)
 

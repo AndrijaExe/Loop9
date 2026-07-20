@@ -46,14 +46,11 @@ public:
 	FName TargetComponentName = NAME_None;
 
 	/**
-	 * Debug/testing: next activation uses this AnomalyMaterials index instead of
-	 * a random pick. INDEX_NONE = random. Consumed after one ApplyAnomalyState.
+	 * Debug/testing only: applies a specific variant without deactivating an
+	 * already active anomaly. Returns false without changing the current state
+	 * when the variant or target mesh is invalid.
 	 */
-	UPROPERTY(Transient, BlueprintReadWrite, Category = "Material Swap Anomaly|Debug")
-	int32 ForcedMaterialIndex = INDEX_NONE;
-
-	UFUNCTION(BlueprintCallable, Category = "Material Swap Anomaly|Debug")
-	void SetForcedMaterialIndex(int32 Index) { ForcedMaterialIndex = Index; }
+	bool ForceMaterialVariant(int32 Index);
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,6 +67,8 @@ private:
 
 	/** Explicit capture flag — NormalMaterial may legitimately be null (empty slot). */
 	bool bNormalMaterialCaptured = false;
+
+	int32 ForcedMaterialIndex = INDEX_NONE;
 
 	UMeshComponent* ResolveTargetMesh() const;
 };

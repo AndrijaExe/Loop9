@@ -53,11 +53,7 @@ void ALiftDoorWing::Tick(float DeltaTime)
 
     if (DistToTarget <= KINDA_SMALL_NUMBER)
     {
-        // reached
-        SetActorLocation(TargetLocation);
-        ShouldMove = false;
-        IsOpened = bMovingToOpen;
-        SetActorTickEnabled(false);
+        FinishMovement();
         return;
     }
 
@@ -66,15 +62,21 @@ void ALiftDoorWing::Tick(float DeltaTime)
 
     if (MoveStep >= DistToTarget)
     {
-        SetActorLocation(TargetLocation);
-        ShouldMove = false;
-        IsOpened = bMovingToOpen;
-        SetActorTickEnabled(false);
+        FinishMovement();
     }
     else
     {
         SetActorLocation(Current + Dir * MoveStep);
     }
+}
+
+void ALiftDoorWing::FinishMovement()
+{
+	SetActorLocation(TargetLocation);
+	ShouldMove = false;
+	IsOpened = bMovingToOpen;
+	SetActorTickEnabled(false);
+	OnMovementFinished.Broadcast(IsOpened);
 }
 
 void ALiftDoorWing::OpenDoorWing()
@@ -113,5 +115,12 @@ void ALiftDoorWing::CloseDoorWing()
     UE_LOG(LogTemp, Log, TEXT("CloseDoorWing called. Start=(%.1f,%.1f,%.1f) Target=(%.1f,%.1f,%.1f)"),
         StartLocation.X, StartLocation.Y, StartLocation.Z,
         TargetLocation.X, TargetLocation.Y, TargetLocation.Z);
+}
+
+void ALiftDoorWing::ForceOpenState()
+{
+	TargetLocation = ClosedLocation + MovementDirection.GetSafeNormal() * TravelDistance;
+	bMovingToOpen = true;
+	FinishMovement();
 }
 

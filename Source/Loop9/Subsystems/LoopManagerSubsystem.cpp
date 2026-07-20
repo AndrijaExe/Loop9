@@ -34,12 +34,6 @@ namespace
 		return FMath::Clamp(FMath::RoundToInt(TargetCountFloat), 1, 4);
 	}
 
-	enum class ELoopAction : uint8
-	{
-		Advance,
-		Reset
-	};
-
 	ELoopAction ResolveLoopAction(bool bAnomaliesExist, EButtonType ButtonType)
 	{
 		if (bAnomaliesExist)
@@ -136,11 +130,52 @@ float ULoopManagerSubsystem::GetAIStability() const
 
 void ULoopManagerSubsystem::OnElevatorButtonPressed(EButtonType ButtonType)
 {
-	const bool bAnomaliesExist = HasActiveAnomalies();
-	const bool bWasCorrectDecision = (bAnomaliesExist && ButtonType == EButtonType::Reset)
-		|| (!bAnomaliesExist && ButtonType == EButtonType::Increment);
+	const FLoopElevatorDecision Decision = ResolveElevatorDecision(ButtonType);
+	if (Decision.IsValid())
+	{
+		CommitElevatorDecision(Decision);
+		FinishElevatorTransition(Decision.DecisionId);
+	}
+}
 
-	RegisterLoopDecision(bWasCorrectDecision, bAnomaliesExist, ButtonType);
+FLoopElevatorDecision ULoopManagerSubsystem::ResolveElevatorDecision(EButtonType ButtonType)
+{
+	FLoopElevatorDecision Decision;
+	if (bGameFinished || bElevatorTransitionActive)
+	{
+		return Decision;
+	}
+
+	bElevatorTransitionActive = true;
+	NextElevatorDecisionId = NextElevatorDecisionId >= MAX_int32 ? 1 : NextElevatorDecisionId + 1;
+	PendingElevatorDecisionId = NextElevatorDecisionId;
+	ActiveElevatorDecisionId = NextElevatorDecisionId;
+
+	Decision.DecisionId = PendingElevatorDecisionId;
+	Decision.ButtonType = ButtonType;
+	Decision.bAnomaliesExisted = HasActiveAnomalies();
+	Decision.bWasCorrect = (Decision.bAnomaliesExisted && ButtonType == EButtonType::Reset)
+		|| (!Decision.bAnomaliesExisted && ButtonType == EButtonType::Increment);
+	Decision.Action = ResolveLoopAction(Decision.bAnomaliesExisted, ButtonType);
+
+	return Decision;
+}
+
+bool ULoopManagerSubsystem::CommitElevatorDecision(
+	const FLoopElevatorDecision& Decision,
+	bool bTeleportPlayer,
+	bool bDeferEndingPresentation)
+{
+	if (!Decision.IsValid()
+		|| bGameFinished
+		|| !bElevatorTransitionActive
+		|| ActiveElevatorDecisionId != Decision.DecisionId
+		|| PendingElevatorDecisionId != Decision.DecisionId)
+	{
+		return false;
+	}
+
+	RegisterLoopDecision(Decision.bWasCorrect, Decision.bAnomaliesExisted, Decision.ButtonType);
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{
@@ -148,25 +183,71 @@ void ULoopManagerSubsystem::OnElevatorButtonPressed(EButtonType ButtonType)
 		bool bRepeatAnomaly = false;
 		if (UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance()))
 		{
-			// Anomalies are still active here (reset happens below), so the
-			// snapshot reflects what the player just judged.
+			// Capture the judged floor before the world-state commit resets it.
 			AnomalyManager->UpdateLoopAnomalyTracking(CurrentLoop);
 			AnomalyKey = AnomalyManager->GetCurrentLoopAnomalyKey();
 			bRepeatAnomaly = AnomalyManager->IsCurrentLoopAnomalyRepeat();
 		}
 
-		Achievements->NotifyLoopDecision(bWasCorrectDecision, bAnomaliesExist, AnomalyKey, bRepeatAnomaly);
+		Achievements->NotifyLoopDecision(
+			Decision.bWasCorrect,
+			Decision.bAnomaliesExisted,
+			AnomalyKey,
+			bRepeatAnomaly);
 	}
 
-	const ELoopAction Action = ResolveLoopAction(bAnomaliesExist, ButtonType);
-	if (Action == ELoopAction::Advance)
+	PendingElevatorDecisionId = 0;
+	if (Decision.Action == ELoopAction::Advance)
 	{
-		AdvanceLoop();
+		AdvanceLoopInternal(bTeleportPlayer, bDeferEndingPresentation);
 	}
 	else
 	{
-		ResetLoop();
+		ResetLoopInternal(bTeleportPlayer);
 	}
+
+	return true;
+}
+
+bool ULoopManagerSubsystem::FinishElevatorTransition(int32 DecisionId)
+{
+	if (!bElevatorTransitionActive || ActiveElevatorDecisionId != DecisionId)
+	{
+		return false;
+	}
+
+	PendingElevatorDecisionId = 0;
+	ActiveElevatorDecisionId = 0;
+	bElevatorTransitionActive = false;
+	return true;
+}
+
+bool ULoopManagerSubsystem::CancelElevatorDecision(int32 DecisionId)
+{
+	if (!bElevatorTransitionActive
+		|| ActiveElevatorDecisionId != DecisionId
+		|| PendingElevatorDecisionId != DecisionId)
+	{
+		return false;
+	}
+
+	return FinishElevatorTransition(DecisionId);
+}
+
+void ULoopManagerSubsystem::CancelDeferredEnding()
+{
+	bDeferredEndingPresentation = false;
+}
+
+void ULoopManagerSubsystem::CompleteDeferredEnding()
+{
+	if (!bDeferredEndingPresentation)
+	{
+		return;
+	}
+
+	bDeferredEndingPresentation = false;
+	TriggerEndingSequence();
 }
 
 bool ULoopManagerSubsystem::HasActiveAnomalies() const
@@ -181,6 +262,15 @@ void ULoopManagerSubsystem::SetAnomalyDetected(bool bDetected)
 }
 
 void ULoopManagerSubsystem::AdvanceLoop()
+{
+	if (bElevatorTransitionActive)
+	{
+		return;
+	}
+	AdvanceLoopInternal(true, false);
+}
+
+void ULoopManagerSubsystem::AdvanceLoopInternal(bool bTeleportPlayer, bool bDeferEndingPresentation)
 {
 	if (bGameFinished)
 	{
@@ -204,17 +294,36 @@ void ULoopManagerSubsystem::AdvanceLoop()
 
 	if (CurrentLoop >= 10)
 	{
-		TriggerEndingSequence();
+		if (bDeferEndingPresentation)
+		{
+			bDeferredEndingPresentation = true;
+		}
+		else
+		{
+			TriggerEndingSequence();
+		}
 		return;
 	}
 
-	TeleportPlayerToExit();
+	if (bTeleportPlayer)
+	{
+		TeleportPlayerToExit();
+	}
 	SetAnomalyDetected(false);
 	GenerateAnomalyForNextLoop();
 	ClearAllAIChats();
 }
 
 void ULoopManagerSubsystem::ResetLoop()
+{
+	if (bElevatorTransitionActive)
+	{
+		return;
+	}
+	ResetLoopInternal(true);
+}
+
+void ULoopManagerSubsystem::ResetLoopInternal(bool bTeleportPlayer)
 {
 	if (bGameFinished)
 	{
@@ -231,7 +340,10 @@ void ULoopManagerSubsystem::ResetLoop()
 
 	UE_LOG(LogTemp, Log, TEXT("Loop: %d"), CurrentLoop);
 
-	TeleportPlayerToExit();
+	if (bTeleportPlayer)
+	{
+		TeleportPlayerToExit();
+	}
 	SetAnomalyDetected(false);
 	GenerateAnomalyForNextLoop();
 	ClearAllAIChats();
@@ -272,6 +384,10 @@ void ULoopManagerSubsystem::ResetRunState()
 	NotifyAIFriendsLoopChanged();
 	bAnomalyDetected = false;
 	bGameFinished = false;
+	PendingElevatorDecisionId = 0;
+	ActiveElevatorDecisionId = 0;
+	bElevatorTransitionActive = false;
+	bDeferredEndingPresentation = false;
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{

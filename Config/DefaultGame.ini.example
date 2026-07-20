@@ -26,9 +26,7 @@ ProjectID=AB1C13684F34781DE0B48EA4C51030BC
 ;FillLightIntensityCandela=75.0
 
 [/Script/Loop9.AI_Friend]
-; Copy this file to Config/DefaultGame.ini and fill in your values.
+; Production uses Steam session authentication. Never package a game token.
 APIEndpoint=https://your-backend.example.com/api/chat
-PlayerId=player-001
-GameToken=your-game-token-here
 ; Optional: force AI reply language ("sr", "en"...). Leave out to follow the UI language from Settings.
 ;PreferredLanguage=sr

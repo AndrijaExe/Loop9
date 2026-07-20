@@ -1,145 +1,185 @@
-# Loop 9 — Steam Release Checklist
+# Loop 9 — authoritative release checklist
 
-Praktičan spisak svega što mora da se odradi pre objave na Steamu, redosledom kojim ima smisla.
-Povezani dokumenti: [STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md) (spisak i setup achievementa),
-[ARCHITECTURE.md backend repo-a](../../Backend/Loop9_backend/ARCHITECTURE.md) (infrastruktura).
+Poslednje ažuriranje: **20.07.2026.**
+Steam App ID: **4982260**
 
-Legenda: `[ ]` nije urađeno · `[x]` urađeno · `[~]` delimično / u toku
+Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
+[`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md), marketinški tekst u
+[`Marketing/Steam/STORE_PAGE.md`](Marketing/Steam/STORE_PAGE.md), a plan novih
+sekvenci u [`CINEMATIC_SEQUENCE_PLAN.md`](CINEMATIC_SEQUENCE_PLAN.md).
+
+Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
+`[x]` završeno i potvrđeno
 
 ---
 
-## 1. Kod — blokeri
+## 1. Content lock — završiti pre finalnog QA builda
 
-- [~] **E2E Steam auth test** — ticket → `/api/auth/steam` → session token → chat.
-  U toku na kućnoj mašini (debug logovi + `.ToString()` ispravka u
-  `Loop9AchievementsSubsystem.cpp` čekaju push). **Prvo pušovati kućne izmene,
-  pa ovde `git pull`.**
-- [x] **Kompajlirati igru** posle merge-a svih grana (lokalizacione izmene iz ove grane
-  + kućne achievement izmene). (15.07. — Loop9Editor Development OK nakon
-  `SettingsWidget` AddDynamic fix-a.)
-- [ ] **Pravi App ID** — zameniti `SteamDevAppId=480` (Spacewar) pravim App ID-jem u
-  `Config/DefaultEngine.ini` (lokalni fajl, nije u repou — vidi `DefaultEngine.ini.example`).
-- [ ] Ako achievementi ne rade sa pravim App ID-jem a radili su na 480: proveriti da li
-  `GetAuthTicketForWebApi` treba umesto `GetAuthSessionTicket` (napomena u STEAM_ACHIEVEMENTS.md).
+- [x] Implementiran C++ elevator transition coordinator:
+  decision deduplication, vrata, input/pause lock, blackout teleport, osvetljeni
+  arrival lift, watchdog fallback i optional Sequencer playback.
+- [ ] Unreal MCP/editor setup iz
+  [`UNREAL_MCP_SEQUENCE_HANDOFF.md`](UNREAL_MCP_SEQUENCE_HANDOFF.md):
+  povezati director, oba dugmeta, door wing reference i lit arrival marker;
+  napraviti dve elevator sekvence.
+- [x] Implementiran C++ ending Sequence player sa šest soft-reference slotova,
+  watchdogom i postojećim fade/widget fallbackom.
+- [ ] Napraviti, povezati i vizuelno dotegnuti šest kratkih 3–8 s ending
+  Level Sequence asseta.
+- [ ] Rebuildovati `Loop9Editor` posle trenutnih C++ anomaly/debug popravki.
+- [ ] U lokalnom `Config/DefaultEngine.ini` postaviti:
+  - `SteamDevAppId=4982260`
+  - `r.VirtualTextures=True`
+- [ ] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle
+  poslednjih commitovanih `.locres` fajlova; zatim smoke-testirati svih pet jezika.
+- [ ] Item inspection smoke:
+  otvaranje/zatvaranje, rotacija 15 s, bez ljubičastih artefakata, povratak inputa
+  i pause menija.
+- [ ] MaterialSwap smoke za Magazine, I01, F01 i D01; potvrditi vraćanje originalnog
+  materijala na sledećem loopu.
 
-## 2. Lokalizacija
+## 2. Steamworks — Store Presence
 
-Sav user-facing tekst u C++ je u `NSLOCTEXT`/`LOCTEXT`. Namespace-ovi:
-`Loop9Endings`, `Loop9Terminal`, `Loop9Loading`, `Loop9Interaction`,
-`Loop9Chat`, `Loop9Settings`, `Loop9Menu`. Nativni jezik: **engleski**.
+- [x] App kreiran; App ID je `4982260`.
+- [x] Basic Info, platforma, jezici, žanrovi, features i launch option
+  (`Loop9.exe`) popunjeni.
+- [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
+- [x] EN/SR store opis pripremljen.
+- [~] DE/FR/RU lokalizovani opisi su sačuvani u
+  `Marketing/Steam/STORE_PAGE.md`; proveriti da li su svi uneti i sačuvani u
+  Steamworksu.
+- [x] Cena `$4.99` i Valve regional pricing poslati.
+- [ ] Sačekati potvrdu pricing promena.
+- [x] Steam Cloud Auto-Cloud podešen za
+  `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
+- [ ] Dodati `GameUserSettings.ini` samo ako želiš sync grafike i jezika između
+  računara; nije release bloker.
+- [x] Javni privacy policy postoji na backendu.
+- [ ] Otvoriti
+  `https://loop9-backend.onrender.com/privacy` i proveriti HTTP 200 pre Store
+  review-a.
+- [~] Content Survey i Steamworks promene proveriti u **Publish** tabu; sve izmene
+  moraju biti publish-ovane, ne samo sačuvane.
 
-Kulture u buildu: **en, sr, de, fr, ru** (`CulturesToStage` + `.locres`).
-PO fajlovi: `Content/Localization/Game/<culture>/Game.po`.
-Gather pipeline: `Config/Localization/Game.ini` (komanda u `EDITOR_TODO.md` §3).
+### Store grafika
 
-In-game jezik: `SettingsWidget` — `ComboBoxString_Language` (C++ puni opcije),
-`SetLanguage` / `GetCurrentCulture` (persist u `GameUserSettings.ini`).
-Labeli settings/menija se grade iz C++ NSLOCTEXT (ne zavise od BP FText).
+- [ ] Finalizovati 4 obavezne Store kapsule:
+  `920×430`, `462×174`, `1232×706`, `748×896`.
+- [ ] Uploadovati minimum 5 stvarnih 16:9 gameplay screenshotova
+  (`1920×1080` ili više); preporuka je 8 kadrova.
+- [ ] Finalizovati 4 Library asseta:
+  `600×900`, `920×430`, `3840×1240` hero bez teksta i transparentni logo.
+- [x] Shortcut ICO i App Icon JPG imaju spremne minimalističke v2 varijante.
+- [ ] Dodati opcioni Page Background `1438×810`.
+- [ ] Snimiti i montirati gameplay trailer. Trailer je veoma preporučen pre
+  Store review-a, iako nije tehnički potreban za prvi build upload.
+- [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
-- [x] `AI_Friend` chat / ring / Answer / low-signal — lokalizovano
-- [x] AI jezik prati UI kulturu (`PreferredLanguage` opcioni override)
-- [x] Settings + main/pause dugmad lokalizovani iz C++ (`Loop9Settings` / `Loop9Menu`)
-- [x] GatherText + `.locres` za en/sr/de/fr/ru
-- [x] Smoke: promena jezika odmah + posle restarta (settings, chat, endingi, loading)
-- [ ] Opciono: dopuniti prazne asset `msgstr` u PO (ako neki BP tekst još curi)
-- [ ] `LoopNumberSign` ("LOOP 9") — namerno diegetski engleski
+## 3. Steam achievements
 
-## 3. Steamworks backend (partner.steamgames.com)
+- [ ] Definisati svih **27** API imena tačno po
+  [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
+- [ ] Uploadovati 27 achieved + 27 locked ikonica.
+- [ ] Postaviti hidden flag za 6 endinga, `ACH_DEJA_VU` i
+  `ACH_SPOT_PHANTOM`.
+- [ ] Publishovati Stats & Achievements promene.
+- [ ] Testirati najmanje po jedan achievement iz svake grupe, zatim svih šest
+  endinga i `ACH_SPOT_ALL` sa 9 anomaly tipova.
 
+## 4. Backend / production
 
-- [~] **Steam Direct fee plaćen 15.07.2026.** Banka (NLB Komercijalna) i W-8BEN
-  uneti; **identity verification u toku (2–7 radnih dana)**. Tek posle toga
-  stiže App ID i pristup store page alatima.
-  - 30-dnevni tajmer teče od 15.07. → najraniji mogući release **~14.08.2026.**
-  - Coming Soon stranica mora biti javna **min. 2 nedelje** pre release-a.
-- [ ] Kad stigne App ID: upisati ga u lokalni `Config/DefaultEngine.ini`
-  (umesto 480) i uzeti **Web API Key** → Render env (`STEAM_APP_ID`,
-  `STEAM_WEB_API_KEY`).
-- [ ] **Achievements**: definisati svih **27** po tabeli iz STEAM_ACHIEVEMENTS.md
-  (API imena moraju biti identična), upload ikonica (27 × otključana + zaključana).
-  Nova 2 (15.07.): `ACH_SPOT_SCALE`, `ACH_SPOT_PHANTOM` (hidden);
-  `ACH_SPOT_ALL` sada traži 9 tipova anomalija.
-- [ ] **Store page**: opis (EN + SR), screenshotovi, trailer, capsule slike, tagovi
-  (Horror, Psychological, Time Loop, AI), obavezno **AI disclosure** polje — igra koristi
-  generativni AI u gameplay-u (Valve to zahteva od 2024).
-- [ ] **Depots & Builds**: napraviti depot za Windows build, upload preko `steamcmd`
-  (`app_build` skripta) ili SteamPipe GUI; postaviti default branch.
-- [ ] **Launch options**: putanja do exe-a.
-- [ ] Iz shipping builda **ne pakovati** `steam_appid.txt` (samo za lokalni development).
-- [ ] **Steam Cloud (Auto-Cloud)** — čuvanje progresa bez koda:
-  - Root: `WinAppDataLocal`, putanja: `Loop9/Saved/Config/Windows/`,
-    pattern: `Game.ini` (viđeni endinzi, spotted anomalije, player GUID)
-    i po želji `GameUserSettings.ini` (grafika/jezik).
-  - Testirati: odigraj → izađi → obriši lokalni fajl → pokreni → progres se vratio.
-- [ ] **Cena** — po analizi iz pricing canvas-a; postaviti regionalne cene (Valve matrix).
+- [x] Production je Steam-only; legacy game token je onemogućen u `prod`.
+- [x] `/readyz`, Redis limiter storage, request bounds, AI deadline, moderation,
+  response-size limit i correlation/timing logovi su implementirani.
+- [x] Privacy policy endpoint je implementiran i pushovan.
+- [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
+  `STEAM_WEB_API_KEY` pravim auth zahtevom.
+- [ ] Render Health Check Path postaviti/potvrditi kao `/readyz`.
+- [ ] Pre javnog release-a ukloniti cold start: Render Starter ili ekvivalentan
+  always-on plan. Spoljni keep-alive free servisa nije pouzdan production plan.
+- [ ] Podesiti quota/cost alarm za dnevni globalni AI limit.
+- [ ] Napraviti pregled logova/alerta za:
+  auth failure rate, AI timeout/fallback rate, moderation unavailable,
+  Redis failure, HTTP 5xx i p95 total latency.
 
-## 4. Backend / Render (potvrđeno 15.07.)
+## 5. Build i SteamPipe
 
-- [x] `/healthz` 200, auth odbija loše tokene, Redis radi, Steam kredencijali podešeni.
-- [x] **`/readyz`** — dependency-aware readiness (config + Redis rate-limiter storage);
-  `/healthz` ostaje lagani liveness probe.
-- [ ] Render **Health Check Path** potvrditi kao `/readyz` (ne `/healthz`) pre deploy-a.
-- [x] Production fail-closed defaults: Steam-only (`AUTH_ALLOW_GAME_TOKEN=false`),
-  body cap 64 KiB, AI total deadline 45s, redacted provider logs, PHPUnit pre Render deploy.
-- [ ] **Free tier cold start (~15s)**: pre release-a preći na plaćeni Render plan
-  (Starter) ili dodati keep-alive ping — prvi API poziv novog igrača ne sme da visi 15s.
-- [ ] Podesiti alarm/notifikaciju za `GAME_GLOBAL_DAILY_QUOTA` (kill-switch na 5000 msg/dan).
-- [x] `AUTH_ALLOW_GAME_TOKEN` isključen u prod defaults (legacy token samo preko
-  eksplicitnog non-prod config-a / `.env.test`).
+- [ ] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
+- [ ] Proveriti da build ne sadrži:
+  `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
+- [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
+  provere.
+- [ ] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
+- [ ] Postaviti build prvo na privatni `internal` ili `playtest` branch.
+- [ ] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
+  folder.
+- [ ] Posle QA postaviti odobreni build na default branch.
 
-## 5. QA pre uploada builda
+## 6. Release-candidate QA
 
-- [ ] Shipping / packaged **Steam** build na **čistoj mašini** (bez UE, bez dev fajlova).
-- [ ] **Cold launch → first message auth**: Standalone (ne PIE) sa Steam klijentom —
-  prva poruka čeka session (authorize-then-dispatch), ne šalje unauthenticated request;
-  auth failure / offline refunduje pokušaj + in-fiction poruka.
-- [ ] Steam auth E2E na pravom App ID-ju (novi Steam nalog koji poseduje igru).
-- [ ] **Loop 9 boundary**: context `loop_index` clamp 1–9 na clientu i backendu.
-- [ ] **Telemetry / relationship counts**: `RegisterPlayerMessage` na submit;
-  `RegisterAIInteraction` / achievement / `ai_messages` telemetrija samo posle
-  uspešnog validiranog AI odgovora (ne na failed/timeout).
-- [ ] Svih 6 endinga dostižno; achievementi se otključavaju (proveriti u Steam profilu).
-- [ ] **Offline test**: pokreni igru bez interneta — igra ne sme da pukne; chat prikazuje
-  in-fiction poruku ("...the line crackles and goes dead...") i vraća potrošeni pokušaj
-  za taj loop, pa igrač može odmah da proba ponovo.
-- [ ] **Cold start / timeout test**: client chat timeout **65s** (backend AI deadline 45s
-  + cold-start headroom); poruka mora stići ili failati sa lokalizovanom greškom, ne tišina.
-- [ ] **Perf smoke (home machine)**: 10-min Unreal Insights capture + `stat unit` /
-  `stat game` / `stat gpu` na desktopu i Steam Deck targetu. Renderer (Lumen/RT/VSM)
-  ne dirati dok Insights ne dokaže bottleneck.
-- [ ] Alt-Tab / Steam Overlay (Shift+Tab) ne ruši igru.
-- [x] Promena jezika u settings-u menja UI odmah i posle restarta;
-  Back/Resume ne ostavljaju settings overlay u pozadini.
-- [x] Audio/gamma/sensitivity podešavanja rade i pamte se
-  (`Loop9GameSettingsSubsystem`: Master + Ambient preko sound-mix override, bez
-  direktne mutacije `USoundClass` asseta).
-- [x] Telemetrija: run ping stiže (`Telemetry POST` + HTTP 204 u client logu).
-- [ ] Verifikovati da build ne sadrži `DefaultGame.ini` sa pravim tokenima u repou
-  (gitignore već pokriva, ali proveriti pakovani build).
-- [x] **Scale + Phantom** u nivou (smoke OK); Clock uklonjen iz scope-a.
+### Kritični gameplay
 
-## 6. Steam Deck
+- [ ] Svih 9 loopova: advance/reset pravila, anomaly generation i tačan završetak.
+- [ ] Nova elevator sekvenca ne prihvata dupli input, ne ostavlja igrača zaključanog
+  i teleportuje samo dok su vrata zatvorena/ekran skriven.
+- [ ] Svih 6 endinga i njihove mini-sekvence su dostižni; widget/terminal se
+  pojavljuje posle sekvence i Continue vraća u Main Menu.
+- [ ] Item inspection, pursuer, Scale, Phantom i MaterialSwap anomaly smoke.
+- [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
 
-- [x] **On-screen tastatura**: kad chat input dobije fokus na Deck-u, igra poziva
-  `ShowFloatingGamepadTextInput` preko `FLoop9SteamUtils` (no-op van Steama).
-  Modul sada linkuje Steamworks SDK direktno (`Loop9.Build.cs`, `LOOP9_WITH_STEAM`).
-- [x] **Gamepad bindinzi**: `IMC_Default` iz šablona već pokriva move/look/jump
-  (Gamepad_Left2D / Right2D / FaceButton_Bottom). Za keyboard-only akcije igra u
-  runtime-u dodaje `IMC_GamepadFallback` kontekst: Interact → **X/Square**,
-  Pause → **Start/Menu**, Sprint → **klik levog stika**. Bez izmena asseta.
-- [ ] QA na pravom Deck-u (ili preko Steam Input simulacije): kretanje, interakcija,
-  pauza, kucanje u chatu preko floating tastature; `stat unit` / `stat gpu`.
-- [ ] Ako želiš drugačiji raspored dugmadi, izmene su u
-  `Loop9Character::AddGamepadFallbackMappings` / `HorrorCharacter` override-u.
+### Steam i online
 
-## 7. Poznate rupe posle launcha (backlog)
+- [ ] Steam ticket → backend session → prvi chat zahtev radi na App ID `4982260`.
+- [ ] Ako Steam vraća `STEAM_TICKET_INVALID`, pre release-a zameniti trenutni
+  `IOnlineIdentity::GetAuthToken` odgovarajućim `GetAuthTicketForWebApi` tokom.
+- [ ] Steam Overlay i achievement toast rade.
+- [ ] Offline start i gubitak mreže tokom chata ne ruše igru i refundiraju pokušaj.
+- [ ] AI input/output moderation: bezbedan tekst prolazi; blokiran i unavailable
+  slučaj daju in-fiction fallback.
+- [ ] Cold-start/timeout: `Thinking…` i `Still thinking…` rade; zahtev završi odgovorom
+  ili lokalizovanom greškom pre client timeouta od 65 s.
+- [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
+- [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save → progres se vrati.
 
-- [x] Offline/error UX za chat — na grešku se prikazuje in-fiction poruka (offline /
-  zauzeto / greška servera), potrošeni pokušaj se refundira, HTTP timeout 65s;
-  Steam session gate pre chat dispatch.
-- [x] Achievement progres — Steam "x/y" progress toast preko
-  `IndicateAchievementProgress` za ACH_STREAK_7, ACH_GROUNDHOG, ACH_HOTLINE,
-  ACH_ALL_ENDINGS i ACH_SPOT_ALL. Čisto vizuelno; izvor istine ostaje `Game.ini`.
-  (Puni Steam stats sa server-side čuvanjem i dalje backlog — zahteva definisanje
-  statova u Steamworksu i migraciju.)
-- [x] Lokalizacija — C++ + settings/meni + smoke OK; opciono asset PO stringovi.
+### Platforma, UI i performanse
+
+- [ ] EN/SR/DE/FR/RU: meni, settings, chat, promptovi, ending i terminal.
+- [ ] Tastatura/miš i gamepad kompletan prolaz; floating keyboard na Deck-u ili
+  Steam Input testu.
+- [ ] Alt-Tab, promena rezolucije/fullscreena, pause/resume i Steam Overlay.
+- [ ] 30 min soak bez memory growtha, stale timera/delegata ili duplih widgeta.
+- [ ] Unreal Insights + `stat unit`, `stat game`, `stat gpu` na minimalnoj i
+  preporučenoj konfiguraciji.
+- [ ] Proveriti nove VT anomaly teksture u cooked buildu i peak VRAM; izvorni novi
+  `.uasset` fajlovi trenutno zauzimaju oko 158 MB u repou.
+- [ ] Test na čistoj mašini bez Unreal Engine-a i lokalnih config fajlova.
+
+## 7. Valve review i Coming Soon
+
+- [ ] Publishovati sve Store Presence promene.
+- [ ] Poslati Store Page na Valve review.
+- [ ] Poslati release-candidate build na Valve review.
+- [ ] Ispraviti eventualne review primedbe i ponovo poslati.
+- [ ] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
+- [ ] Steam Direct fee je plaćen 15.07.2026; najraniji teorijski release je oko
+  **14.08.2026**, ali samo ako su review, Coming Soon period i QA završeni.
+
+## 8. Release day
+
+- [ ] Zamrznuti kod i sačuvati tačan commit/build ID koji ide live.
+- [ ] Potvrditi `/readyz`, Redis, AI provajdere, quota alarm i Render kapacitet.
+- [ ] Završiti Steam release proces i postaviti odobreni build live.
+- [ ] Instalirati javni build sa drugog Steam naloga i uraditi 15-min smoke.
+- [ ] Pratiti auth, chat, moderation, latency i 5xx logove tokom prvih sati.
+- [ ] Imati prethodni stabilni depot/build spreman za rollback.
+
+---
+
+## Trenutni kritični put
+
+1. Elevator + ending sekvence i preostali editor smoke.
+2. GatherText i finalni sadržaj.
+3. Store grafika, screenshotovi, trailer i achievementi.
+4. Shipping build → Steam internal branch.
+5. E2E Steam/AI/Cloud/achievement/performance QA.
+6. Valve review → Coming Soon 14 dana → release.

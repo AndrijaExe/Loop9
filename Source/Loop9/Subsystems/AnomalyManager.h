@@ -26,16 +26,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	bool ForceActivateAnyAnomaly();
 
-	/** Force-activate a random inactive anomaly of the given type (ignores probability). */
-	UFUNCTION(BlueprintCallable, Category = "Anomaly|Debug")
-	bool ForceActivateByType(ELoopAnomalyType Type);
-
 	/**
-	 * Force-activate by filter string. Matches (case-insensitive) against:
-	 * anomaly type label (Text, Move, ...), component class name (MaterialSwap, ...),
-	 * or owning actor name/label. Optional MaterialIndex forces MaterialSwap variant.
+	 * Force-activate by filter string. Type labels use an exact case-insensitive
+	 * match; class and actor names allow partial matches of at least 3 characters.
+	 * Optional MaterialIndex forces a MaterialSwap variant.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Anomaly|Debug")
 	bool ForceActivateByFilter(const FString& Filter, int32 MaterialIndex = -1);
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
@@ -70,5 +65,5 @@ private:
 	void CleanupInvalidComponents();
 
 	static bool DoesComponentMatchFilter(const UAnomalyComponentBase* Component, const FString& Filter);
-	static void ForceActivateComponent(UAnomalyComponentBase* Component, int32 MaterialIndex);
+	static bool ForceActivateComponent(UAnomalyComponentBase* Component, int32 MaterialIndex);
 };

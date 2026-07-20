@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Loop9.h"
@@ -16,6 +17,7 @@
 #include "Interaction/InspectableComponent.h"
 #include "Interaction/InspectionStageActor.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"
@@ -56,6 +58,16 @@ ALoop9Character::ALoop9Character()
 	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
+}
+
+bool ALoop9Character::IsGameplayPresentationLocked() const
+{
+	UWorld* World = GetWorld();
+	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
+	ULoopManagerSubsystem* LoopManager =
+		GameInstance ? GameInstance->GetSubsystem<ULoopManagerSubsystem>() : nullptr;
+	return LoopManager
+		&& (LoopManager->IsElevatorTransitionPending() || LoopManager->bGameFinished);
 }
 
 void ALoop9Character::BeginPlay()
@@ -253,6 +265,11 @@ void ALoop9Character::LookInput(const FInputActionValue& Value)
 
 void ALoop9Character::DoAim(float Yaw, float Pitch)
 {
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
 	if (GetController())
 	{
 		// pass the rotation inputs
@@ -263,6 +280,11 @@ void ALoop9Character::DoAim(float Yaw, float Pitch)
 
 void ALoop9Character::DoMove(float Right, float Forward)
 {
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
 	if (GetController())
 	{
 		// pass the move inputs
@@ -273,6 +295,11 @@ void ALoop9Character::DoMove(float Right, float Forward)
 
 void ALoop9Character::DoJumpStart()
 {
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
 	// pass Jump to the character
 	Jump();
 }
@@ -296,6 +323,11 @@ void ALoop9Character::OnInteract()
 void ALoop9Character::OnPause()
 {
 	UE_LOG(LogLoop9, Log, TEXT("Pause key pressed"));
+
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
 
 	// Esc during item inspection closes the inspect view instead of opening pause.
 	if (AInspectionStageActor::TryEndActiveInspection())
@@ -341,6 +373,11 @@ void ALoop9Character::OnPause()
 
 void ALoop9Character::PerformInteractTrace()
 {
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
 	if (!FirstPersonCameraComponent)
 	{
 		UE_LOG(LogLoop9, Warning, TEXT("FirstPersonCameraComponent is null!"));

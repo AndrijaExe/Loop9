@@ -7,8 +7,10 @@
 #include "Interaction/Loop9Interactable.h"
 #include "Interaction/InspectableComponent.h"
 #include "Interaction/InteractionPromptProvider.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
@@ -33,6 +35,18 @@ void ALoop9BasePlayerController::Tick(float DeltaSeconds)
 	if (!IsLocalPlayerController())
 	{
 		return;
+	}
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (ULoopManagerSubsystem* LoopManager = GameInstance->GetSubsystem<ULoopManagerSubsystem>();
+			LoopManager
+			&& (LoopManager->IsElevatorTransitionPending() || LoopManager->bGameFinished))
+		{
+			InteractionPromptTraceAccumulator = 0.0f;
+			PushPromptToUI(FText::GetEmpty(), false);
+			return;
+		}
 	}
 
 	// Always clear immediately while paused; throttle expensive complex traces otherwise.

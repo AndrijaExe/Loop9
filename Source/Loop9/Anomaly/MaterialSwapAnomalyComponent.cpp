@@ -1,5 +1,6 @@
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
 
+#include "Loop9.h"
 #include "Components/MeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInterface.h"
@@ -37,7 +38,7 @@ UMeshComponent* UMaterialSwapAnomalyComponent::ResolveTargetMesh() const
 void UMaterialSwapAnomalyComponent::BeginPlay()
 {
 	TargetMesh = ResolveTargetMesh();
-	if (TargetMesh && TargetMesh->GetNumMaterials() > MaterialSlot)
+	if (TargetMesh && MaterialSlot >= 0 && TargetMesh->GetNumMaterials() > MaterialSlot)
 	{
 		NormalMaterial = TargetMesh->GetMaterial(MaterialSlot);
 		bNormalMaterialCaptured = true;
@@ -46,43 +47,111 @@ void UMaterialSwapAnomalyComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+bool UMaterialSwapAnomalyComponent::ForceMaterialVariant(int32 Index)
+{
+	if (!AnomalyMaterials.IsValidIndex(Index) || !IsValid(AnomalyMaterials[Index]))
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': material index %d is invalid (variants=%d)"),
+			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+			Index,
+			AnomalyMaterials.Num());
+		return false;
+	}
+
+	ForcedMaterialIndex = Index;
+	if (bIsAnomalyActive)
+	{
+		const bool bApplied = ApplyAnomalyState();
+		ForcedMaterialIndex = INDEX_NONE;
+		return bApplied;
+	}
+
+	ActivateAnomaly();
+	ForcedMaterialIndex = INDEX_NONE;
+	return bIsAnomalyActive;
+}
+
 bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 {
-	TargetMesh = ResolveTargetMesh();
-	if (!TargetMesh || AnomalyMaterials.Num() == 0)
+	UMeshComponent* ResolvedMesh = ResolveTargetMesh();
+	if (TargetMesh != ResolvedMesh)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MaterialSwapAnomaly on '%s': Apply failed (mesh=%s, mats=%d)"),
+		TargetMesh = ResolvedMesh;
+		NormalMaterial = nullptr;
+		bNormalMaterialCaptured = false;
+	}
+
+	if (!TargetMesh || AnomalyMaterials.IsEmpty())
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': Apply failed (mesh=%s, mats=%d)"),
 			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
 			TargetMesh ? TEXT("ok") : TEXT("null"),
 			AnomalyMaterials.Num());
 		return false;
 	}
 
+	if (MaterialSlot < 0 || MaterialSlot >= TargetMesh->GetNumMaterials())
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': invalid material slot %d (slots=%d)"),
+			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+			MaterialSlot,
+			TargetMesh->GetNumMaterials());
+		ForcedMaterialIndex = INDEX_NONE;
+		return false;
+	}
+
 	// Remember the normal material lazily too, in case the slot changed
 	// after BeginPlay (e.g. some other system set a material).
-	if (!bNormalMaterialCaptured && TargetMesh->GetNumMaterials() > MaterialSlot)
+	if (!bNormalMaterialCaptured)
 	{
 		NormalMaterial = TargetMesh->GetMaterial(MaterialSlot);
 		bNormalMaterialCaptured = true;
 	}
 
-	int32 ChosenIndex = FMath::RandRange(0, AnomalyMaterials.Num() - 1);
+	int32 ChosenIndex = INDEX_NONE;
 	if (ForcedMaterialIndex != INDEX_NONE)
 	{
-		ChosenIndex = FMath::Clamp(ForcedMaterialIndex, 0, AnomalyMaterials.Num() - 1);
+		if (!AnomalyMaterials.IsValidIndex(ForcedMaterialIndex)
+			|| !IsValid(AnomalyMaterials[ForcedMaterialIndex]))
+		{
+			UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': material index %d is invalid (variants=%d)"),
+				GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+				ForcedMaterialIndex,
+				AnomalyMaterials.Num());
+			ForcedMaterialIndex = INDEX_NONE;
+			return false;
+		}
+
+		ChosenIndex = ForcedMaterialIndex;
 		ForcedMaterialIndex = INDEX_NONE;
 	}
-
-	UMaterialInterface* Chosen = AnomalyMaterials[ChosenIndex];
-	if (!Chosen)
+	else
 	{
+		int32 ValidMaterialCount = 0;
+		for (int32 Index = 0; Index < AnomalyMaterials.Num(); ++Index)
+		{
+			if (IsValid(AnomalyMaterials[Index]))
+			{
+				++ValidMaterialCount;
+				if (FMath::RandRange(1, ValidMaterialCount) == 1)
+				{
+					ChosenIndex = Index;
+				}
+			}
+		}
+	}
+
+	if (ChosenIndex == INDEX_NONE)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': no valid anomaly materials"),
+			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"));
 		return false;
 	}
 
+	UMaterialInterface* Chosen = AnomalyMaterials[ChosenIndex];
 	TargetMesh->SetMaterial(MaterialSlot, Chosen);
-	TargetMesh->MarkRenderStateDirty();
 
-	UE_LOG(LogTemp, Log, TEXT("MaterialSwapAnomaly on '%s': slot %d -> %s (idx %d)"),
+	UE_LOG(LogLoop9, Verbose, TEXT("MaterialSwapAnomaly on '%s': slot %d -> %s (idx %d)"),
 		GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
 		MaterialSlot,
 		*Chosen->GetName(),
@@ -93,7 +162,7 @@ bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 
 void UMaterialSwapAnomalyComponent::RestoreNormalState()
 {
-	if (TargetMesh && bNormalMaterialCaptured)
+	if (IsValid(TargetMesh) && bNormalMaterialCaptured)
 	{
 		TargetMesh->SetMaterial(MaterialSlot, NormalMaterial);
 	}

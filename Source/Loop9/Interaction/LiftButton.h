@@ -7,6 +7,9 @@
 
 class UPointLightComponent;
 class UTextRenderComponent;
+class ALiftDoorWing;
+class ALoopElevatorTransitionDirector;
+class ULevelSequence;
 
 UENUM(BlueprintType)
 enum class ELiftButtonType : uint8
@@ -72,6 +75,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Interaction", meta = (DisplayName = "Custom Interaction Prompt"))
 	FText InteractionPromptText;
 
+	/** Optional cinematic director. When unset, the legacy instant transition remains available. */
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button|Transition")
+	TObjectPtr<ALoopElevatorTransitionDirector> TransitionDirector;
+
+	/** Door wings belonging to the elevator selected by this button. */
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button|Transition")
+	TArray<TObjectPtr<ALiftDoorWing>> TransitionDoorWings;
+
+	/** Optional source-elevator camera/audio sequence; overrides the director default. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Button|Transition")
+	TObjectPtr<ULevelSequence> TransitionSequenceOverride;
+
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void Interact();
 
@@ -85,5 +100,6 @@ public:
 	virtual FText GetInteractionPromptText_Implementation() const override;
 
 private:
+	bool HandleInteraction(APlayerController* InteractingController);
 	void UpdateMeshEmissive(float Strength, const FLinearColor& Tint) const;
 };

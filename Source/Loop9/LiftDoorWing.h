@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "LiftDoorWing.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLiftDoorWingMovementFinished, bool, bIsOpen);
+
 UCLASS()
 class LOOP9_API ALiftDoorWing : public AActor
 {
@@ -43,6 +45,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
     FVector MovementDirection;
 
+	UPROPERTY(BlueprintAssignable, Category = "Door")
+	FOnLiftDoorWingMovementFinished OnMovementFinished;
+
     // Opens the door wing (starts movement towards open position)
     UFUNCTION(BlueprintCallable, Category = "Door")
     void OpenDoorWing();
@@ -51,7 +56,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Door")
     void CloseDoorWing();
 
+	/** Watchdog fallback that guarantees the doorway is physically open. */
+	void ForceOpenState();
+
 private:
+	void FinishMovement();
+
     // Starting location for the current movement
     FVector StartLocation;
 

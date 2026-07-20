@@ -116,6 +116,7 @@ UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 	return GameplayUI;
 }
 
+#if !UE_BUILD_SHIPPING
 namespace
 {
 	UAnomalyManager* GetAnomalyManager(const UObject* WorldContext)
@@ -134,9 +135,11 @@ namespace
 		return nullptr;
 	}
 }
+#endif
 
 void ALoop9PlayerController::AnomalyList()
 {
+#if !UE_BUILD_SHIPPING
 	if (UAnomalyManager* Manager = GetAnomalyManager(this))
 	{
 		Manager->PrintAnomalyStats();
@@ -145,28 +148,36 @@ void ALoop9PlayerController::AnomalyList()
 	{
 		UE_LOG(LogLoop9, Warning, TEXT("AnomalyList: AnomalyManager not available"));
 	}
+#endif
 }
 
 void ALoop9PlayerController::AnomalyReset()
 {
+#if !UE_BUILD_SHIPPING
 	if (UAnomalyManager* Manager = GetAnomalyManager(this))
 	{
 		Manager->ResetAllAnomalies();
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyReset: all anomalies cleared"));
 	}
+#endif
 }
 
 void ALoop9PlayerController::AnomalyForceAny()
 {
+#if !UE_BUILD_SHIPPING
 	if (UAnomalyManager* Manager = GetAnomalyManager(this))
 	{
 		const bool bOk = Manager->ForceActivateAnyAnomaly();
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyForceAny: %s"), bOk ? TEXT("ok") : TEXT("failed"));
 	}
+#endif
 }
 
 void ALoop9PlayerController::AnomalyForce(const FString& Args)
 {
+#if UE_BUILD_SHIPPING
+	(void)Args;
+#else
 	UAnomalyManager* Manager = GetAnomalyManager(this);
 	if (!Manager)
 	{
@@ -192,17 +203,21 @@ void ALoop9PlayerController::AnomalyForce(const FString& Args)
 	const bool bOk = Manager->ForceActivateByFilter(Filter, MaterialIndex);
 	UE_LOG(LogLoop9, Log, TEXT("AnomalyForce '%s' mat=%d -> %s"),
 		*Filter, MaterialIndex, bOk ? TEXT("ok") : TEXT("failed"));
+#endif
 }
 
 void ALoop9PlayerController::AnomalyHelp()
 {
+#if !UE_BUILD_SHIPPING
 	UE_LOG(LogLoop9, Log, TEXT(
 		"Anomaly debug commands:\n"
 		"  AnomalyList                         - list all registered anomalies\n"
 		"  AnomalyReset                        - clear all active anomalies\n"
 		"  AnomalyForceAny                     - force one random inactive anomaly\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
+		"    type is exact; class/actor partial filters require at least 3 characters\n"
 		"    filter examples: MaterialSwap, Text, Move, OldMagazine, I01, F01, D01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyHelp                         - this message"));
+#endif
 }

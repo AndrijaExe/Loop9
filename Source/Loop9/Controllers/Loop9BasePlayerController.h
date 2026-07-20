@@ -16,6 +16,7 @@ public:
 	/** Exposes the protected PlayerController flag for systems that must keep the camera updating while paused (e.g. item inspection). */
 	bool GetShouldPerformFullTickWhenPaused() const { return bShouldPerformFullTickWhenPaused; }
 	void SetShouldPerformFullTickWhenPaused(bool bEnable) { bShouldPerformFullTickWhenPaused = bEnable; }
+	void ClearInteractionPrompt();
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Input Mappings")
@@ -42,7 +43,6 @@ protected:
 	virtual void SetupInputComponent() override;
 
 	virtual class UUserWidget* GetInteractionPromptWidget() const PURE_VIRTUAL(ALoop9BasePlayerController::GetInteractionPromptWidget, return nullptr;);
-	void ClearInteractionPrompt();
 
 private:
 	void UpdateInteractionPrompt();

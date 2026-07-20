@@ -9,6 +9,8 @@
 #include "UI/ReplacementTerminalWidget.h"
 #include "Loop9GameMode.generated.h"
 
+class ULevelSequence;
+
 UCLASS(abstract)
 class LOOP9_API ALoop9GameMode : public AGameModeBase
 {
@@ -22,6 +24,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TMap<ELoopEndingType, TSubclassOf<UEndingWidget>> EndingWidgetClasses;
+
+	/** Optional pre-widget cinematics. Missing entries use the existing fade fallback. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinematics")
+	TMap<ELoopEndingType, TSoftObjectPtr<ULevelSequence>> EndingSequences;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UReplacementTerminalWidget> ReplacementTerminalWidgetClass;

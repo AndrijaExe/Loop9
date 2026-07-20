@@ -1,5 +1,6 @@
 #include "Interaction/LiftButton.h"
 
+#include "Interaction/LoopElevatorTransitionDirector.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
@@ -94,16 +95,35 @@ void ALiftButton::UpdateMeshEmissive(float Strength, const FLinearColor& Tint) c
 
 void ALiftButton::Interact()
 {
+	HandleInteraction(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+}
+
+bool ALiftButton::HandleInteraction(APlayerController* InteractingController)
+{
+	if (IsValid(TransitionDirector))
+	{
+		if (TransitionDirector->IsTransitionInProgress())
+		{
+			return true;
+		}
+
+		if (TransitionDirector->BeginTransition(this, InteractingController))
+		{
+			OnInteracted();
+			return true;
+		}
+	}
+
 	UGameInstance* GameInstance = GetWorld() ? GetWorld()->GetGameInstance() : nullptr;
 	if (!GameInstance)
 	{
-		return;
+		return false;
 	}
 
 	ULoopManagerSubsystem* LoopManager = GameInstance->GetSubsystem<ULoopManagerSubsystem>();
 	if (!LoopManager)
 	{
-		return;
+		return false;
 	}
 
 	const EButtonType PressedType = ButtonType == ELiftButtonType::Increment
@@ -112,12 +132,12 @@ void ALiftButton::Interact()
 
 	LoopManager->OnElevatorButtonPressed(PressedType);
 	OnInteracted();
+	return true;
 }
 
 bool ALiftButton::TryInteract_Implementation(APlayerController* InteractingController)
 {
-	Interact();
-	return true;
+	return HandleInteraction(InteractingController);
 }
 
 FText ALiftButton::GetInteractionPromptText_Implementation() const

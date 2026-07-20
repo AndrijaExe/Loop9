@@ -26,6 +26,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void OnElevatorButtonPressed(EButtonType ButtonType);
 
+	/** Creates an owned decision snapshot without changing durable state yet. */
+	FLoopElevatorDecision ResolveElevatorDecision(EButtonType ButtonType);
+
+	/**
+	 * Applies a previously recorded decision. Cinematic transitions disable the
+	 * built-in teleport and may defer ending presentation until doors reopen.
+	 */
+	bool CommitElevatorDecision(
+		const FLoopElevatorDecision& Decision,
+		bool bTeleportPlayer = true,
+		bool bDeferEndingPresentation = false);
+
+	bool IsElevatorTransitionPending() const { return bElevatorTransitionActive; }
+	bool HasDeferredEnding() const { return bDeferredEndingPresentation; }
+	bool FinishElevatorTransition(int32 DecisionId);
+	bool CancelElevatorDecision(int32 DecisionId);
+	void CancelDeferredEnding();
+	void CompleteDeferredEnding();
+
 	UFUNCTION(BlueprintCallable, Category = "Loop")
 	void TeleportPlayerToEntry();
 
@@ -115,6 +134,8 @@ public:
 	float GetAIStability() const;
 
 private:
+	void AdvanceLoopInternal(bool bTeleportPlayer, bool bDeferEndingPresentation);
+	void ResetLoopInternal(bool bTeleportPlayer);
 	void FindTeleportPoints();
 	void PruneStaleTeleportCaches();
 	void NotifyAIFriendsLoopChanged();
@@ -129,4 +150,10 @@ private:
 	TArray<TWeakObjectPtr<class AAI_Friend>> RegisteredAIFriends;
 
 	TWeakObjectPtr<UWorld> FallbackTeleportScanWorld;
+
+	int32 NextElevatorDecisionId = 0;
+	int32 PendingElevatorDecisionId = 0;
+	int32 ActiveElevatorDecisionId = 0;
+	bool bElevatorTransitionActive = false;
+	bool bDeferredEndingPresentation = false;
 };

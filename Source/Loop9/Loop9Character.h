@@ -123,6 +123,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
 
+	bool IsGameplayPresentationLocked() const;
+
 	/** Called when player presses Interact key (E) */
 	void OnInteract();
 
