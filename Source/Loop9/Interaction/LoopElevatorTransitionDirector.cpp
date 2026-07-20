@@ -19,8 +19,15 @@
 
 ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot")));
+}
+
+void ALoopElevatorTransitionDirector::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	UpdateLookBlend(DeltaTime);
 }
 
 bool ALoopElevatorTransitionDirector::BeginTransition(
@@ -64,6 +71,7 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 
 	BindDoorDelegates();
 	LockPlayerInput(true);
+	BeginLookBlend(ResolveClosingLookTarget(InteractingController));
 	OnTransitionStarted(ButtonType);
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::ClosingDoors)
 	{
@@ -122,6 +130,7 @@ void ALoopElevatorTransitionDirector::EndPlay(const EEndPlayReason::Type EndPlay
 	UnbindDoorDelegates();
 	StopOptionalSequence();
 	StopCameraFade();
+	FinishLookBlend();
 	LockPlayerInput(false);
 
 	if (UGameInstance* GameInstance = GetGameInstance())
@@ -177,6 +186,7 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 		World->GetTimerManager().ClearTimer(DoorCloseTimeoutHandle);
 	}
 
+	FinishLookBlend();
 	Phase = ELoopElevatorTransitionPhase::Travelling;
 	OnTravelStarted();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::Travelling)
@@ -185,8 +195,25 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 	}
 	StartCameraFade(0.0f, 1.0f);
 
+	// The cabin we leave should look usable again on the next visit (especially the dark lift),
+	// but wait a beat so reopen does not feel simultaneous with the close.
 	if (UWorld* World = GetWorld())
 	{
+		const float ReopenDelay = FMath::Max(0.0f, AbandonedDoorReopenDelaySeconds);
+		if (ReopenDelay <= KINDA_SMALL_NUMBER)
+		{
+			ReopenAbandonedSourceDoors();
+		}
+		else
+		{
+			World->GetTimerManager().SetTimer(
+				AbandonedDoorReopenHandle,
+				this,
+				&ALoopElevatorTransitionDirector::ReopenAbandonedSourceDoors,
+				ReopenDelay,
+				false);
+		}
+
 		World->GetTimerManager().SetTimer(
 			TravelTimerHandle,
 			this,
@@ -227,10 +254,9 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 		PlayerCharacter->SetActorLocation(ArrivalLocation, false, nullptr, ETeleportType::TeleportPhysics);
 		PlayerCharacter->SetActorRotation(ArrivalRotation, ETeleportType::TeleportPhysics);
 		PC->SetControlRotation(ArrivalRotation);
-		if (PC->PlayerCameraManager)
-		{
-			PC->PlayerCameraManager->SetGameCameraCutThisFrame();
-		}
+		LookBlendStartRotation = ArrivalRotation;
+		LookBlendTargetRotation = ArrivalRotation;
+		// Stay black while facing the authored arrival aim — no visible snap.
 	}
 	else
 	{
@@ -301,6 +327,7 @@ void ALoopElevatorTransitionDirector::CompleteTransition()
 	ClearTimers();
 	UnbindDoorDelegates();
 	StopOptionalSequence();
+	FinishLookBlend();
 	LockPlayerInput(false);
 	Phase = ELoopElevatorTransitionPhase::Idle;
 
@@ -343,6 +370,7 @@ void ALoopElevatorTransitionDirector::AbortTransition(bool bCommitWithInstantFal
 	UnbindDoorDelegates();
 	StopOptionalSequence();
 	StopCameraFade();
+	FinishLookBlend();
 	LockPlayerInput(false);
 	Phase = ELoopElevatorTransitionPhase::Idle;
 
@@ -420,6 +448,7 @@ void ALoopElevatorTransitionDirector::PlayOptionalSequence(const ALiftButton* So
 
 	FMovieSceneSequencePlaybackSettings PlaybackSettings;
 	PlaybackSettings.bAutoPlay = false;
+	PlaybackSettings.bDisableCameraCuts = bDisableSequenceCameraCuts;
 
 	ALevelSequenceActor* SpawnedActor = nullptr;
 	ActiveSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
@@ -430,6 +459,7 @@ void ALoopElevatorTransitionDirector::PlayOptionalSequence(const ALiftButton* So
 	ActiveSequenceActor = SpawnedActor;
 	if (ActiveSequencePlayer)
 	{
+		ActiveSequencePlayer->SetDisableCameraCuts(bDisableSequenceCameraCuts);
 		ActiveSequencePlayer->Play();
 	}
 }
@@ -541,6 +571,141 @@ bool ALoopElevatorTransitionDirector::HasValidArrivalDoor() const
 	return false;
 }
 
+bool ALoopElevatorTransitionDirector::IsArrivalDoor(const ALiftDoorWing* DoorWing) const
+{
+	if (!IsValid(DoorWing))
+	{
+		return false;
+	}
+
+	for (ALiftDoorWing* ArrivalDoor : ArrivalDoorWings)
+	{
+		if (ArrivalDoor == DoorWing)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void ALoopElevatorTransitionDirector::ReopenAbandonedSourceDoors()
+{
+	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
+	{
+		if (DoorWing.IsValid() && !IsArrivalDoor(DoorWing.Get()))
+		{
+			DoorWing->OpenDoorWing();
+		}
+	}
+}
+
+void ALoopElevatorTransitionDirector::BeginLookBlend(const FRotator& TargetRotation)
+{
+	APlayerController* PC = PlayerController.Get();
+	if (!PC)
+	{
+		bLookBlendActive = false;
+		SetActorTickEnabled(false);
+		return;
+	}
+
+	LookBlendStartRotation = PC->GetControlRotation();
+	LookBlendTargetRotation = TargetRotation;
+	LookBlendElapsedSeconds = 0.0f;
+	bLookBlendActive = true;
+	SetActorTickEnabled(true);
+}
+
+void ALoopElevatorTransitionDirector::FinishLookBlend()
+{
+	if (APlayerController* PC = PlayerController.Get())
+	{
+		PC->SetControlRotation(LookBlendTargetRotation);
+	}
+
+	bLookBlendActive = false;
+	LookBlendElapsedSeconds = LookBlendDurationSeconds;
+	if (Phase == ELoopElevatorTransitionPhase::Idle)
+	{
+		SetActorTickEnabled(false);
+	}
+}
+
+void ALoopElevatorTransitionDirector::UpdateLookBlend(float DeltaTime)
+{
+	if (!bLookBlendActive)
+	{
+		return;
+	}
+
+	APlayerController* PC = PlayerController.Get();
+	if (!PC)
+	{
+		bLookBlendActive = false;
+		return;
+	}
+
+	LookBlendElapsedSeconds += DeltaTime;
+	const float Duration = FMath::Max(LookBlendDurationSeconds, KINDA_SMALL_NUMBER);
+	const float Alpha = FMath::Clamp(LookBlendElapsedSeconds / Duration, 0.0f, 1.0f);
+	const float SmoothAlpha = Alpha * Alpha * (3.0f - 2.0f * Alpha);
+	PC->SetControlRotation(
+		FMath::Lerp(LookBlendStartRotation, LookBlendTargetRotation, SmoothAlpha));
+
+	if (Alpha >= 1.0f)
+	{
+		bLookBlendActive = false;
+		PC->SetControlRotation(LookBlendTargetRotation);
+	}
+}
+
+FRotator ALoopElevatorTransitionDirector::ResolveClosingLookTarget(
+	APlayerController* InteractingController) const
+{
+	if (!InteractingController)
+	{
+		return FRotator::ZeroRotator;
+	}
+
+	// Lit path: source doors are the arrival doors — ease straight to the authored arrival facing.
+	bool bSourceIsArrivalCabin = SourceDoorWings.Num() > 0;
+	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
+	{
+		if (!DoorWing.IsValid() || !IsArrivalDoor(DoorWing.Get()))
+		{
+			bSourceIsArrivalCabin = false;
+			break;
+		}
+	}
+	if (bSourceIsArrivalCabin && IsValid(LitElevatorArrivalPoint))
+	{
+		return LitElevatorArrivalPoint->GetTeleportRotation();
+	}
+
+	FVector DoorCenter = FVector::ZeroVector;
+	int32 DoorCount = 0;
+	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
+	{
+		if (DoorWing.IsValid())
+		{
+			DoorCenter += DoorWing->GetActorLocation();
+			++DoorCount;
+		}
+	}
+
+	const APawn* Pawn = InteractingController->GetPawn();
+	const FVector EyeLocation = Pawn
+		? Pawn->GetPawnViewLocation()
+		: InteractingController->GetFocalLocation();
+	if (DoorCount > 0)
+	{
+		DoorCenter /= static_cast<float>(DoorCount);
+		return (DoorCenter - EyeLocation).Rotation();
+	}
+
+	return InteractingController->GetControlRotation();
+}
+
 void ALoopElevatorTransitionDirector::ClearTimers()
 {
 	if (UWorld* World = GetWorld())
@@ -549,5 +714,6 @@ void ALoopElevatorTransitionDirector::ClearTimers()
 		TimerManager.ClearTimer(DoorCloseTimeoutHandle);
 		TimerManager.ClearTimer(TravelTimerHandle);
 		TimerManager.ClearTimer(DoorOpenTimeoutHandle);
+		TimerManager.ClearTimer(AbandonedDoorReopenHandle);
 	}
 }

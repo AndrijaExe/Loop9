@@ -63,6 +63,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.1"))
 	float DoorOpenTimeoutSeconds = 3.0f;
 
+	/** How long the view eases from the player's look direction toward the blend target while doors close. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Camera", meta = (ClampMin = "0.05"))
+	float LookBlendDurationSeconds = 1.25f;
+
+	/**
+	 * When true, optional Level Sequences keep audio/lights but do not steal the view.
+	 * C++ owns the look blend from the player's current aim to the door/arrival facing.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Camera")
+	bool bDisableSequenceCameraCuts = true;
+
+	/** Delay before reopening the cabin you left (e.g. dark lift) so it does not pop open instantly. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.0"))
+	float AbandonedDoorReopenDelaySeconds = 1.25f;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Elevator Transition")
 	void OnTransitionStarted(EButtonType ButtonType);
 
@@ -76,6 +91,7 @@ public:
 	void OnTransitionCompleted();
 
 protected:
+	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
@@ -97,12 +113,22 @@ private:
 	bool AreSourceDoorsClosed() const;
 	bool AreArrivalDoorsOpen() const;
 	bool HasValidArrivalDoor() const;
+	bool IsArrivalDoor(const ALiftDoorWing* DoorWing) const;
+	void ReopenAbandonedSourceDoors();
+	void BeginLookBlend(const FRotator& TargetRotation);
+	void FinishLookBlend();
+	void UpdateLookBlend(float DeltaTime);
+	FRotator ResolveClosingLookTarget(APlayerController* InteractingController) const;
 	void ClearTimers();
 
 	ELoopElevatorTransitionPhase Phase = ELoopElevatorTransitionPhase::Idle;
 	FLoopElevatorDecision PendingDecision;
 	bool bDecisionCommitted = false;
 	bool bInputLocked = false;
+	bool bLookBlendActive = false;
+	float LookBlendElapsedSeconds = 0.0f;
+	FRotator LookBlendStartRotation = FRotator::ZeroRotator;
+	FRotator LookBlendTargetRotation = FRotator::ZeroRotator;
 
 	TWeakObjectPtr<APlayerController> PlayerController;
 	TArray<TWeakObjectPtr<ALiftDoorWing>> SourceDoorWings;
@@ -116,4 +142,5 @@ private:
 	FTimerHandle DoorCloseTimeoutHandle;
 	FTimerHandle TravelTimerHandle;
 	FTimerHandle DoorOpenTimeoutHandle;
+	FTimerHandle AbandonedDoorReopenHandle;
 };
