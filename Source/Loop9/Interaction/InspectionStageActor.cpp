@@ -6,6 +6,7 @@
 #include "Engine/Scene.h"
 #include "Engine/StaticMesh.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Controllers/Loop9BasePlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "Interaction/InspectableComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -312,8 +313,12 @@ bool AInspectionStageActor::BeginInspection(UInspectableComponent* SourceCompone
 	// --- Pause ---
 	// The camera manager normally skips its update while the game is paused,
 	// which would leave the old view on screen — full tick keeps it running.
-	bPreviousFullTickWhenPaused = InController->bShouldPerformFullTickWhenPaused;
-	InController->bShouldPerformFullTickWhenPaused = true;
+	if (ALoop9BasePlayerController* LoopPC = Cast<ALoop9BasePlayerController>(InController))
+	{
+		bPreviousFullTickWhenPaused = LoopPC->GetShouldPerformFullTickWhenPaused();
+		LoopPC->SetShouldPerformFullTickWhenPaused(true);
+		bDidOverrideFullTickWhenPaused = true;
+	}
 
 	bDidPause = UGameplayStatics::SetGamePaused(GetWorld(), true);
 
@@ -461,9 +466,13 @@ void AInspectionStageActor::RestoreState()
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
 
-	if (PC)
+	if (bDidOverrideFullTickWhenPaused)
 	{
-		PC->bShouldPerformFullTickWhenPaused = bPreviousFullTickWhenPaused;
+		if (ALoop9BasePlayerController* LoopPC = Cast<ALoop9BasePlayerController>(PC))
+		{
+			LoopPC->SetShouldPerformFullTickWhenPaused(bPreviousFullTickWhenPaused);
+		}
+		bDidOverrideFullTickWhenPaused = false;
 	}
 
 	if (bDidIgnoreInput)

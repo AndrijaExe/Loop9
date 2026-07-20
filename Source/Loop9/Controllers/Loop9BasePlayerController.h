@@ -12,6 +12,11 @@ class LOOP9_API ALoop9BasePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+	/** Exposes the protected PlayerController flag for systems that must keep the camera updating while paused (e.g. item inspection). */
+	bool GetShouldPerformFullTickWhenPaused() const { return bShouldPerformFullTickWhenPaused; }
+	void SetShouldPerformFullTickWhenPaused(bool bEnable) { bShouldPerformFullTickWhenPaused = bEnable; }
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Input Mappings")
 	TArray<UInputMappingContext*> DefaultMappingContexts;

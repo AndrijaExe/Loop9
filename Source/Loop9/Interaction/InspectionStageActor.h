@@ -97,6 +97,7 @@ private:
 	bool bDidPause = false;
 	bool bDidIgnoreInput = false;
 	bool bPreviousFullTickWhenPaused = false;
+	bool bDidOverrideFullTickWhenPaused = false;
 	bool bRestored = false;
 
 	/** Real seconds since the session opened; input is ignored briefly so the
