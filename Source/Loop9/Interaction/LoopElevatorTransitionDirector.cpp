@@ -2,6 +2,7 @@
 
 #include "Loop9.h"
 #include "Controllers/Loop9BasePlayerController.h"
+#include "Controllers/Loop9PlayerController.h"
 #include "Interaction/LiftButton.h"
 #include "LiftDoorWing.h"
 #include "Subsystems/LoopManagerSubsystem.h"
@@ -73,6 +74,7 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 	PlayButtonPressSound(SourceButton);
 	BeginLookBlend(ResolveClosingLookTarget(InteractingController));
 	OnTransitionStarted(ButtonType);
+	RemoveLegacyBlinkOverlay();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::ClosingDoors)
 	{
 		return true;
@@ -187,12 +189,14 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 	FinishLookBlend();
 	Phase = ELoopElevatorTransitionPhase::Travelling;
 	OnTravelStarted();
+	RemoveLegacyBlinkOverlay();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::Travelling)
 	{
 		return;
 	}
 	StartTravelSound();
-	StartCameraFade(0.0f, 1.0f);
+	// One continuous blackout: fade out, stay black until CommitAndArrive, then fade in once.
+	StartCameraFade(0.0f, 1.0f, FadeOutDurationSeconds);
 
 	// The cabin we leave should look usable again on the next visit (especially the dark lift),
 	// but wait a beat so reopen does not feel simultaneous with the close.
@@ -213,11 +217,13 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 				false);
 		}
 
+		// Never cut the blackout shorter than the fade-to-black itself.
+		const float TravelDelay = FMath::Max(TravelDurationSeconds, FadeOutDurationSeconds);
 		World->GetTimerManager().SetTimer(
 			TravelTimerHandle,
 			this,
 			&ALoopElevatorTransitionDirector::CommitAndArrive,
-			TravelDurationSeconds,
+			TravelDelay,
 			false);
 	}
 	else
@@ -234,6 +240,10 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 	}
 
 	StopTravelSound();
+
+	// Teleport can reset the camera manager fade; hold pure black first so the
+	// player never sees a mid-transition flash / triple blink.
+	HoldCameraBlack();
 
 	UGameInstance* GameInstance = GetGameInstance();
 	ULoopManagerSubsystem* LoopManager =
@@ -257,7 +267,7 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 		PC->SetControlRotation(ArrivalRotation);
 		LookBlendStartRotation = ArrivalRotation;
 		LookBlendTargetRotation = ArrivalRotation;
-		// Stay black while facing the authored arrival aim — no visible snap.
+		HoldCameraBlack();
 	}
 	else
 	{
@@ -265,15 +275,17 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 			"Elevator transition '%s': safe arrival references/player missing; using legacy Exit teleport."),
 			*GetName());
 		LoopManager->TeleportPlayerToExit();
+		HoldCameraBlack();
 	}
 
 	Phase = ELoopElevatorTransitionPhase::OpeningDoors;
 	OnArrivalStarted();
+	RemoveLegacyBlinkOverlay();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::OpeningDoors)
 	{
 		return;
 	}
-	StartCameraFade(1.0f, 0.0f);
+	StartCameraFade(1.0f, 0.0f, FadeInDurationSeconds);
 
 	for (ALiftDoorWing* DoorWing : ArrivalDoorWings)
 	{
@@ -408,7 +420,15 @@ void ALoopElevatorTransitionDirector::LockPlayerInput(bool bLock)
 	}
 }
 
-void ALoopElevatorTransitionDirector::StartCameraFade(float FromAlpha, float ToAlpha)
+void ALoopElevatorTransitionDirector::RemoveLegacyBlinkOverlay()
+{
+	if (ALoop9PlayerController* LoopPC = Cast<ALoop9PlayerController>(PlayerController.Get()))
+	{
+		LoopPC->RemoveBlinkOverlay();
+	}
+}
+
+void ALoopElevatorTransitionDirector::StartCameraFade(float FromAlpha, float ToAlpha, float DurationSeconds)
 {
 	if (APlayerController* PC = PlayerController.Get())
 	{
@@ -417,12 +437,17 @@ void ALoopElevatorTransitionDirector::StartCameraFade(float FromAlpha, float ToA
 			PC->PlayerCameraManager->StartCameraFade(
 				FromAlpha,
 				ToAlpha,
-				FadeDurationSeconds,
+				FMath::Max(0.0f, DurationSeconds),
 				FLinearColor::Black,
 				false,
-				ToAlpha > 0.0f);
+				ToAlpha >= 1.0f - KINDA_SMALL_NUMBER);
 		}
 	}
+}
+
+void ALoopElevatorTransitionDirector::HoldCameraBlack()
+{
+	StartCameraFade(1.0f, 1.0f, 0.0f);
 }
 
 void ALoopElevatorTransitionDirector::StopCameraFade()

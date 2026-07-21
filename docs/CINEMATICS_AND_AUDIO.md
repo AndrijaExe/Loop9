@@ -24,10 +24,14 @@ Director responsibilities:
 - play button-press sound immediately
 - close source doors with timeout fallback
 - start looping travel sound after doors close
-- fade, commit elevator decision, teleport to lit arrival
+- **one** fade-to-black (~1.0–1.5s), hold pure black across the hidden teleport, then a single fade-in
+- clear any legacy blink-overlay animation invoked by older Blueprint events
+- commit elevator decision and teleport to lit arrival
 - open arrival doors with force-open timeout
 - finish/cancel owned decision IDs safely on EndPlay
 - complete or cancel deferred endings correctly
+
+Do not add extra Camera Fade nodes in Blueprint `OnTravelStarted` / `OnArrivalStarted` events — that causes the triple-blink look.
 
 ### Audio hooks
 
@@ -38,7 +42,15 @@ Director responsibilities:
 | `ButtonPressSoundVolume` / `TravelSoundVolume` | Gain |
 | `TravelSoundFadeOutSeconds` | Arrival fade-out |
 
-Set these on `BP_LoopElevatorTransitionDirector`.
+Set these on `BP_LoopElevatorTransitionDirector` (Details → Elevator Transition | Audio). No C++ rebuild needed after assigning assets — just save the Blueprint/map.
+
+### Fade timing defaults
+
+| Property | Default | Role |
+|---|---|---|
+| `FadeOutDurationSeconds` | 1.25 | Single fade to black when travel starts |
+| `TravelDurationSeconds` | 2.5 | Total travel/blackout phase (clamped to at least fade-out) |
+| `FadeInDurationSeconds` | 0.6 | Single fade-in after teleport |
 
 ## Ending sequences
 

@@ -48,12 +48,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.1"))
 	float DoorCloseTimeoutSeconds = 3.0f;
 
-	/** Time spent travelling after the source doors have fully closed. */
+	/**
+	 * Total time in the Travelling phase after source doors close (includes the
+	 * fade-to-black and the hidden travel pause).
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.1"))
 	float TravelDurationSeconds = 2.5f;
 
+	/** Single fade-to-black when travel starts. Prefer 1.0–1.5s; avoid stacking extra fades in Blueprint. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.0"))
-	float FadeDurationSeconds = 0.25f;
+	float FadeOutDurationSeconds = 1.25f;
+
+	/** Fade back in after the hidden teleport, once arrival begins. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.0"))
+	float FadeInDurationSeconds = 0.6f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.1"))
 	float DoorOpenTimeoutSeconds = 3.0f;
@@ -109,7 +117,9 @@ private:
 	void HandleDoorOpenTimeout();
 	void AbortTransition(bool bCommitWithInstantFallback);
 	void LockPlayerInput(bool bLock);
-	void StartCameraFade(float FromAlpha, float ToAlpha);
+	void RemoveLegacyBlinkOverlay();
+	void StartCameraFade(float FromAlpha, float ToAlpha, float DurationSeconds);
+	void HoldCameraBlack();
 	void StopCameraFade();
 	void BindDoorDelegates();
 	void UnbindDoorDelegates();
