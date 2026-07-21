@@ -402,8 +402,8 @@ msgstr "...Rauschen zischt durch den Hörer. Auf der anderen Seite stimmt etwas 
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
 #: Source/Loop9/AI_Friend.cpp(610)
 msgctxt "Loop9Chat,InitialRuleMessage"
-msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
-msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den Aufzug mit eingeschaltetem Innenlicht (RESTART). Findest du keine Anomalie, nimm den Aufzug ohne Innenlicht (WEITER). Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
+msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
+msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den beleuchteten Aufzug. Findest du keine Anomalie, nimm den dunklen Aufzug. Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
 
 #. Key:	AnswerPhone
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)

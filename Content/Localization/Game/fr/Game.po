@@ -402,8 +402,8 @@ msgstr "...des parasites sifflent dans le combiné. Quelque chose ne va pas de l
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
 #: Source/Loop9/AI_Friend.cpp(610)
 msgctxt "Loop9Chat,InitialRuleMessage"
-msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
-msgstr "Écoute bien : si tu remarques la moindre irrégularité, prends l'ascenseur dont la lumière intérieure est allumée (RESTART). Si tu ne trouves aucune anomalie, prends l'ascenseur sans lumière (SUIVANT). La première boucle est propre — prends ton temps et apprends l'état normal."
+msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
+msgstr "Écoute bien : si tu remarques la moindre irrégularité, prends l'ascenseur éclairé. Si tu ne trouves aucune anomalie, prends l'ascenseur sombre. La première boucle est propre — prends ton temps et apprends l'état normal."
 
 #. Key:	AnswerPhone
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)

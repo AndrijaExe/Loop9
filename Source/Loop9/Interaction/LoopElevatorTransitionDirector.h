@@ -7,11 +7,10 @@
 
 class ALiftButton;
 class ALiftDoorWing;
-class ALevelSequenceActor;
 class APlayerController;
 class ATeleportPoint;
-class ULevelSequence;
-class ULevelSequencePlayer;
+class UAudioComponent;
+class USoundBase;
 
 UENUM(BlueprintType)
 enum class ELoopElevatorTransitionPhase : uint8
@@ -25,7 +24,7 @@ enum class ELoopElevatorTransitionPhase : uint8
 /**
  * World presentation layer for elevator transitions. Gameplay state remains in
  * ULoopManagerSubsystem; this actor owns doors, fades, teleport timing and
- * optional Sequencer playback.
+ * transition audio.
  */
 UCLASS(Blueprintable)
 class LOOP9_API ALoopElevatorTransitionDirector : public AActor
@@ -46,10 +45,6 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Elevator Transition|Arrival")
 	TArray<TObjectPtr<ALiftDoorWing>> ArrivalDoorWings;
 
-	/** Optional camera/light/audio sequence. C++ remains authoritative for doors and teleport. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Sequence")
-	TObjectPtr<ULevelSequence> TransitionSequence;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.1"))
 	float DoorCloseTimeoutSeconds = 3.0f;
 
@@ -67,16 +62,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Camera", meta = (ClampMin = "0.05"))
 	float LookBlendDurationSeconds = 1.25f;
 
-	/**
-	 * When true, optional Level Sequences keep audio/lights but do not steal the view.
-	 * C++ owns the look blend from the player's current aim to the door/arrival facing.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Camera")
-	bool bDisableSequenceCameraCuts = true;
-
 	/** Delay before reopening the cabin you left (e.g. dark lift) so it does not pop open instantly. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Timing", meta = (ClampMin = "0.0"))
 	float AbandonedDoorReopenDelaySeconds = 1.25f;
+
+	/** One-shot played at the selected lift button as soon as the transition starts. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio")
+	TObjectPtr<USoundBase> ButtonPressSound;
+
+	/** Starts after the source doors close and stops/fades when the lift arrives. Looping assets work best. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio")
+	TObjectPtr<USoundBase> TravelSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
+	float ButtonPressSoundVolume = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
+	float TravelSoundVolume = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
+	float TravelSoundFadeOutSeconds = 0.15f;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Elevator Transition")
 	void OnTransitionStarted(EButtonType ButtonType);
@@ -106,8 +111,6 @@ private:
 	void LockPlayerInput(bool bLock);
 	void StartCameraFade(float FromAlpha, float ToAlpha);
 	void StopCameraFade();
-	void PlayOptionalSequence(const ALiftButton* SourceButton);
-	void StopOptionalSequence();
 	void BindDoorDelegates();
 	void UnbindDoorDelegates();
 	bool AreSourceDoorsClosed() const;
@@ -119,6 +122,9 @@ private:
 	void FinishLookBlend();
 	void UpdateLookBlend(float DeltaTime);
 	FRotator ResolveClosingLookTarget(APlayerController* InteractingController) const;
+	void PlayButtonPressSound(const ALiftButton* SourceButton);
+	void StartTravelSound();
+	void StopTravelSound();
 	void ClearTimers();
 
 	ELoopElevatorTransitionPhase Phase = ELoopElevatorTransitionPhase::Idle;
@@ -134,10 +140,7 @@ private:
 	TArray<TWeakObjectPtr<ALiftDoorWing>> SourceDoorWings;
 
 	UPROPERTY(Transient)
-	TObjectPtr<ULevelSequencePlayer> ActiveSequencePlayer;
-
-	UPROPERTY(Transient)
-	TObjectPtr<ALevelSequenceActor> ActiveSequenceActor;
+	TObjectPtr<UAudioComponent> ActiveTravelAudio;
 
 	FTimerHandle DoorCloseTimeoutHandle;
 	FTimerHandle TravelTimerHandle;

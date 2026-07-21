@@ -402,8 +402,8 @@ msgstr "...šum krči kroz slušalicu. Nešto nije u redu sa druge strane. Poku�
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
 #: Source/Loop9/AI_Friend.cpp(610)
 msgctxt "Loop9Chat,InitialRuleMessage"
-msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
-msgstr "Slušaj me pažljivo: ako primetiš bilo kakvu nepravilnost, uđi u lift u kom je upaljeno svetlo (RESTART). Ako ne nađeš anomaliju, uđi u lift bez svetla (DALJE). Prva petlja je čista, zato ne žuri i dobro upamti kako sve izgleda."
+msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
+msgstr "Slušaj me pažljivo: ako primetiš bilo kakvu nepravilnost, uđi u osvetljeni lift. Ako ne nađeš anomaliju, uđi u mračni lift. Prva petlja je čista, zato ne žuri i dobro upamti kako sve izgleda."
 
 #. Key:	AnswerPhone
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)

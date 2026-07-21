@@ -1,6 +1,22 @@
 # Loop 9
 
-Horror loop game built in Unreal Engine 5.8.
+Psychological horror loop game built in **Unreal Engine 5.8**.
+
+Steam App ID: **4982260**
+
+## Documentation
+
+Start here:
+
+- [docs/INDEX.md](docs/INDEX.md) — full game documentation map
+- Cross-repo index: [`../../DOCUMENTATION.md`](../../DOCUMENTATION.md)
+- Backend docs: [`../../Backend/Loop9_backend/ARCHITECTURE.md`](../../Backend/Loop9_backend/ARCHITECTURE.md)
+
+Authoritative release / store / achievements docs:
+
+- [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)
+- [STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)
+- [Marketing/Steam/STORE_PAGE.md](Marketing/Steam/STORE_PAGE.md)
 
 ## Repo size
 
@@ -14,21 +30,35 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
 
 - Unreal Engine **5.8**
 - Plugins enabled in the project:
-  - ModelContextProtocol (MCP)
   - OnlineSubsystemSteam (Steam auth for the backend chat)
+  - ModelContextProtocol (optional editor automation)
 
 ## Setup after clone
 
 1. Clone the repo.
 2. Copy config templates:
+
+   Windows (PowerShell):
+
    ```powershell
    copy Config\DefaultGame.ini.example Config\DefaultGame.ini
    copy Config\DefaultEngine.ini.example Config\DefaultEngine.ini
    ```
+
+   Linux / macOS:
+
+   ```bash
+   cp Config/DefaultGame.ini.example Config/DefaultGame.ini
+   cp Config/DefaultEngine.ini.example Config/DefaultEngine.ini
+   ```
+
 3. Edit `Config/DefaultGame.ini` and set the production `APIEndpoint`.
    Steam supplies player identity/session auth; do not package a game token.
-4. Install the marketplace assets listed below into `Content/` (same folder names).
-5. Open `Loop9.uproject` in UE 5.8 and let it compile.
+4. Set `SteamDevAppId=4982260` in `Config/DefaultEngine.ini` for local Steam testing.
+5. Install the marketplace assets listed below into `Content/` (same folder names).
+6. Open `Loop9.uproject` in UE 5.8 and let it compile.
+
+More detail: [docs/SETUP_AND_DEVELOPMENT.md](docs/SETUP_AND_DEVELOPMENT.md).
 
 ## Steam auth
 
@@ -42,6 +72,8 @@ client config and `AUTH_ALLOW_GAME_TOKEN=true` on a non-production backend.
 
 Before shipping, confirm `SteamDevAppId=4982260` in `Config/DefaultEngine.ini`
 and configure `STEAM_WEB_API_KEY` / `STEAM_APP_ID=4982260` on the backend.
+
+Integration details: [docs/AI_AND_BACKEND_INTEGRATION.md](docs/AI_AND_BACKEND_INTEGRATION.md).
 
 ## Steam achievements
 
@@ -60,10 +92,8 @@ Loop 9 App ID `4982260`, and Steamworks changes must be published before testing
 ## Release preparation
 
 The single source of truth for remaining release work is
-[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Elevator and ending cinematics
-are documented in [`CINEMATIC_SEQUENCE_PLAN.md`](CINEMATIC_SEQUENCE_PLAN.md);
-the Unreal MCP editor handoff is
-[`UNREAL_MCP_SEQUENCE_HANDOFF.md`](UNREAL_MCP_SEQUENCE_HANDOFF.md).
+[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Cinematics are documented in
+[`docs/CINEMATICS_AND_AUDIO.md`](docs/CINEMATICS_AND_AUDIO.md).
 
 ## Required marketplace content (not in repo)
 
@@ -88,16 +118,5 @@ Without these assets, `FullOfficeMap` will have missing references.
 - `Content/FirstPerson/` — base first-person template assets still used by some blueprints
 - `Content/Weapons/` — leftover FirstPerson weapon template assets (safe to remove after Reference Viewer check)
 - `Config/*.example` and non-sensitive config files
+- `docs/` — technical documentation
 - `Loop9.uproject`
-
-## Push to GitHub
-
-```powershell
-git init
-git add .
-git status
-git commit -m "Initial commit: Loop 9 project"
-git remote add origin https://github.com/YOUR_USER/YOUR_REPO.git
-git branch -M main
-git push -u origin main
-```

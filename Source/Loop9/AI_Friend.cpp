@@ -817,7 +817,7 @@ void AAI_Friend::OpenChatWidget(APlayerController* PlayerController)
 			// mid-session still produces the right text.
 			const FString RuleMessage = InitialRuleMessage.IsEmpty()
 				? NSLOCTEXT("Loop9Chat", "InitialRuleMessage",
-					"Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline.").ToString()
+					"Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline.").ToString()
 				: InitialRuleMessage;
 
 			ChatWidget->AddMessageToChat(RuleMessage, false, ShouldUseAnomalyMumble());

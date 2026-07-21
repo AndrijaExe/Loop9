@@ -402,8 +402,8 @@ msgstr "...в трубке шипят помехи. На той стороне �
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
 #: Source/Loop9/AI_Friend.cpp(610)
 msgctxt "Loop9Chat,InitialRuleMessage"
-msgid "Listen carefully: if you notice any irregularity, take the elevator that has interior light on (RESTART). If you find no anomaly, take the elevator without interior light (NEXT). The first loop is clean, so take your time and learn the baseline."
-msgstr "Слушай внимательно: если заметишь любую странность, заходи в лифт с включённым светом внутри (RESTART). Если аномалии нет, заходи в лифт без света (ДАЛЬШЕ). Первая петля чистая — не спеши и запомни, как всё выглядит в норме."
+msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
+msgstr "Слушай внимательно: если заметишь любую странность, заходи в освещённый лифт. Если аномалии нет, заходи в тёмный лифт. Первая петля чистая — не спеши и запомни, как всё выглядит в норме."
 
 #. Key:	AnswerPhone
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)

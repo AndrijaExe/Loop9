@@ -7,14 +7,13 @@
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "TeleportPoint.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Components/AudioComponent.h"
 #include "Components/SceneComponent.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
-#include "LevelSequence.h"
-#include "LevelSequenceActor.h"
-#include "LevelSequencePlayer.h"
-#include "MovieSceneSequencePlaybackSettings.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "TimerManager.h"
 
 ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
@@ -71,14 +70,13 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 
 	BindDoorDelegates();
 	LockPlayerInput(true);
+	PlayButtonPressSound(SourceButton);
 	BeginLookBlend(ResolveClosingLookTarget(InteractingController));
 	OnTransitionStarted(ButtonType);
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::ClosingDoors)
 	{
 		return true;
 	}
-	PlayOptionalSequence(SourceButton);
-
 	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
 	{
 		if (DoorWing.IsValid())
@@ -128,7 +126,7 @@ void ALoopElevatorTransitionDirector::EndPlay(const EEndPlayReason::Type EndPlay
 
 	ClearTimers();
 	UnbindDoorDelegates();
-	StopOptionalSequence();
+	StopTravelSound();
 	StopCameraFade();
 	FinishLookBlend();
 	LockPlayerInput(false);
@@ -193,6 +191,7 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 	{
 		return;
 	}
+	StartTravelSound();
 	StartCameraFade(0.0f, 1.0f);
 
 	// The cabin we leave should look usable again on the next visit (especially the dark lift),
@@ -233,6 +232,8 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 	{
 		return;
 	}
+
+	StopTravelSound();
 
 	UGameInstance* GameInstance = GetGameInstance();
 	ULoopManagerSubsystem* LoopManager =
@@ -326,7 +327,7 @@ void ALoopElevatorTransitionDirector::CompleteTransition()
 
 	ClearTimers();
 	UnbindDoorDelegates();
-	StopOptionalSequence();
+	StopTravelSound();
 	FinishLookBlend();
 	LockPlayerInput(false);
 	Phase = ELoopElevatorTransitionPhase::Idle;
@@ -368,7 +369,7 @@ void ALoopElevatorTransitionDirector::AbortTransition(bool bCommitWithInstantFal
 
 	ClearTimers();
 	UnbindDoorDelegates();
-	StopOptionalSequence();
+	StopTravelSound();
 	StopCameraFade();
 	FinishLookBlend();
 	LockPlayerInput(false);
@@ -433,50 +434,6 @@ void ALoopElevatorTransitionDirector::StopCameraFade()
 			PC->PlayerCameraManager->StopCameraFade();
 		}
 	}
-}
-
-void ALoopElevatorTransitionDirector::PlayOptionalSequence(const ALiftButton* SourceButton)
-{
-	ULevelSequence* Sequence =
-		SourceButton && IsValid(SourceButton->TransitionSequenceOverride.Get())
-			? SourceButton->TransitionSequenceOverride.Get()
-			: TransitionSequence.Get();
-	if (!Sequence || !GetWorld())
-	{
-		return;
-	}
-
-	FMovieSceneSequencePlaybackSettings PlaybackSettings;
-	PlaybackSettings.bAutoPlay = false;
-	PlaybackSettings.bDisableCameraCuts = bDisableSequenceCameraCuts;
-
-	ALevelSequenceActor* SpawnedActor = nullptr;
-	ActiveSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
-		GetWorld(),
-		Sequence,
-		PlaybackSettings,
-		SpawnedActor);
-	ActiveSequenceActor = SpawnedActor;
-	if (ActiveSequencePlayer)
-	{
-		ActiveSequencePlayer->SetDisableCameraCuts(bDisableSequenceCameraCuts);
-		ActiveSequencePlayer->Play();
-	}
-}
-
-void ALoopElevatorTransitionDirector::StopOptionalSequence()
-{
-	if (ActiveSequencePlayer && ActiveSequencePlayer->IsPlaying())
-	{
-		ActiveSequencePlayer->Stop();
-	}
-	ActiveSequencePlayer = nullptr;
-
-	if (IsValid(ActiveSequenceActor))
-	{
-		ActiveSequenceActor->Destroy();
-	}
-	ActiveSequenceActor = nullptr;
 }
 
 void ALoopElevatorTransitionDirector::BindDoorDelegates()
@@ -704,6 +661,59 @@ FRotator ALoopElevatorTransitionDirector::ResolveClosingLookTarget(
 	}
 
 	return InteractingController->GetControlRotation();
+}
+
+void ALoopElevatorTransitionDirector::PlayButtonPressSound(const ALiftButton* SourceButton)
+{
+	if (!IsValid(ButtonPressSound) || !SourceButton)
+	{
+		return;
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(
+		this,
+		ButtonPressSound,
+		SourceButton->GetActorLocation(),
+		FRotator::ZeroRotator,
+		FMath::Max(0.0f, ButtonPressSoundVolume));
+}
+
+void ALoopElevatorTransitionDirector::StartTravelSound()
+{
+	StopTravelSound();
+	if (!IsValid(TravelSound))
+	{
+		return;
+	}
+
+	ActiveTravelAudio = UGameplayStatics::SpawnSound2D(
+		this,
+		TravelSound,
+		FMath::Max(0.0f, TravelSoundVolume),
+		1.0f,
+		0.0f,
+		nullptr,
+		false,
+		true);
+}
+
+void ALoopElevatorTransitionDirector::StopTravelSound()
+{
+	if (!IsValid(ActiveTravelAudio))
+	{
+		ActiveTravelAudio = nullptr;
+		return;
+	}
+
+	if (TravelSoundFadeOutSeconds > KINDA_SMALL_NUMBER)
+	{
+		ActiveTravelAudio->FadeOut(TravelSoundFadeOutSeconds, 0.0f);
+	}
+	else
+	{
+		ActiveTravelAudio->Stop();
+	}
+	ActiveTravelAudio = nullptr;
 }
 
 void ALoopElevatorTransitionDirector::ClearTimers()

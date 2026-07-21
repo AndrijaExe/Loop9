@@ -15,7 +15,7 @@ namespace
 void URelationshipSubsystem::RegisterAIInteraction()
 {
 	TotalAIInteractions++;
-	Dependency += 0.03f;
+	Dependency += 0.035f;
 	Cooperation += 0.01f;
 	Trust += 0.005f;
 	ClampStateValues();
@@ -98,7 +98,11 @@ void URelationshipSubsystem::RegisterPlayerMessage(const FString& Message)
 	}
 
 	if (Lower.Contains(TEXT("sta da radim")) || Lower.Contains(TEXT("what should i do"))
-		|| Lower.Contains(TEXT("reci mi")) || Lower.Contains(TEXT("tell me")))
+		|| Lower.Contains(TEXT("šta da radim")) || Lower.Contains(TEXT("reci mi"))
+		|| Lower.Contains(TEXT("tell me")) || Lower.Contains(TEXT("what do i do"))
+		|| Lower.Contains(TEXT("was soll ich tun")) || Lower.Contains(TEXT("sag mir"))
+		|| Lower.Contains(TEXT("que dois-je faire")) || Lower.Contains(TEXT("dis-moi"))
+		|| Lower.Contains(TEXT("что мне делать")) || Lower.Contains(TEXT("скажи мне")))
 	{
 		Dependency += 0.05f;
 	}

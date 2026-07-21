@@ -5,8 +5,8 @@ Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md), marketinški tekst u
-[`Marketing/Steam/STORE_PAGE.md`](Marketing/Steam/STORE_PAGE.md), a plan novih
-sekvenci u [`CINEMATIC_SEQUENCE_PLAN.md`](CINEMATIC_SEQUENCE_PLAN.md).
+[`Marketing/Steam/STORE_PAGE.md`](Marketing/Steam/STORE_PAGE.md), a cinematic
+dokumentacija u [`docs/CINEMATICS_AND_AUDIO.md`](docs/CINEMATICS_AND_AUDIO.md).
 
 Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
@@ -17,15 +17,65 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 
 - [x] Implementiran C++ elevator transition coordinator:
   decision deduplication, vrata, input/pause lock, blackout teleport, osvetljeni
-  arrival lift, watchdog fallback i optional Sequencer playback.
-- [ ] Unreal MCP/editor setup iz
-  [`UNREAL_MCP_SEQUENCE_HANDOFF.md`](UNREAL_MCP_SEQUENCE_HANDOFF.md):
-  povezati director, oba dugmeta, door wing reference i lit arrival marker;
-  napraviti dve elevator sekvence.
+  arrival lift, watchdog fallback i direktan C++ camera blend.
+- [x] U `FullOfficeMap` povezani director, oba dugmeta, door wing reference i
+  `TP_LitElevatorArrival`; lift više ne zavisi od Level Sequence asseta.
+- [ ] U `BP_LoopElevatorTransitionDirector` postaviti `Button Press Sound` i
+  looping `Travel Sound`, zatim podesiti njihove volume/fade vrednosti.
+- [ ] Posle C++ rebuilda otvoriti i resaveovati `FullOfficeMap`/director Blueprint,
+  pa obrisati sada nepotrebne `LS_Elevator_Lit` i `LS_Elevator_Dark` assete tek
+  kada Reference Viewer potvrdi da više nemaju reference.
 - [x] Implementiran C++ ending Sequence player sa šest soft-reference slotova,
   watchdogom i postojećim fade/widget fallbackom.
-- [ ] Napraviti, povezati i vizuelno dotegnuti šest kratkih 3–8 s ending
-  Level Sequence asseta.
+- [x] Napravljeno i povezano šest osnovnih 3–8 s ending Level Sequence asseta.
+- [ ] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
+  svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
+
+### Ending mini-scene brief
+
+Koristiti jednu zajedničku 4–6 s baznu sekvencu i duplirati je šest puta.
+Menjati samo camera transform, svetlo, 1–2 prop keyframea i zvuk; bez novih
+skeletal animacija i bez gameplay logike u Event Tracku.
+
+- [ ] **Escape Together:** vrata se otvaraju ka toplom jakom svetlu; čuju se dva
+  para koraka; drugi lift se uključi neposredno pre kraja.
+- [ ] **Obedient Fool:** kamera prilazi telefonu; svetla iza igrača gase se jedno
+  po jedno; monitor prikazuje `TASK COMPLETE`; telefon kratko zazvoni.
+- [ ] **Cold Betrayal:** vrata otkrivaju potpuno mračan hodnik; čuje se prekinuta
+  telefonska linija; pali se crveno svetlo i vrata se ponovo zatvaraju.
+- [ ] **Paranoid Survivor:** kamera se okreće od telefona ka izlazu; telefon
+  zazvoni iza igrača; kadar počinje da se vraća, ali se završava pre otkrivanja.
+- [ ] **Merged Memory:** fluorescentna svetla trepere; telefon/monitor se kratko
+  pojavljuje na dve pozicije; duplirani zvuk kasni nekoliko desetina sekunde;
+  kamera polako prilazi monitoru.
+- [ ] **The Replacement:** kamera prilazi Dragojlovom stolu; prazna stolica se
+  blago okreće; telefon zazvoni; monitor prikazuje `NEW OPERATOR CONNECTED`;
+  zatim se prikazuje postojeći Replacement terminal.
+
+### Ending balance targets
+
+Pragovi su podešeni za prvi prolaz od približno 9–17 odluka, bez znanja skrivenih
+ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
+
+- [ ] **Paranoid Survivor:** 0–2 AI razgovora ili eksplicitno visok suspicion /
+  nizak trust. Ovo je namerni ending za igrača koji ignoriše Dragojla.
+- [ ] **Escape Together:** oko 4–7 normalnih razgovora, većina tačnih odluka,
+  osnovna pristojnost i bez preterane zavisnosti; očekivani pozitivan first-run.
+- [ ] **Cold Betrayal:** najmanje 5 razgovora, solidna saradnja, ali približno dve
+  jasno neprijatne/uvredljive poruke.
+- [ ] **Obedient Fool:** najmanje 8 razgovora i jedna ili dve poruke tipa
+  „reci mi šta da radim“, uz nizak suspicion.
+- [ ] **Merged Memory:** najmanje 6 razgovora, kindness/cooperation ostaju
+  pozitivni, ali duži run sa dovoljno grešaka spusti AI stability na oko 0.72.
+- [ ] **The Replacement:** redak, ali realno dostižan profil: najmanje 11
+  razgovora, visoki kindness/cooperation/dependency i duži nestabilan run sa
+  AI stability oko 0.70 ili niže.
+- [ ] QA: napraviti po jedan kontrolisan run za svih šest profila i proveriti da
+  evaluator ne vraća `Paranoid Survivor` kao slučajni fallback za pozitivan run.
+- [ ] QA dependency poruke na svih pet jezika: „reci mi šta da radim“,
+  “tell me what to do”, “sag mir/was soll ich tun”, “dis-moi/que dois-je faire”
+  i „скажи мне/что мне делать“.
+
 - [ ] Rebuildovati `Loop9Editor` posle trenutnih C++ anomaly/debug popravki.
 - [ ] U lokalnom `Config/DefaultEngine.ini` postaviti:
   - `SteamDevAppId=4982260`
@@ -92,6 +142,12 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 - [x] `/readyz`, Redis limiter storage, request bounds, AI deadline, moderation,
   response-size limit i correlation/timing logovi su implementirani.
 - [x] Privacy policy endpoint je implementiran i pushovan.
+- [x] Compact/full AI promptovi su usklađeni sa devet anomaly tipova, clean
+  prvim loopom, ending relationship tonom i preciznim KINDNESS/SUSPICION rubricima.
+- [x] Backend normalizuje interne Unreal anomaly oznake pre slanja modelu i ima
+  lokalizovane moderation fallback poruke za EN/SR/DE/FR/RU.
+- [ ] Prompt QA: clean prvi loop uvek preporučuje dark lift; proveriti po jedan
+  Hide/Light/Phantom kontekst i neutralan/ljubazan/sumnjičav input na svih pet jezika.
 - [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
   `STEAM_WEB_API_KEY` pravim auth zahtevom.
 - [ ] Render Health Check Path postaviti/potvrditi kao `/readyz`.
@@ -120,7 +176,7 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 ### Kritični gameplay
 
 - [ ] Svih 9 loopova: advance/reset pravila, anomaly generation i tačan završetak.
-- [ ] Nova elevator sekvenca ne prihvata dupli input, ne ostavlja igrača zaključanog
+- [ ] Novi direktni elevator transition ne prihvata dupli input, ne ostavlja igrača zaključanog
   i teleportuje samo dok su vrata zatvorena/ekran skriven.
 - [ ] Svih 6 endinga i njihove mini-sekvence su dostižni; widget/terminal se
   pojavljuje posle sekvence i Continue vraća u Main Menu.
@@ -177,7 +233,7 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 
 ## Trenutni kritični put
 
-1. Elevator + ending sekvence i preostali editor smoke.
+1. Elevator sound asseti/cleanup + ending mini-sequence polish i editor smoke.
 2. GatherText i finalni sadržaj.
 3. Store grafika, screenshotovi, trailer i achievementi.
 4. Shipping build → Steam internal branch.
