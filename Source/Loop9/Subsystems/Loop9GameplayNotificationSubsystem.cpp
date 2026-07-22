@@ -7,6 +7,30 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
+void ULoop9GameplayNotificationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	WorldCleanupDelegateHandle = FWorldDelegates::OnWorldCleanup.AddUObject(
+		this, &ULoop9GameplayNotificationSubsystem::HandleWorldCleanup);
+}
+
+void ULoop9GameplayNotificationSubsystem::Deinitialize()
+{
+	if (WorldCleanupDelegateHandle.IsValid())
+	{
+		FWorldDelegates::OnWorldCleanup.Remove(WorldCleanupDelegateHandle);
+		WorldCleanupDelegateHandle.Reset();
+	}
+
+	if (NotificationWidget)
+	{
+		NotificationWidget->RemoveFromParent();
+		NotificationWidget = nullptr;
+	}
+
+	Super::Deinitialize();
+}
+
 ULoop9GameplayNotificationSubsystem* ULoop9GameplayNotificationSubsystem::GetGameplayNotifications(const UObject* WorldContextObject)
 {
 	if (!WorldContextObject)
@@ -59,13 +83,19 @@ ULoop9NotificationWidget* ULoop9GameplayNotificationSubsystem::GetNotificationWi
 
 void ULoop9GameplayNotificationSubsystem::EnsureNotificationWidget()
 {
-	if (NotificationWidget)
+	UWorld* World = GetWorld();
+	if (!World)
 	{
 		return;
 	}
 
-	UWorld* World = GetWorld();
-	if (!World)
+	if (NotificationWidget && NotificationWidget->GetWorld() != World)
+	{
+		NotificationWidget->RemoveFromParent();
+		NotificationWidget = nullptr;
+	}
+
+	if (NotificationWidget)
 	{
 		return;
 	}
@@ -112,4 +142,14 @@ TSubclassOf<ULoop9NotificationWidget> ULoop9GameplayNotificationSubsystem::Resol
 	}
 
 	return ULoop9NotificationWidget::StaticClass();
+}
+
+void ULoop9GameplayNotificationSubsystem::HandleWorldCleanup(
+	UWorld* World, bool, bool)
+{
+	if (NotificationWidget && NotificationWidget->GetWorld() == World)
+	{
+		NotificationWidget->RemoveFromParent();
+		NotificationWidget = nullptr;
+	}
 }

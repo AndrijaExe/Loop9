@@ -29,6 +29,11 @@ void AHorrorCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SprintFixedTickTime = FMath::Max(0.01f, SprintFixedTickTime);
+	SprintTime = FMath::Max(0.1f, SprintTime);
+	SprintSpeed = FMath::Max(1.0f, SprintSpeed);
+	RecoveringWalkSpeed = FMath::Max(1.0f, RecoveringWalkSpeed);
+
 	// initialize sprint meter to max
 	SprintMeter = SprintTime;
 
@@ -41,10 +46,12 @@ void AHorrorCharacter::BeginPlay()
 
 void AHorrorCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SprintTimer);
+	}
 
-	// clear the sprint timer
-	GetWorld()->GetTimerManager().ClearTimer(SprintTimer);
+	Super::EndPlay(EndPlayReason);
 }
 
 void AHorrorCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -26,6 +26,13 @@ void UReplacementTerminalWidget::NativeDestruct()
 		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
 	}
 
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TypingTimerHandle);
+		World->GetTimerManager().ClearTimer(NextLineTimerHandle);
+		World->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+	}
+
 	Super::NativeDestruct();
 }
 

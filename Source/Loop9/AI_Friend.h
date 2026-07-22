@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Interaction/Loop9Interactable.h"
@@ -139,7 +140,7 @@ private:
 	bool ShouldUseAnomalyMumble() const;
 	class UAI_ChatWidget* GetChatWidgetTyped() const;
 	class UAI_ChatWidget* GetOrCreateChatWidgetTyped(APlayerController* PlayerController);
-	void SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled) const;
+	void SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled);
 	void ApplyInteractionInputMode(APlayerController* PlayerController, bool bUIOnly) const;
 
 	void OnResponseReceived(FString Response);
@@ -174,6 +175,9 @@ private:
 	bool bPendingAuthChat = false;
 	bool bPendingAuthChatIsRetry = false;
 	bool bInteractionInputCaptured = false;
+	bool bSavedMovementModeValid = false;
+	TEnumAsByte<EMovementMode> SavedMovementMode = MOVE_Walking;
+	uint8 SavedCustomMovementMode = 0;
 	uint64 ChatRequestGeneration = 0;
 	FDelegateHandle AuthReadyHandle;
 	FDelegateHandle AuthFailedHandle;

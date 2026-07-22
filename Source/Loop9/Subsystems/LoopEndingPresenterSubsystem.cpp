@@ -55,23 +55,23 @@ void ULoopEndingPresenterSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem* Relationship)
+bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem* Relationship)
 {
 	if (PresentationState != EPresentationState::Idle)
 	{
-		return;
+		return false;
 	}
 
 	UWorld* World = GetWorld();
 	if (!World || !Relationship)
 	{
-		return;
+		return false;
 	}
 
 	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
 	if (!PC)
 	{
-		return;
+		return false;
 	}
 
 	PC->SetIgnoreMoveInput(true);
@@ -102,6 +102,8 @@ void ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	{
 		PresentPendingEndingAfterFade(2.0f);
 	}
+
+	return true;
 }
 
 bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType EndingType)

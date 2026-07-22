@@ -18,4 +18,7 @@ struct FLoop9WidgetClickBinder
 
 	/** If Widget has a ButtonText FText property (WBP_Button), set it. */
 	static void SetButtonText(UWidget* Widget, const FText& InText);
+
+	/** Resolves a real focusable child for raw buttons and composite WBP_Button widgets. */
+	static UWidget* ResolveFocusableWidget(UWidget* Widget);
 };

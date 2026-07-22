@@ -1,11 +1,49 @@
 #include "Anomaly/AnomalyComponent.h"
 
-#include "Components/BrushComponent.h"
 #include "Components/PrimitiveComponent.h"
 
 UAnomalyComponent::UAnomalyComponent()
 {
 	AnomalyProbability = 0.5f;
+}
+
+void UAnomalyComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	CaptureBaselineState();
+}
+
+void UAnomalyComponent::CaptureBaselineState()
+{
+	AActor* Owner = GetOwner();
+	if (!Owner)
+	{
+		return;
+	}
+
+	bOwnerHiddenInGame = Owner->IsHidden();
+	bOwnerCollisionEnabled = Owner->GetActorEnableCollision();
+	OwnerScale = Owner->GetActorScale3D();
+
+	PrimitiveBaselineStates.Reset();
+	TArray<UPrimitiveComponent*> PrimitiveComponents;
+	Owner->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+	PrimitiveBaselineStates.Reserve(PrimitiveComponents.Num());
+	for (UPrimitiveComponent* PrimitiveComponent : PrimitiveComponents)
+	{
+		if (!PrimitiveComponent)
+		{
+			continue;
+		}
+
+		FPrimitiveBaselineState& State = PrimitiveBaselineStates.AddDefaulted_GetRef();
+		State.Component = PrimitiveComponent;
+		State.bVisible = PrimitiveComponent->IsVisible();
+		State.bHiddenInGame = PrimitiveComponent->bHiddenInGame;
+		State.CollisionEnabled = PrimitiveComponent->GetCollisionEnabled();
+	}
+
+	bBaselineCaptured = true;
 }
 
 void UAnomalyComponent::ToggleAnomaly()
@@ -28,24 +66,23 @@ bool UAnomalyComponent::ApplyAnomalyState()
 		return false;
 	}
 
-	if (UBrushComponent* BrushComp = Owner->FindComponentByClass<UBrushComponent>())
+	if (!bBaselineCaptured)
 	{
-		BrushComp->SetVisibility(false, true);
-		BrushComp->SetHiddenInGame(true);
-		BrushComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CaptureBaselineState();
 	}
 
 	Owner->SetActorHiddenInGame(true);
 	Owner->SetActorEnableCollision(false);
 	Owner->SetActorScale3D(FVector(0.001f, 0.001f, 0.001f));
 
-	TArray<UPrimitiveComponent*> PrimComponents;
-	Owner->GetComponents<UPrimitiveComponent>(PrimComponents);
-	for (UPrimitiveComponent* PrimComp : PrimComponents)
+	for (const FPrimitiveBaselineState& State : PrimitiveBaselineStates)
 	{
-		PrimComp->SetVisibility(false, true);
-		PrimComp->SetHiddenInGame(true);
-		PrimComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (UPrimitiveComponent* PrimitiveComponent = State.Component.Get())
+		{
+			PrimitiveComponent->SetVisibility(false, false);
+			PrimitiveComponent->SetHiddenInGame(true);
+			PrimitiveComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
 	}
 
 	return true;
@@ -54,29 +91,23 @@ bool UAnomalyComponent::ApplyAnomalyState()
 void UAnomalyComponent::RestoreNormalState()
 {
 	AActor* Owner = GetOwner();
-	if (!Owner)
+	if (!Owner || !bBaselineCaptured)
 	{
 		return;
 	}
 
-	if (UBrushComponent* BrushComp = Owner->FindComponentByClass<UBrushComponent>())
-	{
-		BrushComp->SetVisibility(true, true);
-		BrushComp->SetHiddenInGame(false);
-		BrushComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	}
+	Owner->SetActorHiddenInGame(bOwnerHiddenInGame);
+	Owner->SetActorEnableCollision(bOwnerCollisionEnabled);
+	Owner->SetActorScale3D(OwnerScale);
 
-	Owner->SetActorHiddenInGame(false);
-	Owner->SetActorEnableCollision(true);
-	Owner->SetActorScale3D(FVector(1.0f, 1.0f, 1.0f));
-
-	TArray<UPrimitiveComponent*> PrimComponents;
-	Owner->GetComponents<UPrimitiveComponent>(PrimComponents);
-	for (UPrimitiveComponent* PrimComp : PrimComponents)
+	for (const FPrimitiveBaselineState& State : PrimitiveBaselineStates)
 	{
-		PrimComp->SetVisibility(true, true);
-		PrimComp->SetHiddenInGame(false);
-		PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if (UPrimitiveComponent* PrimitiveComponent = State.Component.Get())
+		{
+			PrimitiveComponent->SetVisibility(State.bVisible, false);
+			PrimitiveComponent->SetHiddenInGame(State.bHiddenInGame);
+			PrimitiveComponent->SetCollisionEnabled(State.CollisionEnabled);
+		}
 	}
 }
 

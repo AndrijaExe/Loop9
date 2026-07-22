@@ -6,6 +6,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Loop9WidgetClickBinder.h"
 #include "SettingsWidget.h"
+#include "GameFramework/PlayerController.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -80,7 +81,8 @@ void UMainMenuWidget::OnPlayClicked()
 	}
 	else
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), FName("MainLevel"));
+		// Keep the fallback aligned with MainMenuGameMode and packaged maps.
+		UGameplayStatics::OpenLevel(GetWorld(), FName("FullOfficeMap"));
 	}
 }
 
@@ -102,7 +104,10 @@ void UMainMenuWidget::OnSettingsClicked()
 
 	USettingsWidget::RemoveAllFromViewport(GetWorld());
 
-	SettingsWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), SettingsWidgetClass);
+	APlayerController* OwningController = GetOwningPlayer();
+	SettingsWidgetInstance = CreateWidget<UUserWidget>(
+		OwningController ? OwningController : UGameplayStatics::GetPlayerController(GetWorld(), 0),
+		SettingsWidgetClass);
 	if (SettingsWidgetInstance)
 	{
 		if (USettingsWidget* SettingsUI = Cast<USettingsWidget>(SettingsWidgetInstance))
@@ -112,6 +117,15 @@ void UMainMenuWidget::OnSettingsClicked()
 
 		SetVisibility(ESlateVisibility::Hidden);
 		SettingsWidgetInstance->AddToViewport(1);
+		if (OwningController)
+		{
+			UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(SettingsWidgetInstance);
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			OwningController->SetInputMode(InputMode);
+			FocusTarget->SetUserFocus(OwningController);
+		}
 		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: Settings widget opened"));
 	}
 	else
@@ -147,4 +161,18 @@ void UMainMenuWidget::OnBackFromSettings()
 
 	ApplyLocalizedTexts();
 	SetVisibility(ESlateVisibility::Visible);
+
+	if (APlayerController* OwningController = GetOwningPlayer())
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Play);
+		if (!FocusTarget)
+		{
+			FocusTarget = this;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
 }

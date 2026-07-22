@@ -1,6 +1,7 @@
 #include "UI/Loop9WidgetClickBinder.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Widget.h"
@@ -32,6 +33,50 @@ namespace Loop9ClickBinderPrivate
 			if (UButton* Found = Cast<UButton>(AsUserWidget->GetWidgetFromName(Name)))
 			{
 				return Found;
+			}
+		}
+
+		return nullptr;
+	}
+
+	static UButton* FindFirstButtonRecursive(UWidget* Widget)
+	{
+		if (!Widget)
+		{
+			return nullptr;
+		}
+
+		if (UButton* Button = Cast<UButton>(Widget))
+		{
+			return Button;
+		}
+
+		UUserWidget* UserWidget = Cast<UUserWidget>(Widget);
+		if (!UserWidget || !UserWidget->WidgetTree)
+		{
+			return nullptr;
+		}
+
+		if (UButton* KnownNestedButton = FindNestedButton(UserWidget))
+		{
+			return KnownNestedButton;
+		}
+
+		TArray<UWidget*> ChildWidgets;
+		UserWidget->WidgetTree->GetAllWidgets(ChildWidgets);
+		for (UWidget* ChildWidget : ChildWidgets)
+		{
+			if (UButton* ChildButton = Cast<UButton>(ChildWidget))
+			{
+				return ChildButton;
+			}
+		}
+
+		for (UWidget* ChildWidget : ChildWidgets)
+		{
+			if (UButton* NestedButton = FindFirstButtonRecursive(ChildWidget))
+			{
+				return NestedButton;
 			}
 		}
 
@@ -144,4 +189,19 @@ void FLoop9WidgetClickBinder::SetButtonText(UWidget* Widget, const FText& InText
 			}
 		}
 	}
+}
+
+UWidget* FLoop9WidgetClickBinder::ResolveFocusableWidget(UWidget* Widget)
+{
+	if (!Widget)
+	{
+		return nullptr;
+	}
+
+	if (UButton* Button = Loop9ClickBinderPrivate::FindFirstButtonRecursive(Widget))
+	{
+		return Button;
+	}
+
+	return Widget;
 }

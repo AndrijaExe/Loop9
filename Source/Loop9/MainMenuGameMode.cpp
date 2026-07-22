@@ -7,6 +7,7 @@
 #include "GameHelpers.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "UI/Loop9WidgetClickBinder.h"
 #include "Camera/CameraActor.h"
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
@@ -152,6 +153,12 @@ void AMainMenuGameMode::ShowMainMenu()
 	if (MainMenuWidgetInstance)
 	{
 		MainMenuWidgetInstance->AddToViewport();
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(MainMenuWidgetInstance);
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(PlayerController);
 		UE_LOG(LogTemp, Log, TEXT("MainMenuGameMode: Main menu shown successfully"));
 	}
 	else

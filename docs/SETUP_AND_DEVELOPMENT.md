@@ -13,29 +13,11 @@
 ## Clone and first open
 
 1. Clone the game repository.
-2. Copy config templates (do not commit local secrets):
-
-Windows (PowerShell):
-
-```powershell
-copy Config\DefaultGame.ini.example Config\DefaultGame.ini
-copy Config\DefaultEngine.ini.example Config\DefaultEngine.ini
-```
-
-Linux / macOS:
-
-```bash
-cp Config/DefaultGame.ini.example Config/DefaultGame.ini
-cp Config/DefaultEngine.ini.example Config/DefaultEngine.ini
-```
-
-3. Edit `Config/DefaultGame.ini`:
-   - Set production `APIEndpoint` to the live backend chat URL.
-   - Keep Steam session auth as the shipping path. Do **not** package a game token.
-4. Edit `Config/DefaultEngine.ini`:
-   - Set `SteamDevAppId=4982260` for local Steam testing.
-5. Install marketplace content into `Content/` (see table below).
-6. Open `Loop9.uproject` in UE 5.8 and let it compile `Loop9Editor`.
+2. Keep the tracked `DefaultGame.ini` and `DefaultEngine.ini`. They contain
+   non-secret production defaults: startup/cook maps, cultures, public backend
+   endpoint and Steam App ID `4982260`. Do **not** package a game token.
+3. Install marketplace content into `Content/` (see table below).
+4. Open `Loop9.uproject` in UE 5.8 and let it compile `Loop9Editor`.
 
 ## Marketplace content (gitignored)
 

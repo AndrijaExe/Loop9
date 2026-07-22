@@ -77,7 +77,7 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   i „скажи мне/что мне делать“.
 
 - [ ] Rebuildovati `Loop9Editor` posle trenutnih C++ anomaly/debug popravki.
-- [ ] U lokalnom `Config/DefaultEngine.ini` postaviti:
+- [x] U tracked `Config/DefaultEngine.ini` postavljeno:
   - `SteamDevAppId=4982260`
   - `r.VirtualTextures=True`
 - [ ] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle

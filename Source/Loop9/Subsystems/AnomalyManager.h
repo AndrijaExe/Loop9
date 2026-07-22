@@ -47,6 +47,10 @@ public:
 	void PrintAnomalyStats();
 
 	void UpdateLoopAnomalyTracking(int32 LoopIndex);
+	/** Invalidates the cached snapshot when a new floor visit begins. */
+	void BeginLoopVisit();
+	/** Clears both current and previous visit tracking for a new run. */
+	void ResetRunTracking();
 	FString GetCurrentLoopAnomalyContext() const { return CurrentLoopAnomalyContext; }
 	FString GetCurrentLoopAnomalyKey() const { return CurrentLoopAnomalyKey; }
 	bool IsCurrentLoopAnomalyRepeat() const { return bCurrentLoopAnomalyRepeat; }

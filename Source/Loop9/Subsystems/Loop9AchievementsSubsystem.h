@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/Ticker.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Loop/LoopTypes.h"
 #include "Loop9AchievementsSubsystem.generated.h"
@@ -25,6 +26,7 @@ class LOOP9_API ULoop9AchievementsSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	/** Unlocks a single achievement by its Steamworks API name (also callable from Blueprint for one-off triggers). */
 	UFUNCTION(BlueprintCallable, Category = "Achievements")
@@ -54,7 +56,9 @@ public:
 private:
 	void QueryAchievementsCache();
 	void FlushPendingUnlocks();
-	void WriteUnlock(FName AchievementId);
+	bool WriteUnlock(FName AchievementId);
+	void SchedulePendingRetry();
+	bool HandlePendingRetry(float DeltaSeconds);
 
 	void RecordSeenEnding(ELoopEndingType EndingType);
 	void RecordSpottedAnomalies(const FString& AnomalyKey);
@@ -64,8 +68,11 @@ private:
 	// Online plumbing
 	bool bCacheReady = false;
 	bool bQueryInFlight = false;
+	float PendingRetryDelaySeconds = 2.0f;
 	TArray<FName> PendingUnlocks;
+	TSet<FName> InFlightUnlocks;
 	TSet<FName> UnlockedThisSession;
+	FTSTicker::FDelegateHandle PendingRetryTickerHandle;
 
 	// Per-run tracking (reset on run restart / finish)
 	int32 CorrectDecisionStreak = 0;

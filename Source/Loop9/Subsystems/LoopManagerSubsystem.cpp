@@ -399,6 +399,12 @@ void ULoopManagerSubsystem::ResetRunState()
 		Relationship->ResetRelationshipState();
 	}
 
+	if (UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance()))
+	{
+		AnomalyManager->ResetAllAnomalies();
+		AnomalyManager->ResetRunTracking();
+	}
+
 	ClearAllAIChats();
 	UE_LOG(LogTemp, Log, TEXT("Loop: %d"), CurrentLoop);
 }
@@ -444,11 +450,13 @@ void ULoopManagerSubsystem::TriggerEndingSequence()
 		return;
 	}
 
-	bGameFinished = true;
-
 	if (ULoopEndingPresenterSubsystem* Presenter = GetGameInstance()->GetSubsystem<ULoopEndingPresenterSubsystem>())
 	{
-		Presenter->TriggerEndingSequence(GetRelationship());
+		bGameFinished = Presenter->TriggerEndingSequence(GetRelationship());
+		if (!bGameFinished)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Loop: ending presentation could not start; gameplay remains active."));
+		}
 	}
 }
 
@@ -604,6 +612,15 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 	}
 
 	AnomalyManager->ResetAllAnomalies();
+	AnomalyManager->BeginLoopVisit();
+
+	// Floor 1 is always the clean baseline, including after an incorrect
+	// decision sends the player back to it. Debug forcing remains available.
+	if (CurrentLoop <= 1 && !bDebugAlwaysSpawnMoveAnomaly)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Anomaly: NO (clean baseline)"));
+		return;
+	}
 
 	const bool bShouldHaveAnomaly = bDebugAlwaysSpawnMoveAnomaly ? true : FMath::RandBool();
 	if (!bShouldHaveAnomaly)

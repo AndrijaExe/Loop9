@@ -36,27 +36,11 @@ Locally the full project is ~19 GB because of third-party content in `Content/`.
 ## Setup after clone
 
 1. Clone the repo.
-2. Copy config templates:
-
-   Windows (PowerShell):
-
-   ```powershell
-   copy Config\DefaultGame.ini.example Config\DefaultGame.ini
-   copy Config\DefaultEngine.ini.example Config\DefaultEngine.ini
-   ```
-
-   Linux / macOS:
-
-   ```bash
-   cp Config/DefaultGame.ini.example Config/DefaultGame.ini
-   cp Config/DefaultEngine.ini.example Config/DefaultEngine.ini
-   ```
-
-3. Edit `Config/DefaultGame.ini` and set the production `APIEndpoint`.
-   Steam supplies player identity/session auth; do not package a game token.
-4. Set `SteamDevAppId=4982260` in `Config/DefaultEngine.ini` for local Steam testing.
-5. Install the marketplace assets listed below into `Content/` (same folder names).
-6. Open `Loop9.uproject` in UE 5.8 and let it compile.
+2. The tracked default configs already contain startup/cook maps, Steam App ID
+   `4982260`, supported cultures, and the public production backend endpoint.
+   Steam supplies player identity/session auth; never add a packaged game token.
+3. Install the marketplace assets listed below into `Content/` (same folder names).
+4. Open `Loop9.uproject` in UE 5.8 and let it compile.
 
 More detail: [docs/SETUP_AND_DEVELOPMENT.md](docs/SETUP_AND_DEVELOPMENT.md).
 

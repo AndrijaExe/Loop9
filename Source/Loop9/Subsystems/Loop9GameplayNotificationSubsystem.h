@@ -5,6 +5,7 @@
 #include "Loop9GameplayNotificationSubsystem.generated.h"
 
 class ULoop9NotificationWidget;
+class UWorld;
 
 UCLASS()
 class LOOP9_API ULoop9GameplayNotificationSubsystem : public UGameInstanceSubsystem
@@ -12,6 +13,9 @@ class LOOP9_API ULoop9GameplayNotificationSubsystem : public UGameInstanceSubsys
 	GENERATED_BODY()
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Notifications", meta = (WorldContext = "WorldContextObject"))
 	static ULoop9GameplayNotificationSubsystem* GetGameplayNotifications(const UObject* WorldContextObject);
 
@@ -30,7 +34,10 @@ public:
 private:
 	void EnsureNotificationWidget();
 	TSubclassOf<ULoop9NotificationWidget> ResolveNotificationWidgetClass() const;
+	void HandleWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 
 	UPROPERTY(Transient)
 	TObjectPtr<ULoop9NotificationWidget> NotificationWidget;
+
+	FDelegateHandle WorldCleanupDelegateHandle;
 };

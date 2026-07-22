@@ -160,8 +160,9 @@ void ULoop9TelemetrySubsystem::DispatchRunFinished(
 		[](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful)
 		{
 			const int32 Code = Response.IsValid() ? Response->GetResponseCode() : 0;
+			const bool bAccepted = bWasSuccessful && Response.IsValid() && Code >= 200 && Code < 300;
 			UE_LOG(LogTemp, Log, TEXT("Run telemetry result: %s (HTTP %d)"),
-				bWasSuccessful ? TEXT("ok") : TEXT("failed"), Code);
+				bAccepted ? TEXT("ok") : TEXT("failed"), Code);
 		});
 
 	if (!HttpRequest->ProcessRequest())

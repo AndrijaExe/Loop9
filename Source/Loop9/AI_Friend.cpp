@@ -198,7 +198,7 @@ UAI_ChatWidget* AAI_Friend::GetOrCreateChatWidgetTyped(APlayerController* Player
 	return nullptr;
 }
 
-void AAI_Friend::SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled) const
+void AAI_Friend::SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled)
 {
 	if (!PlayerController)
 	{
@@ -211,10 +211,20 @@ void AAI_Friend::SetPlayerMovementEnabled(APlayerController* PlayerController, b
 		{
 			if (bEnabled)
 			{
-				MovementComp->SetMovementMode(MOVE_Walking);
+				if (bSavedMovementModeValid)
+				{
+					MovementComp->SetMovementMode(SavedMovementMode, SavedCustomMovementMode);
+					bSavedMovementModeValid = false;
+				}
 			}
 			else
 			{
+				if (!bSavedMovementModeValid)
+				{
+					SavedMovementMode = MovementComp->MovementMode;
+					SavedCustomMovementMode = MovementComp->CustomMovementMode;
+					bSavedMovementModeValid = true;
+				}
 				MovementComp->DisableMovement();
 			}
 		}
@@ -335,6 +345,8 @@ void AAI_Friend::HandleLoopChanged()
 {
 	// Ignore responses and pending auth callbacks that belong to the previous loop/run.
 	++ChatRequestGeneration;
+	LastLoopIndexForMessageLimit = ResolveCurrentLoopIndex();
+	MessagesSentThisLoop = 0;
 	ClearPendingAuthChat();
 	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
 	{
@@ -630,6 +642,9 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 			{
 				if (ULoopManagerSubsystem* LoopMgr = GI->GetSubsystem<ULoopManagerSubsystem>())
 				{
+					// Relationship intent is committed only after a validated AI
+					// response, so rejected/failed requests cannot influence endings.
+					LoopMgr->RegisterPlayerMessage(Message);
 					LoopMgr->ApplyAIDiagnosedKindnessDelta(ChatResponse.KindnessDelta);
 					LoopMgr->ApplyAIDiagnosedSuspicionDelta(ChatResponse.SuspicionDelta);
 					// Count successful validated replies only (achievements / telemetry).

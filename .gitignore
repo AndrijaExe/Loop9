@@ -42,10 +42,6 @@ Build/
 SourceArt/**/*.png
 SourceArt/**/*.tga
 
-# Sensitive config (use .example files instead)
-Config/DefaultGame.ini
-Config/DefaultEngine.ini
-
 # Local Steam test App ID only — never ship this in the packaged build
 steam_appid.txt
 

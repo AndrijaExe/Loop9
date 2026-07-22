@@ -41,22 +41,22 @@ protected:
 	float WalkSpeed = 250.0f;
 
 	/** Time interval for sprinting stamina ticks */
-	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = 0, ClampMax = 1, Units = "s"))
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "0.01", ClampMax = "1.0", Units = "s"))
 	float SprintFixedTickTime = 0.03333f;
 
 	/** Sprint stamina amount. Maxes at SprintTime */
 	float SprintMeter = 0.0f;
 
 	/** How long we can sprint for, in seconds */
-	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = 0, ClampMax = 10, Units = "s"))
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "0.1", ClampMax = "30.0", Units = "s"))
 	float SprintTime = 3.0f;
 
 	/** Walk speed while sprinting */
-	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = 0, ClampMax = 10, Units = "cm/s"))
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "1.0", ClampMax = "2000.0", Units = "cm/s"))
 	float SprintSpeed = 600.0f;
 
 	/** Walk speed while recovering stamina */
-	UPROPERTY(EditAnywhere, Category="Recovery", meta = (ClampMin = 0, ClampMax = 10, Units = "cm/s"))
+	UPROPERTY(EditAnywhere, Category="Recovery", meta = (ClampMin = "1.0", ClampMax = "2000.0", Units = "cm/s"))
 	float RecoveringWalkSpeed = 150.0f;
 
 	/** Time it takes for the sprint meter to recover */

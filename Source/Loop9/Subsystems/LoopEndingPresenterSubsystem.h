@@ -23,7 +23,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void TriggerEndingSequence(URelationshipSubsystem* Relationship);
+	/** Returns true once presentation has accepted ownership and locked input. */
+	bool TriggerEndingSequence(URelationshipSubsystem* Relationship);
 	void ReturnToMainMenu(APlayerController* PlayerController);
 
 private:

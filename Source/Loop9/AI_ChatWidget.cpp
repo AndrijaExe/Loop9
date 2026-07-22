@@ -5,7 +5,6 @@
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "Framework/Application/SlateApplication.h"
-#include "Subsystems/LoopManagerSubsystem.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
@@ -64,6 +63,7 @@ void UAI_ChatWidget::NativeDestruct()
 		World->GetTimerManager().ClearTimer(AITypewriterTimerHandle);
 		World->GetTimerManager().ClearTimer(AICursorBlinkTimerHandle);
 		World->GetTimerManager().ClearTimer(MessageInputFocusTimerHandle);
+		World->GetTimerManager().ClearTimer(ThinkingLongWaitTimerHandle);
 	}
 
 	Super::NativeDestruct();
@@ -508,14 +508,6 @@ void UAI_ChatWidget::SendMessageToAI(const FString& Message)
 	AddMessageToChat(Message, true);
 
 	UE_LOG(LogTemp, Log, TEXT("AI_ChatWidget: Sending message to AI_Friend. Len=%d"), Message.Len());
-
-	if (UGameInstance* GI = GetGameInstance())
-	{
-		if (ULoopManagerSubsystem* LoopManager = GI->GetSubsystem<ULoopManagerSubsystem>())
-		{
-			LoopManager->RegisterPlayerMessage(Message);
-		}
-	}
 
 	AIFriendRef->SayToAI(Message);
 }

@@ -10,6 +10,12 @@ UAudioAnomalyComponent::UAudioAnomalyComponent()
 	AnomalyProbability = 0.5f;
 }
 
+void UAudioAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	RestoreNormalState();
+	Super::EndPlay(EndPlayReason);
+}
+
 bool UAudioAnomalyComponent::ApplyAnomalyState()
 {
 	if (!AnomalySound)
@@ -23,12 +29,12 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 		return false;
 	}
 
-	if (RuntimeAudioComponent)
+	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->Stop();
 		RuntimeAudioComponent->DestroyComponent();
-		RuntimeAudioComponent = nullptr;
 	}
+	RuntimeAudioComponent = nullptr;
 
 	if (bPlaySoundAtLocation)
 	{
@@ -72,14 +78,15 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 			PitchMultiplier,
 			0.0f,
 			nullptr,
-			true);
+			false);
 	}
 
-	if (RuntimeAudioComponent)
+	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->bIsUISound = false;
 		RuntimeAudioComponent->bAllowSpatialization = bPlaySoundAtLocation;
-		RuntimeAudioComponent->bAutoDestroy = !bLooping;
+		// This component owns the pointer and tears it down explicitly.
+		RuntimeAudioComponent->bAutoDestroy = false;
 		RuntimeAudioComponent->SetVolumeMultiplier(VolumeMultiplier);
 		RuntimeAudioComponent->SetPitchMultiplier(PitchMultiplier);
 	}
@@ -89,10 +96,10 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 
 void UAudioAnomalyComponent::RestoreNormalState()
 {
-	if (RuntimeAudioComponent)
+	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->Stop();
 		RuntimeAudioComponent->DestroyComponent();
-		RuntimeAudioComponent = nullptr;
 	}
+	RuntimeAudioComponent = nullptr;
 }

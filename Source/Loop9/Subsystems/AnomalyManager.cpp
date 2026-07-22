@@ -51,13 +51,23 @@ void UAnomalyManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UAnomalyManager::Deinitialize()
 {
+	ResetRunTracking();
 	Super::Deinitialize();
 	RegisteredComponents.Empty();
+}
+
+void UAnomalyManager::BeginLoopVisit()
+{
 	TrackedLoopIndex = INDEX_NONE;
-	PreviousLoopAnomalyKey.Empty();
 	CurrentLoopAnomalyKey.Empty();
 	CurrentLoopAnomalyContext = TEXT("No active anomaly currently detected.");
 	bCurrentLoopAnomalyRepeat = false;
+}
+
+void UAnomalyManager::ResetRunTracking()
+{
+	BeginLoopVisit();
+	PreviousLoopAnomalyKey.Empty();
 }
 
 void UAnomalyManager::CleanupInvalidComponents()

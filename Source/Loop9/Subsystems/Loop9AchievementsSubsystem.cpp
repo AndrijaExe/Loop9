@@ -58,6 +58,19 @@ void ULoop9AchievementsSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 	QueryAchievementsCache();
 }
 
+void ULoop9AchievementsSubsystem::Deinitialize()
+{
+	if (PendingRetryTickerHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(PendingRetryTickerHandle);
+		PendingRetryTickerHandle.Reset();
+	}
+
+	PendingUnlocks.Reset();
+	InFlightUnlocks.Reset();
+	Super::Deinitialize();
+}
+
 FName ULoop9AchievementsSubsystem::EndingAchievementId(ELoopEndingType EndingType)
 {
 	switch (EndingType)
@@ -264,14 +277,18 @@ void ULoop9AchievementsSubsystem::SavePersistedList(const TCHAR* Key, const TArr
 
 void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)
 {
-	if (AchievementId.IsNone() || UnlockedThisSession.Contains(AchievementId))
+	if (AchievementId.IsNone()
+		|| UnlockedThisSession.Contains(AchievementId)
+		|| InFlightUnlocks.Contains(AchievementId))
 	{
 		return;
 	}
 
 	if (!GetAchievementsInterface().IsValid() || !GetLocalPlayerId().IsValid())
 	{
-		UE_LOG(LogTemp, Verbose, TEXT("Achievements: no online subsystem/player, skipping %s."), *AchievementId.ToString());
+		PendingUnlocks.AddUnique(AchievementId);
+		SchedulePendingRetry();
+		UE_LOG(LogTemp, Verbose, TEXT("Achievements: no online subsystem/player; queued %s."), *AchievementId.ToString());
 		return;
 	}
 
@@ -282,7 +299,12 @@ void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)
 		return;
 	}
 
-	WriteUnlock(AchievementId);
+	if (!WriteUnlock(AchievementId))
+	{
+		bCacheReady = false;
+		PendingUnlocks.AddUnique(AchievementId);
+		SchedulePendingRetry();
+	}
 }
 
 void ULoop9AchievementsSubsystem::QueryAchievementsCache()
@@ -296,6 +318,10 @@ void ULoop9AchievementsSubsystem::QueryAchievementsCache()
 	FUniqueNetIdPtr PlayerId = GetLocalPlayerId();
 	if (!Achievements.IsValid() || !PlayerId.IsValid())
 	{
+		if (PendingUnlocks.Num() > 0)
+		{
+			SchedulePendingRetry();
+		}
 		return;
 	}
 
@@ -317,11 +343,16 @@ void ULoop9AchievementsSubsystem::QueryAchievementsCache()
 
 				if (bWasSuccessful)
 				{
+					Self->PendingRetryDelaySeconds = 2.0f;
 					Self->FlushPendingUnlocks();
 				}
 				else
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Achievements: query failed; pending unlocks kept for retry."));
+					if (Self->PendingUnlocks.Num() > 0)
+					{
+						Self->SchedulePendingRetry();
+					}
 				}
 			}));
 }
@@ -333,33 +364,91 @@ void ULoop9AchievementsSubsystem::FlushPendingUnlocks()
 
 	for (const FName& AchievementId : ToUnlock)
 	{
-		if (!UnlockedThisSession.Contains(AchievementId))
+		if (!UnlockedThisSession.Contains(AchievementId) && !InFlightUnlocks.Contains(AchievementId))
 		{
-			WriteUnlock(AchievementId);
+			if (!WriteUnlock(AchievementId))
+			{
+				bCacheReady = false;
+				PendingUnlocks.AddUnique(AchievementId);
+			}
 		}
+	}
+
+	if (PendingUnlocks.Num() > 0)
+	{
+		SchedulePendingRetry();
 	}
 }
 
-void ULoop9AchievementsSubsystem::WriteUnlock(FName AchievementId)
+bool ULoop9AchievementsSubsystem::WriteUnlock(FName AchievementId)
 {
 	IOnlineAchievementsPtr Achievements = GetAchievementsInterface();
 	FUniqueNetIdPtr PlayerId = GetLocalPlayerId();
 	if (!Achievements.IsValid() || !PlayerId.IsValid())
 	{
-		return;
+		return false;
 	}
 
-	UnlockedThisSession.Add(AchievementId);
+	InFlightUnlocks.Add(AchievementId);
 
 	FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
 	WriteObject->SetFloatStat(AchievementId.ToString(), 100.0f);
 
+	TWeakObjectPtr<ULoop9AchievementsSubsystem> WeakThis(this);
 	FOnlineAchievementsWriteRef WriteRef = WriteObject.ToSharedRef();
 	Achievements->WriteAchievements(*PlayerId, WriteRef,
 		FOnAchievementsWrittenDelegate::CreateLambda(
-			[AchievementId](const FUniqueNetId&, bool bWasSuccessful)
+			[WeakThis, AchievementId](const FUniqueNetId&, bool bWasSuccessful)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Achievements: unlock %s -> %s"),
 					*AchievementId.ToString(), bWasSuccessful ? TEXT("OK") : TEXT("FAILED"));
+
+				if (!WeakThis.IsValid())
+				{
+					return;
+				}
+
+				ULoop9AchievementsSubsystem* Self = WeakThis.Get();
+				Self->InFlightUnlocks.Remove(AchievementId);
+				if (bWasSuccessful)
+				{
+					Self->UnlockedThisSession.Add(AchievementId);
+					Self->PendingRetryDelaySeconds = 2.0f;
+					return;
+				}
+
+				// The online API exposes only success/failure here, not a permanent
+				// error category. Keep the unlock queued with capped backoff.
+				Self->PendingUnlocks.AddUnique(AchievementId);
+				Self->SchedulePendingRetry();
 			}));
+
+	return true;
+}
+
+void ULoop9AchievementsSubsystem::SchedulePendingRetry()
+{
+	if (!PendingRetryTickerHandle.IsValid())
+	{
+		PendingRetryTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateUObject(
+				this, &ULoop9AchievementsSubsystem::HandlePendingRetry),
+			PendingRetryDelaySeconds);
+		PendingRetryDelaySeconds = FMath::Min(PendingRetryDelaySeconds * 2.0f, 30.0f);
+	}
+}
+
+bool ULoop9AchievementsSubsystem::HandlePendingRetry(float)
+{
+	PendingRetryTickerHandle.Reset();
+	if (bCacheReady)
+	{
+		FlushPendingUnlocks();
+	}
+	else
+	{
+		QueryAchievementsCache();
+	}
+
+	return false;
 }

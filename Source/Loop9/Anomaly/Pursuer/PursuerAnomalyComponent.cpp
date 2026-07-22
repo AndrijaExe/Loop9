@@ -108,7 +108,9 @@ void UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed(AActor* DestroyedActor)
 		}
 
 		SpawnedPursuer = nullptr;
-		bIsAnomalyActive = false;
+		// Keep the anomaly active for the rest of this floor visit even after
+		// the manifestation despawns. Elevator judgment and achievements must
+		// reflect what the player encountered, not whether the actor still exists.
 	}
 }
 

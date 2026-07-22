@@ -87,9 +87,13 @@ void USettingsWidget::PopulateGraphicsOptions()
 	{
 		ComboBoxString_Resolution->ClearOptions();
 		ComboBoxString_Resolution->AddOption(TEXT("1280x720"));
+		ComboBoxString_Resolution->AddOption(TEXT("1280x800"));
 		ComboBoxString_Resolution->AddOption(TEXT("1600x900"));
 		ComboBoxString_Resolution->AddOption(TEXT("1920x1080"));
+		ComboBoxString_Resolution->AddOption(TEXT("2560x1080"));
 		ComboBoxString_Resolution->AddOption(TEXT("2560x1440"));
+		ComboBoxString_Resolution->AddOption(TEXT("3440x1440"));
+		ComboBoxString_Resolution->AddOption(TEXT("3840x2160"));
 	}
 
 	if (ComboBoxString_Quality)

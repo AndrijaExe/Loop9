@@ -70,8 +70,8 @@ flowchart TB
 
 | Surface | Purpose |
 |---|---|
-| `Config/DefaultGame.ini` | `APIEndpoint`, cultures, inspection tuning (from `.example`) |
-| `Config/DefaultEngine.ini` | Maps, `SteamDevAppId`, rendering (from `.example`) |
+| `Config/DefaultGame.ini` | Tracked production endpoint, packaged cultures/maps and inspection tuning |
+| `Config/DefaultEngine.ini` | Tracked startup maps, Steam App ID, collision and rendering defaults |
 | `Saved/Config/.../Game.ini` | Settings + achievement meta progress (`Loop9AchievementsSubsystem`) |
 | Steam Cloud Auto-Cloud | Syncs selected `Saved/Config` files (see release checklist) |
 
