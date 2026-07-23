@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **20.07.2026.**
+Poslednje ažuriranje: **23.07.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -80,6 +80,22 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] U tracked `Config/DefaultEngine.ini` postavljeno:
   - `SteamDevAppId=4982260`
   - `r.VirtualTextures=True`
+- [x] Tracked production konfiguracija sada uključuje startup/cook mape, svih pet
+  kultura i javni backend endpoint; nijedan API ključ/game token nije upakovan.
+- [x] Gameplay-state hardening implementiran:
+  prvi sprat ostaje clean baseline i posle reseta, AI limit se resetuje po poseti,
+  a anomaly snapshot/repeat tracking više ne ostaje stale na ponovljenom spratu.
+- [x] Anomaly lifecycle hardening implementiran:
+  Pursuer ostaje zabeležen do odluke, Hide vraća originalni transform/visibility/
+  collision, a looping audio se gasi pri resetu i world teardownu.
+- [x] AI/ending state hardening implementiran:
+  samo validiran AI odgovor menja relationship statistike, neuspešan ending
+  presenter ne zaključava gameplay i prethodni movement mode se vraća posle chata.
+- [x] Steam achievement upisi imaju GameInstance pending queue i capped exponential
+  retry koji preživljava promenu nivoa i kasno pojavljivanje Steam identiteta.
+- [x] UI/runtime cleanup implementiran:
+  stale notification/widget timeri se čiste, main/settings meni fokusira pravo
+  dugme za gamepad/tastaturu, a telemetry razlikuje transport uspeh od HTTP 2xx.
 - [ ] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle
   poslednjih commitovanih `.locres` fajlova; zatim smoke-testirati svih pet jezika.
 - [ ] Item inspection smoke:
@@ -127,9 +143,9 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 
 ## 3. Steam achievements
 
-- [ ] Definisati svih **27** API imena tačno po
+- [x] Definisano svih **27** API imena tačno po
   [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
-- [ ] Uploadovati 27 achieved + 27 locked ikonica.
+- [x] Uploadovano 27 achieved + 27 locked ikonica.
 - [ ] Postaviti hidden flag za 6 endinga, `ACH_DEJA_VU` i
   `ACH_SPOT_PHANTOM`.
 - [ ] Publishovati Stats & Achievements promene.
@@ -235,7 +251,7 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 
 1. Elevator sound asseti/cleanup + ending mini-sequence polish i editor smoke.
 2. GatherText i finalni sadržaj.
-3. Store grafika, screenshotovi, trailer i achievementi.
+3. Store grafika, screenshotovi, trailer i achievement publish/test.
 4. Shipping build → Steam internal branch.
 5. E2E Steam/AI/Cloud/achievement/performance QA.
 6. Valve review → Coming Soon 14 dana → release.
