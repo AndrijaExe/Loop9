@@ -69,18 +69,6 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		LOCTEXT("EndingStatsFormat", "Resets: {0} | AI interactions: {1}"),
 		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
 
-	if (EndingType == ELoopEndingType::TheReplacement)
-	{
-		if (BT_Continue)
-		{
-			BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		if (FallbackContinueButton)
-		{
-			FallbackContinueButton->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
-
 	RefreshBoundWidgets();
 	BP_OnEndingInitialized(EndingType);
 }
@@ -105,6 +93,10 @@ void UEndingWidget::RefreshBoundWidgets()
 	if (TB_Description)
 	{
 		TB_Description->SetText(EndingDescription);
+		// Do not force WrapTextAt / slot sizes — that was pushing the blurb off-screen
+		// in the authored WBP layout. Keep Blueprint anchors/position intact.
+		TB_Description->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		TB_Description->SetRenderOpacity(1.0f);
 	}
 
 	if (TB_Stats)
@@ -143,6 +135,7 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 	DescText->SetColorAndOpacity(FSlateColor(FLinearColor(0.85f, 0.85f, 0.85f, 1.0f)));
 	DescText->SetJustification(ETextJustify::Center);
 	DescText->SetAutoWrapText(true);
+	DescText->SetWrapTextAt(780.0f);
 	VBox->AddChildToVerticalBox(DescText);
 	TB_Description = DescText;
 

@@ -5,11 +5,13 @@
 #include "Loop9.h"
 #include "Loop9CameraManager.h"
 #include "Subsystems/AnomalyManager.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "HorrorCharacter.h"
 #include "HorrorUI.h"
 #include "Engine/GameInstance.h"
+#include "Loop/LoopTypes.h"
 
 ALoop9PlayerController::ALoop9PlayerController()
 {
@@ -219,5 +221,113 @@ void ALoop9PlayerController::AnomalyHelp()
 		"    filter examples: MaterialSwap, Text, Move, OldMagazine, I01, F01, D01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyHelp                         - this message"));
+#endif
+}
+
+#if !UE_BUILD_SHIPPING
+namespace
+{
+	bool ParseEndingTypeArg(const FString& Token, ELoopEndingType& OutType)
+	{
+		if (Token.IsNumeric())
+		{
+			const int32 Index = FCString::Atoi(*Token);
+			if (Index >= 0 && Index <= static_cast<int32>(ELoopEndingType::TheReplacement))
+			{
+				OutType = static_cast<ELoopEndingType>(Index);
+				return true;
+			}
+			return false;
+		}
+
+		const FString Normalized = Token.Replace(TEXT(" "), TEXT("")).Replace(TEXT("_"), TEXT(""));
+		static const TPair<const TCHAR*, ELoopEndingType> Aliases[] = {
+			{ TEXT("EscapeTogether"), ELoopEndingType::EscapeTogether },
+			{ TEXT("ObedientFool"), ELoopEndingType::ObedientFool },
+			{ TEXT("ColdBetrayal"), ELoopEndingType::ColdBetrayal },
+			{ TEXT("ParanoidSurvivor"), ELoopEndingType::ParanoidSurvivor },
+			{ TEXT("MergedMemory"), ELoopEndingType::MergedMemory },
+			{ TEXT("TheReplacement"), ELoopEndingType::TheReplacement },
+			{ TEXT("Replacement"), ELoopEndingType::TheReplacement },
+		};
+
+		for (const TPair<const TCHAR*, ELoopEndingType>& Alias : Aliases)
+		{
+			if (Normalized.Equals(Alias.Key, ESearchCase::IgnoreCase))
+			{
+				OutType = Alias.Value;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	ULoopManagerSubsystem* GetLoopManager(const UObject* WorldContext)
+	{
+		if (!WorldContext)
+		{
+			return nullptr;
+		}
+		if (const UWorld* World = WorldContext->GetWorld())
+		{
+			if (UGameInstance* GI = World->GetGameInstance())
+			{
+				return GI->GetSubsystem<ULoopManagerSubsystem>();
+			}
+		}
+		return nullptr;
+	}
+}
+#endif
+
+void ALoop9PlayerController::EndingSetup(const FString& Args)
+{
+#if UE_BUILD_SHIPPING
+	(void)Args;
+#else
+	TArray<FString> Tokens;
+	Args.ParseIntoArrayWS(Tokens);
+	if (Tokens.Num() == 0 || Tokens[0].Equals(TEXT("Help"), ESearchCase::IgnoreCase))
+	{
+		EndingHelp();
+		return;
+	}
+
+	ELoopEndingType EndingType = ELoopEndingType::EscapeTogether;
+	if (!ParseEndingTypeArg(Tokens[0], EndingType))
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("EndingSetup: unknown ending '%s'"), *Tokens[0]);
+		EndingHelp();
+		return;
+	}
+
+	if (ULoopManagerSubsystem* LoopManager = GetLoopManager(this))
+	{
+		const bool bOk = LoopManager->ApplyEndingTestSetup(EndingType);
+		UE_LOG(LogLoop9, Log, TEXT("EndingSetup %s -> %s. CurrentLoop=9. Press ADVANCE (no anomaly)."),
+			*UEnum::GetValueAsString(EndingType),
+			bOk ? TEXT("ok") : TEXT("FAILED predicted mismatch"));
+	}
+	else
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("EndingSetup: LoopManagerSubsystem not available (start PIE first)"));
+	}
+#endif
+}
+
+void ALoop9PlayerController::EndingHelp()
+{
+#if !UE_BUILD_SHIPPING
+	UE_LOG(LogLoop9, Log, TEXT(
+		"Ending debug commands:\n"
+		"  EndingSetup EscapeTogether   (or 0) - first ending, loop 9\n"
+		"  EndingSetup ObedientFool     (or 1)\n"
+		"  EndingSetup ColdBetrayal    (or 2)\n"
+		"  EndingSetup ParanoidSurvivor (or 3)\n"
+		"  EndingSetup MergedMemory    (or 4)\n"
+		"  EndingSetup TheReplacement  (or 5)\n"
+		"  EndingHelp\n"
+		"After setup: take elevator ADVANCE (anomalies cleared). Ending fires at loop 10."));
 #endif
 }

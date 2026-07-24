@@ -1,12 +1,13 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **23.07.2026.**
+Poslednje ažuriranje: **24.07.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md), marketinški tekst u
 [`Marketing/Steam/STORE_PAGE.md`](Marketing/Steam/STORE_PAGE.md), a cinematic
 dokumentacija u [`docs/CINEMATICS_AND_AUDIO.md`](docs/CINEMATICS_AND_AUDIO.md).
+Zvukovi za dodelu: [`docs/AUDIO_ASSIGNMENT_CHECKLIST.md`](docs/AUDIO_ASSIGNMENT_CHECKLIST.md).
 
 Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
@@ -20,6 +21,9 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
   arrival lift, watchdog fallback i direktan C++ camera blend.
 - [x] U `FullOfficeMap` povezani director, oba dugmeta, door wing reference i
   `TP_LitElevatorArrival`; lift više ne zavisi od Level Sequence asseta.
+- [ ] **Bug:** dugme lifta se može pritisnuti i kada igrač nije u kabini —
+  interakciju ograničiti na volumen/uslov „player inside elevator“ pre
+  `RequestTransition` / button press.
 - [ ] U `BP_LoopElevatorTransitionDirector` postaviti `Button Press Sound` i
   looping `Travel Sound`, zatim podesiti njihove volume/fade vrednosti.
 - [ ] Posle C++ rebuilda otvoriti i resaveovati `FullOfficeMap`/director Blueprint,
@@ -45,6 +49,9 @@ skeletal animacija i bez gameplay logike u Event Tracku.
   po jedno; monitor prikazuje `TASK COMPLETE`; telefon kratko zazvoni.
 - [ ] **Cold Betrayal:** vrata otkrivaju potpuno mračan hodnik; čuje se prekinuta
   telefonska linija; pali se crveno svetlo i vrata se ponovo zatvaraju.
+- [ ] **Bug:** Cold Betrayal — posle blackouta oči (dve crvene tačke) se uopšte
+  ne vide; vratiti vidljiv dual-eye beat (emissive mesh ili pouzdan light setup)
+  tek kada su svetla skroz ugašena, sa holdom ~1 s dužim od ranije.
 - [ ] **Paranoid Survivor:** kamera se okreće od telefona ka izlazu; telefon
   zazvoni iza igrača; kadar počinje da se vraća, ali se završava pre otkrivanja.
 - [ ] **Merged Memory:** fluorescentna svetla trepere; telefon/monitor se kratko

@@ -54,32 +54,50 @@ Set these on `BP_LoopElevatorTransitionDirector` (Details → Elevator Transitio
 
 ## Ending sequences
 
-Six Level Sequences are supported via `ALoop9GameMode::EndingSequences`.
+Ending mini-cinematics prefer the C++ actor `ALoopEndingSceneDirector` when one
+exists in the loaded map (same ownership model as the elevator director).
+
+Fallback order in `ULoopEndingPresenterSubsystem`:
+
+1. `ALoopEndingSceneDirector::PlayEnding` (camera / lights / cosmetic audio / text)
+2. Soft-referenced Level Sequence on `ALoop9GameMode::EndingSequences`
+3. Direct ending widget (no cinematic)
+
+Place one `LoopEndingSceneDirector` (or BP child) in `FullOfficeMap` and assign:
+
+| Property | Suggested actor |
+|---|---|
+| `Phone Actor` | `BP_AI_Friend` |
+| `Chair Actor` | desk chair near Dragojlo (`SM_Chair_18` or closest) |
+| `Arrival Viewpoint Actor` | `TP_LitElevatorArrival` |
+| `Dimmable Light Actors` | up to 3 office `RectLight*` near the phone desk |
+| `Footstep Sound` | `/Game/MyStuff/Sound/Footsteps/Footstep` |
+| `Phone Ring Sound` | `/Game/MyStuff/Sound/Phone/PhoneRingingSound` |
+| `Light Flicker Sound` | `/Game/MyStuff/Sound/MainMenu/light-flicker` |
+| `Line Cut Sound` | optional; falls back to phone ring if empty |
+
+Scene duration defaults to 5 seconds. Sequencer assets may remain mapped for
+fallback, but the director is the release path.
 
 Presenter behavior:
 
 1. Evaluate ending type.
-2. Optionally play the mapped Level Sequence.
-3. Watchdog based on sequence duration (no artificial 120s hard truncate).
-4. Fade, cleanup sequence actor, show ending widget.
-5. Replacement ending may route through a terminal widget.
-6. Return to main menu on a timer after acknowledgement / failure fallback.
+2. Prefer `ALoopEndingSceneDirector` (skip for Paranoid Survivor — glimpse plays while doors close).
+3. Watchdog based on scene/sequence duration.
+4. Fade, then show ending widget (Replacement skips the card and opens the green terminal first).
+5. Replacement terminal ends on a blinking `You:_` prompt, holds ~2.5s, plays optional sound, then shows the ending card with Return to Main Menu.
+6. Final-loop elevator travel stays black after source doors close — it does not reopen the lit cabin before the ending.
 
-Sequencer should only drive camera, lights, props, and cosmetic audio. It must not own:
+### Final-loop elevator note
 
-- loop mutation
-- teleport
-- achievements
-- save/load
-- input restore
+When an advance would finish the run (`CurrentLoop` 9 → 10), `CommitAndArrive` detects the deferred ending and skips lit arrival / door reopen. Ending presentation starts from blackout after the cabin seals.
 
-## Editor QA checklist
+### Paranoid Survivor door-close
 
-- Lit and dark elevator buttons both complete without soft-lock.
-- Abandoned / interrupted transitions restore input.
-- Travel sound stops on arrival and on abort.
-- Each ending sequence reaches its widget.
-- Missing sequence asset still shows the ending widget.
-- Deprecated `LS_Elevator_Lit` / `LS_Elevator_Dark` are unreferenced before deletion.
+While source doors close on the ending advance, the elevator director looks left/right and optionally reveals `ParanoidGlimpseActor` (or spawns `ParanoidWalkerClass`) crossing the doorway in the last beat. Assign a walker mesh/actor on `BP_LoopElevatorTransitionDirector`.
+
+### Obedient Fool audio
+
+Only Obedient Fool starts the ambient phone ring during its mini-scene (`PhoneRingSound` on the ending director).
 
 Release polish tasks remain tracked only in [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md).

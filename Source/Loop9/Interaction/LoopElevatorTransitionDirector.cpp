@@ -17,6 +17,12 @@
 #include "Sound/SoundBase.h"
 #include "TimerManager.h"
 
+namespace
+{
+	constexpr float ParanoidLookDurationSeconds = 2.85f;
+	constexpr float ParanoidGlimpseStartSeconds = 2.15f;
+}
+
 ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -27,7 +33,14 @@ ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
 void ALoopElevatorTransitionDirector::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateLookBlend(DeltaTime);
+	if (bParanoidEndingClose && Phase == ELoopElevatorTransitionPhase::ClosingDoors)
+	{
+		UpdateParanoidClosingLook(DeltaTime);
+	}
+	else
+	{
+		UpdateLookBlend(DeltaTime);
+	}
 }
 
 bool ALoopElevatorTransitionDirector::BeginTransition(
@@ -58,6 +71,10 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 
 	PlayerController = InteractingController;
 	bDecisionCommitted = false;
+	bParanoidEndingClose = false;
+	bParanoidGlimpseSpawned = false;
+	ParanoidCloseElapsedSeconds = 0.0f;
+	CleanupParanoidGlimpse();
 	Phase = ELoopElevatorTransitionPhase::ClosingDoors;
 
 	SourceDoorWings.Reset();
@@ -72,7 +89,20 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 	BindDoorDelegates();
 	LockPlayerInput(true);
 	PlayButtonPressSound(SourceButton);
-	BeginLookBlend(ResolveClosingLookTarget(InteractingController));
+
+	if (WillAdvanceToEnding()
+		&& LoopManager->DetermineEndingType() == ELoopEndingType::ParanoidSurvivor)
+	{
+		bParanoidEndingClose = true;
+		SavedLookBlendDurationSeconds = LookBlendDurationSeconds;
+		LookBlendDurationSeconds = ParanoidLookDurationSeconds;
+		BeginParanoidClosingLook(InteractingController);
+	}
+	else
+	{
+		BeginLookBlend(ResolveClosingLookTarget(InteractingController));
+	}
+
 	OnTransitionStarted(ButtonType);
 	RemoveLegacyBlinkOverlay();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::ClosingDoors)
@@ -96,15 +126,37 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 
 	if (AreSourceDoorsClosed())
 	{
-		BeginTravel();
+		if (bParanoidEndingClose)
+		{
+			if (UWorld* World = GetWorld())
+			{
+				World->GetTimerManager().SetTimer(
+					DoorCloseTimeoutHandle,
+					this,
+					&ALoopElevatorTransitionDirector::BeginTravel,
+					ParanoidLookDurationSeconds,
+					false);
+			}
+			else
+			{
+				BeginTravel();
+			}
+		}
+		else
+		{
+			BeginTravel();
+		}
 	}
 	else if (UWorld* World = GetWorld())
 	{
+		const float CloseTimeout = bParanoidEndingClose
+			? FMath::Max(DoorCloseTimeoutSeconds, ParanoidLookDurationSeconds + 0.25f)
+			: DoorCloseTimeoutSeconds;
 		World->GetTimerManager().SetTimer(
 			DoorCloseTimeoutHandle,
 			this,
 			&ALoopElevatorTransitionDirector::BeginTravel,
-			DoorCloseTimeoutSeconds,
+			CloseTimeout,
 			false);
 	}
 
@@ -166,6 +218,23 @@ void ALoopElevatorTransitionDirector::HandleDoorMovementFinished(bool bIsOpen)
 {
 	if (Phase == ELoopElevatorTransitionPhase::ClosingDoors && !bIsOpen && AreSourceDoorsClosed())
 	{
+		if (bParanoidEndingClose && ParanoidCloseElapsedSeconds < ParanoidLookDurationSeconds)
+		{
+			if (UWorld* World = GetWorld())
+			{
+				const float Remaining = FMath::Max(
+					0.05f,
+					ParanoidLookDurationSeconds - ParanoidCloseElapsedSeconds);
+				World->GetTimerManager().ClearTimer(DoorCloseTimeoutHandle);
+				World->GetTimerManager().SetTimer(
+					DoorCloseTimeoutHandle,
+					this,
+					&ALoopElevatorTransitionDirector::BeginTravel,
+					Remaining,
+					false);
+			}
+			return;
+		}
 		BeginTravel();
 	}
 	else if (Phase == ELoopElevatorTransitionPhase::OpeningDoors && bIsOpen && AreArrivalDoorsOpen())
@@ -188,6 +257,14 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 
 	FinishLookBlend();
 	Phase = ELoopElevatorTransitionPhase::Travelling;
+	CleanupParanoidGlimpse();
+	if (bParanoidEndingClose)
+	{
+		LookBlendDurationSeconds = SavedLookBlendDurationSeconds > KINDA_SMALL_NUMBER
+			? SavedLookBlendDurationSeconds
+			: 1.25f;
+		bParanoidEndingClose = false;
+	}
 	OnTravelStarted();
 	RemoveLegacyBlinkOverlay();
 	if (IsActorBeingDestroyed() || Phase != ELoopElevatorTransitionPhase::Travelling)
@@ -198,27 +275,38 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 	// One continuous blackout: fade out, stay black until CommitAndArrive, then fade in once.
 	StartCameraFade(0.0f, 1.0f, FadeOutDurationSeconds);
 
+	const bool bEndingBound = WillAdvanceToEnding();
+
 	// The cabin we leave should look usable again on the next visit (especially the dark lift),
 	// but wait a beat so reopen does not feel simultaneous with the close.
+	// Skip reopen during ending-bound travel — nothing should flash open before the ending scene.
+	if (!bEndingBound)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			const float ReopenDelay = FMath::Max(0.0f, AbandonedDoorReopenDelaySeconds);
+			if (ReopenDelay <= KINDA_SMALL_NUMBER)
+			{
+				ReopenAbandonedSourceDoors();
+			}
+			else
+			{
+				World->GetTimerManager().SetTimer(
+					AbandonedDoorReopenHandle,
+					this,
+					&ALoopElevatorTransitionDirector::ReopenAbandonedSourceDoors,
+					ReopenDelay,
+					false);
+			}
+		}
+	}
+
 	if (UWorld* World = GetWorld())
 	{
-		const float ReopenDelay = FMath::Max(0.0f, AbandonedDoorReopenDelaySeconds);
-		if (ReopenDelay <= KINDA_SMALL_NUMBER)
-		{
-			ReopenAbandonedSourceDoors();
-		}
-		else
-		{
-			World->GetTimerManager().SetTimer(
-				AbandonedDoorReopenHandle,
-				this,
-				&ALoopElevatorTransitionDirector::ReopenAbandonedSourceDoors,
-				ReopenDelay,
-				false);
-		}
-
-		// Never cut the blackout shorter than the fade-to-black itself.
-		const float TravelDelay = FMath::Max(TravelDurationSeconds, FadeOutDurationSeconds);
+		// Ending: only wait for fade-to-black, then hand off. No full travel / arrival beat.
+		const float TravelDelay = bEndingBound
+			? FMath::Max(FadeOutDurationSeconds, 0.35f)
+			: FMath::Max(TravelDurationSeconds, FadeOutDurationSeconds);
 		World->GetTimerManager().SetTimer(
 			TravelTimerHandle,
 			this,
@@ -255,6 +343,17 @@ void ALoopElevatorTransitionDirector::CommitAndArrive()
 		return;
 	}
 	bDecisionCommitted = true;
+
+	// Final-loop ending: stay black after the doors close. Do not reopen the lit cabin,
+	// do not fire Blueprint arrival (that was briefly flashing open doors), hand off ASAP.
+	if (LoopManager->HasDeferredEnding())
+	{
+		HoldCameraBlack();
+		Phase = ELoopElevatorTransitionPhase::OpeningDoors;
+		RemoveLegacyBlinkOverlay();
+		CompleteTransition();
+		return;
+	}
 
 	APlayerController* PC = PlayerController.Get();
 	ACharacter* PlayerCharacter = PC ? Cast<ACharacter>(PC->GetPawn()) : nullptr;
@@ -337,11 +436,16 @@ void ALoopElevatorTransitionDirector::CompleteTransition()
 		return;
 	}
 
+	const bool bHadDeferredEnding =
+		GetGameInstance()
+		&& GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>()
+		&& GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>()->HasDeferredEnding();
+
 	ClearTimers();
 	UnbindDoorDelegates();
 	StopTravelSound();
 	FinishLookBlend();
-	LockPlayerInput(false);
+	CleanupParanoidGlimpse();
 	Phase = ELoopElevatorTransitionPhase::Idle;
 
 	if (UGameInstance* GameInstance = GetGameInstance())
@@ -350,13 +454,23 @@ void ALoopElevatorTransitionDirector::CompleteTransition()
 		{
 			if (LoopManager->FinishElevatorTransition(PendingDecision.DecisionId))
 			{
-				LoopManager->CompleteDeferredEnding();
+				if (bHadDeferredEnding || LoopManager->HasDeferredEnding())
+				{
+					// Keep input locked and stay black; ending presenter clears the fade
+					// when the mini-scene (or widget) takes the view target.
+					LoopManager->CompleteDeferredEnding();
+					OnTransitionCompleted();
+					return;
+				}
+
+				LockPlayerInput(false);
 				OnTransitionCompleted();
 				return;
 			}
 		}
 	}
 
+	LockPlayerInput(false);
 	OnTransitionCompleted();
 }
 
@@ -384,6 +498,7 @@ void ALoopElevatorTransitionDirector::AbortTransition(bool bCommitWithInstantFal
 	StopTravelSound();
 	StopCameraFade();
 	FinishLookBlend();
+	CleanupParanoidGlimpse();
 	LockPlayerInput(false);
 	Phase = ELoopElevatorTransitionPhase::Idle;
 
@@ -639,6 +754,173 @@ void ALoopElevatorTransitionDirector::UpdateLookBlend(float DeltaTime)
 		bLookBlendActive = false;
 		PC->SetControlRotation(LookBlendTargetRotation);
 	}
+}
+
+bool ALoopElevatorTransitionDirector::WillAdvanceToEnding() const
+{
+	if (PendingDecision.Action != ELoopAction::Advance || !PendingDecision.bWasCorrect)
+	{
+		return false;
+	}
+
+	const UGameInstance* GameInstance = GetGameInstance();
+	const ULoopManagerSubsystem* LoopManager =
+		GameInstance ? GameInstance->GetSubsystem<ULoopManagerSubsystem>() : nullptr;
+	return LoopManager && LoopManager->CurrentLoop >= 9;
+}
+
+FVector ALoopElevatorTransitionDirector::ResolveSourceDoorCenter() const
+{
+	FVector DoorCenter = FVector::ZeroVector;
+	int32 DoorCount = 0;
+	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
+	{
+		if (DoorWing.IsValid())
+		{
+			DoorCenter += DoorWing->GetActorLocation();
+			++DoorCount;
+		}
+	}
+	if (DoorCount <= 0)
+	{
+		return GetActorLocation();
+	}
+	return DoorCenter / static_cast<float>(DoorCount);
+}
+
+void ALoopElevatorTransitionDirector::BeginParanoidClosingLook(APlayerController* InteractingController)
+{
+	APlayerController* PC = InteractingController ? InteractingController : PlayerController.Get();
+	if (!PC)
+	{
+		return;
+	}
+
+	LookBlendStartRotation = PC->GetControlRotation();
+	ParanoidDoorLookRotation = ResolveClosingLookTarget(PC);
+	LookBlendTargetRotation = ParanoidDoorLookRotation;
+	LookBlendElapsedSeconds = 0.0f;
+	ParanoidCloseElapsedSeconds = 0.0f;
+	bLookBlendActive = true;
+	SetActorTickEnabled(true);
+}
+
+void ALoopElevatorTransitionDirector::UpdateParanoidClosingLook(float DeltaTime)
+{
+	APlayerController* PC = PlayerController.Get();
+	if (!PC)
+	{
+		return;
+	}
+
+	ParanoidCloseElapsedSeconds += DeltaTime;
+	const float T = ParanoidCloseElapsedSeconds;
+	const float BaseYaw = ParanoidDoorLookRotation.Yaw;
+	const float Pitch = ParanoidDoorLookRotation.Pitch;
+
+	float TargetYaw = BaseYaw;
+	if (T < 0.95f)
+	{
+		const float Alpha = FMath::Clamp(T / 0.95f, 0.0f, 1.0f);
+		const float Smooth = Alpha * Alpha * (3.0f - 2.0f * Alpha);
+		TargetYaw = FMath::Lerp(LookBlendStartRotation.Yaw, BaseYaw - 22.0f, Smooth);
+	}
+	else if (T < 1.90f)
+	{
+		const float Alpha = FMath::Clamp((T - 0.95f) / 0.95f, 0.0f, 1.0f);
+		const float Smooth = Alpha * Alpha * (3.0f - 2.0f * Alpha);
+		TargetYaw = FMath::Lerp(BaseYaw - 22.0f, BaseYaw + 24.0f, Smooth);
+	}
+	else
+	{
+		const float Alpha = FMath::Clamp((T - 1.90f) / 0.85f, 0.0f, 1.0f);
+		const float Smooth = Alpha * Alpha * (3.0f - 2.0f * Alpha);
+		TargetYaw = FMath::Lerp(BaseYaw + 24.0f, BaseYaw, Smooth);
+	}
+
+	LookBlendTargetRotation = FRotator(Pitch, TargetYaw, 0.0f);
+	PC->SetControlRotation(LookBlendTargetRotation);
+
+	if (!bParanoidGlimpseSpawned && T >= ParanoidGlimpseStartSeconds)
+	{
+		SpawnOrRevealParanoidGlimpse();
+	}
+
+	if (ActiveParanoidGlimpse.IsValid())
+	{
+		const float WalkAlpha = FMath::Clamp(
+			(T - ParanoidGlimpseStartSeconds) / 0.7f,
+			0.0f,
+			1.0f);
+		const float SmoothWalk = WalkAlpha * WalkAlpha * (3.0f - 2.0f * WalkAlpha);
+		ActiveParanoidGlimpse->SetActorLocation(
+			FMath::Lerp(ParanoidGlimpseStart, ParanoidGlimpseEnd, SmoothWalk));
+	}
+}
+
+void ALoopElevatorTransitionDirector::SpawnOrRevealParanoidGlimpse()
+{
+	bParanoidGlimpseSpawned = true;
+
+	const FVector DoorCenter = ResolveSourceDoorCenter();
+	const FRotator DoorLook = ParanoidDoorLookRotation;
+	const FVector Forward = DoorLook.Vector().GetSafeNormal2D();
+	const FVector Right = FVector::CrossProduct(FVector::UpVector, Forward).GetSafeNormal();
+
+	// Place the walker just outside the doorway, crossing left→right in the final beat.
+	ParanoidGlimpseStart = DoorCenter + Forward * 90.0f - Right * 110.0f;
+	ParanoidGlimpseEnd = DoorCenter + Forward * 90.0f + Right * 120.0f;
+	ParanoidGlimpseStart.Z = DoorCenter.Z;
+	ParanoidGlimpseEnd.Z = DoorCenter.Z;
+
+	AActor* Glimpse = nullptr;
+	if (IsValid(ParanoidGlimpseActor))
+	{
+		Glimpse = ParanoidGlimpseActor;
+		bParanoidGlimpseWasHidden = Glimpse->IsHidden();
+		Glimpse->SetActorHiddenInGame(false);
+		Glimpse->SetActorEnableCollision(false);
+	}
+	else if (ParanoidWalkerClass)
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		Glimpse = GetWorld()->SpawnActor<AActor>(
+			ParanoidWalkerClass,
+			ParanoidGlimpseStart,
+			DoorLook,
+			Params);
+		if (Glimpse)
+		{
+			Glimpse->SetActorEnableCollision(false);
+		}
+	}
+
+	if (Glimpse)
+	{
+		Glimpse->SetActorLocation(ParanoidGlimpseStart);
+		Glimpse->SetActorRotation(DoorLook);
+		ActiveParanoidGlimpse = Glimpse;
+	}
+}
+
+void ALoopElevatorTransitionDirector::CleanupParanoidGlimpse()
+{
+	if (ActiveParanoidGlimpse.IsValid())
+	{
+		AActor* Glimpse = ActiveParanoidGlimpse.Get();
+		if (Glimpse == ParanoidGlimpseActor)
+		{
+			Glimpse->SetActorHiddenInGame(bParanoidGlimpseWasHidden);
+		}
+		else
+		{
+			Glimpse->Destroy();
+		}
+	}
+	ActiveParanoidGlimpse.Reset();
+	bParanoidGlimpseSpawned = false;
+	bParanoidGlimpseWasHidden = false;
 }
 
 FRotator ALoopElevatorTransitionDirector::ResolveClosingLookTarget(

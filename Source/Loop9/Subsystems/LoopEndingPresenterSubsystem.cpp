@@ -1,5 +1,21 @@
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 
+#include "Interaction/LoopEndingSceneDirector.h"
+#include "Loop9GameMode.h"
+#include "UI/EndingWidget.h"
+#include "UI/ReplacementTerminalWidget.h"
+#include "Subsystems/RelationshipSubsystem.h"
+#include "Blueprint/UserWidget.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "LevelSequence.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
+#include "TimerManager.h"
+
 #include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
@@ -26,6 +42,14 @@ namespace
 		if (PlayerController && PlayerController->PlayerCameraManager)
 		{
 			PlayerController->PlayerCameraManager->StartCameraFade(FromAlpha, ToAlpha, Duration, FLinearColor::Black, false, true);
+		}
+	}
+
+	void ClearCameraFade(APlayerController* PlayerController)
+	{
+		if (PlayerController && PlayerController->PlayerCameraManager)
+		{
+			PlayerController->PlayerCameraManager->StopCameraFade();
 		}
 	}
 }
@@ -100,7 +124,15 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 
 	if (!TryPlayEndingSequence(EndingType))
 	{
-		PresentPendingEndingAfterFade(2.0f);
+		if (EndingType == ELoopEndingType::ParanoidSurvivor)
+		{
+			// Glimpse already played; keep blackout briefly then open the ending card.
+			PresentPendingEndingFromBlack(0.65f);
+		}
+		else
+		{
+			PresentPendingEndingAfterFade(2.0f);
+		}
 	}
 
 	return true;
@@ -109,11 +141,60 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType EndingType)
 {
 	UWorld* World = PresentationWorld.Get();
+	if (!World)
+	{
+		return false;
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC)
+	{
+		return false;
+	}
+
+	// Paranoid Survivor's look/glimpse already played while the elevator doors closed
+	// (works for both lit and dark source cabins — uses whichever doors the pressed button owns).
+	if (EndingType == ELoopEndingType::ParanoidSurvivor)
+	{
+		// Keep blackout; PresentPendingEndingFromBlack owns the hold → widget.
+		return false;
+	}
+
+	// Prefer C++ director (same model as elevator) when placed in the map.
+	for (TActorIterator<ALoopEndingSceneDirector> It(World); It; ++It)
+	{
+		ALoopEndingSceneDirector* Director = *It;
+		if (!Director || Director->IsPlaying())
+		{
+			continue;
+		}
+
+		if (!Director->PlayEnding(EndingType, PC))
+		{
+			continue;
+		}
+
+		ActiveSceneDirector = Director;
+		bPlayingDirectorScene = true;
+		Director->OnSceneFinished.AddDynamic(
+			this,
+			&ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished);
+		PresentationState = EPresentationState::PlayingSequence;
+
+		const float WatchdogDelaySeconds = FMath::Max(Director->GetSceneDurationSeconds() + 5.0f, 5.0f);
+		EndingSequenceWatchdogTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateUObject(
+				this,
+				&ULoopEndingPresenterSubsystem::HandleEndingSequenceWatchdog),
+			WatchdogDelaySeconds);
+		return true;
+	}
+
 	ALoop9GameMode* LoopGameMode = Cast<ALoop9GameMode>(UGameplayStatics::GetGameMode(World));
 	const TSoftObjectPtr<ULevelSequence>* SequenceReference =
 		LoopGameMode ? LoopGameMode->EndingSequences.Find(EndingType) : nullptr;
 	ULevelSequence* Sequence = SequenceReference ? SequenceReference->LoadSynchronous() : nullptr;
-	if (!Sequence || !World)
+	if (!Sequence)
 	{
 		return false;
 	}
@@ -165,7 +246,7 @@ void ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished()
 {
 	if (!bEndingPresentationPending
 		|| PresentationState != EPresentationState::PlayingSequence
-		|| !ActiveSequencePlayer)
+		|| (!ActiveSequencePlayer && !bPlayingDirectorScene))
 	{
 		return;
 	}
@@ -227,8 +308,13 @@ void ULoopEndingPresenterSubsystem::PresentPendingEndingAfterFade(float FadeDura
 		return;
 	}
 
+	// Coming from elevator blackout: clear held black, then optional soft fade into the widget.
+	ClearCameraFade(PC);
 	PresentationState = EPresentationState::FadingToWidget;
-	StartCameraFade(PC, 0.0f, 1.0f, FadeDuration);
+	if (FadeDuration > KINDA_SMALL_NUMBER)
+	{
+		StartCameraFade(PC, 0.0f, 1.0f, FadeDuration);
+	}
 
 	TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
 	World->GetTimerManager().SetTimer(
@@ -240,7 +326,40 @@ void ULoopEndingPresenterSubsystem::PresentPendingEndingAfterFade(float FadeDura
 				WeakThis->ShowPendingEndingWidget();
 			}
 		},
-		FadeDuration,
+		FMath::Max(FadeDuration, 0.05f),
+		false);
+}
+
+void ULoopEndingPresenterSubsystem::PresentPendingEndingFromBlack(float HoldBlackSeconds)
+{
+	if (!bEndingPresentationPending)
+	{
+		return;
+	}
+
+	UWorld* World = PresentationWorld.Get();
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC || !World)
+	{
+		bEndingPresentationPending = false;
+		PresentationState = EPresentationState::Idle;
+		return;
+	}
+
+	PresentationState = EPresentationState::FadingToWidget;
+	StartCameraFade(PC, 1.0f, 1.0f, 0.0f);
+
+	TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
+	World->GetTimerManager().SetTimer(
+		EndingPresentationTimerHandle,
+		[WeakThis]()
+		{
+			if (WeakThis.IsValid())
+			{
+				WeakThis->ShowPendingEndingWidget();
+			}
+		},
+		FMath::Max(HoldBlackSeconds, 0.05f),
 		false);
 }
 
@@ -257,6 +376,27 @@ void ULoopEndingPresenterSubsystem::ShowPendingEndingWidget()
 	{
 		bEndingPresentationPending = false;
 		PresentationState = EPresentationState::Idle;
+		return;
+	}
+
+	ClearCameraFade(PlayerController);
+
+	// Replacement goes straight into the green terminal — no summary card first.
+	if (PendingEndingType == ELoopEndingType::TheReplacement)
+	{
+		if (!ShowReplacementTerminal())
+		{
+			bEndingPresentationPending = false;
+			ReturnToMainMenu(PlayerController);
+			return;
+		}
+
+		bEndingPresentationPending = false;
+		PresentationState = EPresentationState::ShowingWidget;
+		PlayerController->bShowMouseCursor = false;
+		FInputModeUIOnly InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(InputMode);
 		return;
 	}
 
@@ -280,6 +420,19 @@ void ULoopEndingPresenterSubsystem::ShowPendingEndingWidget()
 
 void ULoopEndingPresenterSubsystem::CleanupActiveSequence(bool bStopPlayback)
 {
+	if (ActiveSceneDirector)
+	{
+		ActiveSceneDirector->OnSceneFinished.RemoveDynamic(
+			this,
+			&ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished);
+		if (bStopPlayback && ActiveSceneDirector->IsPlaying())
+		{
+			ActiveSceneDirector->AbortScene();
+		}
+		ActiveSceneDirector = nullptr;
+		bPlayingDirectorScene = false;
+	}
+
 	if (ActiveSequencePlayer)
 	{
 		ActiveSequencePlayer->OnFinished.RemoveDynamic(
@@ -389,34 +542,6 @@ bool ULoopEndingPresenterSubsystem::ShowEndingWidget(
 	EndingWidget->OnContinueRequested.AddDynamic(this, &ULoopEndingPresenterSubsystem::HandleEndingContinueRequested);
 	EndingWidget->AddToViewport(2000);
 
-	if (EndingType == ELoopEndingType::TheReplacement)
-	{
-		if (UWorld* World = GetWorld())
-		{
-			TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
-			World->GetTimerManager().SetTimer(
-				ReplacementTerminalTimerHandle,
-				[WeakThis]()
-				{
-					if (WeakThis.IsValid()
-						&& WeakThis->PresentationState == EPresentationState::ShowingWidget)
-					{
-						if (!WeakThis->ShowReplacementTerminal())
-						{
-							if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(
-								WeakThis->PresentationWorld.Get(),
-								0))
-							{
-								WeakThis->ReturnToMainMenu(PlayerController);
-							}
-						}
-					}
-				},
-				3.0f,
-				false);
-		}
-	}
-
 	return true;
 }
 
@@ -452,11 +577,6 @@ bool ULoopEndingPresenterSubsystem::ShowReplacementTerminal()
 
 void ULoopEndingPresenterSubsystem::HandleEndingContinueRequested()
 {
-	if (ActiveEndingWidget && ActiveEndingWidget->CurrentEndingType == ELoopEndingType::TheReplacement)
-	{
-		return;
-	}
-
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
 	{
 		ReturnToMainMenu(PC);
@@ -465,10 +585,29 @@ void ULoopEndingPresenterSubsystem::HandleEndingContinueRequested()
 
 void ULoopEndingPresenterSubsystem::HandleReplacementTerminalContinueRequested()
 {
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+	if (ActiveTerminalWidget)
+	{
+		ActiveTerminalWidget->RemoveFromParent();
+		ActiveTerminalWidget = nullptr;
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC)
+	{
+		return;
+	}
+
+	// After the "You:_" beat + delay/sound, show the normal ending card with menu button.
+	if (!ShowEndingWidget(ELoopEndingType::TheReplacement, PendingTotalResets, PendingTotalAIInteractions))
 	{
 		ReturnToMainMenu(PC);
+		return;
 	}
+
+	PresentationState = EPresentationState::ShowingWidget;
+	PC->bShowMouseCursor = true;
+	FInputModeUIOnly InputMode;
+	PC->SetInputMode(InputMode);
 }
 
 void ULoopEndingPresenterSubsystem::ReturnToMainMenu(APlayerController* PlayerController)

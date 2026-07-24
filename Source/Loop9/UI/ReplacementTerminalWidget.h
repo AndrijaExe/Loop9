@@ -8,6 +8,7 @@
 class UButton;
 class UTextBlock;
 class UWidget;
+class USoundBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTerminalContinueRequested);
 
@@ -57,7 +58,15 @@ public:
 	FString CursorSymbol = TEXT("_");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
-	class USoundBase* TypingSound = nullptr;
+	TObjectPtr<USoundBase> TypingSound;
+
+	/** Played after the idle "You:_" prompt holds, just before the ending card. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
+	TObjectPtr<USoundBase> PromptCompleteSound;
+
+	/** How long to hold on "You:_" (blinking cursor, no typing) before the sound. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal", meta = (ClampMin = "0.5"))
+	float YouPromptHoldSeconds = 2.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
 	FText ContinueButtonLabel = NSLOCTEXT("Loop9Endings", "ContinueButtonLabel", "Return to Main Menu");
@@ -76,7 +85,8 @@ protected:
 private:
 	void StartNextLineFromQueue();
 	void TypeNextCharacter();
-	void ShowContinuePrompt();
+	void BeginYouPromptHold();
+	void FinishYouPromptHold();
 	void ToggleCursorBlink();
 	void UpdateTerminalDisplay(const FString& BaseText);
 	void BindContinueButton();
@@ -90,10 +100,12 @@ private:
 	FTimerHandle TypingTimerHandle;
 	FTimerHandle NextLineTimerHandle;
 	FTimerHandle CursorBlinkTimerHandle;
+	FTimerHandle YouPromptHoldTimerHandle;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UButton> FallbackContinueButton;
 
 	bool bCursorVisible = true;
+	bool bHoldingYouPrompt = false;
 	FString CurrentBaseText;
 };

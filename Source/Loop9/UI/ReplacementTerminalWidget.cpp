@@ -1,13 +1,10 @@
 #include "UI/ReplacementTerminalWidget.h"
 #include "UI/Loop9WidgetClickBinder.h"
 #include "Components/Button.h"
-#include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
 #include "Blueprint/WidgetTree.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/PlayerController.h"
-#include "Camera/PlayerCameraManager.h"
 #include "Sound/SoundBase.h"
 
 void UReplacementTerminalWidget::NativeConstruct()
@@ -31,6 +28,7 @@ void UReplacementTerminalWidget::NativeDestruct()
 		World->GetTimerManager().ClearTimer(TypingTimerHandle);
 		World->GetTimerManager().ClearTimer(NextLineTimerHandle);
 		World->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+		World->GetTimerManager().ClearTimer(YouPromptHoldTimerHandle);
 	}
 
 	Super::NativeDestruct();
@@ -56,8 +54,10 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 	GetWorld()->GetTimerManager().ClearTimer(TypingTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(NextLineTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(YouPromptHoldTimerHandle);
 
 	bSequenceFinished = false;
+	bHoldingYouPrompt = false;
 
 	const TArray<FText> LocalizedLines = {
 		NSLOCTEXT("Loop9Terminal", "Line01", "Initializing interface..."),
@@ -70,9 +70,7 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 		NSLOCTEXT("Loop9Terminal", "Line08", "Synchronization complete."),
 		NSLOCTEXT("Loop9Terminal", "Line09", "User connected."),
 		NSLOCTEXT("Loop9Terminal", "Line10", "User: Hello?"),
-		NSLOCTEXT("Loop9Terminal", "Line11", "User: Is someone there?"),
-		NSLOCTEXT("Loop9Terminal", "Line12", "User: I think I'm stuck."),
-		NSLOCTEXT("Loop9Terminal", "Line13", "User: Can you help me?")
+		NSLOCTEXT("Loop9Terminal", "Line11", "User: Is someone there?")
 	};
 
 	Lines.Reset(LocalizedLines.Num());
@@ -88,9 +86,23 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 	bCursorVisible = true;
 	CurrentBaseText.Empty();
 
+	if (BT_Continue)
+	{
+		BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (FallbackContinueButton)
+	{
+		FallbackContinueButton->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
 	if (bUseBlinkingCursor)
 	{
-		GetWorld()->GetTimerManager().SetTimer(CursorBlinkTimerHandle, this, &UReplacementTerminalWidget::ToggleCursorBlink, CursorBlinkInterval, true);
+		GetWorld()->GetTimerManager().SetTimer(
+			CursorBlinkTimerHandle,
+			this,
+			&UReplacementTerminalWidget::ToggleCursorBlink,
+			CursorBlinkInterval,
+			true);
 	}
 
 	StartNextLineFromQueue();
@@ -104,7 +116,6 @@ void UReplacementTerminalWidget::SimulateTypedText(const FString& InText, float 
 	}
 
 	FTypewriterHelper::Begin(ActiveTypingState, InText, InDuration, InTypoProbability);
-
 	TypeNextCharacter();
 }
 
@@ -117,9 +128,7 @@ void UReplacementTerminalWidget::StartNextLineFromQueue()
 
 	if (!Lines.IsValidIndex(CurrentLineIndex))
 	{
-		bSequenceFinished = true;
-		OnTerminalSequenceFinished();
-		ShowContinuePrompt();
+		BeginYouPromptHold();
 		return;
 	}
 
@@ -159,57 +168,64 @@ void UReplacementTerminalWidget::TypeNextCharacter()
 		CompletedText += CurrentTypedOutput;
 		UpdateTerminalDisplay(CompletedText);
 
-		GetWorld()->GetTimerManager().SetTimer(NextLineTimerHandle, this, &UReplacementTerminalWidget::StartNextLineFromQueue, LineGapDelay, false);
+		GetWorld()->GetTimerManager().SetTimer(
+			NextLineTimerHandle,
+			this,
+			&UReplacementTerminalWidget::StartNextLineFromQueue,
+			LineGapDelay,
+			false);
 		return;
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(TypingTimerHandle, this, &UReplacementTerminalWidget::TypeNextCharacter, NextDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(
+		TypingTimerHandle,
+		this,
+		&UReplacementTerminalWidget::TypeNextCharacter,
+		NextDelay,
+		false);
 }
 
-void UReplacementTerminalWidget::ShowContinuePrompt()
+void UReplacementTerminalWidget::BeginYouPromptHold()
 {
-	if (GetWorld())
+	bSequenceFinished = true;
+	bHoldingYouPrompt = true;
+	OnTerminalSequenceFinished();
+
+	if (!CompletedText.IsEmpty())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+		CompletedText += TEXT("\n");
+	}
+	CompletedText += TEXT("You:");
+	UpdateTerminalDisplay(CompletedText);
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			YouPromptHoldTimerHandle,
+			this,
+			&UReplacementTerminalWidget::FinishYouPromptHold,
+			FMath::Max(0.5f, YouPromptHoldSeconds),
+			false);
+	}
+}
+
+void UReplacementTerminalWidget::FinishYouPromptHold()
+{
+	bHoldingYouPrompt = false;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
 	}
 
 	UpdateTerminalDisplay(CompletedText);
 
-	if (BT_Continue)
+	if (PromptCompleteSound)
 	{
-		BT_Continue->SetVisibility(ESlateVisibility::Visible);
-		return;
+		UGameplayStatics::PlaySound2D(this, PromptCompleteSound);
 	}
 
-	if (FallbackContinueButton)
-	{
-		FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
-		return;
-	}
-
-	if (!WidgetTree)
-	{
-		return;
-	}
-
-	FallbackContinueButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("TerminalContinueButton"));
-	if (!FallbackContinueButton)
-	{
-		return;
-	}
-
-	UTextBlock* Label = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("TerminalContinueLabel"));
-	Label->SetText(ContinueButtonLabel);
-	Label->SetJustification(ETextJustify::Center);
-	FallbackContinueButton->AddChild(Label);
-	FallbackContinueButton->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
-
-	if (UPanelWidget* RootPanel = Cast<UPanelWidget>(WidgetTree->RootWidget))
-	{
-		RootPanel->AddChild(FallbackContinueButton);
-	}
-
-	FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
+	RequestContinue();
 }
 
 void UReplacementTerminalWidget::BindContinueButton()
@@ -242,7 +258,10 @@ void UReplacementTerminalWidget::UpdateTerminalDisplay(const FString& BaseText)
 {
 	CurrentBaseText = BaseText;
 
-	if (bUseBlinkingCursor && !ActiveTypingState.bFinished)
+	const bool bShowCursor = bUseBlinkingCursor
+		&& (bHoldingYouPrompt || !ActiveTypingState.bFinished || !bSequenceFinished);
+
+	if (bShowCursor)
 	{
 		TerminalText = FText::FromString(BaseText + (bCursorVisible ? CursorSymbol : TEXT("")));
 	}

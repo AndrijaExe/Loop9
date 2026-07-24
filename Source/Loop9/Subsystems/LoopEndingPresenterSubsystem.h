@@ -12,6 +12,7 @@ class UReplacementTerminalWidget;
 class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
+class ALoopEndingSceneDirector;
 class UWorld;
 
 UCLASS()
@@ -39,6 +40,7 @@ private:
 
 	bool TryPlayEndingSequence(ELoopEndingType EndingType);
 	void PresentPendingEndingAfterFade(float FadeDuration);
+	void PresentPendingEndingFromBlack(float HoldBlackSeconds);
 	void ShowPendingEndingWidget();
 	void CleanupActiveSequence(bool bStopPlayback);
 	void ClearPresentationTimers();
@@ -69,6 +71,11 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<ALevelSequenceActor> ActiveSequenceActor;
+
+	UPROPERTY(Transient)
+	TObjectPtr<ALoopEndingSceneDirector> ActiveSceneDirector;
+
+	bool bPlayingDirectorScene = false;
 
 	ELoopEndingType PendingEndingType = ELoopEndingType::ParanoidSurvivor;
 	int32 PendingTotalResets = 0;

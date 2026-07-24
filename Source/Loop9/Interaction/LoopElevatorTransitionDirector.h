@@ -91,6 +91,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
 	float TravelSoundFadeOutSeconds = 0.15f;
 
+	/**
+	 * Optional silhouette shown crossing the doorway during Paranoid Survivor's
+	 * final door-close (last moment before the cabin seals). Hidden when idle.
+	 * Uses the pressed button's source doors — works for lit OR dark ending floors.
+	 */
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Elevator Transition|Paranoid")
+	TObjectPtr<AActor> ParanoidGlimpseActor;
+
+	/** Fallback spawn class when ParanoidGlimpseActor is unset. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Paranoid")
+	TSubclassOf<AActor> ParanoidWalkerClass;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Elevator Transition")
 	void OnTransitionStarted(EButtonType ButtonType);
 
@@ -131,6 +143,12 @@ private:
 	void BeginLookBlend(const FRotator& TargetRotation);
 	void FinishLookBlend();
 	void UpdateLookBlend(float DeltaTime);
+	void UpdateParanoidClosingLook(float DeltaTime);
+	void BeginParanoidClosingLook(APlayerController* InteractingController);
+	void SpawnOrRevealParanoidGlimpse();
+	void CleanupParanoidGlimpse();
+	bool WillAdvanceToEnding() const;
+	FVector ResolveSourceDoorCenter() const;
 	FRotator ResolveClosingLookTarget(APlayerController* InteractingController) const;
 	void PlayButtonPressSound(const ALiftButton* SourceButton);
 	void StartTravelSound();
@@ -142,12 +160,21 @@ private:
 	bool bDecisionCommitted = false;
 	bool bInputLocked = false;
 	bool bLookBlendActive = false;
+	bool bParanoidEndingClose = false;
+	bool bParanoidGlimpseSpawned = false;
 	float LookBlendElapsedSeconds = 0.0f;
+	float ParanoidCloseElapsedSeconds = 0.0f;
+	float SavedLookBlendDurationSeconds = 0.0f;
 	FRotator LookBlendStartRotation = FRotator::ZeroRotator;
 	FRotator LookBlendTargetRotation = FRotator::ZeroRotator;
+	FRotator ParanoidDoorLookRotation = FRotator::ZeroRotator;
+	FVector ParanoidGlimpseStart = FVector::ZeroVector;
+	FVector ParanoidGlimpseEnd = FVector::ZeroVector;
 
 	TWeakObjectPtr<APlayerController> PlayerController;
 	TArray<TWeakObjectPtr<ALiftDoorWing>> SourceDoorWings;
+	TWeakObjectPtr<AActor> ActiveParanoidGlimpse;
+	bool bParanoidGlimpseWasHidden = false;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> ActiveTravelAudio;

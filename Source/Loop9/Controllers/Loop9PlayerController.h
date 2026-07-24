@@ -81,4 +81,15 @@ public:
 	/** Print command help. */
 	UFUNCTION(Exec)
 	void AnomalyHelp();
+
+	/**
+	 * Debug: set loop 9 + relationship state for an ending, then press ADVANCE.
+	 * Examples: EndingSetup EscapeTogether | EndingSetup 0 | EndingSetup Help
+	 */
+	UFUNCTION(Exec)
+	void EndingSetup(const FString& Args);
+
+	/** Print ending debug command help. */
+	UFUNCTION(Exec)
+	void EndingHelp();
 };

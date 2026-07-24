@@ -103,6 +103,13 @@ public:
 	void TriggerEndingSequence();
 	ELoopEndingType DetermineEndingType() const;
 
+	/**
+	 * Debug: force relationship + loop state so the next successful advance
+	 * (loop 9 -> 10) evaluates to the requested ending. Clears anomalies.
+	 * No-op / returns false in shipping builds.
+	 */
+	bool ApplyEndingTestSetup(ELoopEndingType EndingType);
+
 	UFUNCTION(BlueprintPure, Category = "Loop")
 	URelationshipSubsystem* GetRelationship() const;
 

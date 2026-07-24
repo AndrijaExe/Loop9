@@ -443,6 +443,125 @@ ELoopEndingType ULoopManagerSubsystem::DetermineEndingType() const
 	return ELoopEndingType::ParanoidSurvivor;
 }
 
+bool ULoopManagerSubsystem::ApplyEndingTestSetup(ELoopEndingType EndingType)
+{
+#if UE_BUILD_SHIPPING
+	(void)EndingType;
+	return false;
+#else
+	URelationshipSubsystem* Relationship = GetRelationship();
+	if (!Relationship)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EndingSetup: RelationshipSubsystem missing"));
+		return false;
+	}
+
+	bGameFinished = false;
+	bDeferredEndingPresentation = false;
+	bElevatorTransitionActive = false;
+	PendingElevatorDecisionId = 0;
+	ActiveElevatorDecisionId = 0;
+	CurrentLoop = 9;
+	SetAnomalyDetected(false);
+
+	Relationship->TotalResets = 0;
+	// Already at the end-run threshold; next advance still bumps CurrentLoop 9 -> 10.
+	Relationship->TotalAdvances = 9;
+
+	switch (EndingType)
+	{
+	case ELoopEndingType::EscapeTogether:
+		// Trust/kind/coop high, dependency low, stability high (avoids MergedMemory).
+		Relationship->Trust = 0.75f;
+		Relationship->Kindness = 0.65f;
+		Relationship->Cooperation = 0.70f;
+		Relationship->Suspicion = 0.25f;
+		Relationship->Dependency = 0.40f;
+		Relationship->AI_Stability = 0.85f;
+		Relationship->TotalAIInteractions = 5;
+		break;
+
+	case ELoopEndingType::ObedientFool:
+		Relationship->Trust = 0.65f;
+		Relationship->Kindness = 0.50f;
+		Relationship->Cooperation = 0.55f;
+		Relationship->Suspicion = 0.25f;
+		Relationship->Dependency = 0.60f;
+		Relationship->AI_Stability = 0.75f;
+		Relationship->TotalAIInteractions = 9;
+		break;
+
+	case ELoopEndingType::ColdBetrayal:
+		Relationship->Trust = 0.70f;
+		Relationship->Kindness = 0.30f;
+		Relationship->Cooperation = 0.65f;
+		Relationship->Suspicion = 0.35f;
+		Relationship->Dependency = 0.45f;
+		Relationship->AI_Stability = 0.75f;
+		Relationship->TotalAIInteractions = 6;
+		break;
+
+	case ELoopEndingType::ParanoidSurvivor:
+		Relationship->Trust = 0.30f;
+		Relationship->Kindness = 0.40f;
+		Relationship->Cooperation = 0.40f;
+		Relationship->Suspicion = 0.70f;
+		Relationship->Dependency = 0.20f;
+		Relationship->AI_Stability = 0.60f;
+		Relationship->TotalAIInteractions = 4;
+		break;
+
+	case ELoopEndingType::MergedMemory:
+		Relationship->Trust = 0.55f;
+		Relationship->Kindness = 0.65f;
+		Relationship->Cooperation = 0.70f;
+		Relationship->Suspicion = 0.30f;
+		Relationship->Dependency = 0.45f;
+		Relationship->AI_Stability = 0.65f;
+		Relationship->TotalAIInteractions = 7;
+		break;
+
+	case ELoopEndingType::TheReplacement:
+		Relationship->Trust = 0.70f;
+		Relationship->Kindness = 0.70f;
+		Relationship->Cooperation = 0.75f;
+		Relationship->Suspicion = 0.25f;
+		Relationship->Dependency = 0.70f;
+		Relationship->AI_Stability = 0.60f;
+		Relationship->TotalAIInteractions = 12;
+		break;
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("EndingSetup: unsupported ending type"));
+		return false;
+	}
+
+	if (UAnomalyManager* AnomalyManager = GetGameInstance()->GetSubsystem<UAnomalyManager>())
+	{
+		AnomalyManager->ResetAllAnomalies();
+	}
+
+	NotifyAIFriendsLoopChanged();
+
+	const ELoopEndingType Predicted = DetermineEndingType();
+	UE_LOG(LogTemp, Log,
+		TEXT("EndingSetup: CurrentLoop=%d | Trust=%.2f Kind=%.2f Coop=%.2f Susp=%.2f Dep=%.2f Stab=%.2f | AI=%d Adv=%d | predicted=%s (want %s). Press ADVANCE on elevator."),
+		CurrentLoop,
+		Relationship->Trust,
+		Relationship->Kindness,
+		Relationship->Cooperation,
+		Relationship->Suspicion,
+		Relationship->Dependency,
+		Relationship->AI_Stability,
+		Relationship->TotalAIInteractions,
+		Relationship->TotalAdvances,
+		*UEnum::GetValueAsString(Predicted),
+		*UEnum::GetValueAsString(EndingType));
+
+	return Predicted == EndingType;
+#endif
+}
+
 void ULoopManagerSubsystem::TriggerEndingSequence()
 {
 	if (bGameFinished)
