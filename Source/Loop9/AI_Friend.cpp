@@ -449,7 +449,7 @@ bool AAI_Friend::QueuePendingAuthChat(const FString& Message, bool bIsAuthRetry,
 					WeakThis->OnAuthSessionFailedForPendingChat(TEXT("chat auth wait timed out"));
 				}
 			},
-			17.0f,
+			static_cast<float>(ULoop9BackendAuthSubsystem::AuthTimeoutSeconds + 2.0),
 			false);
 	}
 

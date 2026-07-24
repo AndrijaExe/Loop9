@@ -23,6 +23,9 @@ class LOOP9_API ULoop9BackendAuthSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	/** Covers a typical free-tier host cold start while keeping a bounded failure path. */
+	static constexpr double AuthTimeoutSeconds = 45.0;
+
 	/** Optional explicit override; if empty it is derived from the chat endpoint. */
 	UPROPERTY(Config)
 	FString AuthEndpoint;

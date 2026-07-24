@@ -17,7 +17,6 @@ namespace
 	constexpr int64 ExpiryMarginSeconds = 120;
 	// Back off between failed attempts so a dead backend is not hammered every chat.
 	constexpr double RetryBackoffSeconds = 30.0;
-	constexpr double AuthTimeoutSeconds = 15.0;
 	constexpr int32 MaxConsecutiveFailures = 3;
 	constexpr int32 MaxTicketRetryCount = 5;
 	constexpr float TicketRetryDelaySeconds = 1.0f;
@@ -111,7 +110,9 @@ bool ULoop9BackendAuthSubsystem::EnsureSession()
 				ULoop9BackendAuthSubsystem* Self = WeakThis.Get();
 				if (Self->bRequestInFlight && Self->AuthRequestGeneration == RequestGeneration)
 				{
-					Self->HandleAuthFailure(TEXT("auth timed out after 15s"));
+					Self->HandleAuthFailure(FString::Printf(
+						TEXT("auth timed out after %.0fs"),
+						AuthTimeoutSeconds));
 				}
 			},
 			static_cast<float>(AuthTimeoutSeconds),
