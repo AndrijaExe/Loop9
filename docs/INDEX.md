@@ -14,6 +14,7 @@ Cross-repo index (sibling folder): [`../../../DOCUMENTATION.md`](../../../DOCUME
 | [ANOMALIES.md](ANOMALIES.md) | Nine anomaly types, manager lifecycle, debug commands |
 | [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) | Map/Blueprint wiring and safe extension workflows |
 | [CINEMATICS_AND_AUDIO.md](CINEMATICS_AND_AUDIO.md) | Elevator C++ transition, ending sequences, audio hooks |
+| [UNREAL_MCP_ENDING_SCENES_HANDOFF.md](UNREAL_MCP_ENDING_SCENES_HANDOFF.md) | Exact MCP task brief for polishing all six ending mini-scenes |
 | [AI_AND_BACKEND_INTEGRATION.md](AI_AND_BACKEND_INTEGRATION.md) | Auth, chat, telemetry, timeouts, thinking UI |
 | [LOCALIZATION.md](LOCALIZATION.md) | Five-language GatherText / PO / locres workflow |
 | [QA_PLAYBOOK.md](QA_PLAYBOOK.md) | Regression matrices, Steam/AI tests, Shipping smoke |

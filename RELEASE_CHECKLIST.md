@@ -30,6 +30,8 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 - [x] Napravljeno i povezano šest osnovnih 3–8 s ending Level Sequence asseta.
 - [ ] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
   svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
+  Detaljan Unreal MCP handoff:
+  [`docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md`](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md).
 
 ### Ending mini-scene brief
 
@@ -37,8 +39,8 @@ Koristiti jednu zajedničku 4–6 s baznu sekvencu i duplirati je šest puta.
 Menjati samo camera transform, svetlo, 1–2 prop keyframea i zvuk; bez novih
 skeletal animacija i bez gameplay logike u Event Tracku.
 
-- [ ] **Escape Together:** vrata se otvaraju ka toplom jakom svetlu; čuju se dva
-  para koraka; drugi lift se uključi neposredno pre kraja.
+- [ ] **Escape Together:** kroz već otvorena arrival vrata raste toplo jako
+  svetlo; čuju se dva para koraka; drugi lift se uključi neposredno pre kraja.
 - [ ] **Obedient Fool:** kamera prilazi telefonu; svetla iza igrača gase se jedno
   po jedno; monitor prikazuje `TASK COMPLETE`; telefon kratko zazvoni.
 - [ ] **Cold Betrayal:** vrata otkrivaju potpuno mračan hodnik; čuje se prekinuta
