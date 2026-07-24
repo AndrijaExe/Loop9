@@ -63,14 +63,17 @@ public:
 
 private:
 	void RequestSessionToken();
+	void ScheduleSteamTicketRetry(const FString& Reason);
+	void HandleSteamWebApiTicket(uint64 RequestGeneration, bool bWasSuccessful, const FString& Ticket);
+	void ExchangeSteamTicketForSession(const FString& Ticket, uint64 RequestGeneration);
 	void HandleAuthFailure(const FString& Reason);
 	void ClearAuthTimeout();
-	FString ResolveSteamAuthTicket() const;
 
 	FString SessionToken;
 	FString AuthPlayerId;
 	int64 SessionExpiresAtUnix = 0;
 	bool bRequestInFlight = false;
+	bool bSteamTicketRequestInFlight = false;
 	double LastAttemptSeconds = 0.0;
 	int32 ConsecutiveFailures = 0;
 	int32 TicketRetryCount = 0;

@@ -211,8 +211,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 ### Steam i online
 
 - [ ] Steam ticket → backend session → prvi chat zahtev radi na App ID `4982260`.
-- [ ] Ako Steam vraća `STEAM_TICKET_INVALID`, pre release-a zameniti trenutni
-  `IOnlineIdentity::GetAuthToken` odgovarajućim `GetAuthTicketForWebApi` tokom.
+- [x] Klijent traži svež Steam Web API ticket asinhrono (`WebAPI:Loop9`), a backend
+  ga proverava preko publisher API-ja sa istim identity parametrom.
 - [ ] Steam Overlay i achievement toast rade.
 - [ ] Offline start i gubitak mreže tokom chata ne ruše igru i refundiraju pokušaj.
 - [ ] AI input/output moderation: bezbedan tekst prolazi; blokiran i unavailable

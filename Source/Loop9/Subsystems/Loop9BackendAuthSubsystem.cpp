@@ -18,14 +18,16 @@ namespace
 	// Back off between failed attempts so a dead backend is not hammered every chat.
 	constexpr double RetryBackoffSeconds = 30.0;
 	constexpr int32 MaxConsecutiveFailures = 3;
-	constexpr int32 MaxTicketRetryCount = 5;
+	constexpr int32 MaxTicketRetryCount = 40;
 	constexpr float TicketRetryDelaySeconds = 1.0f;
+	const TCHAR* SteamWebApiTokenType = TEXT("WebAPI:Loop9");
 }
 
 void ULoop9BackendAuthSubsystem::Deinitialize()
 {
 	++AuthRequestGeneration;
 	bRequestInFlight = false;
+	bSteamTicketRequestInFlight = false;
 	ClearAuthTimeout();
 	OnSessionReady.Clear();
 	OnSessionFailed.Clear();
@@ -128,6 +130,7 @@ bool ULoop9BackendAuthSubsystem::InvalidateAndReauth()
 	// Invalidate any late callback from the previous exchange.
 	++AuthRequestGeneration;
 	bRequestInFlight = false;
+	bSteamTicketRequestInFlight = false;
 	ClearAuthTimeout();
 	SessionToken.Reset();
 	AuthPlayerId.Reset();
@@ -157,6 +160,7 @@ void ULoop9BackendAuthSubsystem::HandleAuthFailure(const FString& Reason)
 {
 	ClearAuthTimeout();
 	bRequestInFlight = false;
+	bSteamTicketRequestInFlight = false;
 	TicketRetryCount = 0;
 	AuthDeadlineSeconds = 0.0;
 	++ConsecutiveFailures;
@@ -164,20 +168,60 @@ void ULoop9BackendAuthSubsystem::HandleAuthFailure(const FString& Reason)
 	OnSessionFailed.Broadcast(Reason);
 }
 
-FString ULoop9BackendAuthSubsystem::ResolveSteamAuthTicket() const
+void ULoop9BackendAuthSubsystem::ScheduleSteamTicketRetry(const FString& Reason)
 {
+	const double RemainingSeconds = AuthDeadlineSeconds - FPlatformTime::Seconds();
+	if (TicketRetryCount < MaxTicketRetryCount
+		&& RemainingSeconds > TicketRetryDelaySeconds + 0.5
+		&& GetWorld())
+	{
+		++TicketRetryCount;
+		UE_LOG(LogTemp, Verbose, TEXT("Loop9 auth: retrying Steam Web API ticket (%d/%d): %s"),
+			TicketRetryCount, MaxTicketRetryCount, *Reason);
+
+		TWeakObjectPtr<ULoop9BackendAuthSubsystem> WeakThis(this);
+		GetWorld()->GetTimerManager().SetTimer(
+			TicketRetryHandle,
+			[WeakThis]()
+			{
+				if (WeakThis.IsValid() && WeakThis->bRequestInFlight)
+				{
+					WeakThis->RequestSessionToken();
+				}
+			},
+			TicketRetryDelaySeconds,
+			false);
+		return;
+	}
+
+	HandleAuthFailure(FString::Printf(TEXT("no Steam Web API ticket available (%s)"), *Reason));
+}
+
+void ULoop9BackendAuthSubsystem::RequestSessionToken()
+{
+	if (!bRequestInFlight || bSteamTicketRequestInFlight)
+	{
+		return;
+	}
+
+	if ((AuthDeadlineSeconds - FPlatformTime::Seconds()) <= 0.5)
+	{
+		HandleAuthFailure(TEXT("auth deadline exhausted before Steam ticket"));
+		return;
+	}
+
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get(FName(TEXT("Steam")));
 	if (!OnlineSubsystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: OnlineSubsystemSteam not available (Steam client running? use Standalone, not PIE)."));
-		return FString();
+		ScheduleSteamTicketRetry(TEXT("OnlineSubsystemSteam unavailable"));
+		return;
 	}
 
 	IOnlineIdentityPtr Identity = OnlineSubsystem->GetIdentityInterface();
 	if (!Identity.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam identity interface missing."));
-		return FString();
+		ScheduleSteamTicketRetry(TEXT("Steam identity interface missing"));
+		return;
 	}
 
 	const ELoginStatus::Type LoginStatus = Identity->GetLoginStatus(0);
@@ -191,49 +235,59 @@ FString ULoop9BackendAuthSubsystem::ResolveSteamAuthTicket() const
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam user not logged in (status=%d). Open Steam client and use Play > Standalone Game."),
 			static_cast<int32>(Identity->GetLoginStatus(0)));
-		return FString();
-	}
-
-	// For the Steam subsystem this returns the hex-encoded auth session ticket.
-	// NOTE: If the backend consistently rejects tickets with STEAM_TICKET_INVALID,
-	// Valve may require the newer GetAuthTicketForWebApi flow for this SDK version;
-	// in that case switch this call to the identity interface's web-api ticket API.
-	const FString Ticket = Identity->GetAuthToken(0);
-	if (Ticket.IsEmpty())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Loop9 auth: Steam logged in but GetAuthToken returned empty."));
-	}
-	return Ticket;
-}
-
-void ULoop9BackendAuthSubsystem::RequestSessionToken()
-{
-	const FString Ticket = ResolveSteamAuthTicket();
-	if (Ticket.IsEmpty())
-	{
-		if (TicketRetryCount < MaxTicketRetryCount && GetWorld())
-		{
-			++TicketRetryCount;
-
-			TWeakObjectPtr<ULoop9BackendAuthSubsystem> WeakThis(this);
-			GetWorld()->GetTimerManager().SetTimer(
-				TicketRetryHandle,
-				[WeakThis]()
-				{
-					if (WeakThis.IsValid() && WeakThis->bRequestInFlight)
-					{
-						WeakThis->RequestSessionToken();
-					}
-				},
-				TicketRetryDelaySeconds,
-				false);
-			return;
-		}
-
-		HandleAuthFailure(TEXT("no Steam ticket available"));
+		ScheduleSteamTicketRetry(TEXT("Steam user not logged in yet"));
 		return;
 	}
+
+	bSteamTicketRequestInFlight = true;
+	const uint64 RequestGeneration = AuthRequestGeneration;
+	TWeakObjectPtr<ULoop9BackendAuthSubsystem> WeakThis(this);
+	Identity->GetLinkedAccountAuthToken(
+		0,
+		SteamWebApiTokenType,
+		IOnlineIdentity::FOnGetLinkedAccountAuthTokenCompleteDelegate::CreateLambda(
+			[WeakThis, RequestGeneration](int32, bool bWasSuccessful, const FExternalAuthToken& AuthToken)
+			{
+				if (WeakThis.IsValid())
+				{
+					WeakThis->HandleSteamWebApiTicket(
+						RequestGeneration,
+						bWasSuccessful,
+						AuthToken.TokenString);
+				}
+			}));
+}
+
+void ULoop9BackendAuthSubsystem::HandleSteamWebApiTicket(
+	uint64 RequestGeneration,
+	bool bWasSuccessful,
+	const FString& Ticket)
+{
+	if (!bRequestInFlight || AuthRequestGeneration != RequestGeneration)
+	{
+		return;
+	}
+
+	bSteamTicketRequestInFlight = false;
+	if (!bWasSuccessful || Ticket.IsEmpty())
+	{
+		ScheduleSteamTicketRetry(TEXT("GetLinkedAccountAuthToken returned no ticket"));
+		return;
+	}
+
 	TicketRetryCount = 0;
+	UE_LOG(LogTemp, Log, TEXT("Loop9 auth: fresh Steam Web API ticket acquired. TicketHexLen=%d"), Ticket.Len());
+	ExchangeSteamTicketForSession(Ticket, RequestGeneration);
+}
+
+void ULoop9BackendAuthSubsystem::ExchangeSteamTicketForSession(
+	const FString& Ticket,
+	uint64 RequestGeneration)
+{
+	if (!bRequestInFlight || AuthRequestGeneration != RequestGeneration)
+	{
+		return;
+	}
 
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 	JsonObject->SetStringField(TEXT("ticket"), Ticket);
@@ -258,7 +312,6 @@ void ULoop9BackendAuthSubsystem::RequestSessionToken()
 	HttpRequest->SetTimeout(static_cast<float>(RemainingSeconds));
 	HttpRequest->SetContentAsString(Body);
 
-	const uint64 RequestGeneration = AuthRequestGeneration;
 	const double AuthStartedAt = AuthDeadlineSeconds - AuthTimeoutSeconds;
 
 	TWeakObjectPtr<ULoop9BackendAuthSubsystem> WeakThis(this);

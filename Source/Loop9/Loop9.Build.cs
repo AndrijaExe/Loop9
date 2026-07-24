@@ -39,6 +39,7 @@ public class Loop9 : ModuleRules
 			Target.Platform == UnrealTargetPlatform.Linux ||
 			Target.Platform == UnrealTargetPlatform.Mac)
 		{
+			PrivateDependencyModuleNames.Add("OnlineSubsystemSteam");
 			AddEngineThirdPartyPrivateStaticDependencies(Target, "Steamworks");
 			PrivateDefinitions.Add("LOOP9_WITH_STEAM=1");
 		}
