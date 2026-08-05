@@ -54,6 +54,15 @@ void USettingsWidget::NativeDestruct()
 	FTSTicker::GetCoreTicker().RemoveTicker(LanguageRefreshTickerHandle);
 	LanguageRefreshTickerHandle.Reset();
 
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->FlushPendingSettings();
+	}
+	if (UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
+	{
+		Settings->SaveSettings();
+	}
+
 	FLoop9WidgetClickBinder::UnbindClicked(Btn_Apply, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleApplyButtonClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Btn_Back, this, GET_FUNCTION_NAME_CHECKED(USettingsWidget, HandleBackButtonClicked));
 
@@ -320,37 +329,65 @@ void USettingsWidget::BindValueWidgets()
 
 void USettingsWidget::HandleGammaChanged(float Value)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetGamma(FMath::Lerp(MinGamma, MaxGamma, FMath::Clamp(Value, 0.0f, 1.0f)));
 }
 
 void USettingsWidget::HandleMasterVolumeChanged(float Value)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetMasterVolume(Value);
 }
 
 void USettingsWidget::HandleAmbientVolumeChanged(float Value)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetAmbientVolume(Value);
 }
 
 void USettingsWidget::HandleMouseSensitivityChanged(float Value)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetMouseSensitivity(FMath::Lerp(MinSensitivity, MaxSensitivity, FMath::Clamp(Value, 0.0f, 1.0f)));
 }
 
 void USettingsWidget::HandleInvertYChanged(bool bIsChecked)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetInvertedYAxis(bIsChecked);
 }
 
 void USettingsWidget::HandleResolutionScaleChanged(float Value)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	// Slider is 0..1 normalized across the engine's min/max resolution scale range.
 	SetResolutionScalePercent(FMath::Clamp(Value, 0.0f, 1.0f));
 }
 
 void USettingsWidget::HandleVSyncChanged(bool bIsChecked)
 {
+	if (bIsSyncingWidgets)
+	{
+		return;
+	}
 	SetVSync(bIsChecked);
 	if (UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
 	{
@@ -360,6 +397,8 @@ void USettingsWidget::HandleVSyncChanged(bool bIsChecked)
 
 void USettingsWidget::SyncWidgetsFromCurrentSettings()
 {
+	const TGuardValue<bool> SyncGuard(bIsSyncingWidgets, true);
+
 	int32 Width = 0;
 	int32 Height = 0;
 	GetCurrentResolution(Width, Height);
@@ -497,6 +536,8 @@ void USettingsWidget::RemoveAllFromViewport(UWorld* World)
 void USettingsWidget::OnBackClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("SettingsWidget: Back button clicked"));
+
+	SaveSettings();
 
 	FTSTicker::GetCoreTicker().RemoveTicker(LanguageRefreshTickerHandle);
 	LanguageRefreshTickerHandle.Reset();
@@ -699,6 +740,7 @@ void USettingsWidget::SetResolutionScalePercent(float ScaleNormalized)
 	{
 		// Expects 0..1 across Scalability::MinResolutionScale..MaxResolutionScale.
 		Settings->SetResolutionScaleNormalized(FMath::Clamp(ScaleNormalized, 0.0f, 1.0f));
+		Settings->ApplyNonResolutionSettings();
 		UE_LOG(LogTemp, Log, TEXT("Resolution scale normalized: %.2f"), ScaleNormalized);
 	}
 }
@@ -900,6 +942,11 @@ FString USettingsWidget::GetCurrentLanguage() const
 
 void USettingsWidget::SaveSettings()
 {
+	if (ULoop9GameSettingsSubsystem* GameSettings = GetGameSettings())
+	{
+		GameSettings->FlushPendingSettings();
+	}
+
 	UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings();
 	if (Settings)
 	{

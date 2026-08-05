@@ -593,22 +593,43 @@ void ALoopEndingSceneDirector::ApplyLightDimIndex(int32 Index, bool bOff)
 	AActor* LightActor = DimmableLightActors[Index];
 	TArray<ULightComponent*> Lights;
 	LightActor->GetComponents<ULightComponent>(Lights);
-	if (SavedLightIntensities.Num() <= Index)
-	{
-		SavedLightIntensities.SetNum(Index + 1);
-		SavedLightIntensities[Index] = Lights.Num() > 0 ? Lights[0]->Intensity : 0.0f;
-	}
 	for (ULightComponent* Light : Lights)
 	{
-		Light->SetIntensity(bOff ? 0.0f : SavedLightIntensities[Index]);
+		if (!Light)
+		{
+			continue;
+		}
+
+		FSavedLightIntensity* Saved = SavedLightIntensities.FindByPredicate(
+			[Light](const FSavedLightIntensity& Entry)
+			{
+				return Entry.Light.Get() == Light;
+			});
+		if (bOff)
+		{
+			if (!Saved)
+			{
+				FSavedLightIntensity& NewSaved = SavedLightIntensities.AddDefaulted_GetRef();
+				NewSaved.Light = Light;
+				NewSaved.Intensity = Light->Intensity;
+			}
+			Light->SetIntensity(0.0f);
+		}
+		else if (Saved)
+		{
+			Light->SetIntensity(Saved->Intensity);
+		}
 	}
 }
 
 void ALoopEndingSceneDirector::RestoreLightDims()
 {
-	for (int32 i = 0; i < DimmableLightActors.Num(); ++i)
+	for (const FSavedLightIntensity& Saved : SavedLightIntensities)
 	{
-		ApplyLightDimIndex(i, false);
+		if (ULightComponent* Light = Saved.Light.Get())
+		{
+			Light->SetIntensity(Saved.Intensity);
+		}
 	}
 	SavedLightIntensities.Reset();
 }
@@ -846,8 +867,8 @@ void ALoopEndingSceneDirector::ShowColdBetrayalEyes()
 {
 	// Use the *current* camera pose (after the cabin push), not CamStart —
 	// otherwise eyes sit too far and screen-space separation collapses.
-	const FVector CamLoc = GetActorLocation();
-	const FRotator CamRot = GetActorRotation();
+	const FVector CamLoc = SceneCamera ? SceneCamera->GetComponentLocation() : GetActorLocation();
+	const FRotator CamRot = SceneCamera ? SceneCamera->GetComponentRotation() : GetActorRotation();
 	const FVector Forward = CamRot.Vector().GetSafeNormal();
 	const FVector Right = FRotationMatrix(CamRot).GetScaledAxis(EAxis::Y);
 
@@ -920,6 +941,18 @@ void ALoopEndingSceneDirector::BeginEscapeTogetherCompanion()
 		Companion = EscapeTogetherCompanionActor;
 		EscapeCompanionStartTransform = Companion->GetActorTransform();
 		bEscapeCompanionWasHidden = Companion->IsHidden();
+		bEscapeCompanionCollisionEnabled = Companion->GetActorEnableCollision();
+		bEscapeCompanionTickEnabled = Companion->IsActorTickEnabled();
+		bEscapeCompanionHasMovementSnapshot = false;
+		if (const ACharacter* Character = Cast<ACharacter>(Companion))
+		{
+			if (const UCharacterMovementComponent* Move = Character->GetCharacterMovement())
+			{
+				EscapeCompanionMovementMode = static_cast<uint8>(Move->MovementMode);
+				EscapeCompanionCustomMovementMode = Move->CustomMovementMode;
+				bEscapeCompanionHasMovementSnapshot = true;
+			}
+		}
 		bEscapeCompanionSpawned = false;
 	}
 
@@ -957,6 +990,12 @@ void ALoopEndingSceneDirector::CleanupEscapeTogetherCompanion()
 	{
 		ActiveEscapeCompanion.Reset();
 		bEscapeCompanionSpawned = false;
+		bEscapeCompanionWasHidden = false;
+		bEscapeCompanionCollisionEnabled = false;
+		bEscapeCompanionTickEnabled = false;
+		EscapeCompanionMovementMode = 0;
+		EscapeCompanionCustomMovementMode = 0;
+		bEscapeCompanionHasMovementSnapshot = false;
 		return;
 	}
 
@@ -969,9 +1008,28 @@ void ALoopEndingSceneDirector::CleanupEscapeTogetherCompanion()
 	{
 		Companion->SetActorTransform(EscapeCompanionStartTransform);
 		Companion->SetActorHiddenInGame(bEscapeCompanionWasHidden);
+		Companion->SetActorEnableCollision(bEscapeCompanionCollisionEnabled);
+		Companion->SetActorTickEnabled(bEscapeCompanionTickEnabled);
+		if (bEscapeCompanionHasMovementSnapshot)
+		{
+			if (ACharacter* Character = Cast<ACharacter>(Companion))
+			{
+				if (UCharacterMovementComponent* Move = Character->GetCharacterMovement())
+				{
+					Move->SetMovementMode(
+						static_cast<EMovementMode>(EscapeCompanionMovementMode),
+						EscapeCompanionCustomMovementMode);
+				}
+			}
+		}
 	}
 
 	ActiveEscapeCompanion.Reset();
 	bEscapeCompanionSpawned = false;
 	bEscapeCompanionWasHidden = false;
+	bEscapeCompanionCollisionEnabled = false;
+	bEscapeCompanionTickEnabled = false;
+	EscapeCompanionMovementMode = 0;
+	EscapeCompanionCustomMovementMode = 0;
+	bEscapeCompanionHasMovementSnapshot = false;
 }

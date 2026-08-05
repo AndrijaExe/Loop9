@@ -57,6 +57,8 @@ private:
 	void QueryAchievementsCache();
 	void FlushPendingUnlocks();
 	bool WriteUnlock(FName AchievementId);
+	void QueuePendingUnlock(FName AchievementId);
+	void PersistPendingUnlocks() const;
 	void SchedulePendingRetry();
 	bool HandlePendingRetry(float DeltaSeconds);
 

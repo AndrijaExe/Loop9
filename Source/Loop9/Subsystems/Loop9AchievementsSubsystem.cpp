@@ -5,6 +5,7 @@
 #include "OnlineStats.h"
 #include "Interfaces/OnlineAchievementsInterface.h"
 #include "Interfaces/OnlineIdentityInterface.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 #include "Steam/Loop9SteamUtils.h"
 
 namespace
@@ -19,6 +20,7 @@ namespace
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
 	const TCHAR* SpottedAnomaliesKey = TEXT("SpottedAnomalies");
+	const TCHAR* PendingUnlocksKey = TEXT("PendingUnlocks");
 
 	IOnlineAchievementsPtr GetAchievementsInterface()
 	{
@@ -55,6 +57,16 @@ void ULoop9AchievementsSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 		SavePersistedList(SpottedAnomaliesKey, Spotted);
 	}
 
+	for (const FString& PendingId : LoadPersistedList(PendingUnlocksKey))
+	{
+		const FName AchievementId(*PendingId);
+		if (!AchievementId.IsNone())
+		{
+			PendingUnlocks.AddUnique(AchievementId);
+		}
+	}
+	PersistPendingUnlocks();
+
 	QueryAchievementsCache();
 }
 
@@ -66,6 +78,7 @@ void ULoop9AchievementsSubsystem::Deinitialize()
 		PendingRetryTickerHandle.Reset();
 	}
 
+	PersistPendingUnlocks();
 	PendingUnlocks.Reset();
 	InFlightUnlocks.Reset();
 	Super::Deinitialize();
@@ -284,9 +297,10 @@ void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)
 		return;
 	}
 
+	QueuePendingUnlock(AchievementId);
+
 	if (!GetAchievementsInterface().IsValid() || !GetLocalPlayerId().IsValid())
 	{
-		PendingUnlocks.AddUnique(AchievementId);
 		SchedulePendingRetry();
 		UE_LOG(LogTemp, Verbose, TEXT("Achievements: no online subsystem/player; queued %s."), *AchievementId.ToString());
 		return;
@@ -294,17 +308,11 @@ void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)
 
 	if (!bCacheReady)
 	{
-		PendingUnlocks.AddUnique(AchievementId);
 		QueryAchievementsCache();
 		return;
 	}
 
-	if (!WriteUnlock(AchievementId))
-	{
-		bCacheReady = false;
-		PendingUnlocks.AddUnique(AchievementId);
-		SchedulePendingRetry();
-	}
+	FlushPendingUnlocks();
 }
 
 void ULoop9AchievementsSubsystem::QueryAchievementsCache()
@@ -374,6 +382,8 @@ void ULoop9AchievementsSubsystem::FlushPendingUnlocks()
 		}
 	}
 
+	PersistPendingUnlocks();
+
 	if (PendingUnlocks.Num() > 0)
 	{
 		SchedulePendingRetry();
@@ -414,16 +424,35 @@ bool ULoop9AchievementsSubsystem::WriteUnlock(FName AchievementId)
 				{
 					Self->UnlockedThisSession.Add(AchievementId);
 					Self->PendingRetryDelaySeconds = 2.0f;
+					Self->PendingUnlocks.Remove(AchievementId);
+					Self->PersistPendingUnlocks();
 					return;
 				}
 
 				// The online API exposes only success/failure here, not a permanent
 				// error category. Keep the unlock queued with capped backoff.
 				Self->PendingUnlocks.AddUnique(AchievementId);
+				Self->PersistPendingUnlocks();
 				Self->SchedulePendingRetry();
 			}));
 
 	return true;
+}
+
+void ULoop9AchievementsSubsystem::QueuePendingUnlock(FName AchievementId)
+{
+	if (!AchievementId.IsNone() && !PendingUnlocks.Contains(AchievementId))
+	{
+		PendingUnlocks.Add(AchievementId);
+		PersistPendingUnlocks();
+	}
+}
+
+void ULoop9AchievementsSubsystem::PersistPendingUnlocks() const
+{
+	SavePersistedList(
+		PendingUnlocksKey,
+		Loop9RuntimePolicies::MergePendingAchievementIds(PendingUnlocks, InFlightUnlocks));
 }
 
 void ULoop9AchievementsSubsystem::SchedulePendingRetry()

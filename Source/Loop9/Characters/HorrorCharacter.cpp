@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 
 AHorrorCharacter::AHorrorCharacter()
 {
@@ -39,9 +40,6 @@ void AHorrorCharacter::BeginPlay()
 
 	// Initialize the walk speed
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-
-	// start the sprint tick timer
-	GetWorld()->GetTimerManager().SetTimer(SprintTimer, this, &AHorrorCharacter::SprintFixedTick, SprintFixedTickTime, true);
 }
 
 void AHorrorCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -90,6 +88,7 @@ void AHorrorCharacter::DoStartSprint()
 
 	// set the sprinting flag
 	bSprinting = true;
+	EnsureSprintTimerRunning();
 
 	// are we out of recovery mode?
 	if (!bRecovering)
@@ -117,6 +116,8 @@ void AHorrorCharacter::DoEndSprint()
 		// call the sprint state changed delegate
 		OnSprintStateChanged.Broadcast(false);
 	}
+
+	StopSprintTimerIfIdle();
 }
 
 void AHorrorCharacter::SprintFixedTick()
@@ -139,6 +140,7 @@ void AHorrorCharacter::SprintFixedTick()
 
 				// set the recovering walk speed
 				GetCharacterMovement()->MaxWalkSpeed = RecoveringWalkSpeed;
+				OnSprintStateChanged.Broadcast(false);
 			}
 		}
 		
@@ -162,6 +164,31 @@ void AHorrorCharacter::SprintFixedTick()
 	}
 
 	// broadcast the sprint meter updated delegate
-	OnSprintMeterUpdated.Broadcast(SprintMeter / SprintTime);
+	OnSprintMeterUpdated.Broadcast(GetSprintMeterPercent());
 
+	StopSprintTimerIfIdle();
+}
+
+void AHorrorCharacter::EnsureSprintTimerRunning()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (!World->GetTimerManager().IsTimerActive(SprintTimer))
+		{
+			World->GetTimerManager().SetTimer(
+				SprintTimer, this, &AHorrorCharacter::SprintFixedTick, SprintFixedTickTime, true);
+		}
+	}
+}
+
+void AHorrorCharacter::StopSprintTimerIfIdle()
+{
+	if (!Loop9RuntimePolicies::ShouldKeepSprintTimerActive(
+			bSprinting, bRecovering, SprintMeter, SprintTime))
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().ClearTimer(SprintTimer);
+		}
+	}
 }

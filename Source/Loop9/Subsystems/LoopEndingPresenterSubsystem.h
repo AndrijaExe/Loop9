@@ -14,6 +14,7 @@ class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ALoopEndingSceneDirector;
 class UWorld;
+class FStreamableHandle;
 
 UCLASS()
 class LOOP9_API ULoopEndingPresenterSubsystem : public UGameInstanceSubsystem
@@ -32,6 +33,7 @@ private:
 	enum class EPresentationState : uint8
 	{
 		Idle,
+		LoadingSequence,
 		PlayingSequence,
 		FadingToWidget,
 		ShowingWidget,
@@ -39,6 +41,11 @@ private:
 	};
 
 	bool TryPlayEndingSequence(ELoopEndingType EndingType);
+	bool TryPlayEndingDirector(ELoopEndingType EndingType);
+	bool StartLoadedEndingSequence(ULevelSequence* Sequence);
+	void HandleEndingSequenceLoadComplete(uint32 LoadGeneration);
+	void FinalizeEndingSequenceLoad(uint32 LoadGeneration, TWeakObjectPtr<UWorld> LoadWorld);
+	void FallBackFromEndingSequenceLoad();
 	void PresentPendingEndingAfterFade(float FadeDuration);
 	void PresentPendingEndingFromBlack(float HoldBlackSeconds);
 	void ShowPendingEndingWidget();
@@ -83,6 +90,9 @@ private:
 	bool bEndingPresentationPending = false;
 	EPresentationState PresentationState = EPresentationState::Idle;
 	TWeakObjectPtr<UWorld> PresentationWorld;
+	TSoftObjectPtr<ULevelSequence> PendingSequenceReference;
+	TSharedPtr<FStreamableHandle> ActiveSequenceLoadHandle;
+	uint32 PresentationGeneration = 0;
 
 	FTimerHandle EndingPresentationTimerHandle;
 	FTimerHandle SequenceCleanupAfterFadeTimerHandle;

@@ -53,6 +53,7 @@ protected:
 
 	/** True while we rebuild localized combo strings — ignores language combo callbacks. */
 	bool bIsRefreshingLocalizedUI = false;
+	bool bIsSyncingWidgets = false;
 
 	/** Core-ticker handle for the deferred combo refresh. World timers don't
 	 *  tick while the game is paused (settings opened from the pause menu),

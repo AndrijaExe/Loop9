@@ -74,6 +74,13 @@ public:
 	/** Delegate called when we start and stop sprinting */
 	FSprintStateChangedDelegate OnSprintStateChanged;
 
+	float GetSprintMeterPercent() const
+	{
+		return SprintTime > 0.0f ? FMath::Clamp(SprintMeter / SprintTime, 0.0f, 1.0f) : 0.0f;
+	}
+
+	bool IsSprintActive() const { return bSprinting && !bRecovering; }
+
 protected:
 
 	/** Constructor */
@@ -103,4 +110,7 @@ protected:
 
 	/** Called while sprinting at a fixed time interval */
 	void SprintFixedTick();
+
+	void EnsureSprintTimerRunning();
+	void StopSprintTimerIfIdle();
 };

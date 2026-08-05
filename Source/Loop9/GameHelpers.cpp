@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+#include "Misc/CoreDelegates.h"
 #include "MoviePlayer.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/SOverlay.h"
@@ -16,6 +17,60 @@
 namespace
 {
 	TStrongObjectPtr<UUserWidget> GLoadingUMGWidget;
+	FDelegateHandle GMoviePlaybackFinishedHandle;
+	FDelegateHandle GTravelFailureHandle;
+	FDelegateHandle GPreExitHandle;
+
+	void ReleaseLoadingUMGWidget()
+	{
+		GLoadingUMGWidget.Reset();
+	}
+
+	void HandleLoadingMovieFinished()
+	{
+		ReleaseLoadingUMGWidget();
+	}
+
+	void HandleTravelFailure(UWorld*, ETravelFailure::Type, const FString&)
+	{
+		ReleaseLoadingUMGWidget();
+	}
+
+	void HandlePreExit()
+	{
+		ReleaseLoadingUMGWidget();
+
+		if (GEngine && GTravelFailureHandle.IsValid())
+		{
+			GEngine->OnTravelFailure().Remove(GTravelFailureHandle);
+			GTravelFailureHandle.Reset();
+		}
+
+		if (IsMoviePlayerEnabled() && GMoviePlaybackFinishedHandle.IsValid())
+		{
+			GetMoviePlayer()->OnMoviePlaybackFinished().Remove(GMoviePlaybackFinishedHandle);
+			GMoviePlaybackFinishedHandle.Reset();
+		}
+	}
+
+	void EnsureLoadingLifecycleDelegates()
+	{
+		if (!GMoviePlaybackFinishedHandle.IsValid())
+		{
+			GMoviePlaybackFinishedHandle =
+				GetMoviePlayer()->OnMoviePlaybackFinished().AddStatic(&HandleLoadingMovieFinished);
+		}
+
+		if (GEngine && !GTravelFailureHandle.IsValid())
+		{
+			GTravelFailureHandle = GEngine->OnTravelFailure().AddStatic(&HandleTravelFailure);
+		}
+
+		if (!GPreExitHandle.IsValid())
+		{
+			GPreExitHandle = FCoreDelegates::OnPreExit.AddStatic(&HandlePreExit);
+		}
+	}
 
 	TSharedRef<SWidget> BuildLoadingSlateWidget()
 	{
@@ -73,6 +128,9 @@ namespace
 		{
 			return;
 		}
+
+		EnsureLoadingLifecycleDelegates();
+		ReleaseLoadingUMGWidget();
 
 		FLoadingScreenAttributes LoadingScreen;
 		LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;

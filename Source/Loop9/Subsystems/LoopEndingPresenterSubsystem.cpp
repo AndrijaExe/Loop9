@@ -1,12 +1,17 @@
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 
 #include "Interaction/LoopEndingSceneDirector.h"
+#include "Loop/LoopEndingEvaluator.h"
 #include "Loop9GameMode.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "UI/EndingWidget.h"
 #include "UI/ReplacementTerminalWidget.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
@@ -14,26 +19,9 @@
 #include "LevelSequence.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
-#include "TimerManager.h"
-
-#include "Subsystems/Loop9AchievementsSubsystem.h"
-#include "Subsystems/Loop9TelemetrySubsystem.h"
-#include "Subsystems/RelationshipSubsystem.h"
-#include "Loop/LoopEndingEvaluator.h"
-#include "Loop9GameMode.h"
-#include "UI/EndingWidget.h"
-#include "UI/ReplacementTerminalWidget.h"
-#include "Kismet/GameplayStatics.h"
-#include "Camera/PlayerCameraManager.h"
-#include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
-#include "LevelSequence.h"
-#include "LevelSequenceActor.h"
-#include "LevelSequencePlayer.h"
 #include "MovieSceneSequencePlaybackSettings.h"
-#include "Containers/Ticker.h"
-#include "Misc/QualifiedFrameTime.h"
 #include "TimerManager.h"
+#include "Misc/QualifiedFrameTime.h"
 
 namespace
 {
@@ -64,6 +52,7 @@ void ULoopEndingPresenterSubsystem::Initialize(FSubsystemCollectionBase& Collect
 
 void ULoopEndingPresenterSubsystem::Deinitialize()
 {
+	++PresentationGeneration;
 	if (WorldCleanupDelegateHandle.IsValid())
 	{
 		FWorldDelegates::OnWorldCleanup.Remove(WorldCleanupDelegateHandle);
@@ -121,6 +110,7 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	PendingTotalAIInteractions = TotalAIInteractions;
 	bEndingPresentationPending = true;
 	PresentationWorld = World;
+	++PresentationGeneration;
 
 	if (!TryPlayEndingSequence(EndingType))
 	{
@@ -160,6 +150,49 @@ bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType Ending
 		return false;
 	}
 
+	if (TryPlayEndingDirector(EndingType))
+	{
+		return true;
+	}
+
+	ALoop9GameMode* LoopGameMode = Cast<ALoop9GameMode>(UGameplayStatics::GetGameMode(World));
+	const TSoftObjectPtr<ULevelSequence>* SequenceReference =
+		LoopGameMode ? LoopGameMode->EndingSequences.Find(EndingType) : nullptr;
+	if (!SequenceReference || SequenceReference->IsNull())
+	{
+		return false;
+	}
+
+	PendingSequenceReference = *SequenceReference;
+	PresentationState = EPresentationState::LoadingSequence;
+	const uint32 LoadGeneration = PresentationGeneration;
+	ActiveSequenceLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		PendingSequenceReference.ToSoftObjectPath(),
+		FStreamableDelegate::CreateUObject(
+			this,
+			&ULoopEndingPresenterSubsystem::HandleEndingSequenceLoadComplete,
+			LoadGeneration));
+	if (!ActiveSequenceLoadHandle.IsValid())
+	{
+		PendingSequenceReference.Reset();
+		return false;
+	}
+	return true;
+}
+
+bool ULoopEndingPresenterSubsystem::TryPlayEndingDirector(ELoopEndingType EndingType)
+{
+	UWorld* World = PresentationWorld.Get();
+	if (!World)
+	{
+		return false;
+	}
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC)
+	{
+		return false;
+	}
+
 	// Prefer C++ director (same model as elevator) when placed in the map.
 	for (TActorIterator<ALoopEndingSceneDirector> It(World); It; ++It)
 	{
@@ -189,12 +222,59 @@ bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType Ending
 			WatchdogDelaySeconds);
 		return true;
 	}
+	return false;
+}
 
-	ALoop9GameMode* LoopGameMode = Cast<ALoop9GameMode>(UGameplayStatics::GetGameMode(World));
-	const TSoftObjectPtr<ULevelSequence>* SequenceReference =
-		LoopGameMode ? LoopGameMode->EndingSequences.Find(EndingType) : nullptr;
-	ULevelSequence* Sequence = SequenceReference ? SequenceReference->LoadSynchronous() : nullptr;
+void ULoopEndingPresenterSubsystem::HandleEndingSequenceLoadComplete(uint32 LoadGeneration)
+{
+	const TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
+	const TWeakObjectPtr<UWorld> LoadWorld(PresentationWorld.Get());
+	if (UWorld* World = LoadWorld.Get())
+	{
+		// Always leave the streamable callback stack before creating playback or
+		// taking the fallback path. Some already-resident assets complete inline.
+		World->GetTimerManager().SetTimerForNextTick(
+			[WeakThis, LoadWorld, LoadGeneration]()
+			{
+				if (WeakThis.IsValid())
+				{
+					WeakThis->FinalizeEndingSequenceLoad(LoadGeneration, LoadWorld);
+				}
+			});
+	}
+}
+
+void ULoopEndingPresenterSubsystem::FinalizeEndingSequenceLoad(
+	uint32 LoadGeneration,
+	TWeakObjectPtr<UWorld> LoadWorld)
+{
+	if (LoadGeneration != PresentationGeneration
+		|| !bEndingPresentationPending
+		|| PresentationState != EPresentationState::LoadingSequence
+		|| !LoadWorld.IsValid()
+		|| PresentationWorld.Get() != LoadWorld.Get())
+	{
+		return;
+	}
+
+	ULevelSequence* Sequence = PendingSequenceReference.Get();
+	ActiveSequenceLoadHandle.Reset();
+	PendingSequenceReference.Reset();
+	if (!StartLoadedEndingSequence(Sequence))
+	{
+		FallBackFromEndingSequenceLoad();
+	}
+}
+
+bool ULoopEndingPresenterSubsystem::StartLoadedEndingSequence(ULevelSequence* Sequence)
+{
 	if (!Sequence)
+	{
+		return false;
+	}
+
+	UWorld* World = PresentationWorld.Get();
+	if (!World)
 	{
 		return false;
 	}
@@ -242,6 +322,30 @@ bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType Ending
 	return true;
 }
 
+void ULoopEndingPresenterSubsystem::FallBackFromEndingSequenceLoad()
+{
+	if (!bEndingPresentationPending
+		|| PresentationState != EPresentationState::LoadingSequence)
+	{
+		return;
+	}
+
+	// A placed director may have become available while the asset was loading.
+	if (TryPlayEndingDirector(PendingEndingType))
+	{
+		return;
+	}
+
+	if (PendingEndingType == ELoopEndingType::ParanoidSurvivor)
+	{
+		PresentPendingEndingFromBlack(0.65f);
+	}
+	else
+	{
+		PresentPendingEndingAfterFade(2.0f);
+	}
+}
+
 void ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished()
 {
 	if (!bEndingPresentationPending
@@ -258,8 +362,15 @@ void ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished()
 	}
 
 	UWorld* World = PresentationWorld.Get();
+	if (!World)
+	{
+		CleanupActiveSequence(true);
+		bEndingPresentationPending = false;
+		PresentationState = EPresentationState::Idle;
+		return;
+	}
 	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
-	if (!World || !PC)
+	if (!PC)
 	{
 		CleanupActiveSequence(true);
 		bEndingPresentationPending = false;
@@ -420,18 +531,27 @@ void ULoopEndingPresenterSubsystem::ShowPendingEndingWidget()
 
 void ULoopEndingPresenterSubsystem::CleanupActiveSequence(bool bStopPlayback)
 {
-	if (ActiveSceneDirector)
+	if (ActiveSequenceLoadHandle.IsValid())
+	{
+		ActiveSequenceLoadHandle->CancelHandle();
+		ActiveSequenceLoadHandle.Reset();
+	}
+	PendingSequenceReference.Reset();
+
+	if (IsValid(ActiveSceneDirector))
 	{
 		ActiveSceneDirector->OnSceneFinished.RemoveDynamic(
 			this,
 			&ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished);
-		if (bStopPlayback && ActiveSceneDirector->IsPlaying())
+		if (bStopPlayback)
 		{
+			// A director stops ticking before it broadcasts completion, but
+			// deliberately holds its camera/world state through our fade.
 			ActiveSceneDirector->AbortScene();
 		}
-		ActiveSceneDirector = nullptr;
-		bPlayingDirectorScene = false;
 	}
+	ActiveSceneDirector = nullptr;
+	bPlayingDirectorScene = false;
 
 	if (ActiveSequencePlayer)
 	{
@@ -483,6 +603,7 @@ void ULoopEndingPresenterSubsystem::HandleWorldCleanup(
 		return;
 	}
 
+	++PresentationGeneration;
 	ClearPresentationTimers();
 	CleanupActiveSequence(false);
 	ActiveEndingWidget = nullptr;
@@ -623,6 +744,7 @@ void ULoopEndingPresenterSubsystem::ReturnToMainMenu(APlayerController* PlayerCo
 		return;
 	}
 
+	++PresentationGeneration;
 	ClearPresentationTimers();
 	CleanupActiveSequence(true);
 	bEndingPresentationPending = false;

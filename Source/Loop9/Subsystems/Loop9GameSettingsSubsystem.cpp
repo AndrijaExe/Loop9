@@ -31,6 +31,7 @@ void ULoop9GameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 
 void ULoop9GameSettingsSubsystem::Deinitialize()
 {
+	FlushPendingSettings();
 	FWorldDelegates::OnPostWorldInitialization.Remove(PostWorldInitHandle);
 
 	if (bVolumeMixPushed && VolumeMixWorld.IsValid() && VolumeSoundMix)
@@ -123,7 +124,7 @@ void ULoop9GameSettingsSubsystem::SetMasterVolume(float Volume)
 {
 	MasterVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
 	ApplyMasterVolume();
-	PersistSettings();
+	SchedulePersistence();
 }
 
 void ULoop9GameSettingsSubsystem::SetAmbientVolume(float Volume)
@@ -139,7 +140,7 @@ void ULoop9GameSettingsSubsystem::SetAmbientVolume(float Volume)
 		}
 	}
 
-	PersistSettings();
+	SchedulePersistence();
 }
 
 void ULoop9GameSettingsSubsystem::ApplyMasterVolume() const
@@ -199,7 +200,7 @@ void ULoop9GameSettingsSubsystem::ApplySoundClassVolumes(UWorld* World)
 void ULoop9GameSettingsSubsystem::SetPreferredGraphicsQuality(int32 QualityLevel)
 {
 	PreferredGraphicsQuality = FMath::Clamp(QualityLevel, 0, 3);
-	PersistSettings();
+	SchedulePersistence();
 }
 
 // --- Display ---
@@ -208,7 +209,7 @@ void ULoop9GameSettingsSubsystem::SetGamma(float InGamma)
 {
 	Gamma = FMath::Clamp(InGamma, 1.0f, 4.0f);
 	ApplyGamma();
-	PersistSettings();
+	SchedulePersistence();
 }
 
 void ULoop9GameSettingsSubsystem::ApplyGamma() const
@@ -224,16 +225,49 @@ void ULoop9GameSettingsSubsystem::ApplyGamma() const
 void ULoop9GameSettingsSubsystem::SetMouseSensitivity(float Sensitivity)
 {
 	MouseSensitivity = FMath::Clamp(Sensitivity, 0.1f, 5.0f);
-	PersistSettings();
+	SchedulePersistence();
 }
 
 void ULoop9GameSettingsSubsystem::SetInvertYAxis(bool bInverted)
 {
 	bInvertYAxis = bInverted;
-	PersistSettings();
+	SchedulePersistence();
 }
 
-void ULoop9GameSettingsSubsystem::PersistSettings()
+void ULoop9GameSettingsSubsystem::SchedulePersistence()
 {
-	SaveConfig();
+	bSettingsDirty = true;
+
+	if (PersistenceTickerHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(PersistenceTickerHandle);
+		PersistenceTickerHandle.Reset();
+	}
+
+	PersistenceTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateUObject(
+			this, &ULoop9GameSettingsSubsystem::HandlePersistenceTicker),
+		0.35f);
+}
+
+bool ULoop9GameSettingsSubsystem::HandlePersistenceTicker(float)
+{
+	PersistenceTickerHandle.Reset();
+	FlushPendingSettings();
+	return false;
+}
+
+void ULoop9GameSettingsSubsystem::FlushPendingSettings()
+{
+	if (PersistenceTickerHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(PersistenceTickerHandle);
+		PersistenceTickerHandle.Reset();
+	}
+
+	if (bSettingsDirty)
+	{
+		SaveConfig();
+		bSettingsDirty = false;
+	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/Ticker.h"
 #include "Engine/World.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UObject/SoftObjectPath.h"
@@ -77,6 +78,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Settings|Graphics")
 	int32 GetPreferredGraphicsQuality() const { return PreferredGraphicsQuality; }
 
+	/** Immediately writes any live settings changes that are waiting on the debounce. */
+	void FlushPendingSettings();
+
 private:
 	void ApplyMasterVolume() const;
 	void ApplyGamma() const;
@@ -84,7 +88,8 @@ private:
 	void ResolveAmbientSoundClass();
 	UWorld* ResolveAudioWorld() const;
 	void HandlePostWorldInit(UWorld* World, const UWorld::InitializationValues Values);
-	void PersistSettings();
+	void SchedulePersistence();
+	bool HandlePersistenceTicker(float DeltaSeconds);
 
 	UPROPERTY(Config)
 	float MasterVolume = 1.0f;
@@ -120,4 +125,6 @@ private:
 	TWeakObjectPtr<UWorld> VolumeMixWorld;
 
 	FDelegateHandle PostWorldInitHandle;
+	FTSTicker::FDelegateHandle PersistenceTickerHandle;
+	bool bSettingsDirty = false;
 };

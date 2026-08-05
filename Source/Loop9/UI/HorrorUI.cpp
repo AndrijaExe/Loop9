@@ -38,6 +38,8 @@ void UHorrorUI::SetupCharacter(AHorrorCharacter* HorrorCharacter)
 	BoundHorrorCharacter = HorrorCharacter;
 	HorrorCharacter->OnSprintMeterUpdated.AddDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
 	HorrorCharacter->OnSprintStateChanged.AddDynamic(this, &UHorrorUI::OnSprintStateChanged);
+	OnSprintMeterUpdated(HorrorCharacter->GetSprintMeterPercent());
+	OnSprintStateChanged(HorrorCharacter->IsSprintActive());
 }
 
 void UHorrorUI::OnSprintMeterUpdated(float Percent)

@@ -34,7 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ending Scene")
 	bool PlayEnding(ELoopEndingType EndingType, APlayerController* InteractingController);
 
-	/** Stops an in-progress scene without broadcasting OnSceneFinished. */
+	/** Stops an in-progress scene or releases its held cinematic state without broadcasting. */
 	UFUNCTION(BlueprintCallable, Category = "Ending Scene")
 	void AbortScene();
 
@@ -112,6 +112,12 @@ private:
 		bool bWasVisible = false;
 	};
 
+	struct FSavedLightIntensity
+	{
+		TWeakObjectPtr<ULightComponent> Light;
+		float Intensity = 0.0f;
+	};
+
 	UPROPERTY(VisibleAnywhere, Category = "Ending Scene")
 	TObjectPtr<UCameraComponent> SceneCamera;
 
@@ -152,9 +158,14 @@ private:
 	FRotator ChairStartRotation = FRotator::ZeroRotator;
 	FTransform EscapeCompanionStartTransform;
 	bool bEscapeCompanionWasHidden = false;
+	bool bEscapeCompanionCollisionEnabled = false;
+	bool bEscapeCompanionTickEnabled = false;
+	uint8 EscapeCompanionMovementMode = 0;
+	uint8 EscapeCompanionCustomMovementMode = 0;
+	bool bEscapeCompanionHasMovementSnapshot = false;
 	bool bEscapeCompanionSpawned = false;
 
-	TArray<float> SavedLightIntensities;
+	TArray<FSavedLightIntensity> SavedLightIntensities;
 	TArray<FSavedWorldLight> SavedWorldLights;
 	TArray<TWeakObjectPtr<ALiftDoorWing>> ActiveColdDoors;
 	uint8 FiredAudioMask = 0;
