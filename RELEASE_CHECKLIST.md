@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **24.07.2026.**
+Poslednje ažuriranje: **07.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -130,9 +130,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] Dodati `GameUserSettings.ini` samo ako želiš sync grafike i jezika između
   računara; nije release bloker.
 - [x] Javni privacy policy postoji na backendu.
-- [ ] Otvoriti
-  `https://loop9-backend.onrender.com/privacy` i proveriti HTTP 200 pre Store
-  review-a.
+- [x] `https://loop9-backend.onrender.com/privacy` vraća HTTP 200
+  (ponovo provereno 07.08.2026.).
 - [~] Content Survey i Steamworks promene proveriti u **Publish** tabu; sve izmene
   moraju biti publish-ovane, ne samo sačuvane.
 
@@ -166,6 +165,9 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] Production je Steam-only; legacy game token je onemogućen u `prod`.
 - [x] `/readyz`, Redis limiter storage, request bounds, AI deadline, moderation,
   response-size limit i correlation/timing logovi su implementirani.
+- [x] Lokalni production QA sa dva backend replica procesa i zajedničkim Redisom
+  potvrdio je atomske auth/chat/IP/player/monthly/global limite; zahtevi odbijeni
+  globalnim limitom ne stižu do moderation/chat provajdera.
 - [x] Privacy policy endpoint je implementiran i pushovan.
 - [x] Compact/full AI promptovi su usklađeni sa devet anomaly tipova, clean
   prvim loopom, ending relationship tonom i preciznim KINDNESS/SUSPICION rubricima.
@@ -175,9 +177,14 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   Hide/Light/Phantom kontekst i neutralan/ljubazan/sumnjičav input na svih pet jezika.
 - [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
   `STEAM_WEB_API_KEY` pravim auth zahtevom.
+- [x] Javni `https://loop9-backend.onrender.com/readyz` vraća
+  `{"status":"ready"}` (provereno 07.08.2026.).
 - [ ] Render Health Check Path postaviti/potvrditi kao `/readyz`.
 - [ ] Pre javnog release-a ukloniti cold start: Render Starter ili ekvivalentan
   always-on plan. Spoljni keep-alive free servisa nije pouzdan production plan.
+- [ ] Posle prelaska na always-on plan proveriti prvi zahtev nakon duže
+  neaktivnosti: bez Render wake stranice, bez client timeouta i sa prihvatljivim
+  p95 vremenom za auth + prvi chat.
 - [ ] Podesiti quota/cost alarm za dnevni globalni AI limit.
 - [ ] Napraviti pregled logova/alerta za:
   auth failure rate, AI timeout/fallback rate, moderation unavailable,
@@ -242,8 +249,11 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] Poslati release-candidate build na Valve review.
 - [ ] Ispraviti eventualne review primedbe i ponovo poslati.
 - [ ] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
-- [ ] Steam Direct fee je plaćen 15.07.2026; najraniji teorijski release je oko
-  **14.08.2026**, ali samo ako su review, Coming Soon period i QA završeni.
+- [ ] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
+  ističe približno **14.08.2026**, ali to nije automatski release datum.
+  Ako Coming Soon stranica nije bila javna do 07.08.2026, najraniji datum je
+  najmanje **14 dana od njenog stvarnog objavljivanja** (najranije oko
+  **21.08.2026.** ako se objavi 07.08.), uz završen Valve review i QA.
 
 ## 8. Release day
 
@@ -258,9 +268,11 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 
 ## Trenutni kritični put
 
-1. Elevator sound asseti/cleanup + ending mini-sequence polish i editor smoke.
-2. GatherText i finalni sadržaj.
-3. Store grafika, screenshotovi, trailer i achievement publish/test.
-4. Shipping build → Steam internal branch.
-5. E2E Steam/AI/Cloud/achievement/performance QA.
-6. Valve review → Coming Soon 14 dana → release.
+1. Ograničiti elevator button na igrača unutar kabine.
+2. Elevator sound asseti/cleanup + ending mini-sequence polish i editor smoke.
+3. GatherText i finalni sadržaj.
+4. Store grafika, screenshotovi, trailer i achievement publish/test.
+5. Render always-on plan + production alarmi.
+6. Shipping build → Steam internal branch.
+7. E2E Steam/AI/Cloud/achievement/performance QA.
+8. Valve review → Coming Soon najmanje 14 dana → release.

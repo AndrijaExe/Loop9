@@ -23,6 +23,8 @@ Release status remains authoritative in [`../RELEASE_CHECKLIST.md`](../RELEASE_C
 - [ ] Each of the six endings is reachable under its evaluator conditions.
 - [ ] Ending sequence missing still shows widget and returns to menu.
 - [ ] Elevator soft-lock never occurs (door timeouts force progress).
+- [ ] Elevator button cannot start a transition while the player is outside the
+  cabin interaction volume.
 - [ ] Input remains locked during elevator/ending presentation (move/look/jump/sprint/interact/pause).
 
 ## Steam / platform
@@ -44,11 +46,21 @@ Release status remains authoritative in [`../RELEASE_CHECKLIST.md`](../RELEASE_C
 - [ ] Moderation unsafe input returns in-fiction fallback.
 - [ ] Provider fallback path recovers when primary is forced down in staging.
 - [ ] Telemetry run-finished returns success/no crash on ending.
+- [x] Local production QA with two backend replicas and shared Redis enforces
+  exact auth, chat burst, IP daily, player daily/monthly and global daily limits.
+- [x] Requests rejected by the global daily quota stop before moderation and AI
+  generation provider calls.
+- [ ] Production quota/cost alarms and alerts fire before the configured global
+  daily ceiling becomes a player-visible outage.
+- [ ] On the paid always-on Render plan, the first auth/chat request after a long
+  idle period has no wake page or client timeout.
 
 ## Performance smoke
 
 - [ ] Office traversal without hitch spikes from idle ticking doors/actors.
 - [ ] Elevator transition remains smooth with travel audio.
+- [ ] Travel audio stops on normal arrival, timeout, abort, ending handoff and
+  world teardown; repeated transitions do not stack loops.
 - [ ] No unbounded log spam during chat/auth retries.
 
 ## Debug tools (non-Shipping)
@@ -71,3 +83,5 @@ AnomalyHelp
 6. Finish or force an ending if using an internal build.
 7. Confirm overlay achievement toast if expected.
 8. Watch backend logs for auth/chat 5xx and quota errors.
+9. Confirm `/readyz`, moderation, Redis and both configured AI providers are
+   healthy before promoting the depot.

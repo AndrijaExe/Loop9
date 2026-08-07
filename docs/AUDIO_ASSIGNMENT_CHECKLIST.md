@@ -1,6 +1,6 @@
 # Audio assignment checklist
 
-Poslednje ažuriranje: **24.07.2026.**
+Poslednje ažuriranje: **07.08.2026.**
 
 Koristi ovo kao listu zvukova koje još treba da dodeliš u editoru
 (Blueprint / map actor Details). C++ samo čita reference — bez asseta
@@ -17,6 +17,10 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
   travelu koji je skraćen)
 - [ ] Volume / fade: `Button Press Sound Volume`, `Travel Sound Volume`,
   `Travel Sound Fade Out Seconds`
+- [ ] Travel loop prestaje na normalnom dolasku, timeoutu, abortu, ending
+  handoffu i izlasku iz mape; ponovljene vožnje ne slažu više loopova.
+- [ ] Klik dugmeta se čuje samo kada je tranzicija prihvaćena, ne kada igrač
+  pritisne dugme izvan kabine ili tokom već aktivne tranzicije.
 
 ## Ending mini-scene (`LoopEndingSceneDirector` u `FullOfficeMap`)
 
@@ -73,6 +77,8 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 - [ ] Master / Music / SFX / Ambient slideri utiču na gornje kategorije
 - [ ] Shipping build: nema tišine na critical pathu (lift, telefon, ending,
   pursuer, main menu)
+- [ ] Pause/resume, Alt-Tab i promena output uređaja ne ostavljaju zaglavljen
+  loop niti dupliraju muziku/ambient.
 
 ---
 
