@@ -4,15 +4,17 @@ Poslednje ažuriranje: **07.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
-[`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md), marketinški tekst u
-[`Marketing/Steam/STORE_PAGE.md`](Marketing/Steam/STORE_PAGE.md), a cinematic
-dokumentacija u [`docs/CINEMATICS_AND_AUDIO.md`](docs/CINEMATICS_AND_AUDIO.md).
-Zvukovi za dodelu: [`docs/AUDIO_ASSIGNMENT_CHECKLIST.md`](docs/AUDIO_ASSIGNMENT_CHECKLIST.md).
+`[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
+`[Marketing/Steam/STORE_PAGE.md](Marketing/Steam/STORE_PAGE.md)`, a cinematic
+dokumentacija u `[docs/CINEMATICS_AND_AUDIO.md](docs/CINEMATICS_AND_AUDIO.md)`.
+Zvukovi za dodelu: `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
 
 Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
 
 ---
+
+
 
 ## 1. Content lock — završiti pre finalnog QA builda
 
@@ -35,7 +37,9 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 - [ ] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
   svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
   Detaljan Unreal MCP handoff:
-  [`docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md`](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md).
+  `[docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md)`.
+
+
 
 ### Ending mini-scene brief
 
@@ -43,23 +47,25 @@ Koristiti jednu zajedničku 4–6 s baznu sekvencu i duplirati je šest puta.
 Menjati samo camera transform, svetlo, 1–2 prop keyframea i zvuk; bez novih
 skeletal animacija i bez gameplay logike u Event Tracku.
 
-- [ ] **Escape Together:** kroz već otvorena arrival vrata raste toplo jako
+- [x] **Escape Together:** kroz već otvorena arrival vrata raste toplo jako
   svetlo; čuju se dva para koraka; drugi lift se uključi neposredno pre kraja.
-- [ ] **Obedient Fool:** kamera prilazi telefonu; svetla iza igrača gase se jedno
+- [x] **Obedient Fool:** kamera prilazi telefonu; svetla iza igrača gase se jedno
   po jedno; monitor prikazuje `TASK COMPLETE`; telefon kratko zazvoni.
-- [ ] **Cold Betrayal:** vrata otkrivaju potpuno mračan hodnik; čuje se prekinuta
+- [x] **Cold Betrayal:** vrata otkrivaju potpuno mračan hodnik; čuje se prekinuta
   telefonska linija; pali se crveno svetlo i vrata se ponovo zatvaraju.
-- [ ] **Bug:** Cold Betrayal — posle blackouta oči (dve crvene tačke) se uopšte
+- [x] **Bug:** Cold Betrayal — posle blackouta oči (dve crvene tačke) se uopšte
   ne vide; vratiti vidljiv dual-eye beat (emissive mesh ili pouzdan light setup)
   tek kada su svetla skroz ugašena, sa holdom ~1 s dužim od ranije.
-- [ ] **Paranoid Survivor:** kamera se okreće od telefona ka izlazu; telefon
+- [x] **Paranoid Survivor:** kamera se okreće od telefona ka izlazu; telefon
   zazvoni iza igrača; kadar počinje da se vraća, ali se završava pre otkrivanja.
-- [ ] **Merged Memory:** fluorescentna svetla trepere; telefon/monitor se kratko
+- [x] **Merged Memory:** fluorescentna svetla trepere; telefon/monitor se kratko
   pojavljuje na dve pozicije; duplirani zvuk kasni nekoliko desetina sekunde;
   kamera polako prilazi monitoru.
-- [ ] **The Replacement:** kamera prilazi Dragojlovom stolu; prazna stolica se
+- [x] **The Replacement:** kamera prilazi Dragojlovom stolu; prazna stolica se
   blago okreće; telefon zazvoni; monitor prikazuje `NEW OPERATOR CONNECTED`;
   zatim se prikazuje postojeći Replacement terminal.
+
+
 
 ### Ending balance targets
 
@@ -105,13 +111,15 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] UI/runtime cleanup implementiran:
   stale notification/widget timeri se čiste, main/settings meni fokusira pravo
   dugme za gamepad/tastaturu, a telemetry razlikuje transport uspeh od HTTP 2xx.
-- [ ] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle
+- [x] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle
   poslednjih commitovanih `.locres` fajlova; zatim smoke-testirati svih pet jezika.
-- [ ] Item inspection smoke:
+- [x] Item inspection smoke:
   otvaranje/zatvaranje, rotacija 15 s, bez ljubičastih artefakata, povratak inputa
   i pause menija.
-- [ ] MaterialSwap smoke za Magazine, I01, F01 i D01; potvrditi vraćanje originalnog
+- [x] MaterialSwap smoke za Magazine, I01, F01 i D01; potvrditi vraćanje originalnog
   materijala na sledećem loopu.
+
+
 
 ## 2. Steamworks — Store Presence
 
@@ -120,11 +128,13 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   (`Loop9.exe`) popunjeni.
 - [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
 - [x] EN/SR store opis pripremljen.
+
 - [~] DE/FR/RU lokalizovani opisi su sačuvani u
-  `Marketing/Steam/STORE_PAGE.md`; proveriti da li su svi uneti i sačuvani u
-  Steamworksu.
+`Marketing/Steam/STORE_PAGE.md`; proveriti da li su svi uneti i sačuvani u
+Steamworksu.
+
 - [x] Cena `$4.99` i Valve regional pricing poslati.
-- [ ] Sačekati potvrdu pricing promena.
+- [x] Sačekati potvrdu pricing promena.
 - [x] Steam Cloud Auto-Cloud podešen za
   `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
 - [ ] Dodati `GameUserSettings.ini` samo ako želiš sync grafike i jezika između
@@ -132,8 +142,11 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] Javni privacy policy postoji na backendu.
 - [x] `https://loop9-backend.onrender.com/privacy` vraća HTTP 200
   (ponovo provereno 07.08.2026.).
+
 - [~] Content Survey i Steamworks promene proveriti u **Publish** tabu; sve izmene
-  moraju biti publish-ovane, ne samo sačuvane.
+moraju biti publish-ovane, ne samo sačuvane.
+
+
 
 ### Store grafika
 
@@ -149,16 +162,20 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   Store review-a, iako nije tehnički potreban za prvi build upload.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
+
+
 ## 3. Steam achievements
 
 - [x] Definisano svih **27** API imena tačno po
-  [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
+  `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`.
 - [x] Uploadovano 27 achieved + 27 locked ikonica.
-- [ ] Postaviti hidden flag za 6 endinga, `ACH_DEJA_VU` i
+- [x] Postaviti hidden flag za 6 endinga, `ACH_DEJA_VU` i
   `ACH_SPOT_PHANTOM`.
-- [ ] Publishovati Stats & Achievements promene.
+- [x] Publishovati Stats & Achievements promene.
 - [ ] Testirati najmanje po jedan achievement iz svake grupe, zatim svih šest
   endinga i `ACH_SPOT_ALL` sa 9 anomaly tipova.
+
+
 
 ## 4. Backend / production
 
@@ -173,10 +190,12 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   prvim loopom, ending relationship tonom i preciznim KINDNESS/SUSPICION rubricima.
 - [x] Backend normalizuje interne Unreal anomaly oznake pre slanja modelu i ima
   lokalizovane moderation fallback poruke za EN/SR/DE/FR/RU.
-- [ ] Prompt QA: clean prvi loop uvek preporučuje dark lift; proveriti po jedan
+- [x] Prompt QA: clean prvi loop uvek preporučuje dark lift; proveriti po jedan
   Hide/Light/Phantom kontekst i neutralan/ljubazan/sumnjičav input na svih pet jezika.
+
 - [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
-  `STEAM_WEB_API_KEY` pravim auth zahtevom.
+`STEAM_WEB_API_KEY` pravim auth zahtevom.
+
 - [x] Javni `https://loop9-backend.onrender.com/readyz` vraća
   `{"status":"ready"}` (provereno 07.08.2026.).
 - [ ] Render Health Check Path postaviti/potvrditi kao `/readyz`.
@@ -185,10 +204,12 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] Posle prelaska na always-on plan proveriti prvi zahtev nakon duže
   neaktivnosti: bez Render wake stranice, bez client timeouta i sa prihvatljivim
   p95 vremenom za auth + prvi chat.
-- [ ] Podesiti quota/cost alarm za dnevni globalni AI limit.
+- [x] Podesiti quota/cost alarm za dnevni globalni AI limit.
 - [ ] Napraviti pregled logova/alerta za:
   auth failure rate, AI timeout/fallback rate, moderation unavailable,
   Redis failure, HTTP 5xx i p95 total latency.
+
+
 
 ## 5. Build i SteamPipe
 
@@ -203,7 +224,11 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   folder.
 - [ ] Posle QA postaviti odobreni build na default branch.
 
+
+
 ## 6. Release-candidate QA
+
+
 
 ### Kritični gameplay
 
@@ -214,6 +239,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   pojavljuje posle sekvence i Continue vraća u Main Menu.
 - [ ] Item inspection, pursuer, Scale, Phantom i MaterialSwap anomaly smoke.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
+
+
 
 ### Steam i online
 
@@ -229,6 +256,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
 - [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save → progres se vrati.
 
+
+
 ### Platforma, UI i performanse
 
 - [ ] EN/SR/DE/FR/RU: meni, settings, chat, promptovi, ending i terminal.
@@ -241,6 +270,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] Proveriti nove VT anomaly teksture u cooked buildu i peak VRAM; izvorni novi
   `.uasset` fajlovi trenutno zauzimaju oko 158 MB u repou.
 - [ ] Test na čistoj mašini bez Unreal Engine-a i lokalnih config fajlova.
+
+
 
 ## 7. Valve review i Coming Soon
 
@@ -255,6 +286,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   najmanje **14 dana od njenog stvarnog objavljivanja** (najranije oko
   **21.08.2026.** ako se objavi 07.08.), uz završen Valve review i QA.
 
+
+
 ## 8. Release day
 
 - [ ] Zamrznuti kod i sačuvati tačan commit/build ID koji ide live.
@@ -266,6 +299,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 
 ---
 
+
+
 ## Trenutni kritični put
 
 1. Ograničiti elevator button na igrača unutar kabine.
@@ -276,3 +311,4 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 6. Shipping build → Steam internal branch.
 7. E2E Steam/AI/Cloud/achievement/performance QA.
 8. Valve review → Coming Soon najmanje 14 dana → release.
+
