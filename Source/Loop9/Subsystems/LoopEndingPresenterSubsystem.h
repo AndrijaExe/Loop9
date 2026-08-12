@@ -13,6 +13,7 @@ class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ALoopEndingSceneDirector;
+class APlayerController;
 class UWorld;
 class FStreamableHandle;
 
@@ -51,6 +52,9 @@ private:
 	void ShowPendingEndingWidget();
 	void CleanupActiveSequence(bool bStopPlayback);
 	void ClearPresentationTimers();
+	void LockPresentationInput(APlayerController* PlayerController);
+	void ReleasePresentationInputLocks();
+	void AbortPresentationToIdle();
 	void HandleWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 	bool HandleEndingSequenceWatchdog(float DeltaSeconds);
 
@@ -88,8 +92,10 @@ private:
 	int32 PendingTotalResets = 0;
 	int32 PendingTotalAIInteractions = 0;
 	bool bEndingPresentationPending = false;
+	bool bPresentationInputLocked = false;
 	EPresentationState PresentationState = EPresentationState::Idle;
 	TWeakObjectPtr<UWorld> PresentationWorld;
+	TWeakObjectPtr<APlayerController> LockedPlayerController;
 	TSoftObjectPtr<ULevelSequence> PendingSequenceReference;
 	TSharedPtr<FStreamableHandle> ActiveSequenceLoadHandle;
 	uint32 PresentationGeneration = 0;

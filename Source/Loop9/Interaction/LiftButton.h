@@ -5,6 +5,7 @@
 #include "Interaction/Loop9Interactable.h"
 #include "LiftButton.generated.h"
 
+class UBoxComponent;
 class UPointLightComponent;
 class UTextRenderComponent;
 class ALiftDoorWing;
@@ -38,8 +39,32 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UTextRenderComponent* LabelText;
 
+	/**
+	 * Optional cabin gate volume. When enabled with a non-trivial extent, the
+	 * player must overlap this box to press the button. Leave disabled to use
+	 * the automatic door-plane check against TransitionDoorWings.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UBoxComponent> CabinVolume;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
 	ELiftButtonType ButtonType = ELiftButtonType::Increment;
+
+	/** Reject presses when the player is outside the elevator cabin. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Cabin Gate")
+	bool bRequirePlayerInsideCabin = true;
+
+	/** Use CabinVolume overlap when the box extent is configured (> 1 cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Cabin Gate")
+	bool bUseCabinVolumeGate = true;
+
+	/** Minimum depth past the door plane toward the button (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Cabin Gate", meta = (ClampMin = "0.0"))
+	float CabinMinDepthPastDoorsCm = 25.0f;
+
+	/** Max distance from the button while still counting as inside the cabin. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Cabin Gate", meta = (ClampMin = "50.0"))
+	float CabinMaxDistanceFromButtonCm = 280.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button|Visual")
 	bool bEnableIndicatorLight = true;
@@ -96,5 +121,6 @@ public:
 
 private:
 	bool HandleInteraction(APlayerController* InteractingController);
+	bool IsPlayerInsideCabin(APlayerController* InteractingController) const;
 	void UpdateMeshEmissive(float Strength, const FLinearColor& Tint) const;
 };

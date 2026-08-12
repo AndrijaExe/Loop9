@@ -1,4 +1,5 @@
 #include "AI_ChatWidget.h"
+#include "AI/Services/Loop9BackendChatService.h"
 #include "AI_Friend.h"
 #include "Components/EditableTextBox.h"
 #include "Components/Button.h"
@@ -375,6 +376,14 @@ void UAI_ChatWidget::HandleSendMessage()
 	if (!MessageInputBox)
 	{
 		return;
+	}
+
+	// Keep UI from posting a wall of text that the backend will reject.
+	FString Draft = MessageInputBox->GetText().ToString().TrimStartAndEnd();
+	if (Draft.Len() > Loop9ChatLimits::MaxMessageLength)
+	{
+		Draft = Draft.Left(Loop9ChatLimits::MaxMessageLength);
+		MessageInputBox->SetText(FText::FromString(Draft));
 	}
 
 	FText MessageText = MessageInputBox->GetText();

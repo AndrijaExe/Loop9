@@ -73,26 +73,14 @@ void URelationshipSubsystem::ResetRelationshipState()
 
 void URelationshipSubsystem::RegisterPlayerMessage(const FString& Message)
 {
+	// Kindness/suspicion are owned exclusively by backend AI deltas so ending
+	// reachability stays language-independent. Local keywords only nudge
+	// cooperation/dependency signals the model does not authoritatively set.
 	const FString Lower = Message.ToLower();
 
-	if (Lower.Contains(TEXT("hvala")) || Lower.Contains(TEXT("thank")) || Lower.Contains(TEXT("please"))
-		|| Lower.Contains(TEXT("molim")) || Lower.Contains(TEXT("izvini")) || Lower.Contains(TEXT("sorry"))
-		|| Lower.Contains(TEXT("bravo")) || Lower.Contains(TEXT("svaka cast")) || Lower.Contains(TEXT("dobar si"))
-		|| Lower.Contains(TEXT("pomogao")) || Lower.Contains(TEXT("helped")) || Lower.Contains(TEXT("legendo")))
-	{
-		Kindness += 0.04f;
-	}
-
-	if (Lower.Contains(TEXT("idiot")) || Lower.Contains(TEXT("glup")) || Lower.Contains(TEXT("stupid"))
-		|| Lower.Contains(TEXT("mrzim")) || Lower.Contains(TEXT("hate")) || Lower.Contains(TEXT("debil"))
-		|| Lower.Contains(TEXT("retard")) || Lower.Contains(TEXT("kreten")) || Lower.Contains(TEXT("budalo"))
-		|| Lower.Contains(TEXT("odjebi")) || Lower.Contains(TEXT("mars")))
-	{
-		Kindness -= 0.08f;
-	}
-
 	if (Lower.Contains(TEXT("vidim")) || Lower.Contains(TEXT("i see")) || Lower.Contains(TEXT("anomal"))
-		|| Lower.Contains(TEXT("nema")) || Lower.Contains(TEXT("there is")) || Lower.Contains(TEXT("there isn't")))
+		|| Lower.Contains(TEXT("nema")) || Lower.Contains(TEXT("there is")) || Lower.Contains(TEXT("there isn't"))
+		|| Lower.Contains(TEXT("ich sehe")) || Lower.Contains(TEXT("je vois")) || Lower.Contains(TEXT("я вижу")))
 	{
 		Cooperation += 0.03f;
 	}
@@ -105,13 +93,6 @@ void URelationshipSubsystem::RegisterPlayerMessage(const FString& Message)
 		|| Lower.Contains(TEXT("что мне делать")) || Lower.Contains(TEXT("скажи мне")))
 	{
 		Dependency += 0.05f;
-	}
-
-	if (Lower.Contains(TEXT("laz")) || Lower.Contains(TEXT("laž")) || Lower.Contains(TEXT("ne verujem"))
-		|| Lower.Contains(TEXT("don't trust")) || Lower.Contains(TEXT("sumnj")) || Lower.Contains(TEXT("sus")))
-	{
-		Suspicion += 0.04f;
-		Trust -= 0.03f;
 	}
 
 	ClampStateValues();

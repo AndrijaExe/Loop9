@@ -1,11 +1,14 @@
 #include "Interaction/LiftButton.h"
 
 #include "Interaction/LoopElevatorTransitionDirector.h"
+#include "LiftDoorWing.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "GameFramework/Pawn.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 ALiftButton::ALiftButton()
@@ -31,6 +34,14 @@ ALiftButton::ALiftButton()
 	LabelText->SetTextRenderColor(FColor::White);
 	LabelText->SetVisibility(false);
 	LabelText->SetHiddenInGame(true);
+
+	CabinVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CabinVolume"));
+	CabinVolume->SetupAttachment(ButtonMesh);
+	// Disabled by default — door-plane gate covers maps without authored volumes.
+	CabinVolume->SetBoxExtent(FVector(1.0f, 1.0f, 1.0f));
+	CabinVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CabinVolume->SetGenerateOverlapEvents(false);
+	CabinVolume->SetHiddenInGame(true);
 }
 
 void ALiftButton::BeginPlay()
@@ -98,8 +109,75 @@ void ALiftButton::Interact()
 	HandleInteraction(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
+bool ALiftButton::IsPlayerInsideCabin(APlayerController* InteractingController) const
+{
+	if (!bRequirePlayerInsideCabin)
+	{
+		return true;
+	}
+
+	const APawn* Pawn = InteractingController ? InteractingController->GetPawn() : nullptr;
+	if (!Pawn)
+	{
+		return false;
+	}
+
+	const FVector PlayerLocation = Pawn->GetActorLocation();
+	const float MaxButtonDistance = FMath::Max(50.0f, CabinMaxDistanceFromButtonCm);
+	if (FVector::Dist(PlayerLocation, GetActorLocation()) > MaxButtonDistance)
+	{
+		return false;
+	}
+
+	if (bUseCabinVolumeGate && CabinVolume)
+	{
+		const FVector Extent = CabinVolume->GetScaledBoxExtent();
+		if (Extent.GetMax() > 1.5f)
+		{
+			const FTransform VolumeTransform = CabinVolume->GetComponentTransform();
+			const FVector Local = VolumeTransform.InverseTransformPosition(PlayerLocation);
+			return FMath::Abs(Local.X) <= Extent.X
+				&& FMath::Abs(Local.Y) <= Extent.Y
+				&& FMath::Abs(Local.Z) <= Extent.Z;
+		}
+	}
+
+	FVector DoorCenter = FVector::ZeroVector;
+	int32 DoorCount = 0;
+	for (const TObjectPtr<ALiftDoorWing>& DoorWing : TransitionDoorWings)
+	{
+		if (IsValid(DoorWing))
+		{
+			DoorCenter += DoorWing->GetActorLocation();
+			++DoorCount;
+		}
+	}
+
+	if (DoorCount <= 0)
+	{
+		// No door refs: proximity to the button is the only available gate.
+		return true;
+	}
+
+	DoorCenter /= static_cast<float>(DoorCount);
+	FVector Inward = (GetActorLocation() - DoorCenter).GetSafeNormal2D();
+	if (Inward.IsNearlyZero())
+	{
+		return true;
+	}
+
+	const float DepthPastDoors = FVector::DotProduct(PlayerLocation - DoorCenter, Inward);
+	return DepthPastDoors >= CabinMinDepthPastDoorsCm;
+}
+
 bool ALiftButton::HandleInteraction(APlayerController* InteractingController)
 {
+	if (!IsPlayerInsideCabin(InteractingController))
+	{
+		UE_LOG(LogTemp, Log, TEXT("LiftButton: ignored press — player is outside the cabin."));
+		return false;
+	}
+
 	if (IsValid(TransitionDirector))
 	{
 		if (TransitionDirector->IsTransitionInProgress())
@@ -142,6 +220,12 @@ bool ALiftButton::TryInteract_Implementation(APlayerController* InteractingContr
 
 FText ALiftButton::GetInteractionPromptText_Implementation() const
 {
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (bRequirePlayerInsideCabin && PC && !IsPlayerInsideCabin(PC))
+	{
+		return NSLOCTEXT("Loop9Interaction", "LiftEnterCabinFirst", "Enter the elevator first");
+	}
+
 	if (!InteractionPromptText.IsEmpty())
 	{
 		return InteractionPromptText;

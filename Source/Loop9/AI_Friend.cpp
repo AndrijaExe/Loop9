@@ -464,7 +464,42 @@ bool AAI_Friend::QueuePendingAuthChat(const FString& Message, bool bIsAuthRetry,
 	return bPendingAuthChat;
 }
 
-void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode)
+void AAI_Friend::ApplyChatRateLimitCooldown(int32 RetryAfterSeconds)
+{
+	const int32 ClampedSeconds = FMath::Clamp(RetryAfterSeconds > 0 ? RetryAfterSeconds : 30, 1, 600);
+	if (const UWorld* World = GetWorld())
+	{
+		ChatRateLimitedUntilWorldTime = World->GetTimeSeconds() + static_cast<double>(ClampedSeconds);
+	}
+}
+
+bool AAI_Friend::IsChatRateLimited(float* OutSecondsRemaining) const
+{
+	if (OutSecondsRemaining)
+	{
+		*OutSecondsRemaining = 0.0f;
+	}
+
+	const UWorld* World = GetWorld();
+	if (!World || ChatRateLimitedUntilWorldTime <= 0.0)
+	{
+		return false;
+	}
+
+	const double Remaining = ChatRateLimitedUntilWorldTime - World->GetTimeSeconds();
+	if (Remaining <= 0.0)
+	{
+		return false;
+	}
+
+	if (OutSecondsRemaining)
+	{
+		*OutSecondsRemaining = static_cast<float>(Remaining);
+	}
+	return true;
+}
+
+void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode, int32 RetryAfterSeconds)
 {
 	FString UserFacingReply;
 	if (HttpCode == 0)
@@ -474,8 +509,14 @@ void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode)
 	}
 	else if (HttpCode == 429)
 	{
-		UserFacingReply = NSLOCTEXT("Loop9Chat", "ChatRateLimited",
-			"...the line is busy. He cannot take more calls right now. Try again later.").ToString();
+		ApplyChatRateLimitCooldown(RetryAfterSeconds);
+		float SecondsRemaining = 0.0f;
+		IsChatRateLimited(&SecondsRemaining);
+		const int32 WaitSeconds = FMath::Max(1, FMath::CeilToInt(SecondsRemaining));
+		UserFacingReply = FText::Format(
+			NSLOCTEXT("Loop9Chat", "ChatRateLimitedRetry",
+				"...the line is busy. Try again in {0}s."),
+			FText::AsNumber(WaitSeconds)).ToString();
 	}
 	else
 	{
@@ -495,6 +536,42 @@ void AAI_Friend::HandleLocalizedChatFailure(int32 HttpCode)
 FString AAI_Friend::SayToAI(const FString& Message)
 {
 	RefreshLoopMessageLimitCounter();
+
+	const FString TrimmedMessage = Message.TrimStartAndEnd();
+	if (TrimmedMessage.IsEmpty())
+	{
+		return TEXT("Blocked: empty message");
+	}
+
+	if (TrimmedMessage.Len() > Loop9ChatLimits::MaxMessageLength)
+	{
+		const FString TooLongReply = NSLOCTEXT("Loop9Chat", "ChatMessageTooLong",
+			"...he cuts you off. Keep it shorter.").ToString();
+		LastAIResponse = TooLongReply;
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->AddMessageToChat(TooLongReply, false, true);
+		}
+		OnResponseReceived(TooLongReply);
+		return TEXT("Blocked: message exceeds max length");
+	}
+
+	float RateLimitSecondsRemaining = 0.0f;
+	if (IsChatRateLimited(&RateLimitSecondsRemaining))
+	{
+		const int32 WaitSeconds = FMath::Max(1, FMath::CeilToInt(RateLimitSecondsRemaining));
+		const FString BusyReply = FText::Format(
+			NSLOCTEXT("Loop9Chat", "ChatRateLimitedRetry",
+				"...the line is busy. Try again in {0}s."),
+			FText::AsNumber(WaitSeconds)).ToString();
+		LastAIResponse = BusyReply;
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->AddMessageToChat(BusyReply, false, true);
+		}
+		OnResponseReceived(BusyReply);
+		return TEXT("Blocked: rate limited");
+	}
 
 	if (MaxMessagesPerLoop > 0 && MessagesSentThisLoop >= MaxMessagesPerLoop)
 	{
@@ -537,7 +614,7 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	if (bSteamAuthRequired && !bHasSession)
 	{
 		// Authorize then dispatch — never send an unauthenticated Steam production request.
-		if (!QueuePendingAuthChat(Message, false, false))
+		if (!QueuePendingAuthChat(TrimmedMessage, false, false))
 		{
 			return TEXT("Error: Steam authentication failed");
 		}
@@ -547,11 +624,11 @@ FString AAI_Friend::SayToAI(const FString& Message)
 			ChatWidget->ShowThinkingIndicator();
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("AI request queued until Steam session is ready. MsgLen=%d"), Message.Len());
+		UE_LOG(LogTemp, Log, TEXT("AI request queued until Steam session is ready. MsgLen=%d"), TrimmedMessage.Len());
 		return TEXT("Request queued (awaiting Steam auth)...");
 	}
 
-	DispatchChatRequest(Message);
+	DispatchChatRequest(TrimmedMessage);
 	return TEXT("Request sent... (async)");
 }
 
@@ -634,7 +711,7 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 					ChatResponse.HttpCode, *ChatResponse.ErrorMessage);
 
 				MessagesSentThisLoop = FMath::Max(0, MessagesSentThisLoop - 1);
-				HandleLocalizedChatFailure(ChatResponse.HttpCode);
+				HandleLocalizedChatFailure(ChatResponse.HttpCode, ChatResponse.RetryAfterSeconds);
 				return;
 			}
 
@@ -642,8 +719,9 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 			{
 				if (ULoopManagerSubsystem* LoopMgr = GI->GetSubsystem<ULoopManagerSubsystem>())
 				{
-					// Relationship intent is committed only after a validated AI
-					// response, so rejected/failed requests cannot influence endings.
+					// Commit only after a validated AI response. Kindness/suspicion
+					// come solely from backend deltas; local keywords only nudge
+					// cooperation/dependency.
 					LoopMgr->RegisterPlayerMessage(Message);
 					LoopMgr->ApplyAIDiagnosedKindnessDelta(ChatResponse.KindnessDelta);
 					LoopMgr->ApplyAIDiagnosedSuspicionDelta(ChatResponse.SuspicionDelta);

@@ -23,9 +23,9 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
   arrival lift, watchdog fallback i direktan C++ camera blend.
 - [x] U `FullOfficeMap` povezani director, oba dugmeta, door wing reference i
   `TP_LitElevatorArrival`; lift više ne zavisi od Level Sequence asseta.
-- [ ] **Bug:** dugme lifta se može pritisnuti i kada igrač nije u kabini —
-  interakciju ograničiti na volumen/uslov „player inside elevator“ pre
-  `RequestTransition` / button press.
+- [x] **Bug:** dugme lifta se može pritisnuti i kada igrač nije u kabini —
+  C++ gate u `ALiftButton` (door-plane depth + distance; optional `CabinVolume`).
+  U editoru po želji uvećati `CabinVolume` box extent za stroži overlap check.
 - [ ] U `BP_LoopElevatorTransitionDirector` postaviti `Button Press Sound` i
   looping `Travel Sound`, zatim podesiti njihove volume/fade vrednosti.
 - [ ] Posle C++ rebuilda otvoriti i resaveovati `FullOfficeMap`/director Blueprint,

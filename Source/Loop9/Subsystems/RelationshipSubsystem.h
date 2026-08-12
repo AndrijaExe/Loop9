@@ -42,6 +42,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterAIInteraction();
 
+	/** Local keyword nudges for cooperation/dependency only. Kindness/suspicion use AI deltas. */
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterPlayerMessage(const FString& Message);
 

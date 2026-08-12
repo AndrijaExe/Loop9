@@ -150,7 +150,9 @@ private:
 	void TriggerInitialRing();
 	void DispatchChatRequest(const FString& Message, bool bIsAuthRetry = false);
 	bool QueuePendingAuthChat(const FString& Message, bool bIsAuthRetry, bool bForceReauth);
-	void HandleLocalizedChatFailure(int32 HttpCode);
+	void HandleLocalizedChatFailure(int32 HttpCode, int32 RetryAfterSeconds = 0);
+	bool IsChatRateLimited(float* OutSecondsRemaining = nullptr) const;
+	void ApplyChatRateLimitCooldown(int32 RetryAfterSeconds);
 	void ClearPendingAuthChat();
 	void OnAuthSessionReadyForPendingChat();
 	void OnAuthSessionFailedForPendingChat(const FString& Reason);
@@ -169,6 +171,7 @@ private:
 	int32 InitialLoopNumberAtBeginPlay = 1;
 	int32 LastLoopIndexForMessageLimit = INDEX_NONE;
 	int32 MessagesSentThisLoop = 0;
+	double ChatRateLimitedUntilWorldTime = 0.0;
 	FString PendingPhantomMessage;
 	bool bPhantomMessageShown = false;
 	FString PendingAuthChatMessage;

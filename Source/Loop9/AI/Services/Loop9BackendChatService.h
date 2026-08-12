@@ -32,8 +32,17 @@ struct FLoop9ChatResponse
 	int32 KindnessDelta = 0;
 	int32 SuspicionDelta = 0;
 	int32 HttpCode = 0;
+	/** Seconds from Retry-After when rate limited; 0 when absent. */
+	int32 RetryAfterSeconds = 0;
 	FString ErrorMessage;
+	FString ErrorCode;
 };
+
+namespace Loop9ChatLimits
+{
+	/** Must stay aligned with backend ChatRequestMapper::MAX_MESSAGE_LENGTH. */
+	inline constexpr int32 MaxMessageLength = 4000;
+}
 
 DECLARE_DELEGATE_OneParam(FOnLoop9ChatResponseReceived, const FLoop9ChatResponse&);
 

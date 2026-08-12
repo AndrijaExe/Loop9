@@ -228,10 +228,32 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 
 		ChatResult.HttpCode = Response->GetResponseCode();
 		const FString ResponseString = Response->GetContentAsString();
+		const FString RetryAfterHeader = Response->GetHeader(TEXT("Retry-After"));
+		if (!RetryAfterHeader.IsEmpty())
+		{
+			ChatResult.RetryAfterSeconds = FMath::Max(0, FCString::Atoi(*RetryAfterHeader));
+		}
 
 		if (ChatResult.HttpCode != 200)
 		{
 			ChatResult.ErrorMessage = FString::Printf(TEXT("Error: Backend returned HTTP %d"), ChatResult.HttpCode);
+
+			TSharedPtr<FJsonObject> ErrorJson;
+			TSharedRef<TJsonReader<>> ErrorReader = TJsonReaderFactory<>::Create(ResponseString);
+			if (FJsonSerializer::Deserialize(ErrorReader, ErrorJson) && ErrorJson.IsValid())
+			{
+				const TSharedPtr<FJsonObject>* ErrorObject = nullptr;
+				if (ErrorJson->TryGetObjectField(TEXT("error"), ErrorObject) && ErrorObject && ErrorObject->IsValid())
+				{
+					(*ErrorObject)->TryGetStringField(TEXT("code"), ChatResult.ErrorCode);
+					FString ServerMessage;
+					if ((*ErrorObject)->TryGetStringField(TEXT("message"), ServerMessage) && !ServerMessage.IsEmpty())
+					{
+						ChatResult.ErrorMessage = ServerMessage;
+					}
+				}
+			}
+
 			Complete(ChatResult);
 			return;
 		}

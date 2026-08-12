@@ -61,6 +61,7 @@ void ULoopEndingPresenterSubsystem::Deinitialize()
 
 	ClearPresentationTimers();
 	CleanupActiveSequence(true);
+	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
 	PresentationState = EPresentationState::Idle;
 	PresentationWorld.Reset();
@@ -87,8 +88,7 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 		return false;
 	}
 
-	PC->SetIgnoreMoveInput(true);
-	PC->SetIgnoreLookInput(true);
+	LockPresentationInput(PC);
 	PresentationState = EPresentationState::FadingToWidget;
 
 	const ELoopEndingType EndingType = FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext());
@@ -364,17 +364,13 @@ void ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished()
 	UWorld* World = PresentationWorld.Get();
 	if (!World)
 	{
-		CleanupActiveSequence(true);
-		bEndingPresentationPending = false;
-		PresentationState = EPresentationState::Idle;
+		AbortPresentationToIdle();
 		return;
 	}
 	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
 	if (!PC)
 	{
-		CleanupActiveSequence(true);
-		bEndingPresentationPending = false;
-		PresentationState = EPresentationState::Idle;
+		AbortPresentationToIdle();
 		return;
 	}
 
@@ -414,8 +410,7 @@ void ULoopEndingPresenterSubsystem::PresentPendingEndingAfterFade(float FadeDura
 	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
 	if (!PC || !World)
 	{
-		bEndingPresentationPending = false;
-		PresentationState = EPresentationState::Idle;
+		AbortPresentationToIdle();
 		return;
 	}
 
@@ -452,8 +447,7 @@ void ULoopEndingPresenterSubsystem::PresentPendingEndingFromBlack(float HoldBlac
 	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
 	if (!PC || !World)
 	{
-		bEndingPresentationPending = false;
-		PresentationState = EPresentationState::Idle;
+		AbortPresentationToIdle();
 		return;
 	}
 
@@ -485,8 +479,7 @@ void ULoopEndingPresenterSubsystem::ShowPendingEndingWidget()
 		UGameplayStatics::GetPlayerController(PresentationWorld.Get(), 0);
 	if (!PlayerController)
 	{
-		bEndingPresentationPending = false;
-		PresentationState = EPresentationState::Idle;
+		AbortPresentationToIdle();
 		return;
 	}
 
@@ -608,9 +601,60 @@ void ULoopEndingPresenterSubsystem::HandleWorldCleanup(
 	CleanupActiveSequence(false);
 	ActiveEndingWidget = nullptr;
 	ActiveTerminalWidget = nullptr;
+	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
 	PresentationState = EPresentationState::Idle;
 	PresentationWorld.Reset();
+}
+
+void ULoopEndingPresenterSubsystem::LockPresentationInput(APlayerController* PlayerController)
+{
+	if (!PlayerController)
+	{
+		return;
+	}
+
+	PlayerController->SetIgnoreMoveInput(true);
+	PlayerController->SetIgnoreLookInput(true);
+	LockedPlayerController = PlayerController;
+	bPresentationInputLocked = true;
+}
+
+void ULoopEndingPresenterSubsystem::ReleasePresentationInputLocks()
+{
+	if (!bPresentationInputLocked)
+	{
+		LockedPlayerController.Reset();
+		return;
+	}
+
+	APlayerController* PC = LockedPlayerController.Get();
+	if (!PC)
+	{
+		PC = UGameplayStatics::GetPlayerController(PresentationWorld.Get(), 0);
+	}
+	if (!PC)
+	{
+		PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+
+	if (PC)
+	{
+		PC->SetIgnoreMoveInput(false);
+		PC->SetIgnoreLookInput(false);
+	}
+
+	LockedPlayerController.Reset();
+	bPresentationInputLocked = false;
+}
+
+void ULoopEndingPresenterSubsystem::AbortPresentationToIdle()
+{
+	ClearPresentationTimers();
+	CleanupActiveSequence(true);
+	ReleasePresentationInputLocks();
+	bEndingPresentationPending = false;
+	PresentationState = EPresentationState::Idle;
 }
 
 TSubclassOf<UEndingWidget> ULoopEndingPresenterSubsystem::ResolveEndingWidgetClass(ELoopEndingType EndingType) const
@@ -747,6 +791,7 @@ void ULoopEndingPresenterSubsystem::ReturnToMainMenu(APlayerController* PlayerCo
 	++PresentationGeneration;
 	ClearPresentationTimers();
 	CleanupActiveSequence(true);
+	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
 	PresentationState = EPresentationState::ReturningToMenu;
 
