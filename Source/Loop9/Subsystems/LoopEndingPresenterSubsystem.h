@@ -15,7 +15,7 @@ class ALevelSequenceActor;
 class ALoopEndingSceneDirector;
 class APlayerController;
 class UWorld;
-class FStreamableHandle;
+struct FStreamableHandle;
 
 UCLASS()
 class LOOP9_API ULoopEndingPresenterSubsystem : public UGameInstanceSubsystem
