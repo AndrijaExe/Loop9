@@ -6,7 +6,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FLoop9SprintTimerPolicyTest,
 	"Loop9.Runtime.Stamina.TimerLifecycle",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
 
 bool FLoop9SprintTimerPolicyTest::RunTest(const FString&)
 {
@@ -28,7 +28,7 @@ bool FLoop9SprintTimerPolicyTest::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FLoop9PendingAchievementPolicyTest,
 	"Loop9.Runtime.Achievements.PendingPersistence",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
 
 bool FLoop9PendingAchievementPolicyTest::RunTest(const FString&)
 {
