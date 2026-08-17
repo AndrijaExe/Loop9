@@ -1,0 +1,14 @@
+"DepotBuildConfig"
+{
+	"DepotID" "4982261"
+	"contentroot" "D:/UE Course/Loop 9 AI/Builds/Alfa/Windows"
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"recursive" "1"
+	}
+	"FileExclusion" "steam_appid.txt"
+	"FileExclusion" "*.pdb"
+	"FileExclusion" "Manifest_*.txt"
+}
