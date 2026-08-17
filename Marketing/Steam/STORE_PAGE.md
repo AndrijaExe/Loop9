@@ -321,6 +321,7 @@ Une connexion Internet est nécessaire pour les conversations avec l’IA.
 
 ## Screenshots & capsule
 
-Izvorne slike su u `Marketing/Steam/*.png`. Aktuelne dimenzije, obavezni
-uploadovi i preostali store-art zadaci su u
-[`RELEASE_CHECKLIST.md`](../../RELEASE_CHECKLIST.md), sekcija **Store grafika**.
+Gotovi Steamworks upload fajlovi su u `Marketing/Steam/StoreUpload/`.
+Izvorne kompozicije ostaju u `Marketing/Steam/*.png`. Aktuelne dimenzije i
+preostali store-art zadaci su u [`RELEASE_CHECKLIST.md`](../../RELEASE_CHECKLIST.md),
+sekcija **Store grafika**.
