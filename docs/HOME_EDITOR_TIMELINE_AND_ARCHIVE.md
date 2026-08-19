@@ -12,7 +12,7 @@ Status u [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
 4. GatherText da se sklopi `Game.locres` (PO prevodi za kartice su već upisani).
 5. QA lista na dnu ovog fajla.
 
-Opciono kasnije: ikonice, pravi star-graph, animacija čvorova.
+Opciono kasnije: uvezi slike iz `Content/MyStuff/UI/Timeline/`, stavi ikonice u krugove, ploču kao archive pozadinu. Animacija i dalje nije potrebna.
 
 ---
 
@@ -59,7 +59,13 @@ Na svakom `WBP_Ending_*` (ili na zajedničkom parentu):
 
 Lift i ending ostaju plavi. Dva poziva u istom krugu su već spojena (`Count` / `TWO CALLS`).
 
-Sličice: 64px isečci (telefon, lift, pečat). Nije potreban novi art pass.
+Sličice su već u `Content/MyStuff/UI/Timeline/`:
+
+- `ui_icon_call.png` — poziv
+- `ui_icon_lift.png` — lift
+- `ui_icon_ending.png` — kraj / pečat
+
+U editoru: Import (ako Unreal nije sam pokupio) → Texture Group **UI** → sRGB on. Stavi u krug, ne u kartu.
 
 ---
 
@@ -77,10 +83,12 @@ Bez ovog imena dosije se ne može otvoriti.
 
 ## 3. Opcioni Unreal polish (kasnije)
 
-- Pravi star-graph: `SHIFT` u sredini, 6 čvorova, plave/sive linije
-- Ikonice na krugovima umesto pune plave tačke
+Art je u `Content/MyStuff/UI/Timeline/`. Ostaje samo uvezi + slotovi.
+
+- Ikonice na timeline krugovima: `ui_icon_call` / `ui_icon_lift` / `ui_icon_ending`
+- Archive ploča: `ui_archive_star_plate.png` kao pozadina; preko nje 7 labela (`SHIFT` + 6 krajeva), bez teksta u slici
 - Poseban `WBP_ShiftArchive` child ako hoćeš layout u designeru; ostavi `VB_Nodes` i `BT_Back` ako želiš da C++ i dalje puni listu
-- Session timeline animacija (čvorovi redom)
+- Animacija čvorova — preskoči
 
 ---
 
