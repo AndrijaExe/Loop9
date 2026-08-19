@@ -11,6 +11,7 @@ This guide is for map and Blueprint authors working in Unreal Editor 5.8.
 | Elevator director BP | `Content/MyStuff/Blueprints/Cinematics/BP_LoopElevatorTransitionDirector.uasset` |
 | Ending sequences | `Content/MyStuff/Cinematics/Endings/LS_Ending_*.uasset` |
 | Ending widgets | `Content/MyStuff/UI/Endings/WBP_Ending_*.uasset` |
+| Shift archive (C++) | `UShiftArchiveWidget` — add a main-menu button named `Archive`; see [`HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](HOME_EDITOR_TIMELINE_AND_ARCHIVE.md) |
 | Legacy elevator sequences | `Content/MyStuff/Cinematics/Elevator/LS_Elevator_*` — **deprecated; remove after Reference Viewer confirms unused** |
 
 ## Game Mode wiring

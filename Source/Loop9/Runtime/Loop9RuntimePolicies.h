@@ -101,6 +101,23 @@ namespace Loop9RuntimePolicies
 		Events.Add(MoveTemp(Event));
 	}
 
+	inline TArray<ELoopEndingType> AllEndingTypes()
+	{
+		return {
+			ELoopEndingType::EscapeTogether,
+			ELoopEndingType::ObedientFool,
+			ELoopEndingType::ColdBetrayal,
+			ELoopEndingType::ParanoidSurvivor,
+			ELoopEndingType::MergedMemory,
+			ELoopEndingType::TheReplacement,
+		};
+	}
+
+	inline bool IsEndingUnlocked(const TArray<FString>& SeenAchievementIds, const FString& AchievementId)
+	{
+		return !AchievementId.IsEmpty() && SeenAchievementIds.Contains(AchievementId);
+	}
+
 	inline bool ShouldKeepSprintTimerActive(
 		bool bSprinting,
 		bool bRecovering,

@@ -6,6 +6,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Loop9WidgetClickBinder.h"
 #include "SettingsWidget.h"
+#include "ShiftArchiveWidget.h"
 #include "GameFramework/PlayerController.h"
 
 void UMainMenuWidget::NativeConstruct()
@@ -30,10 +31,15 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		Quit = GetWidgetFromName(TEXT("Quit"));
 	}
+	if (!Archive)
+	{
+		Archive = GetWidgetFromName(TEXT("Archive"));
+	}
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
 	FLoop9WidgetClickBinder::BindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
+	FLoop9WidgetClickBinder::BindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 
 	ApplyLocalizedTexts();
 
@@ -49,6 +55,7 @@ void UMainMenuWidget::NativeDestruct()
 	FLoop9WidgetClickBinder::UnbindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
+	FLoop9WidgetClickBinder::UnbindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 
 	if (CultureChangedHandle.IsValid())
 	{
@@ -69,6 +76,7 @@ void UMainMenuWidget::ApplyLocalizedTexts()
 	FLoop9WidgetClickBinder::SetButtonText(Play, NSLOCTEXT("Loop9Menu", "Play", "PLAY"));
 	FLoop9WidgetClickBinder::SetButtonText(Settings, NSLOCTEXT("Loop9Menu", "Settings", "SETTINGS"));
 	FLoop9WidgetClickBinder::SetButtonText(Quit, NSLOCTEXT("Loop9Menu", "Quit", "QUIT"));
+	FLoop9WidgetClickBinder::SetButtonText(Archive, NSLOCTEXT("Loop9Menu", "Archive", "ARCHIVE"));
 }
 
 void UMainMenuWidget::OnPlayClicked()
@@ -131,6 +139,79 @@ void UMainMenuWidget::OnSettingsClicked()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MainMenuWidget: Failed to create settings widget!"));
+	}
+}
+
+void UMainMenuWidget::OnArchiveClicked()
+{
+	if (ArchiveWidgetInstance && ArchiveWidgetInstance->IsInViewport())
+	{
+		return;
+	}
+
+	const TSubclassOf<UUserWidget> WidgetClass = ArchiveWidgetClass
+		? ArchiveWidgetClass
+		: TSubclassOf<UUserWidget>(UShiftArchiveWidget::StaticClass());
+
+	APlayerController* OwningController = GetOwningPlayer();
+	ArchiveWidgetInstance = CreateWidget<UUserWidget>(
+		OwningController ? OwningController : UGameplayStatics::GetPlayerController(GetWorld(), 0),
+		WidgetClass);
+	if (!ArchiveWidgetInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MainMenuWidget: Failed to create archive widget!"));
+		return;
+	}
+
+	if (UShiftArchiveWidget* ArchiveUI = Cast<UShiftArchiveWidget>(ArchiveWidgetInstance))
+	{
+		ArchiveUI->SetReturnTarget(this);
+	}
+
+	SetVisibility(ESlateVisibility::Hidden);
+	ArchiveWidgetInstance->AddToViewport(1);
+	if (OwningController)
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(ArchiveWidgetInstance);
+		if (!FocusTarget)
+		{
+			FocusTarget = ArchiveWidgetInstance;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
+}
+
+void UMainMenuWidget::OnBackFromArchive()
+{
+	if (ArchiveWidgetInstance)
+	{
+		ArchiveWidgetInstance->RemoveFromParent();
+		ArchiveWidgetInstance = nullptr;
+	}
+
+	ApplyLocalizedTexts();
+	SetVisibility(ESlateVisibility::Visible);
+
+	if (APlayerController* OwningController = GetOwningPlayer())
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Archive);
+		if (!FocusTarget)
+		{
+			FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Play);
+		}
+		if (!FocusTarget)
+		{
+			FocusTarget = this;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
 	}
 }
 

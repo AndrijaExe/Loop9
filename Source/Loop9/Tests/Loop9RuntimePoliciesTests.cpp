@@ -119,4 +119,23 @@ bool FLoop9RunEventLogTest::RunTest(const FString&)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9ShiftArchivePolicyTest,
+	"Loop9.Runtime.Archive.SeenEndings",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9ShiftArchivePolicyTest::RunTest(const FString&)
+{
+	TestEqual(TEXT("All six endings are listed"), Loop9RuntimePolicies::AllEndingTypes().Num(), 6);
+
+	const TArray<FString> Seen = { TEXT("ACH_ENDING_ESCAPE_TOGETHER") };
+	TestTrue(
+		TEXT("Seen ending is unlocked"),
+		Loop9RuntimePolicies::IsEndingUnlocked(Seen, TEXT("ACH_ENDING_ESCAPE_TOGETHER")));
+	TestFalse(
+		TEXT("Unseen ending stays locked"),
+		Loop9RuntimePolicies::IsEndingUnlocked(Seen, TEXT("ACH_ENDING_THE_REPLACEMENT")));
+	return true;
+}
+
 #endif

@@ -35,9 +35,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void OnQuitClicked();
 
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnArchiveClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnBackFromArchive();
+
 	/** Settings Widget Class (set in Blueprint) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> SettingsWidgetClass;
+
+	/** Optional dossier widget. Empty uses the C++ Shift Archive fallback. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> ArchiveWidgetClass;
 
 	/** Back from settings to main menu */
 	UFUNCTION(BlueprintCallable, Category = "Menu")
@@ -48,10 +58,14 @@ private:
 	UWidget* Play = nullptr;
 	UWidget* Settings = nullptr;
 	UWidget* Quit = nullptr;
+	UWidget* Archive = nullptr;
 
 	/** Settings widget instance */
 	UPROPERTY()
 	UUserWidget* SettingsWidgetInstance;
+
+	UPROPERTY()
+	UUserWidget* ArchiveWidgetInstance;
 
 	/** Cached game mode reference */
 	UPROPERTY()

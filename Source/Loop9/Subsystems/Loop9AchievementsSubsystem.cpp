@@ -208,6 +208,11 @@ void ULoop9AchievementsSubsystem::NotifyRunRestarted()
 	ResetsThisRun = 0;
 }
 
+TArray<FString> ULoop9AchievementsSubsystem::GetSeenEndingIds() const
+{
+	return LoadPersistedList(SeenEndingsKey);
+}
+
 void ULoop9AchievementsSubsystem::RecordSeenEnding(ELoopEndingType EndingType)
 {
 	const FName EndingId = EndingAchievementId(EndingType);

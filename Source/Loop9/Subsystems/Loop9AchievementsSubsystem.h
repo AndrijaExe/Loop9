@@ -50,6 +50,10 @@ public:
 	/** Steamworks API name for an ending achievement. */
 	static FName EndingAchievementId(ELoopEndingType EndingType);
 
+	/** Achievement API names of endings seen on this install (Steam Cloud / Game.ini). */
+	UFUNCTION(BlueprintPure, Category = "Achievements")
+	TArray<FString> GetSeenEndingIds() const;
+
 	/** Steamworks API name for spotting a given anomaly type label (e.g. "PursuerAnomaly"). */
 	static FName SpotAchievementId(const FString& AnomalyTypeLabel);
 

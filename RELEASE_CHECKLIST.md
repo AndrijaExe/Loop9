@@ -305,10 +305,10 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
 - [ ] Ending session timeline: posle kraja igrač vidi vertikalni log smene
   (lift odluke, pozivi Dragojlu) i 2–3 rečenice zašto je pao baš taj ending.
   Bez grafa sirovih relationship brojeva. Log ostaje u igri, ne na API-ju.
-- [ ] Main-menu dosije / arhiva smena: čvor `SMENA` i šest ending čvorova.
-  Dobijeni krajevi plava linija + slicica; nedobijeni `???` i siva/crna linija.
-  Čita već postojeći `SeenEndings` iz `Game.ini` (Steam Cloud). Ne crta se na
-  title screenu — poseban ekran. Bez čuvanja celog beat loga na Cloud.
+- [~] Main-menu dosije / arhiva smena: C++ `ShiftArchiveWidget` čita `SeenEndings`.
+  U `WBP_MainMenu` dodati dugme imena `Archive`. Dobijeni krajevi plava linija
+  + ime; nedobijeni `???` i siva. Ikonice / pravi star-graph ostaju Unreal polish.
+  Editor koraci: [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
 
 ---
 
