@@ -31,7 +31,7 @@ public:
 	virtual FText GetInteractionPromptText_Implementation() const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Limits", meta = (ClampMin = "1"))
-	int32 MaxMessagesPerLoop = 1;
+	int32 MaxMessagesPerLoop = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Limits")
 	bool bUseSignalDropOnLimit = true;

@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **07.08.2026.**
+Poslednje ažuriranje: **19.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -296,6 +296,16 @@ moraju biti publish-ovane, ne samo sačuvane.
 - [ ] Instalirati javni build sa drugog Steam naloga i uraditi 15-min smoke.
 - [ ] Pratiti auth, chat, moderation, latency i 5xx logove tokom prvih sati.
 - [ ] Imati prethodni stabilni depot/build spreman za rollback.
+
+
+
+## 9. Post-release (nije launch bloker)
+
+Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve review.
+
+- [ ] Ending session timeline: posle kraja igrač vidi vertikalni log smene
+  (lift odluke, pozivi Dragojlu) i 2–3 rečenice zašto je pao baš taj ending.
+  Bez grafa sirovih relationship brojeva. Log ostaje u igri, ne na API-ju.
 
 ---
 
