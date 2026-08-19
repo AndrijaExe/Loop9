@@ -51,4 +51,72 @@ bool FLoop9PendingAchievementPolicyTest::RunTest(const FString&)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9RunEventLogTest,
+	"Loop9.Runtime.RunEvent.AppendAndClassify",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9RunEventLogTest::RunTest(const FString&)
+{
+	TArray<FRunEvent> Events;
+	FRunEvent FirstCall;
+	FirstCall.Type = ERunEventType::Call;
+	FirstCall.LoopIndex = 4;
+	FirstCall.KindnessDelta = 1;
+	Loop9RuntimePolicies::AppendRunEvent(Events, FirstCall);
+
+	FRunEvent SecondCall;
+	SecondCall.Type = ERunEventType::Call;
+	SecondCall.LoopIndex = 4;
+	SecondCall.SuspicionDelta = 1;
+	Loop9RuntimePolicies::AppendRunEvent(Events, SecondCall);
+
+	TestEqual(TEXT("Calls on the same loop collapse"), Events.Num(), 1);
+	TestEqual(TEXT("Collapsed call count is 2"), Events[0].Count, 2);
+	TestEqual(TEXT("Collapsed call keeps warmth"), Events[0].KindnessDelta, 1);
+	TestEqual(TEXT("Collapsed accusation wins tone"), Events[0].Tone, ERunEventTone::Suspicious);
+
+	FRunEvent Lift;
+	Lift.Type = ERunEventType::CorrectLift;
+	Lift.LoopIndex = 4;
+	Loop9RuntimePolicies::AppendRunEvent(Events, Lift);
+
+	FRunEvent LaterCall;
+	LaterCall.Type = ERunEventType::Call;
+	LaterCall.LoopIndex = 5;
+	Loop9RuntimePolicies::AppendRunEvent(Events, LaterCall);
+
+	TestEqual(TEXT("Lift and later loop stay separate"), Events.Num(), 3);
+
+	TestEqual(TEXT("Insult is hostile"),
+		Loop9RuntimePolicies::ToneFromStateDeltas(-1, 0),
+		ERunEventTone::Hostile);
+	TestEqual(TEXT("Accusation is suspicious even if polite"),
+		Loop9RuntimePolicies::ToneFromStateDeltas(1, 1),
+		ERunEventTone::Suspicious);
+	TestEqual(TEXT("Warmth is friendly"),
+		Loop9RuntimePolicies::ToneFromStateDeltas(1, 0),
+		ERunEventTone::Friendly);
+	TestEqual(TEXT("Ordinary help request stays neutral"),
+		Loop9RuntimePolicies::ToneFromStateDeltas(0, 0),
+		ERunEventTone::Neutral);
+
+	TArray<FRunEvent> ToneEvents;
+	FRunEvent WarmCall;
+	WarmCall.Type = ERunEventType::Call;
+	WarmCall.LoopIndex = 2;
+	WarmCall.KindnessDelta = 1;
+	Loop9RuntimePolicies::AppendRunEvent(ToneEvents, WarmCall);
+
+	FRunEvent CruelCall;
+	CruelCall.Type = ERunEventType::Call;
+	CruelCall.LoopIndex = 2;
+	CruelCall.KindnessDelta = -1;
+	Loop9RuntimePolicies::AppendRunEvent(ToneEvents, CruelCall);
+
+	TestEqual(TEXT("Collapsed calls keep the harsher kindness"), ToneEvents[0].KindnessDelta, -1);
+	TestEqual(TEXT("Collapsed calls become hostile"), ToneEvents[0].Tone, ERunEventTone::Hostile);
+	return true;
+}
+
 #endif

@@ -60,9 +60,9 @@ Owned by `URelationshipSubsystem` (defaults):
 
 Updates come from:
 
-- player messages (keyword / phrase heuristics, multi-language)
-- AI-diagnosed `[STATE]KINDNESS` / `SUSPICION` deltas from chat replies
+- AI-diagnosed `[STATE]KINDNESS` / `SUSPICION` / `DEPENDENCY` deltas from chat replies
 - elevator correctness
+- silent floor: dependency drops if the player never called before leaving
 - AI interaction counts
 - periodic stability decay
 
@@ -77,7 +77,7 @@ Priority sketch (first matching branch wins after the interaction gate):
 1. **The Replacement** — high trust/kindness/cooperation/dependency, lower AI stability, ≥11 AI chats
 2. **Merged Memory** — humane/cooperative but unstable AI, ≥9 advances, ≥6 AI chats
 3. **Cold Betrayal** — trusts / follows while treating him poorly
-4. **Obedient Fool** — high dependency, low suspicion
+4. **Obedient Fool** — high AI-diagnosed dependency, low suspicion
 5. **Escape Together** — cooperative, warm, not overly dependent, stable AI
 6. **Paranoid Survivor** — low interaction, high suspicion, low trust, or fallback
 

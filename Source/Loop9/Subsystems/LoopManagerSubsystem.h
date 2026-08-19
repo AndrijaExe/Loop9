@@ -70,10 +70,7 @@ public:
 	void GenerateAnomalyForNextLoop();
 
 	UFUNCTION(BlueprintCallable, Category = "Loop")
-	void RegisterAIInteraction();
-
-	UFUNCTION(BlueprintCallable, Category = "State")
-	void RegisterPlayerMessage(const FString& Message);
+	void RegisterAIInteraction(int32 KindnessDelta = 0, int32 SuspicionDelta = 0, int32 DependencyDelta = 0);
 
 	/** Cache live AI_Friend actors so ClearAllAIChats does not scan the world. */
 	void RegisterAIFriend(class AAI_Friend* AIFriend);
@@ -88,6 +85,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void ApplyAIDiagnosedSuspicionDelta(int32 Delta);
+
+	UFUNCTION(BlueprintCallable, Category = "State")
+	void ApplyAIDiagnosedDependencyDelta(int32 Delta);
 
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterLoopDecision(bool bWasCorrect, bool bAnomalyExisted, EButtonType ButtonType);

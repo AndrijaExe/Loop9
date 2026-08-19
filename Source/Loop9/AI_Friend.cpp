@@ -719,14 +719,16 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 			{
 				if (ULoopManagerSubsystem* LoopMgr = GI->GetSubsystem<ULoopManagerSubsystem>())
 				{
-					// Commit only after a validated AI response. Kindness/suspicion
-					// come solely from backend deltas; local keywords only nudge
-					// cooperation/dependency.
-					LoopMgr->RegisterPlayerMessage(Message);
+					// Commit only after a validated AI response. Tone and
+					// kindness/suspicion come from backend [STATE] deltas.
 					LoopMgr->ApplyAIDiagnosedKindnessDelta(ChatResponse.KindnessDelta);
 					LoopMgr->ApplyAIDiagnosedSuspicionDelta(ChatResponse.SuspicionDelta);
+					LoopMgr->ApplyAIDiagnosedDependencyDelta(ChatResponse.DependencyDelta);
 					// Count successful validated replies only (achievements / telemetry).
-					LoopMgr->RegisterAIInteraction();
+					LoopMgr->RegisterAIInteraction(
+						ChatResponse.KindnessDelta,
+						ChatResponse.SuspicionDelta,
+						ChatResponse.DependencyDelta);
 				}
 			}
 

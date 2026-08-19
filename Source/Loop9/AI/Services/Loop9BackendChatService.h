@@ -31,6 +31,7 @@ struct FLoop9ChatResponse
 	FString Reply;
 	int32 KindnessDelta = 0;
 	int32 SuspicionDelta = 0;
+	int32 DependencyDelta = 0;
 	int32 HttpCode = 0;
 	/** Seconds from Retry-After when rate limited; 0 when absent. */
 	int32 RetryAfterSeconds = 0;
@@ -55,5 +56,5 @@ public:
 	void SendChatRequest(const FLoop9ChatRequestContext& Context, FOnLoop9ChatResponseReceived OnComplete);
 
 	static FString SanitizeReplyText(const FString& InText);
-	static bool TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta);
+	static bool TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta, int32& OutDependencyDelta);
 };

@@ -28,6 +28,58 @@ enum class ELoopAction : uint8
 	Reset
 };
 
+UENUM(BlueprintType)
+enum class ERunEventType : uint8
+{
+	Call UMETA(DisplayName = "Call"),
+	CorrectLift UMETA(DisplayName = "Correct Lift"),
+	WrongLift UMETA(DisplayName = "Wrong Lift"),
+	Ending UMETA(DisplayName = "Ending")
+};
+
+UENUM(BlueprintType)
+enum class ERunEventTone : uint8
+{
+	Neutral UMETA(DisplayName = "Neutral"),
+	Friendly UMETA(DisplayName = "Friendly"),
+	Hostile UMETA(DisplayName = "Hostile"),
+	Suspicious UMETA(DisplayName = "Suspicious")
+};
+
+/** In-memory beat for the post-run timeline. Cleared on each new shift. */
+USTRUCT(BlueprintType)
+struct FRunEvent
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	ERunEventType Type = ERunEventType::Call;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 LoopIndex = 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 Count = 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 KindnessDelta = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 SuspicionDelta = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 DependencyDelta = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	ERunEventTone Tone = ERunEventTone::Neutral;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	bool bAnomalyExisted = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	ELoopEndingType EndingType = ELoopEndingType::ParanoidSurvivor;
+};
+
 USTRUCT()
 struct FLoopElevatorDecision
 {

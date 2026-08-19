@@ -78,8 +78,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   osnovna pristojnost i bez preterane zavisnosti; očekivani pozitivan first-run.
 - [ ] **Cold Betrayal:** najmanje 5 razgovora, solidna saradnja, ali približno dve
   jasno neprijatne/uvredljive poruke.
-- [ ] **Obedient Fool:** najmanje 8 razgovora i jedna ili dve poruke tipa
-  „reci mi šta da radim“, uz nizak suspicion.
+- [ ] **Obedient Fool:** najmanje 8 razgovora i oko 5 predaja odluke
+  (`DEPENDENCY=1` od AI-ja), uz nizak suspicion.
 - [ ] **Merged Memory:** najmanje 6 razgovora, kindness/cooperation ostaju
   pozitivni, ali duži run sa dovoljno grešaka spusti AI stability na oko 0.72.
 - [ ] **The Replacement:** redak, ali realno dostižan profil: najmanje 11
@@ -87,9 +87,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   AI stability oko 0.70 ili niže.
 - [ ] QA: napraviti po jedan kontrolisan run za svih šest profila i proveriti da
   evaluator ne vraća `Paranoid Survivor` kao slučajni fallback za pozitivan run.
-- [ ] QA dependency poruke na svih pet jezika: „reci mi šta da radim“,
-  “tell me what to do”, “sag mir/was soll ich tun”, “dis-moi/que dois-je faire”
-  i „скажи мне/что мне делать“.
+- [ ] QA dependency: na bilo kom jeziku, predaja odluke Dragojlu diže
+  `[STATE]DEPENDENCY=1` i gura ka Obedient Fool; samostalna odluka spušta.
 
 - [ ] Rebuildovati `Loop9Editor` posle trenutnih C++ anomaly/debug popravki.
 - [x] U tracked `Config/DefaultEngine.ini` postavljeno:

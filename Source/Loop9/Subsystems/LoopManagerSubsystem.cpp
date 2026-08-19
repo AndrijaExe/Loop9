@@ -281,6 +281,7 @@ void ULoopManagerSubsystem::AdvanceLoopInternal(bool bTeleportPlayer, bool bDefe
 	NotifyAIFriendsLoopChanged();
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
+		Relationship->NotifyLoopLeft();
 		Relationship->TotalAdvances++;
 		Relationship->TickAIStabilityDecay();
 	}
@@ -334,6 +335,7 @@ void ULoopManagerSubsystem::ResetLoopInternal(bool bTeleportPlayer)
 	NotifyAIFriendsLoopChanged();
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
+		Relationship->NotifyLoopLeft();
 		Relationship->TotalResets++;
 		Relationship->TickAIStabilityDecay();
 	}
@@ -349,11 +351,12 @@ void ULoopManagerSubsystem::ResetLoopInternal(bool bTeleportPlayer)
 	ClearAllAIChats();
 }
 
-void ULoopManagerSubsystem::RegisterAIInteraction()
+void ULoopManagerSubsystem::RegisterAIInteraction(int32 KindnessDelta, int32 SuspicionDelta, int32 DependencyDelta)
 {
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->RegisterAIInteraction();
+		Relationship->RecordCall(CurrentLoop, KindnessDelta, SuspicionDelta, DependencyDelta);
 
 		if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 		{
@@ -375,6 +378,14 @@ void ULoopManagerSubsystem::ApplyAIDiagnosedKindnessDelta(int32 Delta)
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->ApplyAIDiagnosedKindnessDelta(Delta);
+	}
+}
+
+void ULoopManagerSubsystem::ApplyAIDiagnosedDependencyDelta(int32 Delta)
+{
+	if (URelationshipSubsystem* Relationship = GetRelationship())
+	{
+		Relationship->ApplyAIDiagnosedDependencyDelta(Delta);
 	}
 }
 
@@ -409,19 +420,12 @@ void ULoopManagerSubsystem::ResetRunState()
 	UE_LOG(LogTemp, Log, TEXT("Loop: %d"), CurrentLoop);
 }
 
-void ULoopManagerSubsystem::RegisterPlayerMessage(const FString& Message)
-{
-	if (URelationshipSubsystem* Relationship = GetRelationship())
-	{
-		Relationship->RegisterPlayerMessage(Message);
-	}
-}
-
 void ULoopManagerSubsystem::RegisterLoopDecision(bool bWasCorrect, bool bAnomalyExisted, EButtonType ButtonType)
 {
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->RegisterLoopDecision(bWasCorrect, bAnomalyExisted, ButtonType);
+		Relationship->RecordLift(CurrentLoop, bWasCorrect, bAnomalyExisted);
 	}
 }
 

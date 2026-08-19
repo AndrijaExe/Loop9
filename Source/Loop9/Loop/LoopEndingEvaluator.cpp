@@ -3,7 +3,7 @@
 namespace
 {
 	// A first-time player who experiments with chat can establish a relationship
-	// without knowing hidden keywords or repeatedly farming dialogue.
+	// without farming a locale phrase. Dependency comes from AI [STATE].
 	constexpr int32 MinAIInteractionsForRelationshipEndings = 3;
 
 	bool HasMeaningfulAIRelationship(const FEndingEvaluationContext& Context)
@@ -55,8 +55,8 @@ ELoopEndingType FLoopEndingEvaluator::Evaluate(const FEndingEvaluationContext& C
 		return ELoopEndingType::ColdBetrayal;
 	}
 
-	// Frequently asked for instructions and accepted them without suspicion.
-	// Eight ordinary chats plus one or two "tell me what to do" messages suffice.
+	// Frequently asked Dragojlo to decide, in any language. About five
+	// DEPENDENCY=1 diagnoses plus eight chats reach 0.53.
 	if (Context.Trust >= 0.55f
 		&& Context.Kindness >= 0.42f
 		&& Context.Dependency >= 0.53f

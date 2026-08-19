@@ -7,6 +7,7 @@
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "UI/EndingWidget.h"
 #include "UI/ReplacementTerminalWidget.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/PlayerCameraManager.h"
@@ -94,6 +95,12 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	const ELoopEndingType EndingType = FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext());
 	const int32 TotalResets = Relationship->TotalResets;
 	const int32 TotalAIInteractions = Relationship->TotalAIInteractions;
+	int32 EndingLoopIndex = 9;
+	if (const ULoopManagerSubsystem* LoopManager = GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>())
+	{
+		EndingLoopIndex = LoopManager->CurrentLoop;
+	}
+	Relationship->RecordEnding(EndingLoopIndex, EndingType);
 
 	if (ULoop9AchievementsSubsystem* AchievementsSubsystem = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{

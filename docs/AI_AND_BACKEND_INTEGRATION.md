@@ -44,7 +44,7 @@ Details:
    - discrete kindness/suspicion state used by the backend
 6. Client HTTP timeout: **65 seconds**
 7. Backend AI cascade deadline: **45 seconds** (client timeout is intentionally larger)
-8. Reply text is shown; `[STATE]KINDNESS=...;SUSPICION=...` is parsed and applied to relationship stats
+8. Reply text is shown; `[STATE]KINDNESS` / `SUSPICION` / `DEPENDENCY` is parsed and applied to relationship stats
 9. Thinking indicator is cleared; input re-enabled
 
 Correlation:

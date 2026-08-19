@@ -1,6 +1,7 @@
 #include "Subsystems/RelationshipSubsystem.h"
 
 #include "Loop/LoopEndingEvaluator.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 
 namespace
 {
@@ -15,9 +16,12 @@ namespace
 void URelationshipSubsystem::RegisterAIInteraction()
 {
 	TotalAIInteractions++;
-	Dependency += 0.035f;
-	Cooperation += 0.01f;
-	Trust += 0.005f;
+	AIInteractionsThisLoop++;
+	// Talking still builds a little rapport. Dependency itself comes from [STATE].
+	// Halved vs the old 1-message-per-loop rates so two calls on one floor
+	// do not count as two full shifts of trust.
+	Cooperation += 0.005f;
+	Trust += 0.003f;
 	ClampStateValues();
 }
 
@@ -34,6 +38,22 @@ void URelationshipSubsystem::ApplyAIDiagnosedSuspicionDelta(int32 Delta)
 	{
 		Suspicion -= 0.04f;
 		Trust += 0.02f;
+	}
+
+	ClampStateValues();
+}
+
+void URelationshipSubsystem::ApplyAIDiagnosedDependencyDelta(int32 Delta)
+{
+	const int32 ClampedDelta = FMath::Clamp(Delta, -1, 1);
+
+	if (ClampedDelta > 0)
+	{
+		Dependency += 0.07f;
+	}
+	else if (ClampedDelta < 0)
+	{
+		Dependency -= 0.05f;
 	}
 
 	ClampStateValues();
@@ -68,34 +88,55 @@ void URelationshipSubsystem::ResetRelationshipState()
 	Dependency = DefaultDependency;
 	AI_Stability = DefaultAIStability;
 
+	RunEvents.Reset();
+	AIInteractionsThisLoop = 0;
+
 	ClampStateValues();
 }
 
-void URelationshipSubsystem::RegisterPlayerMessage(const FString& Message)
+void URelationshipSubsystem::RecordCall(int32 LoopIndex, int32 KindnessDelta, int32 SuspicionDelta, int32 DependencyDelta)
 {
-	// Kindness/suspicion are owned exclusively by backend AI deltas so ending
-	// reachability stays language-independent. Local keywords only nudge
-	// cooperation/dependency signals the model does not authoritatively set.
-	const FString Lower = Message.ToLower();
+	FRunEvent Event;
+	Event.Type = ERunEventType::Call;
+	Event.LoopIndex = LoopIndex;
+	Event.KindnessDelta = KindnessDelta;
+	Event.SuspicionDelta = SuspicionDelta;
+	Event.DependencyDelta = DependencyDelta;
+	AppendEvent(MoveTemp(Event));
+}
 
-	if (Lower.Contains(TEXT("vidim")) || Lower.Contains(TEXT("i see")) || Lower.Contains(TEXT("anomal"))
-		|| Lower.Contains(TEXT("nema")) || Lower.Contains(TEXT("there is")) || Lower.Contains(TEXT("there isn't"))
-		|| Lower.Contains(TEXT("ich sehe")) || Lower.Contains(TEXT("je vois")) || Lower.Contains(TEXT("я вижу")))
+void URelationshipSubsystem::RecordLift(int32 LoopIndex, bool bWasCorrect, bool bAnomalyExisted)
+{
+	FRunEvent Event;
+	Event.Type = bWasCorrect ? ERunEventType::CorrectLift : ERunEventType::WrongLift;
+	Event.LoopIndex = LoopIndex;
+	Event.bAnomalyExisted = bAnomalyExisted;
+	AppendEvent(MoveTemp(Event));
+}
+
+void URelationshipSubsystem::RecordEnding(int32 LoopIndex, ELoopEndingType EndingType)
+{
+	FRunEvent Event;
+	Event.Type = ERunEventType::Ending;
+	Event.LoopIndex = LoopIndex;
+	Event.EndingType = EndingType;
+	AppendEvent(MoveTemp(Event));
+}
+
+void URelationshipSubsystem::AppendEvent(FRunEvent Event)
+{
+	Loop9RuntimePolicies::AppendRunEvent(RunEvents, MoveTemp(Event));
+}
+
+void URelationshipSubsystem::NotifyLoopLeft()
+{
+	if (AIInteractionsThisLoop <= 0)
 	{
-		Cooperation += 0.03f;
+		Dependency -= 0.04f;
+		ClampStateValues();
 	}
 
-	if (Lower.Contains(TEXT("sta da radim")) || Lower.Contains(TEXT("what should i do"))
-		|| Lower.Contains(TEXT("šta da radim")) || Lower.Contains(TEXT("reci mi"))
-		|| Lower.Contains(TEXT("tell me")) || Lower.Contains(TEXT("what do i do"))
-		|| Lower.Contains(TEXT("was soll ich tun")) || Lower.Contains(TEXT("sag mir"))
-		|| Lower.Contains(TEXT("que dois-je faire")) || Lower.Contains(TEXT("dis-moi"))
-		|| Lower.Contains(TEXT("что мне делать")) || Lower.Contains(TEXT("скажи мне")))
-	{
-		Dependency += 0.05f;
-	}
-
-	ClampStateValues();
+	AIInteractionsThisLoop = 0;
 }
 
 void URelationshipSubsystem::RegisterLoopDecision(bool bWasCorrect, bool bAnomalyExisted, EButtonType ButtonType)

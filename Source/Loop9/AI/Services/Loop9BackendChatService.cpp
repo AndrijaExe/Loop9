@@ -77,11 +77,12 @@ FString ULoop9BackendChatService::SanitizeReplyText(const FString& InText)
 	return Result;
 }
 
-bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta)
+bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta, int32& OutDependencyDelta)
 {
 	OutReply = RawContent;
 	OutKindnessDelta = 0;
 	OutSuspicionDelta = 0;
+	OutDependencyDelta = 0;
 
 	int32 MarkerIndex = RawContent.Find(TEXT("[STATE]"), ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 	if (MarkerIndex == INDEX_NONE)
@@ -124,10 +125,12 @@ bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, 
 
 	int32 ParsedK = 0;
 	int32 ParsedS = 0;
+	int32 ParsedD = 0;
 	const bool bHasK = TryParseIntAfterToken(MetaPart, TEXT("KINDNESS="), ParsedK) || TryParseIntAfterToken(MetaPart, TEXT("KINDNESS:"), ParsedK);
 	const bool bHasS = TryParseIntAfterToken(MetaPart, TEXT("SUSPICION="), ParsedS) || TryParseIntAfterToken(MetaPart, TEXT("SUSPICION:"), ParsedS);
+	const bool bHasD = TryParseIntAfterToken(MetaPart, TEXT("DEPENDENCY="), ParsedD) || TryParseIntAfterToken(MetaPart, TEXT("DEPENDENCY:"), ParsedD);
 
-	if (!bHasK && !bHasS)
+	if (!bHasK && !bHasS && !bHasD)
 	{
 		return false;
 	}
@@ -135,6 +138,7 @@ bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, 
 	OutReply = ReplyPart.IsEmpty() ? RawContent : ReplyPart;
 	OutKindnessDelta = FMath::Clamp(ParsedK, -1, 1);
 	OutSuspicionDelta = FMath::Clamp(ParsedS, -1, 1);
+	OutDependencyDelta = bHasD ? FMath::Clamp(ParsedD, -1, 1) : 0;
 	return true;
 }
 
@@ -276,7 +280,12 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		}
 
 		FString CleanReply = BackendMessage;
-		TryExtractStateDeltas(BackendMessage, CleanReply, ChatResult.KindnessDelta, ChatResult.SuspicionDelta);
+		TryExtractStateDeltas(
+			BackendMessage,
+			CleanReply,
+			ChatResult.KindnessDelta,
+			ChatResult.SuspicionDelta,
+			ChatResult.DependencyDelta);
 		CleanReply = SanitizeReplyText(CleanReply);
 
 		ChatResult.bSuccess = true;
