@@ -67,6 +67,9 @@ public:
 
 	const TArray<FRunEvent>& GetRunEvents() const { return RunEvents; }
 
+	UFUNCTION(BlueprintPure, Category = "Run Event")
+	TArray<FRunEventCard> BuildRunEventCards() const;
+
 	void RecordCall(int32 LoopIndex, int32 KindnessDelta = 0, int32 SuspicionDelta = 0, int32 DependencyDelta = 0);
 	void RecordLift(int32 LoopIndex, bool bWasCorrect, bool bAnomalyExisted);
 	void RecordEnding(int32 LoopIndex, ELoopEndingType EndingType);

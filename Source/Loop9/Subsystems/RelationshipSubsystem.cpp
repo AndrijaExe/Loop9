@@ -1,6 +1,7 @@
 #include "Subsystems/RelationshipSubsystem.h"
 
 #include "Loop/LoopEndingEvaluator.h"
+#include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 
 namespace
@@ -121,6 +122,11 @@ void URelationshipSubsystem::RecordEnding(int32 LoopIndex, ELoopEndingType Endin
 	Event.LoopIndex = LoopIndex;
 	Event.EndingType = EndingType;
 	AppendEvent(MoveTemp(Event));
+}
+
+TArray<FRunEventCard> URelationshipSubsystem::BuildRunEventCards() const
+{
+	return Loop9RunEventCards::BuildAll(RunEvents);
 }
 
 void URelationshipSubsystem::AppendEvent(FRunEvent Event)

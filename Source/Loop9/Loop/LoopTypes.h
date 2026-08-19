@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/Color.h"
 #include "LoopTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -78,6 +79,34 @@ struct FRunEvent
 
 	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
 	ELoopEndingType EndingType = ELoopEndingType::ParanoidSurvivor;
+};
+
+/** Localized timeline row. Ending WBP should spawn from these, not write copy. */
+USTRUCT(BlueprintType)
+struct FRunEventCard
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	ERunEventType Type = ERunEventType::Call;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	ERunEventTone Tone = ERunEventTone::Neutral;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 LoopIndex = 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	int32 Count = 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	FText Title;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	FText Body;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Run Event")
+	FLinearColor RingColor = FLinearColor(0.50f, 0.80f, 1.00f);
 };
 
 USTRUCT()

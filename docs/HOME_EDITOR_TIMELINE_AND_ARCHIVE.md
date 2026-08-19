@@ -1,9 +1,18 @@
 # Kod kuće: session timeline + shift archive
 
-C++ za ova dva feature-a je urađen. Ovo je samo Unreal Editor / art / lokalizacija.
-Nije launch bloker. Status u [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
+C++ za ova dva feature-a je urađen, uključujući lokalizovane kartice.
+Ovo je samo Unreal Editor / art. Nije launch bloker.
+Status u [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
 
-Rebuilduj `Loop9Editor` pre svega (novi `FRunEvent`, `ERunEventTone`, `UShiftArchiveWidget`).
+## Ostalo
+
+1. Rebuild `Loop9Editor` (novi `FRunEventCard`, `BuildRunEventCards`, `UShiftArchiveWidget`).
+2. Na svakom `WBP_Ending_*`: ostavi naslov + 2–3 rečenice; **ispod** spawnuj redove iz `BuildRunEventCards()`.
+3. Na main menu WBP dodaj dugme tačno imena **`Archive`**.
+4. GatherText da se sklopi `Game.locres` (PO prevodi za kartice su već upisani).
+5. QA lista na dnu ovog fajla.
+
+Opciono kasnije: ikonice, pravi star-graph, animacija čvorova.
 
 ---
 
@@ -12,6 +21,7 @@ Rebuilduj `Loop9Editor` pre svega (novi `FRunEvent`, `ERunEventTone`, `UShiftArc
 ### Session timeline (posle smene)
 
 - `RelationshipSubsystem::RunEvents` — log jednog runa
+- `BuildRunEventCards()` — lokalizovan naslov + 1–2 rečenice + `RingColor`
 - Tipovi: `Call`, `CorrectLift`, `WrongLift`, `Ending`
 - Ton poziva iz AI `[STATE]`: Hostile / Suspicious / Friendly / Neutral
 - Briše se na novi run; nije na Steam Cloud
@@ -32,21 +42,22 @@ Bez izmene tih WBP-ova igrač i dalje vidi samo naslov + kratak tekst.
 
 Na svakom `WBP_Ending_*` (ili na zajedničkom parentu):
 
-1. Ostavi **naslov** i **2–3 rečenice zašto taj kraj**.
-2. Umesto linije `Resets | AI interactions` stavi vertikalni timeline.
-3. Čitaj `GetGameInstance()` → `RelationshipSubsystem` → `RunEvents`.
-4. Svaki event: plava šina + krug (sličica unutra) + kartica desno.
+1. Ostavi **naslov** i **2–3 rečenice zašto taj kraj**. Ne zamenjuj ih timeline-om.
+2. Umesto linije `Resets | AI interactions` stavi vertikalni timeline **ispod**.
+3. Čitaj `GetGameInstance()` → `RelationshipSubsystem` → **`BuildRunEventCards()`**.
+4. Za svaku karticu: plava šina + krug + kartica desno sa `Title` i `Body`.
+5. Rub kruga = `RingColor`. Ne piši copy u designeru.
 
-Boja **rubova kruga** samo za `Call`:
+`RingColor` je već podešen u C++:
 
-| `Tone` | Rub |
+| `Tone` (samo `Call`) | Rub |
 |---|---|
 | Neutral | plava `#7EC8FF` / `(0.5, 0.8, 1.0)` |
 | Friendly | zelena |
 | Hostile | crvena |
 | Suspicious | žuta |
 
-Lift i ending ostaju plavi. Dva poziva u istom krugu su već spojena (`Count`).
+Lift i ending ostaju plavi. Dva poziva u istom krugu su već spojena (`Count` / `TWO CALLS`).
 
 Sličice: 64px isečci (telefon, lift, pečat). Nije potreban novi art pass.
 
@@ -75,15 +86,17 @@ Bez ovog imena dosije se ne može otvoriti.
 
 ## 4. Lokalizacija
 
-Posle novih stringova u widgetima:
+Kartice timeline-a su već `LOCTEXT` u C++ (`Loop9RunEvent`) i prevodi su u `Content/Localization/Game/<culture>/Game.po` (en/sr/de/fr/ru). Ending naslovi koriste postojeće `Loop9Endings` ključeve.
+
+Posle WBP izmena (Archive dugme i sl.):
 
 ```text
 UnrealEditor-Cmd <Loop9.uproject> -run=GatherText -config="Config/Localization/Game.ini"
 ```
 
-Zatim prevodi u `de/fr/ru/sr` PO i smoke na 5 jezika. Vidi [`LOCALIZATION.md`](LOCALIZATION.md).
+To pokupi nove widget stringove i kompajlira `Game.locres`. Bez locres-a igra i dalje vidi engleski izvor. Vidi [`LOCALIZATION.md`](LOCALIZATION.md).
 
-Novi ključevi uključuju `ARCHIVE`, `SHIFT ARCHIVE`, `BACK`, `???`.
+Novi widget ključevi uključuju `ARCHIVE`, `SHIFT ARCHIVE`, `BACK`, `???`.
 
 ---
 

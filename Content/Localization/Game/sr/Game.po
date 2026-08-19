@@ -951,3 +951,136 @@ msgstr "Visok"
 msgctxt "Loop9Interaction,Inspect"
 msgid "Examine"
 msgstr "Pregledaj"
+
+#. Key:	CallTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallTitle"
+msgid "LOOP {0} · CALL"
+msgstr "KRUG {0} · POZIV"
+
+#. Key:	CallTitleTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallTitleTwice"
+msgid "LOOP {0} · TWO CALLS"
+msgstr "KRUG {0} · DVA POZIVA"
+
+#. Key:	CallHostile
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallHostile"
+msgid "You spoke to him harshly. He heard it."
+msgstr "Govorio si mu oštro. Čuo je."
+
+#. Key:	CallSuspicious
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallSuspicious"
+msgid "You doubted the voice on the line."
+msgstr "Sumnjao si u glas na liniji."
+
+#. Key:	CallFriendly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallFriendly"
+msgid "You treated him with some warmth."
+msgstr "Obratio si mu se s malo topline."
+
+#. Key:	CallNeutral
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallNeutral"
+msgid "You called him. Neither of you gave much away."
+msgstr "Pozvao si ga. Nijedan nije dao previše."
+
+#. Key:	CallExtraAskHim
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraAskHim"
+msgid "You asked him to decide."
+msgstr "Tražio si da on odluči."
+
+#. Key:	CallExtraKeptChoice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraKeptChoice"
+msgid "You kept the choice yourself."
+msgstr "Izbor si zadržao za sebe."
+
+#. Key:	CallExtraTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwice"
+msgid "You called twice on this floor."
+msgstr "Na ovom spratu si zvao dvaput."
+
+#. Key:	CallExtraTwiceAsk
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwiceAsk"
+msgid "You called twice and asked him to decide."
+msgstr "Zvao si dvaput i tražio da on odluči."
+
+#. Key:	CallExtraTwiceKept
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwiceKept"
+msgid "You called twice and kept the choice yourself."
+msgstr "Zvao si dvaput i izbor zadržao za sebe."
+
+#. Key:	CallBodyJoin
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallBodyJoin"
+msgid "{0} {1}"
+msgstr "{0} {1}"
+
+#. Key:	CorrectLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftTitle"
+msgid "LOOP {0} · RIGHT ELEVATOR"
+msgstr "KRUG {0} · PRAVI LIFT"
+
+#. Key:	WrongLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftTitle"
+msgid "LOOP {0} · WRONG ELEVATOR"
+msgstr "KRUG {0} · POGREŠAN LIFT"
+
+#. Key:	CorrectLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftAnomaly"
+msgid "You took the right elevator. The floor was already wrong."
+msgstr "Ušao si u pravi lift. Sprat je već bio pogrešan."
+
+#. Key:	CorrectLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftClean"
+msgid "You took the right elevator. The floor was clean."
+msgstr "Ušao si u pravi lift. Sprat je bio čist."
+
+#. Key:	WrongLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftAnomaly"
+msgid "You chose the wrong elevator. The floor was already lying."
+msgstr "Izabrao si pogrešan lift. Sprat je već lagao."
+
+#. Key:	WrongLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftClean"
+msgid "You chose the wrong elevator. The floor was clean."
+msgstr "Izabrao si pogrešan lift. Sprat je bio čist."
+
+#. Key:	EndingBody
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,EndingBody"
+msgid "This is how the shift ended."
+msgstr "Ovako je smena završila."

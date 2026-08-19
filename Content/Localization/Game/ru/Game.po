@@ -951,3 +951,136 @@ msgstr "Высокое"
 msgctxt "Loop9Interaction,Inspect"
 msgid "Examine"
 msgstr "Осмотреть"
+
+#. Key:	CallTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallTitle"
+msgid "LOOP {0} · CALL"
+msgstr "ПЕТЛЯ {0} · ЗВОНОК"
+
+#. Key:	CallTitleTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallTitleTwice"
+msgid "LOOP {0} · TWO CALLS"
+msgstr "ПЕТЛЯ {0} · ДВА ЗВОНКА"
+
+#. Key:	CallHostile
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallHostile"
+msgid "You spoke to him harshly. He heard it."
+msgstr "Ты говорил с ним резко. Он это слышал."
+
+#. Key:	CallSuspicious
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallSuspicious"
+msgid "You doubted the voice on the line."
+msgstr "Ты сомневался в голосе на линии."
+
+#. Key:	CallFriendly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallFriendly"
+msgid "You treated him with some warmth."
+msgstr "Ты обратился к нему с теплотой."
+
+#. Key:	CallNeutral
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallNeutral"
+msgid "You called him. Neither of you gave much away."
+msgstr "Ты позвонил ему. Никто из вас почти ничего не выдал."
+
+#. Key:	CallExtraAskHim
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraAskHim"
+msgid "You asked him to decide."
+msgstr "Ты попросил его решать."
+
+#. Key:	CallExtraKeptChoice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraKeptChoice"
+msgid "You kept the choice yourself."
+msgstr "Ты оставил выбор за собой."
+
+#. Key:	CallExtraTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwice"
+msgid "You called twice on this floor."
+msgstr "Ты звонил дважды на этом этаже."
+
+#. Key:	CallExtraTwiceAsk
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwiceAsk"
+msgid "You called twice and asked him to decide."
+msgstr "Ты звонил дважды и просил его решать."
+
+#. Key:	CallExtraTwiceKept
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallExtraTwiceKept"
+msgid "You called twice and kept the choice yourself."
+msgstr "Ты звонил дважды и оставил выбор за собой."
+
+#. Key:	CallBodyJoin
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CallBodyJoin"
+msgid "{0} {1}"
+msgstr "{0} {1}"
+
+#. Key:	CorrectLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftTitle"
+msgid "LOOP {0} · RIGHT ELEVATOR"
+msgstr "ПЕТЛЯ {0} · ПРАВИЛЬНЫЙ ЛИФТ"
+
+#. Key:	WrongLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftTitle"
+msgid "LOOP {0} · WRONG ELEVATOR"
+msgstr "ПЕТЛЯ {0} · НЕВЕРНЫЙ ЛИФТ"
+
+#. Key:	CorrectLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftAnomaly"
+msgid "You took the right elevator. The floor was already wrong."
+msgstr "Ты сел в правильный лифт. Этаж уже был неверным."
+
+#. Key:	CorrectLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,CorrectLiftClean"
+msgid "You took the right elevator. The floor was clean."
+msgstr "Ты сел в правильный лифт. Этаж был чистым."
+
+#. Key:	WrongLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftAnomaly"
+msgid "You chose the wrong elevator. The floor was already lying."
+msgstr "Ты выбрал неверный лифт. Этаж уже лгал."
+
+#. Key:	WrongLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,WrongLiftClean"
+msgid "You chose the wrong elevator. The floor was clean."
+msgstr "Ты выбрал неверный лифт. Этаж был чистым."
+
+#. Key:	EndingBody
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
+msgctxt "Loop9RunEvent,EndingBody"
+msgid "This is how the shift ended."
+msgstr "Так закончилась смена."

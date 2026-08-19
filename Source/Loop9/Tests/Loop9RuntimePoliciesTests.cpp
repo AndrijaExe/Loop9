@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Misc/AutomationTest.h"
+#include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -135,6 +136,83 @@ bool FLoop9ShiftArchivePolicyTest::RunTest(const FString&)
 	TestFalse(
 		TEXT("Unseen ending stays locked"),
 		Loop9RuntimePolicies::IsEndingUnlocked(Seen, TEXT("ACH_ENDING_THE_REPLACEMENT")));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9RunEventCardCopyTest,
+	"Loop9.Runtime.RunEvent.LocalizedCards",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9RunEventCardCopyTest::RunTest(const FString&)
+{
+	FRunEvent HostileAsk;
+	HostileAsk.Type = ERunEventType::Call;
+	HostileAsk.LoopIndex = 4;
+	HostileAsk.KindnessDelta = -1;
+	HostileAsk.DependencyDelta = 1;
+	Loop9RuntimePolicies::FinalizeRunEvent(HostileAsk);
+
+	const FRunEventCard HostileCard = Loop9RunEventCards::Build(HostileAsk);
+	TestEqual(TEXT("Hostile card keeps call type"), HostileCard.Type, ERunEventType::Call);
+	TestEqual(TEXT("Hostile card keeps tone"), HostileCard.Tone, ERunEventTone::Hostile);
+	TestTrue(TEXT("Hostile title names the loop"), HostileCard.Title.ToString().Contains(TEXT("LOOP 4")));
+	TestTrue(TEXT("Hostile title is a single call"), HostileCard.Title.ToString().Contains(TEXT("CALL")));
+	TestFalse(TEXT("Single call is not labeled twice"), HostileCard.Title.ToString().Contains(TEXT("TWO")));
+	TestTrue(TEXT("Hostile body mentions harshness"), HostileCard.Body.ToString().Contains(TEXT("harshly")));
+	TestTrue(TEXT("Hostile ask mentions handing him the choice"), HostileCard.Body.ToString().Contains(TEXT("decide")));
+	TestTrue(TEXT("Hostile ring is red"), HostileCard.RingColor.R > 0.7f && HostileCard.RingColor.G < 0.4f);
+
+	TArray<FRunEvent> Collapsed;
+	FRunEvent First;
+	First.Type = ERunEventType::Call;
+	First.LoopIndex = 4;
+	First.KindnessDelta = 1;
+	Loop9RuntimePolicies::AppendRunEvent(Collapsed, First);
+	FRunEvent Second;
+	Second.Type = ERunEventType::Call;
+	Second.LoopIndex = 4;
+	Second.SuspicionDelta = 1;
+	Loop9RuntimePolicies::AppendRunEvent(Collapsed, Second);
+
+	const FRunEventCard TwiceCard = Loop9RunEventCards::Build(Collapsed[0]);
+	TestTrue(TEXT("Collapsed title says two calls"), TwiceCard.Title.ToString().Contains(TEXT("TWO CALLS")));
+	TestTrue(TEXT("Collapsed body mentions calling twice"), TwiceCard.Body.ToString().Contains(TEXT("twice")));
+	TestEqual(TEXT("Collapsed card count is 2"), TwiceCard.Count, 2);
+	TestTrue(TEXT("Suspicious ring is yellow"), TwiceCard.RingColor.R > 0.8f && TwiceCard.RingColor.G > 0.7f);
+
+	FRunEvent CorrectAnomaly;
+	CorrectAnomaly.Type = ERunEventType::CorrectLift;
+	CorrectAnomaly.LoopIndex = 3;
+	CorrectAnomaly.bAnomalyExisted = true;
+	const FRunEventCard CorrectCard = Loop9RunEventCards::Build(CorrectAnomaly);
+	TestTrue(TEXT("Correct lift title"), CorrectCard.Title.ToString().Contains(TEXT("RIGHT ELEVATOR")));
+	TestTrue(TEXT("Correct lift saw the anomaly"), CorrectCard.Body.ToString().Contains(TEXT("already wrong")));
+	TestEqual(TEXT("Lift ring stays blue"), CorrectCard.RingColor, FLinearColor(0.50f, 0.80f, 1.00f));
+
+	FRunEvent WrongClean;
+	WrongClean.Type = ERunEventType::WrongLift;
+	WrongClean.LoopIndex = 7;
+	const FRunEventCard WrongCard = Loop9RunEventCards::Build(WrongClean);
+	TestTrue(TEXT("Wrong lift title"), WrongCard.Title.ToString().Contains(TEXT("WRONG ELEVATOR")));
+	TestTrue(TEXT("Wrong lift on a clean floor"), WrongCard.Body.ToString().Contains(TEXT("clean")));
+
+	FRunEvent Ending;
+	Ending.Type = ERunEventType::Ending;
+	Ending.LoopIndex = 9;
+	Ending.EndingType = ELoopEndingType::EscapeTogether;
+	const FRunEventCard EndingCard = Loop9RunEventCards::Build(Ending);
+	TestEqual(TEXT("Ending title reuses the ending name"), EndingCard.Title.ToString(), FString(TEXT("ESCAPE TOGETHER")));
+	TestTrue(TEXT("Ending body stays short"), EndingCard.Body.ToString().Contains(TEXT("shift ended")));
+
+	TArray<FRunEvent> Timeline;
+	Loop9RuntimePolicies::AppendRunEvent(Timeline, HostileAsk);
+	Loop9RuntimePolicies::AppendRunEvent(Timeline, CorrectAnomaly);
+	Loop9RuntimePolicies::AppendRunEvent(Timeline, Ending);
+	const TArray<FRunEventCard> Cards = Loop9RunEventCards::BuildAll(Timeline);
+	TestEqual(TEXT("BuildAll keeps event order"), Cards.Num(), 3);
+	TestEqual(TEXT("BuildAll first card is the call"), Cards[0].Type, ERunEventType::Call);
+	TestEqual(TEXT("BuildAll last card is the ending"), Cards[2].Type, ERunEventType::Ending);
 	return true;
 }
 
