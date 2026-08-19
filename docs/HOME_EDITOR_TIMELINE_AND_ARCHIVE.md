@@ -1,126 +1,182 @@
-# Kod kuće: session timeline + shift archive
+# Unreal MCP Handoff: Session Timeline + Shift Archive
 
-C++ za ova dva feature-a je urađen, uključujući lokalizovane kartice.
-Ovo je samo Unreal Editor / art. Nije launch bloker.
-Status u [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
+Copy-paste brief for an AI agent with Unreal Engine MCP access.
+C++ is already done. Edit existing UMG assets. Not a launch blocker.
+Status: [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
 
-## Ostalo
+## Ostalo (za čoveka)
 
-1. Rebuild `Loop9Editor` (novi `FRunEventCard`, `BuildRunEventCards`, `UShiftArchiveWidget`).
-2. Na svakom `WBP_Ending_*`: ostavi naslov + 2–3 rečenice; **ispod** spawnuj redove iz `BuildRunEventCards()`.
-3. Na main menu WBP dodaj dugme tačno imena **`Archive`**.
-4. GatherText da se sklopi `Game.locres` (PO prevodi za kartice su već upisani).
-5. QA lista na dnu ovog fajla.
-
-Opciono kasnije: uvezi slike iz `Content/MyStuff/UI/Timeline/`, stavi ikonice u krugove, ploču kao archive pozadinu. Animacija i dalje nije potrebna.
-
----
-
-## Šta je već u kodu
-
-### Session timeline (posle smene)
-
-- `RelationshipSubsystem::RunEvents` — log jednog runa
-- `BuildRunEventCards()` — lokalizovan naslov + 1–2 rečenice + `RingColor`
-- Tipovi: `Call`, `CorrectLift`, `WrongLift`, `Ending`
-- Ton poziva iz AI `[STATE]`: Hostile / Suspicious / Friendly / Neutral
-- Briše se na novi run; nije na Steam Cloud
-
-### Shift archive (main menu)
-
-- `UShiftArchiveWidget` — dosije: čvor `SHIFT` + 6 krajeva
-- Otključano čita `SeenEndings` iz `Game.ini` (Cloud već syncuje taj fajl)
-- Zaključano: `???` + siva šina
-- Main menu traži widget imena **`Archive`**
+1. Rebuild `Loop9Editor`.
+2. Timeline na `WBP_Ending_*` ispod naslova, iz `BuildRunEventCards()`.
+3. Dugme tačno imena `Archive` na main menu.
+4. Uvezi slike iz `Content/MyStuff/UI/Timeline/` i stavi ih kako piše ispod.
+5. GatherText + QA.
+6. Animaciju čvorova **ne radi**.
 
 ---
 
-## 1. Session timeline na ending ekranu
+## Objective
 
-Živi ekrani su `Content/MyStuff/UI/Endings/WBP_Ending_*`, ne C++ fallback.
-Bez izmene tih WBP-ova igrač i dalje vidi samo naslov + kratak tekst.
+1. Show the post-run session timeline on every live ending screen.
+2. Add an **Archive** button on the main menu so the existing C++ dossier opens.
+3. Import the approved art and use it: three timeline icons + one archive plate.
+4. Do not invent new copy. Do not animate nodes.
 
-Na svakom `WBP_Ending_*` (ili na zajedničkom parentu):
+## Hard constraints
 
-1. Ostavi **naslov** i **2–3 rečenice zašto taj kraj**. Ne zamenjuj ih timeline-om.
-2. Umesto linije `Resets | AI interactions` stavi vertikalni timeline **ispod**.
-3. Čitaj `GetGameInstance()` → `RelationshipSubsystem` → **`BuildRunEventCards()`**.
-4. Za svaku karticu: plava šina + krug + kartica desno sa `Title` i `Body`.
-5. Rub kruga = `RingColor`. Ne piši copy u designeru.
+1. Inspect Unreal MCP tool schemas before editing.
+2. Pull latest `main` and rebuild `Loop9Editor` first (`FRunEventCard`, `BuildRunEventCards`, `UShiftArchiveWidget`).
+3. Do **not** change C++, backend, quotas, Steam Cloud, or `Game.ini` paths.
+4. Do **not** replace the ending **title** or the **2–3 why sentences**. Timeline goes **under** them.
+5. Do **not** write card titles/bodies in the designer. Use `FRunEventCard.Title` and `.Body`.
+6. Do **not** bake ending names or `SHIFT` into the star-plate image. Labels stay widgets.
+7. Do **not** add UMG/Sequencer node animations.
+8. Do not create `*_v2` ending widgets. Edit the six existing `WBP_Ending_*`.
+9. If a required widget name is missing, find the real asset. Do not assume `WBP_MainMenu` exists on disk.
 
-`RingColor` je već podešen u C++:
+## Approved art (already in the repo)
 
-| `Tone` (samo `Call`) | Rub |
+Folder: `/Game/MyStuff/UI/Timeline/`  
+Disk: `Content/MyStuff/UI/Timeline/`
+
+| File | Use |
 |---|---|
-| Neutral | plava `#7EC8FF` / `(0.5, 0.8, 1.0)` |
-| Friendly | zelena |
-| Hostile | crvena |
-| Suspicious | žuta |
+| `ui_icon_call.png` | Timeline circle for `ERunEventType::Call` |
+| `ui_icon_lift.png` | Timeline circle for `CorrectLift` and `WrongLift` |
+| `ui_icon_ending.png` | Timeline circle for `Ending` |
+| `ui_archive_star_plate.png` | Archive background only. Empty hub + 6 sockets. No text. |
 
-Lift i ending ostaju plavi. Dva poziva u istom krugu su već spojena (`Count` / `TWO CALLS`).
+These are source PNGs. After the editor opens they may auto-import as textures. If not, Import them in place.
 
-Sličice su već u `Content/MyStuff/UI/Timeline/`:
+Texture settings for all four:
 
-- `ui_icon_call.png` — poziv
-- `ui_icon_lift.png` — lift
-- `ui_icon_ending.png` — kraj / pečat
+- Texture Group: **UI**
+- sRGB: on
+- Never Stream: on
+- Do not use as a world/material texture
 
-U editoru: Import (ako Unreal nije sam pokupio) → Texture Group **UI** → sRGB on. Stavi u krug, ne u kartu.
+## Preflight
 
----
+1. Pull `main`.
+2. Open `Loop9.uproject` in UE 5.8. Compile `Loop9Editor`.
+3. Confirm these compile and appear in Blueprints:
+   - `FRunEventCard` (`Type`, `Tone`, `LoopIndex`, `Count`, `Title`, `Body`, `RingColor`)
+   - `URelationshipSubsystem::BuildRunEventCards()`
+   - `UShiftArchiveWidget`
+   - `UMainMenuWidget::OnArchiveClicked`
+4. Import / reimport the four Timeline textures with the settings above.
+5. Locate the live main-menu widget:
+   - inspect `MainMenuGameMode` → `MainMenuWidgetClass`
+   - find the WBP that already has buttons named `Play`, `Settings`, `Quit`
+   - that is the file to edit. It may not be named `WBP_MainMenu`.
+6. Open every `/Game/MyStuff/UI/Endings/WBP_Ending_*` and record which text blocks are the title and the why-blurb. Do not delete them.
 
-## 2. Archive dugme na main menu
+Live ending widgets:
 
-Asset: main menu WBP (isti gde su `Play`, `Settings`, `Quit`).
+- `/Game/MyStuff/UI/Endings/WBP_Ending_EscapeTogether`
+- `/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool`
+- `/Game/MyStuff/UI/Endings/WBP_Ending_ColdBetrayal`
+- `/Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor`
+- `/Game/MyStuff/UI/Endings/WBP_Ending_MergedMemory`
+- `/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement`
 
-1. Dodaj dugme tačno imena **`Archive`**.
-2. C++ ga sam binduje i stavlja label `ARCHIVE`.
-3. Klik otvara `UShiftArchiveWidget` (ili `ArchiveWidgetClass` ako ga staviš na menu BP).
+Parent class is `UEndingWidget`. It fires `BP_OnEndingInitialized`.
 
-Bez ovog imena dosije se ne može otvoriti.
+## Task 1 — Timeline on each ending WBP
 
----
+On each `WBP_Ending_*` (or one shared parent used by all six):
 
-## 3. Opcioni Unreal polish (kasnije)
+1. Keep title + why text exactly as they are.
+2. Remove or hide any `Resets | AI interactions` stats line if present.
+3. Add a vertical box **below** the why text. Suggested name: `VB_Timeline`.
+4. On `BP_OnEndingInitialized` (or after `InitializeEnding`):
 
-Art je u `Content/MyStuff/UI/Timeline/`. Ostaje samo uvezi + slotovi.
+```text
+Game Instance
+  → Get Subsystem (RelationshipSubsystem)
+  → Build Run Event Cards
+  → For Each FRunEventCard: add one row to VB_Timeline
+```
 
-- Ikonice na timeline krugovima: `ui_icon_call` / `ui_icon_lift` / `ui_icon_ending`
-- Archive ploča: `ui_archive_star_plate.png` kao pozadina; preko nje 7 labela (`SHIFT` + 6 krajeva), bez teksta u slici
-- Poseban `WBP_ShiftArchive` child ako hoćeš layout u designeru; ostavi `VB_Nodes` i `BT_Back` ako želiš da C++ i dalje puni listu
-- Animacija čvorova — preskoči
+5. Each row, left to right:
+   - thin vertical rail (ice blue)
+   - circle
+   - card with `Title` (bold) and `Body` (smaller)
+6. Circle **outline** = `RingColor` from the card. C++ already sets it:
 
----
+| `Type` / `Tone` | Ring |
+|---|---|
+| `Call` Neutral | ice blue `(0.5, 0.8, 1.0)` |
+| `Call` Friendly | green |
+| `Call` Hostile | red |
+| `Call` Suspicious | yellow |
+| `CorrectLift` / `WrongLift` / `Ending` | ice blue |
 
-## 4. Lokalizacija
+7. Circle **fill / brush** = the matching icon:
+   - `Call` → `ui_icon_call`
+   - `CorrectLift` or `WrongLift` → `ui_icon_lift`
+   - `Ending` → `ui_icon_ending`
+8. Prefer a small reusable `WBP_RunEventRow` with `Title`, `Body`, icon, ring color. If you create it, keep it under `/Game/MyStuff/UI/Timeline/`.
+9. Two calls on one floor are already collapsed in C++ (`Count`, title `TWO CALLS`). One row is correct.
 
-Kartice timeline-a su već `LOCTEXT` u C++ (`Loop9RunEvent`) i prevodi su u `Content/Localization/Game/<culture>/Game.po` (en/sr/de/fr/ru). Ending naslovi koriste postojeće `Loop9Endings` ključeve.
+Do not graph raw Trust / Kindness / Suspicion numbers.
 
-Posle WBP izmena (Archive dugme i sl.):
+## Task 2 — Archive button on the main menu
+
+1. Open the live main-menu WBP (from Preflight step 5).
+2. Duplicate the existing `Settings` (or `Play`) button widget.
+3. Name the new widget exactly **`Archive`**. The name must match. C++ does `GetWidgetFromName("Archive")`.
+4. Place it in the same column as Play / Settings / Quit, same style.
+5. Do not bind OnClicked in Blueprint. `UMainMenuWidget` already binds it and sets the label to localized `ARCHIVE`.
+6. Click opens `UShiftArchiveWidget` unless `ArchiveWidgetClass` is set on the menu BP.
+
+Without a widget named `Archive`, the dossier cannot open.
+
+## Task 3 — Optional archive plate (only if Task 2 works)
+
+Art: `ui_archive_star_plate`.
+
+1. You may create `/Game/MyStuff/UI/MainMenu/WBP_ShiftArchive` as a child of `UShiftArchiveWidget`.
+2. If you do, keep bind names C++ already looks for: `VB_Nodes`, `TB_Title`, `BT_Back`.
+3. Put the star plate as a full-bleed / centered **background Image**. Do not draw names on the texture.
+4. Overlay 7 text slots on the empty nodes:
+   - center: `SHIFT` (C++ already has `ArchiveHub`)
+   - six endings around it, same order as `Loop9RuntimePolicies::AllEndingTypes()`:
+     EscapeTogether, ObedientFool, ColdBetrayal, ParanoidSurvivor, MergedMemory, TheReplacement
+5. Unlocked = ice-blue name. Locked = `???` + gray. Data comes from `SeenEndings` via C++.
+6. If overlaying 7 labels on the plate is messy, leave the C++ vertical list (`VB_Nodes`) and only use the plate as atmosphere behind it. That is acceptable.
+
+## Localization
+
+Timeline card strings are already `LOCTEXT` (`Loop9RunEvent`) with PO translations in
+`Content/Localization/Game/<culture>/Game.po` (en/sr/de/fr/ru). Ending titles reuse `Loop9Endings`.
+
+After widget edits, compile locres:
 
 ```text
 UnrealEditor-Cmd <Loop9.uproject> -run=GatherText -config="Config/Localization/Game.ini"
 ```
 
-To pokupi nove widget stringove i kompajlira `Game.locres`. Bez locres-a igra i dalje vidi engleski izvor. Vidi [`LOCALIZATION.md`](LOCALIZATION.md).
+New widget keys to expect: `ARCHIVE`, `SHIFT ARCHIVE`, `BACK`, `???`.
+Without locres the game still shows the English C++ source.
 
-Novi widget ključevi uključuju `ARCHIVE`, `SHIFT ARCHIVE`, `BACK`, `???`.
+## QA
 
----
+- [ ] Rebuild succeeded; `BuildRunEventCards` is callable from the ending WBP
+- [ ] Each of the 6 ending screens still shows its own title + why text
+- [ ] Timeline appears under that text, not instead of it
+- [ ] Two chats on one floor = one `TWO CALLS` row
+- [ ] Insult / doubt / warmth = red / yellow / green ring; icons match Call / Lift / Ending
+- [ ] Main menu has `Archive`; click opens the dossier
+- [ ] One unlocked ending is blue with its name; the others are `???` and gray
+- [ ] Floor with no call still drops Dependency (existing C++; do not reimplement)
+- [ ] If any Blueprint still calls `RegisterPlayerMessage`, delete that node
+- [ ] GatherText run; smoke EN and SR on ending + archive
+- [ ] No new node animation
 
-## 5. Brzi QA u editoru
+## Do not touch
 
-- [ ] Dva chata u istom krugu, treći = signal-drop
-- [ ] Uvreda / predaja odluke / sumnja → crveni / dependency / žuti ton na logu (kad timeline bude na WBP)
-- [ ] Sprat bez poziva → Dependency padne
-- [ ] Završi jedan kraj → Archive pokazuje to ime plavo, ostalo `???`
-- [ ] Drugi PC / obrisan local `Game.ini` + Steam Cloud → isti otključani krajevi
-- [ ] Ako Blueprint još zove `RegisterPlayerMessage`, obriši taj čvor
-
----
-
-## Šta ne dirati ovde
-
-- Backend `[STATE]KINDNESS;SUSPICION;DEPENDENCY` — već na Renderu posle deploy-a
-- Daily/monthly kvote
-- Steam Cloud Auto-Cloud putanja (`Game.ini`)
+- Backend `[STATE]KINDNESS;SUSPICION;DEPENDENCY`
+- Daily / monthly quotas
+- Steam Cloud Auto-Cloud path (`Game.ini`)
+- Ending Level Sequences (separate brief: [`UNREAL_MCP_ENDING_SCENES_HANDOFF.md`](UNREAL_MCP_ENDING_SCENES_HANDOFF.md))

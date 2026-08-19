@@ -303,14 +303,14 @@ moraju biti publish-ovane, ne samo sačuvane.
 Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve review.
 
 - [~] Ending session timeline: C++ kartice su gotove (`BuildRunEventCards()`,
-  EN/SR/DE/FR/RU). Ostalo samo u editoru: na `WBP_Ending_*` ostavi naslov +
-  2–3 rečenice zašto taj kraj, a ispod spawnuj redove. Bez grafa sirovih
-  relationship brojeva.
+  EN/SR/DE/FR/RU). Art je u `Content/MyStuff/UI/Timeline/`. Ostalo u editoru
+  po MCP briefu: na `WBP_Ending_*` ostavi naslov + 2–3 rečenice, ispod spawnuj
+  redove sa ikonicama. Bez grafa sirovih relationship brojeva.
 - [~] Main-menu dosije / arhiva smena: C++ `ShiftArchiveWidget` čita `SeenEndings`.
-  Ostalo samo u editoru: na `WBP_MainMenu` dodati dugme imena `Archive`.
-  Dobijeni krajevi plava linija + ime; nedobijeni `???` i siva. Ikonice /
-  pravi star-graph ostaju Unreal polish.
-  Editor koraci: [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
+  Ostalo u editoru: dugme tačno imena `Archive` na živom main-menu WBP-u;
+  opciono `ui_archive_star_plate` kao pozadina + labele preko čvorova.
+  Animaciju ne raditi. Brief:
+  [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
 
 ---
 
