@@ -128,9 +128,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
 - [x] EN/SR store opis pripremljen.
 
-- [~] DE/FR/RU lokalizovani opisi su sačuvani u
-`Marketing/Steam/STORE_PAGE.md`; proveriti da li su svi uneti i sačuvani u
-Steamworksu.
+- [x] DE/FR/RU lokalizovani opisi su uneti i sačuvani u Steamworksu; izvor je
+`Marketing/Steam/STORE_PAGE.md`.
 
 - [x] Cena `$4.99` i Valve regional pricing poslati.
 - [x] Sačekati potvrdu pricing promena.
@@ -142,21 +141,21 @@ Steamworksu.
 - [x] `https://loop9-backend.onrender.com/privacy` vraća HTTP 200
   (ponovo provereno 07.08.2026.).
 
-- [~] Content Survey i Steamworks promene proveriti u **Publish** tabu; sve izmene
-moraju biti publish-ovane, ne samo sačuvane.
+- [x] Content Survey i Steamworks promene provereni u **Publish** tabu; izmene su
+publish-ovane, ne samo sačuvane.
 
 
 
 ### Store grafika
 
-- [ ] Finalizovati 4 obavezne Store kapsule:
+- [x] Finalizovati 4 obavezne Store kapsule:
   `920×430`, `462×174`, `1232×706`, `748×896`.
-- [ ] Uploadovati minimum 5 stvarnih 16:9 gameplay screenshotova
+- [x] Uploadovati minimum 5 stvarnih 16:9 gameplay screenshotova
   (`1920×1080` ili više); preporuka je 8 kadrova.
-- [ ] Finalizovati 4 Library asseta:
+- [x] Finalizovati 4 Library asseta:
   `600×900`, `920×430`, `3840×1240` hero bez teksta i transparentni logo.
 - [x] Shortcut ICO i App Icon JPG imaju spremne minimalističke v2 varijante.
-- [ ] Dodati opcioni Page Background `1438×810`.
+- [x] Dodati opcioni Page Background `1438×810`.
 - [ ] Snimiti i montirati gameplay trailer. Trailer je veoma preporučen pre
   Store review-a, iako nije tehnički potreban za prvi build upload.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
@@ -245,26 +244,27 @@ moraju biti publish-ovane, ne samo sačuvane.
 
 ### Kritični gameplay
 
-- [ ] Svih 9 loopova: advance/reset pravila, anomaly generation i tačan završetak.
-- [ ] Novi direktni elevator transition ne prihvata dupli input, ne ostavlja igrača zaključanog
+- [x] Svih 9 loopova: advance/reset pravila, anomaly generation i tačan završetak.
+- [x] Novi direktni elevator transition ne prihvata dupli input, ne ostavlja igrača zaključanog
   i teleportuje samo dok su vrata zatvorena/ekran skriven.
-- [ ] Svih 6 endinga i njihove mini-sekvence su dostižni; widget/terminal se
-  pojavljuje posle sekvence i Continue vraća u Main Menu.
-- [ ] Item inspection, pursuer, Scale, Phantom i MaterialSwap anomaly smoke.
+- [~] Svih 6 endinga i njihove mini-sekvence su dostižni; widget/terminal se
+  pojavljuje posle sekvence i Continue vraća u Main Menu. Prolaz je u principu
+  dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
+- [x] Item inspection, pursuer, Scale, Phantom i MaterialSwap anomaly smoke.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
 
 
 
 ### Steam i online
 
-- [ ] Steam ticket → backend session → prvi chat zahtev radi na App ID `4982260`.
+- [x] Steam ticket → backend session → prvi chat zahtev radi na App ID `4982260`.
 - [x] Klijent traži svež Steam Web API ticket asinhrono (`WebAPI:Loop9`), a backend
   ga proverava preko publisher API-ja sa istim identity parametrom.
-- [ ] Steam Overlay i achievement toast rade.
+- [x] Steam Overlay i achievement toast rade.
 - [ ] Offline start i gubitak mreže tokom chata ne ruše igru i refundiraju pokušaj.
-- [ ] AI input/output moderation: bezbedan tekst prolazi; blokiran i unavailable
+- [x] AI input/output moderation: bezbedan tekst prolazi; blokiran i unavailable
   slučaj daju in-fiction fallback.
-- [ ] Cold-start/timeout: `Thinking…` i `Still thinking…` rade; zahtev završi odgovorom
+- [x] Cold-start/timeout: `Thinking…` i `Still thinking…` rade; zahtev završi odgovorom
   ili lokalizovanom greškom pre client timeouta od 65 s.
 - [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
 - [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save → progres se vrati.
@@ -273,11 +273,11 @@ moraju biti publish-ovane, ne samo sačuvane.
 
 ### Platforma, UI i performanse
 
-- [ ] EN/SR/DE/FR/RU: meni, settings, chat, promptovi, ending i terminal.
+- [x] EN/SR/DE/FR/RU: meni, settings, chat, promptovi, ending i terminal.
 - [ ] Tastatura/miš i gamepad kompletan prolaz; floating keyboard na Deck-u ili
   Steam Input testu.
-- [ ] Alt-Tab, promena rezolucije/fullscreena, pause/resume i Steam Overlay.
-- [ ] 30 min soak bez memory growtha, stale timera/delegata ili duplih widgeta.
+- [x] Alt-Tab, promena rezolucije/fullscreena, pause/resume i Steam Overlay.
+- [x] 30 min soak bez memory growtha, stale timera/delegata ili duplih widgeta.
 - [ ] Unreal Insights + `stat unit`, `stat game`, `stat gpu` na minimalnoj i
   preporučenoj konfiguraciji.
 - [ ] Proveriti nove VT anomaly teksture u cooked buildu i peak VRAM; izvorni novi
