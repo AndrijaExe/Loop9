@@ -1084,3 +1084,38 @@ msgstr "Ты выбрал неверный лифт. Этаж был чисты�
 msgctxt "Loop9RunEvent,EndingBody"
 msgid "This is how the shift ended."
 msgstr "Так закончилась смена."
+
+#. Key:	ArchiveTitle
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp
+msgctxt "Loop9Archive,ArchiveTitle"
+msgid "SHIFT ARCHIVE"
+msgstr "АРХИВ СМЕН"
+
+#. Key:	ArchiveHub
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp
+msgctxt "Loop9Archive,ArchiveHub"
+msgid "SHIFT"
+msgstr "СМЕНА"
+
+#. Key:	ArchiveBack
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp
+msgctxt "Loop9Archive,ArchiveBack"
+msgid "BACK"
+msgstr "НАЗАД"
+
+#. Key:	ArchiveLocked
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp
+msgctxt "Loop9Archive,ArchiveLocked"
+msgid "???"
+msgstr "???"
+
+#. Key:	Archive
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
+#: Source/Loop9/UI/MainMenuWidget.cpp
+msgctxt "Loop9Menu,Archive"
+msgid "ARCHIVE"
+msgstr "АРХИВ"

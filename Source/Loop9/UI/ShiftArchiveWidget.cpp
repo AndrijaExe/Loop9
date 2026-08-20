@@ -1,6 +1,7 @@
 #include "UI/ShiftArchiveWidget.h"
 
 #include "UI/MainMenuWidget.h"
+#include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "UI/Loop9WidgetClickBinder.h"
@@ -26,10 +27,17 @@ namespace
 	const FLinearColor CardFill(0.04f, 0.07f, 0.10f, 0.92f);
 }
 
+void UShiftArchiveWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	// Must run before RebuildWidget() reads WidgetTree->RootWidget, or the
+	// C++ fallback layout is captured too late and the screen renders empty.
+	BuildFallbackLayoutIfNeeded();
+}
+
 void UShiftArchiveWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	BuildFallbackLayoutIfNeeded();
 	BindBackButton();
 	RefreshNodes();
 	if (TB_Title)
@@ -213,23 +221,7 @@ void UShiftArchiveWidget::AddNodeRow(UVerticalBox* Parent, const FText& Label, b
 
 FText UShiftArchiveWidget::TitleForEnding(ELoopEndingType EndingType)
 {
-	switch (EndingType)
-	{
-	case ELoopEndingType::EscapeTogether:
-		return LOCTEXT("EscapeTogetherTitle", "ESCAPE TOGETHER");
-	case ELoopEndingType::ObedientFool:
-		return LOCTEXT("ObedientFoolTitle", "OBEDIENT FOOL");
-	case ELoopEndingType::ColdBetrayal:
-		return LOCTEXT("ColdBetrayalTitle", "COLD BETRAYAL");
-	case ELoopEndingType::ParanoidSurvivor:
-		return LOCTEXT("ParanoidSurvivorTitle", "PARANOID SURVIVOR");
-	case ELoopEndingType::MergedMemory:
-		return LOCTEXT("MergedMemoryTitle", "MERGED MEMORY");
-	case ELoopEndingType::TheReplacement:
-		return LOCTEXT("TheReplacementTitle", "THE REPLACEMENT");
-	default:
-		return LOCTEXT("ArchiveLocked", "???");
-	}
+	return Loop9RunEventCards::EndingTitle(EndingType);
 }
 
 #undef LOCTEXT_NAMESPACE

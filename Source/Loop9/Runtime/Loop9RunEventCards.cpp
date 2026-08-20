@@ -4,25 +4,6 @@
 
 namespace
 {
-	FText EndingTitle(ELoopEndingType EndingType)
-	{
-		switch (EndingType)
-		{
-		case ELoopEndingType::EscapeTogether:
-			return NSLOCTEXT("Loop9Endings", "EscapeTogetherTitle", "ESCAPE TOGETHER");
-		case ELoopEndingType::ObedientFool:
-			return NSLOCTEXT("Loop9Endings", "ObedientFoolTitle", "OBEDIENT FOOL");
-		case ELoopEndingType::ColdBetrayal:
-			return NSLOCTEXT("Loop9Endings", "ColdBetrayalTitle", "COLD BETRAYAL");
-		case ELoopEndingType::MergedMemory:
-			return NSLOCTEXT("Loop9Endings", "MergedMemoryTitle", "MERGED MEMORY");
-		case ELoopEndingType::TheReplacement:
-			return NSLOCTEXT("Loop9Endings", "TheReplacementTitle", "THE REPLACEMENT");
-		default:
-			return NSLOCTEXT("Loop9Endings", "ParanoidSurvivorTitle", "PARANOID SURVIVOR");
-		}
-	}
-
 	FText CallToneBody(ERunEventTone Tone)
 	{
 		switch (Tone)
@@ -76,6 +57,26 @@ namespace
 	FText LoopTitle(const FText& Format, int32 LoopIndex)
 	{
 		return FText::Format(Format, FText::AsNumber(LoopIndex));
+	}
+}
+
+FText Loop9RunEventCards::EndingTitle(ELoopEndingType EndingType)
+{
+	switch (EndingType)
+	{
+	case ELoopEndingType::EscapeTogether:
+		return NSLOCTEXT("Loop9Endings", "EscapeTogetherTitle", "ESCAPE TOGETHER");
+	case ELoopEndingType::ObedientFool:
+		return NSLOCTEXT("Loop9Endings", "ObedientFoolTitle", "OBEDIENT FOOL");
+	case ELoopEndingType::ColdBetrayal:
+		return NSLOCTEXT("Loop9Endings", "ColdBetrayalTitle", "COLD BETRAYAL");
+	case ELoopEndingType::MergedMemory:
+		return NSLOCTEXT("Loop9Endings", "MergedMemoryTitle", "MERGED MEMORY");
+	case ELoopEndingType::TheReplacement:
+		return NSLOCTEXT("Loop9Endings", "TheReplacementTitle", "THE REPLACEMENT");
+	case ELoopEndingType::ParanoidSurvivor:
+	default:
+		return NSLOCTEXT("Loop9Endings", "ParanoidSurvivorTitle", "PARANOID SURVIVOR");
 	}
 }
 
