@@ -62,6 +62,9 @@ See [ANOMALIES.md](ANOMALIES.md). Checklist for each new anomaly actor:
 3. Visible baseline on loop 1 when inactive.
 4. Distinct enough for a first-time player to notice under office lighting.
 5. Covered by localization if it adds text.
+6. `AnomalyZone` and `AnomalyObjectKind` filled in English under **Anomaly > AI Context**,
+   naming a landmark and a category rather than an asset. Rules and examples:
+   [ANOMALIES.md](ANOMALIES.md#ai-context-tagging).
 
 ## UI authoring
 

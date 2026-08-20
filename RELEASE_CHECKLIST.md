@@ -311,6 +311,13 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
   opciono `ui_archive_star_plate` kao pozadina + labele preko čvorova.
   Animaciju ne raditi. Brief:
   [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
+- [~] AI kontekst anomalija: C++ i backend su gotovi. Bez oznaka Dragojlo pošteno
+  priznaje da ne zna gde je anomalija; sa oznakama ume da pošalje igrača u pravi
+  deo sprata bez odavanja predmeta. Ostalo u editoru: popuniti `AnomalyZone` i
+  `AnomalyObjectKind` na anomaly komponentama u `FullOfficeMap`
+  (**Anomaly > AI Context**), na engleskom, orijentir + vrsta predmeta, nikad ime
+  aktera; zonu ostaviti praznu za `PhantomMessage`. Može sprat po sprat.
+  Pravila i primeri: [`docs/ANOMALIES.md`](docs/ANOMALIES.md#ai-context-tagging).
 
 ---
 

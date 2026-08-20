@@ -41,6 +41,7 @@ Details:
    - message, language, loop_index
    - relationship / stability fields
    - anomaly_context / anomaly_key / repeat_anomaly
+   - anomaly_detail (zone + object kind), only when authored on the component
    - discrete kindness/suspicion state used by the backend
 6. Client HTTP timeout: **65 seconds**
 7. Backend AI cascade deadline: **45 seconds** (client timeout is intentionally larger)
