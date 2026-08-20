@@ -288,6 +288,16 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 			ChatResult.DependencyDelta);
 		CleanReply = SanitizeReplyText(CleanReply);
 
+		// A reply that was nothing but a [STATE] trailer sanitizes down to
+		// nothing. Fail instead, so the loop message is refunded rather than
+		// spent on an empty chat bubble.
+		if (CleanReply.IsEmpty())
+		{
+			ChatResult.ErrorMessage = TEXT("Error: Invalid backend response format");
+			Complete(ChatResult);
+			return;
+		}
+
 		ChatResult.bSuccess = true;
 		ChatResult.Reply = CleanReply;
 		Complete(ChatResult);
