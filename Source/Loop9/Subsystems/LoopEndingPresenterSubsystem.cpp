@@ -95,10 +95,12 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	const ELoopEndingType EndingType = FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext());
 	const int32 TotalResets = Relationship->TotalResets;
 	const int32 TotalAIInteractions = Relationship->TotalAIInteractions;
+	// The advance path increments past the ninth floor before it triggers the
+	// ending, so the raw counter reads 10 here.
 	int32 EndingLoopIndex = 9;
 	if (const ULoopManagerSubsystem* LoopManager = GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>())
 	{
-		EndingLoopIndex = LoopManager->CurrentLoop;
+		EndingLoopIndex = FMath::Min(LoopManager->CurrentLoop, 9);
 	}
 	Relationship->RecordEnding(EndingLoopIndex, EndingType);
 
