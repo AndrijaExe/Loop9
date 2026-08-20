@@ -55,8 +55,11 @@ ELoopEndingType FLoopEndingEvaluator::Evaluate(const FEndingEvaluationContext& C
 		return ELoopEndingType::ColdBetrayal;
 	}
 
-	// Frequently asked Dragojlo to decide, in any language. About five
-	// DEPENDENCY=1 diagnoses plus eight chats reach 0.53.
+	// Frequently asked Dragojlo to decide, in any language. Chats no longer add
+	// dependency themselves: it is 0.2 + 0.07 per DEPENDENCY=1, -0.05 per
+	// DEPENDENCY=-1, -0.04 per floor left without calling. Five positive
+	// diagnoses clear 0.53 only if the player calls on nearly every floor —
+	// cramming the eight chats into a few floors stays below the gate.
 	if (Context.Trust >= 0.55f
 		&& Context.Kindness >= 0.42f
 		&& Context.Dependency >= 0.53f
