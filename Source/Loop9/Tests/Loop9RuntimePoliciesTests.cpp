@@ -4,6 +4,16 @@
 #include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 
+namespace
+{
+	/** TestEqual has no scoped-enum overload; compare the underlying values. */
+	template <typename EnumType>
+	int32 AsInt(EnumType Value)
+	{
+		return static_cast<int32>(Value);
+	}
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FLoop9SprintTimerPolicyTest,
 	"Loop9.Runtime.Stamina.TimerLifecycle",
@@ -75,7 +85,7 @@ bool FLoop9RunEventLogTest::RunTest(const FString&)
 	TestEqual(TEXT("Calls on the same loop collapse"), Events.Num(), 1);
 	TestEqual(TEXT("Collapsed call count is 2"), Events[0].Count, 2);
 	TestEqual(TEXT("Collapsed call keeps warmth"), Events[0].KindnessDelta, 1);
-	TestEqual(TEXT("Collapsed accusation wins tone"), Events[0].Tone, ERunEventTone::Suspicious);
+	TestEqual(TEXT("Collapsed accusation wins tone"), AsInt(Events[0].Tone), AsInt(ERunEventTone::Suspicious));
 
 	FRunEvent Lift;
 	Lift.Type = ERunEventType::CorrectLift;
@@ -90,17 +100,17 @@ bool FLoop9RunEventLogTest::RunTest(const FString&)
 	TestEqual(TEXT("Lift and later loop stay separate"), Events.Num(), 3);
 
 	TestEqual(TEXT("Insult is hostile"),
-		Loop9RuntimePolicies::ToneFromStateDeltas(-1, 0),
-		ERunEventTone::Hostile);
+		AsInt(Loop9RuntimePolicies::ToneFromStateDeltas(-1, 0)),
+		AsInt(ERunEventTone::Hostile));
 	TestEqual(TEXT("Accusation is suspicious even if polite"),
-		Loop9RuntimePolicies::ToneFromStateDeltas(1, 1),
-		ERunEventTone::Suspicious);
+		AsInt(Loop9RuntimePolicies::ToneFromStateDeltas(1, 1)),
+		AsInt(ERunEventTone::Suspicious));
 	TestEqual(TEXT("Warmth is friendly"),
-		Loop9RuntimePolicies::ToneFromStateDeltas(1, 0),
-		ERunEventTone::Friendly);
+		AsInt(Loop9RuntimePolicies::ToneFromStateDeltas(1, 0)),
+		AsInt(ERunEventTone::Friendly));
 	TestEqual(TEXT("Ordinary help request stays neutral"),
-		Loop9RuntimePolicies::ToneFromStateDeltas(0, 0),
-		ERunEventTone::Neutral);
+		AsInt(Loop9RuntimePolicies::ToneFromStateDeltas(0, 0)),
+		AsInt(ERunEventTone::Neutral));
 
 	TArray<FRunEvent> ToneEvents;
 	FRunEvent WarmCall;
@@ -116,7 +126,7 @@ bool FLoop9RunEventLogTest::RunTest(const FString&)
 	Loop9RuntimePolicies::AppendRunEvent(ToneEvents, CruelCall);
 
 	TestEqual(TEXT("Collapsed calls keep the harsher kindness"), ToneEvents[0].KindnessDelta, -1);
-	TestEqual(TEXT("Collapsed calls become hostile"), ToneEvents[0].Tone, ERunEventTone::Hostile);
+	TestEqual(TEXT("Collapsed calls become hostile"), AsInt(ToneEvents[0].Tone), AsInt(ERunEventTone::Hostile));
 	return true;
 }
 
@@ -154,8 +164,8 @@ bool FLoop9RunEventCardCopyTest::RunTest(const FString&)
 	Loop9RuntimePolicies::FinalizeRunEvent(HostileAsk);
 
 	const FRunEventCard HostileCard = Loop9RunEventCards::Build(HostileAsk);
-	TestEqual(TEXT("Hostile card keeps call type"), HostileCard.Type, ERunEventType::Call);
-	TestEqual(TEXT("Hostile card keeps tone"), HostileCard.Tone, ERunEventTone::Hostile);
+	TestEqual(TEXT("Hostile card keeps call type"), AsInt(HostileCard.Type), AsInt(ERunEventType::Call));
+	TestEqual(TEXT("Hostile card keeps tone"), AsInt(HostileCard.Tone), AsInt(ERunEventTone::Hostile));
 	TestTrue(TEXT("Hostile title names the loop"), HostileCard.Title.ToString().Contains(TEXT("LOOP 4")));
 	TestTrue(TEXT("Hostile title is a single call"), HostileCard.Title.ToString().Contains(TEXT("CALL")));
 	TestFalse(TEXT("Single call is not labeled twice"), HostileCard.Title.ToString().Contains(TEXT("TWO")));
@@ -211,8 +221,8 @@ bool FLoop9RunEventCardCopyTest::RunTest(const FString&)
 	Loop9RuntimePolicies::AppendRunEvent(Timeline, Ending);
 	const TArray<FRunEventCard> Cards = Loop9RunEventCards::BuildAll(Timeline);
 	TestEqual(TEXT("BuildAll keeps event order"), Cards.Num(), 3);
-	TestEqual(TEXT("BuildAll first card is the call"), Cards[0].Type, ERunEventType::Call);
-	TestEqual(TEXT("BuildAll last card is the ending"), Cards[2].Type, ERunEventType::Ending);
+	TestEqual(TEXT("BuildAll first card is the call"), AsInt(Cards[0].Type), AsInt(ERunEventType::Call));
+	TestEqual(TEXT("BuildAll last card is the ending"), AsInt(Cards[2].Type), AsInt(ERunEventType::Ending));
 	return true;
 }
 
