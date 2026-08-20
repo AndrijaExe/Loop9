@@ -193,6 +193,22 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 			: Context.AnomalyContext);
 	JsonObject->SetBoolField(TEXT("offtopic"), false);
 
+	// Omitted entirely when unauthored, which keeps the prompt exactly as it was
+	// before any zone was filled in and lets the level be tagged one part at a time.
+	if (!Context.AnomalyZone.IsEmpty() || !Context.AnomalyObjectKind.IsEmpty())
+	{
+		TSharedPtr<FJsonObject> DetailObject = MakeShareable(new FJsonObject());
+		if (!Context.AnomalyZone.IsEmpty())
+		{
+			DetailObject->SetStringField(TEXT("zone"), Context.AnomalyZone);
+		}
+		if (!Context.AnomalyObjectKind.IsEmpty())
+		{
+			DetailObject->SetStringField(TEXT("object"), Context.AnomalyObjectKind);
+		}
+		JsonObject->SetObjectField(TEXT("anomaly_detail"), DetailObject);
+	}
+
 	TSharedPtr<FJsonObject> StateObject = MakeShareable(new FJsonObject());
 	StateObject->SetNumberField(TEXT("kindness"), KindnessDiscrete);
 	StateObject->SetNumberField(TEXT("suspicion"), SuspicionDiscrete);

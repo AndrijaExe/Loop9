@@ -679,6 +679,8 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 		RequestContext.AnomalyContext = AnomalyManager->GetCurrentLoopAnomalyContext();
 		RequestContext.bRepeatAnomaly = AnomalyManager->IsCurrentLoopAnomalyRepeat();
 		RequestContext.AnomalyKey = AnomalyManager->GetCurrentLoopAnomalyKey();
+		RequestContext.AnomalyZone = AnomalyManager->GetCurrentLoopAnomalyZone();
+		RequestContext.AnomalyObjectKind = AnomalyManager->GetCurrentLoopAnomalyObjectKind();
 	}
 
 	const bool bUsedSessionToken = !SessionToken.IsEmpty();

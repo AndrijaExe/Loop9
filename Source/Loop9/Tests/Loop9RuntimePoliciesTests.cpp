@@ -150,6 +150,48 @@ bool FLoop9ShiftArchivePolicyTest::RunTest(const FString&)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9AnomalyDetailSelectionTest,
+	"Loop9.Runtime.Anomaly.DetailSelection",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9AnomalyDetailSelectionTest::RunTest(const FString&)
+{
+	using FCandidate = Loop9RuntimePolicies::FAnomalyDetailCandidate;
+
+	TestFalse(TEXT("Nothing active yields nothing"), Loop9RuntimePolicies::SelectAnomalyDetail({}).IsSet());
+
+	const FCandidate Unauthored = Loop9RuntimePolicies::SelectAnomalyDetail({ FCandidate{ 2, TEXT(""), TEXT("") } });
+	TestFalse(TEXT("A component with no authored detail is skipped"), Unauthored.IsSet());
+
+	// An unfilled higher-priority anomaly must not mask the one that is filled.
+	const FCandidate PastTheBlank = Loop9RuntimePolicies::SelectAnomalyDetail({
+		FCandidate{ 0, TEXT(""), TEXT("") },
+		FCandidate{ 4, TEXT("the north corridor"), TEXT("a ceiling light panel") },
+	});
+	TestEqual(TEXT("Falls through to the authored candidate"), PastTheBlank.Zone, FString(TEXT("the north corridor")));
+
+	// Several anomalies can run at once; the same world state must always send
+	// the same prompt, so the lowest type priority wins regardless of order.
+	const TArray<FCandidate> Competing = {
+		FCandidate{ 5, TEXT("the stairwell landing"), TEXT("") },
+		FCandidate{ 1, TEXT("the archive room"), TEXT("an office chair") },
+		FCandidate{ 3, TEXT("the copier alcove"), TEXT("a wall clock") },
+	};
+	const FCandidate Winner = Loop9RuntimePolicies::SelectAnomalyDetail(Competing);
+	TestEqual(TEXT("Lowest type priority wins"), Winner.Zone, FString(TEXT("the archive room")));
+	TestEqual(TEXT("Winner carries its own object kind"), Winner.ObjectKind, FString(TEXT("an office chair")));
+
+	// A phantom message has no place, only a kind, and must still be selectable.
+	const FCandidate Placeless = Loop9RuntimePolicies::SelectAnomalyDetail({
+		FCandidate{ 8, TEXT(""), TEXT("a message in this chat") },
+	});
+	TestTrue(TEXT("A placeless anomaly still counts"), Placeless.IsSet());
+	TestTrue(TEXT("A placeless anomaly names no zone"), Placeless.Zone.IsEmpty());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FLoop9RunEventCardCopyTest,
 	"Loop9.Runtime.RunEvent.LocalizedCards",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)

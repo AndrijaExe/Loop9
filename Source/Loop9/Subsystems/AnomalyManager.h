@@ -54,6 +54,10 @@ public:
 	FString GetCurrentLoopAnomalyContext() const { return CurrentLoopAnomalyContext; }
 	FString GetCurrentLoopAnomalyKey() const { return CurrentLoopAnomalyKey; }
 	bool IsCurrentLoopAnomalyRepeat() const { return bCurrentLoopAnomalyRepeat; }
+	/** Coarse place of the anomaly the AI may point at; empty when unauthored or placeless. */
+	FString GetCurrentLoopAnomalyZone() const { return CurrentLoopAnomalyZone; }
+	/** Category of the affected object; the AI never receives the actor name. */
+	FString GetCurrentLoopAnomalyObjectKind() const { return CurrentLoopAnomalyObjectKind; }
 
 private:
 	UPROPERTY()
@@ -63,9 +67,15 @@ private:
 	FString PreviousLoopAnomalyKey;
 	FString CurrentLoopAnomalyKey;
 	FString CurrentLoopAnomalyContext = TEXT("No active anomaly currently detected.");
+	FString CurrentLoopAnomalyZone;
+	FString CurrentLoopAnomalyObjectKind;
 	bool bCurrentLoopAnomalyRepeat = false;
 
-	void ComputeActiveAnomalySnapshot(FString& OutKey, FString& OutContext) const;
+	void ComputeActiveAnomalySnapshot(
+		FString& OutKey,
+		FString& OutContext,
+		FString& OutZone,
+		FString& OutObjectKind) const;
 	void CleanupInvalidComponents();
 
 	static bool DoesComponentMatchFilter(const UAnomalyComponentBase* Component, const FString& Filter);

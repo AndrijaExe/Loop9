@@ -18,6 +18,10 @@ struct FLoop9ChatRequestContext
 	int32 LoopIndex = 1;
 	FString AnomalyContext;
 	FString AnomalyKey;
+	/** Coarse place the AI may point at. Empty means it must not name a place. */
+	FString AnomalyZone;
+	/** Category of the affected object, never the actor name. */
+	FString AnomalyObjectKind;
 	bool bRepeatAnomaly = false;
 	float Trust = 0.5f;
 	float Kindness = 0.5f;

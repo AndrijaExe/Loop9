@@ -3,6 +3,7 @@
 #include "Loop9.h"
 #include "Anomaly/AnomalyTypes.h"
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 #include "Algo/Sort.h"
 #include "Containers/Set.h"
 #include "GameFramework/Actor.h"
@@ -61,6 +62,8 @@ void UAnomalyManager::BeginLoopVisit()
 	TrackedLoopIndex = INDEX_NONE;
 	CurrentLoopAnomalyKey.Empty();
 	CurrentLoopAnomalyContext = TEXT("No active anomaly currently detected.");
+	CurrentLoopAnomalyZone.Empty();
+	CurrentLoopAnomalyObjectKind.Empty();
 	bCurrentLoopAnomalyRepeat = false;
 }
 
@@ -105,18 +108,27 @@ void UAnomalyManager::UpdateLoopAnomalyTracking(int32 LoopIndex)
 
 	FString NewKey;
 	FString NewContext;
-	ComputeActiveAnomalySnapshot(NewKey, NewContext);
+	FString NewZone;
+	FString NewObjectKind;
+	ComputeActiveAnomalySnapshot(NewKey, NewContext, NewZone, NewObjectKind);
 
 	bCurrentLoopAnomalyRepeat = !PreviousLoopAnomalyKey.IsEmpty() && PreviousLoopAnomalyKey == NewKey;
 	CurrentLoopAnomalyKey = NewKey;
 	CurrentLoopAnomalyContext = NewContext;
+	CurrentLoopAnomalyZone = NewZone;
+	CurrentLoopAnomalyObjectKind = NewObjectKind;
 	PreviousLoopAnomalyKey = NewKey;
 	TrackedLoopIndex = LoopIndex;
 }
 
-void UAnomalyManager::ComputeActiveAnomalySnapshot(FString& OutKey, FString& OutContext) const
+void UAnomalyManager::ComputeActiveAnomalySnapshot(
+	FString& OutKey,
+	FString& OutContext,
+	FString& OutZone,
+	FString& OutObjectKind) const
 {
 	TArray<FString> Labels;
+	TArray<Loop9RuntimePolicies::FAnomalyDetailCandidate> DetailCandidates;
 
 	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
 	{
@@ -127,7 +139,18 @@ void UAnomalyManager::ComputeActiveAnomalySnapshot(FString& OutKey, FString& Out
 		}
 
 		Labels.Add(Component->GetAnomalyTypeLabel().ToString());
+
+		Loop9RuntimePolicies::FAnomalyDetailCandidate Candidate;
+		Candidate.TypePriority = GetTypeIndex(Component->GetAnomalyType());
+		Candidate.Zone = Component->AnomalyZone;
+		Candidate.ObjectKind = Component->AnomalyObjectKind;
+		DetailCandidates.Add(Candidate);
 	}
+
+	const Loop9RuntimePolicies::FAnomalyDetailCandidate Detail =
+		Loop9RuntimePolicies::SelectAnomalyDetail(DetailCandidates);
+	OutZone = Detail.Zone;
+	OutObjectKind = Detail.ObjectKind;
 
 	if (Labels.Num() == 0)
 	{

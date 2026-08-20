@@ -101,6 +101,42 @@ namespace Loop9RuntimePolicies
 		Events.Add(MoveTemp(Event));
 	}
 
+	/** One active anomaly's player-facing detail, ranked by the manager's type order. */
+	struct FAnomalyDetailCandidate
+	{
+		int32 TypePriority = INDEX_NONE;
+		FString Zone;
+		FString ObjectKind;
+
+		bool IsSet() const { return TypePriority != INDEX_NONE; }
+	};
+
+	/**
+	 * Picks which active anomaly gets described to the AI. Several can run on one
+	 * floor, so the lowest type priority wins and a given world state always
+	 * produces the same prompt. Candidates with nothing authored are skipped, so
+	 * an unfilled component cannot mask a filled one.
+	 */
+	inline FAnomalyDetailCandidate SelectAnomalyDetail(const TArray<FAnomalyDetailCandidate>& Candidates)
+	{
+		FAnomalyDetailCandidate Chosen;
+
+		for (const FAnomalyDetailCandidate& Candidate : Candidates)
+		{
+			if (!Candidate.IsSet() || (Candidate.Zone.IsEmpty() && Candidate.ObjectKind.IsEmpty()))
+			{
+				continue;
+			}
+
+			if (!Chosen.IsSet() || Candidate.TypePriority < Chosen.TypePriority)
+			{
+				Chosen = Candidate;
+			}
+		}
+
+		return Chosen;
+	}
+
 	inline TArray<ELoopEndingType> AllEndingTypes()
 	{
 		return {

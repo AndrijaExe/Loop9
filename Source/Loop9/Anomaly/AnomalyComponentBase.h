@@ -18,6 +18,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anomaly", meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float AnomalyProbability = 0.5f;
 
+	/**
+	 * Coarse landmark the player would recognise from the screen, written in
+	 * English, e.g. "the north corridor". The AI is told the place but not the
+	 * item, so it can point without solving the search. Leave empty for
+	 * anomalies that have no place, such as a phantom chat message.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anomaly|AI Context")
+	FString AnomalyZone;
+
+	/**
+	 * English category noun, e.g. "a ceiling light panel". Never an actor name:
+	 * this can reach the model, and "SM_Lamp_03" breaks the fiction.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anomaly|AI Context")
+	FString AnomalyObjectKind;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Anomaly")
 	bool bIsAnomalyActive = false;
 
