@@ -191,6 +191,20 @@ moraju biti publish-ovane, ne samo sačuvane.
   lokalizovane moderation fallback poruke za EN/SR/DE/FR/RU.
 - [x] Prompt QA: clean prvi loop uvek preporučuje dark lift; proveriti po jedan
   Hide/Light/Phantom kontekst i neutralan/ljubazan/sumnjičav input na svih pet jezika.
+- [x] Backend traži od modela da prizna da ne zna gde je anomalija umesto da
+  izmisli mesto; sa popunjenim `AnomalyZone`/`AnomalyObjectKind` ume da pokaže deo
+  sprata bez odavanja predmeta, srazmerno poverenju igrača. §9 ima editor deo.
+
+- [ ] Render env za parove modela: `AI_MODEL=gpt-5.6-terra` (tier `best`, otvara
+  petlje 4+) i `AI_FALLBACK2_MODEL=gpt-5.6-luna` (tier `cheap`, otvara petlje 1–3),
+  uz `AI_FALLBACK2_ENABLED=true`, URL i ključ. **Prazan `AI_FALLBACK2_API_KEY` tiho
+  izbacuje ceo cheap tier** i sve petlje idu na primary, bez ijedne greške u logu.
+- [ ] Potvrditi koji je `AI_MODEL` zaista aktivan na Renderu. Ako promenljiva tamo
+  nije postavljena, važi commitovani `.env` default, pa se model menja samim
+  deployom a ne svesnom odlukom.
+- [ ] Ponoviti prompt QA za čist sprat i na kasnijoj petlji, ne samo na prvoj.
+  Klijent za čist sprat šalje `anomaly_key="none"`, što je backend do 20.08.2026.
+  čitao kao aktivnu anomaliju i forsirao osvetljeni lift tamo gde je mračni tačan.
 
 - [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
 `STEAM_WEB_API_KEY` pravim auth zahtevom.
