@@ -26,12 +26,15 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 - [x] **Bug:** dugme lifta se može pritisnuti i kada igrač nije u kabini —
   C++ gate u `ALiftButton` (door-plane depth + distance; optional `CabinVolume`).
   U editoru po želji uvećati `CabinVolume` box extent za stroži overlap check.
-- [ ] U `BP_LoopElevatorTransitionDirector` postaviti `Button Press Sound` i
-  looping `Travel Sound`, zatim podesiti njihove volume/fade vrednosti.
-  **Blokira nedostatak asseta:** projekat nema ni lift klik ni lift hum zvuk
-  (`Content/MyStuff/Sound` ima samo ambient, footsteps, phone, pursuer i
-  light-flicker), a nema ni sirovih `.wav/.ogg` fajlova za import. Volume/fade
-  ostaju na razumnim defaultima (`1.0 / 1.0 / 0.15 s`).
+- [~] U `BP_LoopElevatorTransitionDirector` postavljeni `Button Press Sound`
+  (`Sound/Elevator/ElevatorButtonPress`) i looping `Travel Sound`
+  (`Sound/Elevator/ElevatorTravelLoop`, `Looping` = true na SoundWave-u) — i na
+  class defaults i na instancu u `FullOfficeMap`. Zvukovi su uvezeni iz CC0
+  izvora; licence i izvorni URL-ovi su u
+  `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`
+  (atribucija nije potrebna). Volume/fade ostaju na defaultima
+  (`1.0 / 1.0 / 0.15 s`) — **ostaje jedno slušanje u igri** da se potvrdi mix
+  i da travel loop ne slaže loopove kroz ponovljene vožnje.
 - [x] Obrisani `LS_Elevator_Lit` i `LS_Elevator_Dark`. Pre brisanja potvrđeno
   nulom referenci (asset registry) i binarnom proverom da ih ni
   `BP_LoopElevatorTransitionDirector` ni `FullOfficeMap` više ne pominju.
@@ -44,7 +47,8 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
   `[docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md)`.
   Napomena: kadar i svetlo vodi C++ `ALoopEndingSceneDirector`, ne Sequencer keyevi.
   Slotovi na instanci u `FullOfficeMap` su popunjeni (phone, chair, arrival point,
-  tri dimmable RectLighta, companion class, footstep/phone-ring/flicker zvuk).
+  tri dimmable RectLighta, companion class, footstep/phone-ring/flicker zvuk,
+  i `Line Cut Sound` = `Sound/Phone/PhoneLineCut` za Cold Betrayal).
 - [x] **Bug:** prazan `Cold Betrayal Door Wings` je terao `GatherColdBetrayalDoors()`
   na fallback koji hvata *sve* `ALiftDoorWing` aktere u mapi (20+), pa je beat
   čekao da se otvore i lift vrata koja nemaju veze sa dolaskom. Slot je sada
@@ -369,13 +373,12 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
 
 ## Trenutni kritični put
 
-1. Audio assets: nabaviti lift klik i lift hum (jedini razlog zašto su
-   `Button Press Sound` / `Travel Sound` prazni) i `Line Cut Sound` za
-   Cold Betrayal. Sve ostalo u editoru iz §1 je odrađeno.
-2. Gameplay trailer — jedino što još realno blokira Store review.
-3. Render: potvrditi aktivan `AI_MODEL`/`AI_FALLBACK2_*` par, health check `/readyz`
+1. Gameplay trailer — jedino što još realno blokira Store review.
+   (Audio slotovi iz §1 su popunjeni CC0 zvukovima 21.08.2026; ostaje samo
+   jedno slušanje lift klika / lift huma / line cut-a u igri radi mixa.)
+2. Render: potvrditi aktivan `AI_MODEL`/`AI_FALLBACK2_*` par, health check `/readyz`
    i always-on plan; pa alarmi preko `/metrics`.
-4. Ending balance QA (šest profila) + achievement test po grupi.
-5. Novi Shipping build → `playtest` → QA iz Library-ja (Cloud, offline, gamepad).
-6. Valve review → Coming Soon najmanje 14 dana → release.
+3. Ending balance QA (šest profila) + achievement test po grupi.
+4. Novi Shipping build → `playtest` → QA iz Library-ja (Cloud, offline, gamepad).
+5. Valve review → Coming Soon najmanje 14 dana → release.
 

@@ -1,6 +1,6 @@
 # Audio assignment checklist
 
-Poslednje ažuriranje: **07.08.2026.**
+Poslednje ažuriranje: **21.08.2026.**
 
 Koristi ovo kao listu zvukova koje još treba da dodeliš u editoru
 (Blueprint / map actor Details). C++ samo čita reference — bez asseta
@@ -12,13 +12,20 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Elevator (`BP_LoopElevatorTransitionDirector` u `FullOfficeMap`)
 
-- [ ] **Button Press Sound** — klik dugmeta na početku tranzicije.
-  Nema asseta u projektu; treba uvesti kratak klik/klak one-shot.
-- [ ] **Travel Sound** — looping hum posle zatvaranja vrata (ne na ending-bound
-  travelu koji je skraćen). Nema asseta; treba uvesti looping hum.
+- [x] **Button Press Sound** — klik dugmeta na početku tranzicije:
+  `Sound/Elevator/ElevatorButtonPress` (mono, 44.1 kHz, 0.194 s, peak −3 dBFS).
+  Dodeljen i na class defaults BP-a i na instancu u `FullOfficeMap`.
+- [x] **Travel Sound** — looping hum posle zatvaranja vrata (ne na ending-bound
+  travelu koji je skraćen): `Sound/Elevator/ElevatorTravelLoop`
+  (stereo, 44.1 kHz, 6.000 s, `Looping` = **true** na SoundWave-u,
+  peak −6 dBFS / RMS ≈ −19.7 dBFS). Bez fade-a u fajlu — gasi ga
+  `Travel Sound Fade Out Seconds`.
 - [~] Volume / fade: `Button Press Sound Volume` = 1.0,
   `Travel Sound Volume` = 1.0, `Travel Sound Fade Out Seconds` = 0.15.
-  Defaulti su razumni, ali se ne mogu proveriti u igri dok slotovi su prazni.
+  Slotovi su sada puni, pa se prvi put mogu čuti u igri. Predlog za prvo
+  slušanje: hum je namerno prisutan bed, ako je pretežak spusti
+  `Travel Sound Volume` na ~0.6–0.8; klik je normalizovan na −3 dBFS pa
+  ~0.7 ako zvuči prejako u kabini.
 - [ ] Travel loop prestaje na normalnom dolasku, timeoutu, abortu, ending
   handoffu i izlasku iz mape; ponovljene vožnje ne slažu više loopova.
 - [ ] Klik dugmeta se čuje samo kada je tranzicija prihvaćena, ne kada igrač
@@ -30,8 +37,10 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
   `Sound/Footsteps/Footstep`
 - [x] **Phone Ring Sound** — samo Obedient Fool (ambient ring tokom scene):
   `Sound/Phone/PhoneRingingSound`
-- [ ] **Line Cut Sound** — Cold Betrayal (prekid linije; ako prazno, nema fallback
-  ring-a više). Nema asseta u projektu; treba uvesti static/disconnect one-shot.
+- [x] **Line Cut Sound** — Cold Betrayal (prekid linije; ako prazno, nema fallback
+  ring-a više): `Sound/Phone/PhoneLineCut` (mono, 44.1 kHz, 0.624 s).
+  Struktura: ~0.26 s tihog šuma otvorene linije (telefonski pojas 300–3200 Hz),
+  pa tvrd mehanički klak, pa linija prestaje bez fade-a → mrtva tišina.
 - [x] **Light Flicker Sound** — Merged Memory (dva kratka flicker pulse-a):
   `Sound/MainMenu/light-flicker`
 
@@ -86,6 +95,47 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
   loop niti dupliraju muziku/ambient.
 
 ---
+
+## Licence uvezenih zvukova (obavezno pre release-a)
+
+Sva tri zvuka uvezena 21.08.2026. su izvedena isključivo iz **CC0 / public
+domain** izvora. **Nijedan ne zahteva atribuciju** — ne mora ništa da ide u
+credits. Ako se ipak želi „thanks to“ sekcija, imena autora su niže.
+Nijedan izvor nije NonCommercial ni ShareAlike.
+
+| Asset | Izvor (URL) | Autor | Licenca | Šta je urađeno |
+|---|---|---|---|---|
+| `Sound/Elevator/ElevatorButtonPress` | https://opengameart.org/content/87-clickety-clips (`Click_Clips.zip` → `click70.wav`) | OwlishMedia | CC0 1.0 | trim na transijent, stereo→mono, peak −3 dBFS |
+| `Sound/Elevator/ElevatorTravelLoop` | https://opengameart.org/content/the-shop (`legit_audio_-_the_shop_free_sfx_wav.zip` → `TheShopCollection_convenience_store_drinks_fridge_drone.wav`) | LEGIT Audio | CC0 1.0 | najstabilnijih 6.9 s, 96→44.1 kHz, equal-power crossfade preko šava, peak −6 dBFS |
+| `Sound/Phone/PhoneLineCut` (klak) | https://opengameart.org/content/100-cc0-sfx (`100-CC0-SFX.zip` → `switch_01.ogg`) | rubberduck | CC0 1.0 | trim, mono, 44.1 kHz |
+| `Sound/Phone/PhoneLineCut` (šum linije) | https://opengameart.org/content/frequency-static-sound-effects (`static4.wav`) | bretbernhoft | CC0 1.0 / PD | isečak, band-pass 300–3200 Hz, −20 dBFS, tvrd rez bez fade-a |
+
+Napomene:
+
+- „The Shop“ je CC0 **samo** za besplatne semplove objavljene na OpenGameArt-u;
+  plaćena LEGIT Audio biblioteka ima drugu licencu. Koristi se OGA verzija.
+- Sirovi `.wav` fajlovi žive **u** `Content/MyStuff/Sound/...` pored `.uasset`-a
+  jer su uvezeni preko editorskog *Monitor Content Directories* mehanizma.
+  **Ne brisati ih** dok je auto-import uključen: `bAutoDeleteAssets=True` bi
+  obrisao i SoundWave. Ako se sirovi fajlovi izbacuju iz repoa, prvo isključi
+  auto-reimport (Editor Preferences → Loading & Saving → Auto Reimport).
+- Build skripta koja je napravila fajlove iz izvora nije u repou (radila je u
+  `Saved/`); tabela iznad je dovoljna da se rezultat ponovi.
+
+### Kako je potvrđeno da `ElevatorTravelLoop` loop-uje bez šava
+
+Merenja na PCM sadržaju finalnog fajla (bez slušanja):
+
+- Skok između poslednjeg i prvog sempla = 0.0048, dok je prosečan skok
+  između susednih sempala *unutar* fajla 0.0032 a 99.9. percentil 0.0203 —
+  šav je unutar normalnog kretanja signala, daleko od klika.
+- Skok envelope-a (30 ms) na mestu šava je **manji** od 53 % svih takvih
+  skokova unutar fajla.
+- Spektralna razlika levo/desno od šava: 6.54 dB prosečno; ista mera između
+  dva susedna *unutrašnja* prozora istog materijala: 6.49 dB (5.93–7.95).
+  Šav se dakle statistički ne razlikuje od bilo koje druge točke u fajlu.
+- Blok-RMS (100 ms): sd 0.93 dB, prve i poslednje 300 ms su +0.16 dB /
+  −0.64 dB u odnosu na srednju vrednost → **nema fade-a zapečenog u fajl**.
 
 ## Ending-specific quick map
 
