@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **19.08.2026.**
+Poslednje ažuriranje: **21.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -205,8 +205,14 @@ publish-ovane, ne samo sačuvane.
   Klijent za čist sprat šalje `anomaly_key="none"`, što je backend do 20.08.2026.
   čitao kao aktivnu anomaliju i forsirao osvetljeni lift tamo gde je mračni tačan.
 
-- [~] `STEAM_APP_ID=4982260` je postavljen na Renderu; proveriti i
-`STEAM_WEB_API_KEY` pravim auth zahtevom.
+- [x] `STEAM_APP_ID=4982260` i `STEAM_WEB_API_KEY` potvrđeni pravim auth zahtevom:
+playtest build pokrenut iz Steam Library-ja dobio je ticket, sesiju i žive AI
+odgovore (17.08.2026).
+
+- [x] Nevalidan `AI_MODERATION_API_KEY` vraća HTTP 200, ali svaki odgovor postaje
+  ista in-fiction fallback rečenica i chat provajder se nikad ne pozove. Kad
+  „AI ne radi“ a igra ne prijavljuje grešku, prvo proveriti moderation ključ i
+  `Content safety decision.` u logu.
 
 - [x] Javni `https://loop9-backend.onrender.com/readyz` vraća
   `{"status":"ready"}` (provereno 07.08.2026.).
@@ -219,22 +225,33 @@ publish-ovane, ne samo sačuvane.
 - [x] Podesiti quota/cost alarm za dnevni globalni AI limit.
 - [ ] Napraviti pregled logova/alerta za:
   auth failure rate, AI timeout/fallback rate, moderation unavailable,
-  Redis failure, HTTP 5xx i p95 total latency.
+  Redis failure, HTTP 5xx i p95 total latency. `GET /metrics` je već živ i
+  token-zaštićen na Renderu (bez `X-Metrics-Token` vraća 403, ne 404), pa spoljni
+  watcher može da čita brojače bez parsiranja logova.
 
 
 
 ## 5. Build i SteamPipe
 
-- [ ] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
-- [ ] Proveriti da build ne sadrži:
+- [~] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka. Alfa
+  Shipping build od 17.08.2026 je odigran preko Steama; finalni ide posle locka.
+- [x] Proveriti da build ne sadrži:
   `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
+  `Builds/Alfa/Windows` (2.06 GB) nema `steam_appid.txt`, `*.pdb`, logove ni
+  `Saved/`; jedini staged config je `Engine/Config/StagedBuild_Loop9.ini`.
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
-- [ ] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
-- [ ] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-- [ ] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
-  folder.
-- [ ] Posle QA postaviti odobreni build na default branch.
+- [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
+  Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
+  `Tools/SteamPipe/UploadPlaytest.bat`.
+- [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
+  BuildID `24782464` je live na passwordovanom `playtest`.
+- [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
+  folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
+  ne radi — QA se radi isključivo iz Library-ja.
+- [ ] Posle QA postaviti odobreni build na default branch. Isti Alfa build je
+  trenutno live i na `default`; bezopasno je dok igra nije released, ali finalni
+  build tamo treba da ide svesnom odlukom (SteamCMD `setlive` ne može `default`).
 
 
 
@@ -339,12 +356,12 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
 
 ## Trenutni kritični put
 
-1. Ograničiti elevator button na igrača unutar kabine.
-2. Elevator sound asseti/cleanup + ending mini-sequence polish i editor smoke.
-3. GatherText i finalni sadržaj.
-4. Store grafika, screenshotovi, trailer i achievement publish/test.
-5. Render always-on plan + production alarmi.
-6. Shipping build → Steam internal branch.
-7. E2E Steam/AI/Cloud/achievement/performance QA.
-8. Valve review → Coming Soon najmanje 14 dana → release.
+1. Editor: elevator zvuci, ending mini-sequence polish, `AnomalyZone` oznake i
+   brisanje `LS_Elevator_*` posle Reference Viewer-a.
+2. Gameplay trailer — jedino što još realno blokira Store review.
+3. Render: potvrditi aktivan `AI_MODEL`/`AI_FALLBACK2_*` par, health check `/readyz`
+   i always-on plan; pa alarmi preko `/metrics`.
+4. Ending balance QA (šest profila) + achievement test po grupi.
+5. Novi Shipping build → `playtest` → QA iz Library-ja (Cloud, offline, gamepad).
+6. Valve review → Coming Soon najmanje 14 dana → release.
 
