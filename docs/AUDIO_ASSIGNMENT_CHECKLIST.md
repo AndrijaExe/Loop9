@@ -12,11 +12,13 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Elevator (`BP_LoopElevatorTransitionDirector` u `FullOfficeMap`)
 
-- [ ] **Button Press Sound** — klik dugmeta na početku tranzicije
+- [ ] **Button Press Sound** — klik dugmeta na početku tranzicije.
+  Nema asseta u projektu; treba uvesti kratak klik/klak one-shot.
 - [ ] **Travel Sound** — looping hum posle zatvaranja vrata (ne na ending-bound
-  travelu koji je skraćen)
-- [ ] Volume / fade: `Button Press Sound Volume`, `Travel Sound Volume`,
-  `Travel Sound Fade Out Seconds`
+  travelu koji je skraćen). Nema asseta; treba uvesti looping hum.
+- [~] Volume / fade: `Button Press Sound Volume` = 1.0,
+  `Travel Sound Volume` = 1.0, `Travel Sound Fade Out Seconds` = 0.15.
+  Defaulti su razumni, ali se ne mogu proveriti u igri dok slotovi su prazni.
 - [ ] Travel loop prestaje na normalnom dolasku, timeoutu, abortu, ending
   handoffu i izlasku iz mape; ponovljene vožnje ne slažu više loopova.
 - [ ] Klik dugmeta se čuje samo kada je tranzicija prihvaćena, ne kada igrač
@@ -24,11 +26,14 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Ending mini-scene (`LoopEndingSceneDirector` u `FullOfficeMap`)
 
-- [ ] **Footstep Sound** — Escape Together (dva koraka pred kraj)
-- [ ] **Phone Ring Sound** — samo Obedient Fool (ambient ring tokom scene)
+- [x] **Footstep Sound** — Escape Together (dva koraka pred kraj):
+  `Sound/Footsteps/Footstep`
+- [x] **Phone Ring Sound** — samo Obedient Fool (ambient ring tokom scene):
+  `Sound/Phone/PhoneRingingSound`
 - [ ] **Line Cut Sound** — Cold Betrayal (prekid linije; ako prazno, nema fallback
-  ring-a više)
-- [ ] **Light Flicker Sound** — Merged Memory (dva kratka flicker pulse-a)
+  ring-a više). Nema asseta u projektu; treba uvesti static/disconnect one-shot.
+- [x] **Light Flicker Sound** — Merged Memory (dva kratka flicker pulse-a):
+  `Sound/MainMenu/light-flicker`
 
 ## Replacement terminal (WBP / `ReplacementTerminalWidget` class defaults)
 

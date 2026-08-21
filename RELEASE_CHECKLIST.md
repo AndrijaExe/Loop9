@@ -28,16 +28,27 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
   U editoru po želji uvećati `CabinVolume` box extent za stroži overlap check.
 - [ ] U `BP_LoopElevatorTransitionDirector` postaviti `Button Press Sound` i
   looping `Travel Sound`, zatim podesiti njihove volume/fade vrednosti.
-- [ ] Posle C++ rebuilda otvoriti i resaveovati `FullOfficeMap`/director Blueprint,
-  pa obrisati sada nepotrebne `LS_Elevator_Lit` i `LS_Elevator_Dark` assete tek
-  kada Reference Viewer potvrdi da više nemaju reference.
+  **Blokira nedostatak asseta:** projekat nema ni lift klik ni lift hum zvuk
+  (`Content/MyStuff/Sound` ima samo ambient, footsteps, phone, pursuer i
+  light-flicker), a nema ni sirovih `.wav/.ogg` fajlova za import. Volume/fade
+  ostaju na razumnim defaultima (`1.0 / 1.0 / 0.15 s`).
+- [x] Obrisani `LS_Elevator_Lit` i `LS_Elevator_Dark`. Pre brisanja potvrđeno
+  nulom referenci (asset registry) i binarnom proverom da ih ni
+  `BP_LoopElevatorTransitionDirector` ni `FullOfficeMap` više ne pominju.
 - [x] Implementiran C++ ending Sequence player sa šest soft-reference slotova,
   watchdogom i postojećim fade/widget fallbackom.
 - [x] Napravljeno i povezano šest osnovnih 3–8 s ending Level Sequence asseta.
-- [ ] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
+- [~] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
   svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
   Detaljan Unreal MCP handoff:
   `[docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md)`.
+  Napomena: kadar i svetlo vodi C++ `ALoopEndingSceneDirector`, ne Sequencer keyevi.
+  Slotovi na instanci u `FullOfficeMap` su popunjeni (phone, chair, arrival point,
+  tri dimmable RectLighta, companion class, footstep/phone-ring/flicker zvuk).
+- [x] **Bug:** prazan `Cold Betrayal Door Wings` je terao `GatherColdBetrayalDoors()`
+  na fallback koji hvata *sve* `ALiftDoorWing` aktere u mapi (20+), pa je beat
+  čekao da se otvore i lift vrata koja nemaju veze sa dolaskom. Slot je sada
+  vezan na ista arrival krila kao elevator director (`BP_LiftDoorWing_C_3/4`).
 
 
 
@@ -342,12 +353,14 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
   opciono `ui_archive_star_plate` kao pozadina + labele preko čvorova.
   Animaciju ne raditi. Brief:
   [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
-- [~] AI kontekst anomalija: C++ i backend su gotovi. Bez oznaka Dragojlo pošteno
-  priznaje da ne zna gde je anomalija; sa oznakama ume da pošalje igrača u pravi
-  deo sprata bez odavanja predmeta. Ostalo u editoru: popuniti `AnomalyZone` i
-  `AnomalyObjectKind` na anomaly komponentama u `FullOfficeMap`
-  (**Anomaly > AI Context**), na engleskom, orijentir + vrsta predmeta, nikad ime
-  aktera; zonu ostaviti praznu za `PhantomMessage`. Može sprat po sprat.
+- [x] AI kontekst anomalija: C++ i backend su gotovi, a `FullOfficeMap` je sada
+  označen. Od 35 anomaly komponenti 34 imaju `AnomalyObjectKind`;
+  `PhantomMessage` po pravilu ima praznu zonu, a `PursuerAnomaly` je namerno
+  ostavljen neoznačen jer nema fiksno mesto (netagovane komponente se
+  preskaču, ne blokiraju). Nijedan string ne prelazi 48 znakova i nijedan ne
+  koristi ime aktera. Upotrebljene zone: desk row, overhead cabinets, cabinets
+  with potted plants, filing cabinets, meeting room, back room with the radio,
+  tool shelf, storage corner, corridor between lifts and desks.
   Pravila i primeri: [`docs/ANOMALIES.md`](docs/ANOMALIES.md#ai-context-tagging).
 
 ---
@@ -356,8 +369,9 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
 
 ## Trenutni kritični put
 
-1. Editor: elevator zvuci, ending mini-sequence polish, `AnomalyZone` oznake i
-   brisanje `LS_Elevator_*` posle Reference Viewer-a.
+1. Audio assets: nabaviti lift klik i lift hum (jedini razlog zašto su
+   `Button Press Sound` / `Travel Sound` prazni) i `Line Cut Sound` za
+   Cold Betrayal. Sve ostalo u editoru iz §1 je odrađeno.
 2. Gameplay trailer — jedino što još realno blokira Store review.
 3. Render: potvrditi aktivan `AI_MODEL`/`AI_FALLBACK2_*` par, health check `/readyz`
    i always-on plan; pa alarmi preko `/metrics`.
