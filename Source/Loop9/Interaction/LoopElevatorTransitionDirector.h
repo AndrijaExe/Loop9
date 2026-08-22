@@ -78,7 +78,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio")
 	TObjectPtr<USoundBase> ButtonPressSound;
 
-	/** Starts after the source doors close and stops/fades when the lift arrives. Looping assets work best. */
+	/** Starts after the source doors close (plus Travel Sound Start Delay) and stops/fades when the lift arrives. Looping assets work best. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio")
 	TObjectPtr<USoundBase> TravelSound;
 
@@ -87,6 +87,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
 	float TravelSoundVolume = 1.0f;
+
+	/** Beat after source doors close before the travel loop starts. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
+	float TravelSoundStartDelaySeconds = 0.3f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Audio", meta = (ClampMin = "0.0"))
 	float TravelSoundFadeOutSeconds = 0.15f;
@@ -183,4 +187,5 @@ private:
 	FTimerHandle TravelTimerHandle;
 	FTimerHandle DoorOpenTimeoutHandle;
 	FTimerHandle AbandonedDoorReopenHandle;
+	FTimerHandle TravelSoundStartHandle;
 };

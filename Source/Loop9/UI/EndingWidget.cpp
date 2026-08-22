@@ -1,15 +1,48 @@
 #include "UI/EndingWidget.h"
 
 #include "UI/Loop9WidgetClickBinder.h"
+#include "Subsystems/RelationshipSubsystem.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
+#include "Components/ScrollBox.h"
+#include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "Blueprint/WidgetTree.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Engine/Texture2D.h"
 #include "Styling/CoreStyle.h"
+#include "UObject/ConstructorHelpers.h"
 
 #define LOCTEXT_NAMESPACE "Loop9Endings"
+
+UEndingWidget::UEndingWidget(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	static ConstructorHelpers::FObjectFinder<UTexture2D> CallFinder(
+		TEXT("/Game/MyStuff/UI/Timeline/ui_icon_call"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> LiftFinder(
+		TEXT("/Game/MyStuff/UI/Timeline/ui_icon_lift"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> EndingFinder(
+		TEXT("/Game/MyStuff/UI/Timeline/ui_icon_ending"));
+	if (CallFinder.Succeeded())
+	{
+		CallIcon = CallFinder.Object;
+	}
+	if (LiftFinder.Succeeded())
+	{
+		LiftIcon = LiftFinder.Object;
+	}
+	if (EndingFinder.Succeeded())
+	{
+		EndingIcon = EndingFinder.Object;
+	}
+}
 
 void UEndingWidget::NativeConstruct()
 {
@@ -17,6 +50,7 @@ void UEndingWidget::NativeConstruct()
 	BuildFallbackLayoutIfNeeded();
 	BindContinueButton();
 	RefreshBoundWidgets();
+	PopulateTimeline();
 }
 
 void UEndingWidget::NativeDestruct()
@@ -70,6 +104,7 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
 
 	RefreshBoundWidgets();
+	PopulateTimeline();
 	BP_OnEndingInitialized(EndingType);
 }
 
@@ -101,7 +136,9 @@ void UEndingWidget::RefreshBoundWidgets()
 
 	if (TB_Stats)
 	{
-		TB_Stats->SetText(EndingStats);
+		// Replaced by the session timeline. Keep the widget for layout reuse,
+		// but do not show raw Resets | AI interactions.
+		TB_Stats->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -145,6 +182,18 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 	StatsText->SetJustification(ETextJustify::Center);
 	VBox->AddChildToVerticalBox(StatsText);
 	TB_Stats = StatsText;
+	TB_Stats->SetVisibility(ESlateVisibility::Collapsed);
+
+	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(), TEXT("TimelineScroll"));
+	USizeBox* ScrollSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("TimelineSize"));
+	ScrollSize->SetHeightOverride(280.0f);
+	ScrollSize->SetWidthOverride(780.0f);
+	UVerticalBox* Timeline = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("VB_Timeline"));
+	Scroll->AddChild(Timeline);
+	ScrollSize->SetContent(Scroll);
+	VBox->AddChildToVerticalBox(ScrollSize);
+	VB_Timeline = Timeline;
+	TimelineScroll = Scroll;
 
 	FallbackContinueButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("ContinueButton"));
 	UTextBlock* ContinueLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("ContinueLabel"));
@@ -152,6 +201,202 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 	ContinueLabel->SetJustification(ETextJustify::Center);
 	FallbackContinueButton->AddChild(ContinueLabel);
 	VBox->AddChildToVerticalBox(FallbackContinueButton);
+}
+
+void UEndingWidget::EnsureTimelineHost()
+{
+	if (VB_Timeline || !WidgetTree)
+	{
+		return;
+	}
+
+	if (UVerticalBox* Named = Cast<UVerticalBox>(GetWidgetFromName(TEXT("VB_Timeline"))))
+	{
+		VB_Timeline = Named;
+		return;
+	}
+
+	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(), TEXT("TimelineScroll"));
+	UVerticalBox* Timeline = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("VB_Timeline"));
+	Scroll->AddChild(Timeline);
+	VB_Timeline = Timeline;
+	TimelineScroll = Scroll;
+
+	UCanvasPanel* Canvas = nullptr;
+	UCanvasPanelSlot* TemplateSlot = nullptr;
+	if (TB_Stats)
+	{
+		Canvas = Cast<UCanvasPanel>(TB_Stats->GetParent());
+		TemplateSlot = Cast<UCanvasPanelSlot>(TB_Stats->Slot);
+	}
+	if (!Canvas && TB_Description)
+	{
+		Canvas = Cast<UCanvasPanel>(TB_Description->GetParent());
+		TemplateSlot = Cast<UCanvasPanelSlot>(TB_Description->Slot);
+	}
+	if (!Canvas)
+	{
+		Canvas = Cast<UCanvasPanel>(WidgetTree->RootWidget);
+	}
+
+	if (Canvas)
+	{
+		if (UCanvasPanelSlot* Slot = Canvas->AddChildToCanvas(Scroll))
+		{
+			if (TemplateSlot)
+			{
+				Slot->SetAnchors(TemplateSlot->GetAnchors());
+				Slot->SetAlignment(TemplateSlot->GetAlignment());
+				Slot->SetAutoSize(false);
+				const FVector2D TemplateSize = TemplateSlot->GetSize();
+				const float Width = FMath::Max(TemplateSize.X, 640.0f);
+				FVector2D Position = TemplateSlot->GetPosition();
+				if (TB_Stats && TemplateSlot == Cast<UCanvasPanelSlot>(TB_Stats->Slot))
+				{
+					Slot->SetPosition(Position);
+				}
+				else
+				{
+					const float OffsetY = FMath::Max(TemplateSize.Y, 72.0f) + 16.0f;
+					Slot->SetPosition(Position + FVector2D(0.0f, OffsetY));
+				}
+				Slot->SetSize(FVector2D(Width, 280.0f));
+				Slot->SetZOrder(TemplateSlot->GetZOrder());
+			}
+			else
+			{
+				Slot->SetAnchors(FAnchors(0.08f, 0.42f, 0.62f, 0.82f));
+				Slot->SetOffsets(FMargin(0.0f));
+			}
+		}
+		return;
+	}
+
+	if (UVerticalBox* ParentBox = TB_Description ? Cast<UVerticalBox>(TB_Description->GetParent()) : nullptr)
+	{
+		USizeBox* ScrollSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("TimelineSize"));
+		ScrollSize->SetHeightOverride(280.0f);
+		ScrollSize->SetContent(Scroll);
+		const int32 DescIndex = ParentBox->GetChildIndex(TB_Description);
+		ParentBox->InsertChildAt(DescIndex + 1, ScrollSize);
+	}
+}
+
+void UEndingWidget::PopulateTimeline()
+{
+	EnsureTimelineHost();
+	if (!VB_Timeline)
+	{
+		return;
+	}
+
+	VB_Timeline->ClearChildren();
+
+	TArray<FRunEventCard> Cards;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (URelationshipSubsystem* Relationship = GI->GetSubsystem<URelationshipSubsystem>())
+		{
+			Cards = Relationship->BuildRunEventCards();
+		}
+	}
+
+	for (const FRunEventCard& Card : Cards)
+	{
+		AddTimelineRow(Card);
+	}
+}
+
+void UEndingWidget::AddTimelineRow(const FRunEventCard& Card)
+{
+	if (!VB_Timeline || !WidgetTree)
+	{
+		return;
+	}
+
+	const FLinearColor IceBlue(0.50f, 0.80f, 1.00f, 1.00f);
+	const FLinearColor CardFill(0.04f, 0.07f, 0.10f, 0.92f);
+	const FLinearColor Ring = Card.RingColor;
+
+	UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass());
+
+	USizeBox* RailBox = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass());
+	RailBox->SetWidthOverride(4.0f);
+	RailBox->SetHeightOverride(56.0f);
+	UBorder* Rail = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+	Rail->SetBrushColor(IceBlue);
+	RailBox->SetContent(Rail);
+	if (UHorizontalBoxSlot* RailSlot = Row->AddChildToHorizontalBox(RailBox))
+	{
+		RailSlot->SetPadding(FMargin(0.0f, 4.0f, 12.0f, 4.0f));
+		RailSlot->SetVerticalAlignment(VAlign_Fill);
+	}
+
+	USizeBox* CircleBox = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass());
+	CircleBox->SetWidthOverride(28.0f);
+	CircleBox->SetHeightOverride(28.0f);
+	UBorder* Circle = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+	Circle->SetBrushColor(Ring);
+	Circle->SetPadding(FMargin(3.0f));
+	if (UTexture2D* IconTex = TimelineIconFor(Card.Type))
+	{
+				UImage* Icon = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass());
+				Icon->SetBrushFromTexture(IconTex, true);
+				Circle->SetContent(Icon);
+	}
+	else
+	{
+		UBorder* Fill = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+		Fill->SetBrushColor(CardFill);
+		Circle->SetContent(Fill);
+	}
+	CircleBox->SetContent(Circle);
+	if (UHorizontalBoxSlot* CircleSlot = Row->AddChildToHorizontalBox(CircleBox))
+	{
+		CircleSlot->SetPadding(FMargin(0.0f, 8.0f, 12.0f, 8.0f));
+		CircleSlot->SetVerticalAlignment(VAlign_Center);
+	}
+
+	UBorder* CardBorder = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+	CardBorder->SetBrushColor(CardFill);
+	CardBorder->SetPadding(FMargin(12.0f, 8.0f));
+	UVerticalBox* TextCol = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
+	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
+	TitleText->SetText(Card.Title);
+	TitleText->SetColorAndOpacity(FSlateColor(IceBlue));
+	TitleText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 16)));
+	TextCol->AddChildToVerticalBox(TitleText);
+	UTextBlock* BodyText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
+	BodyText->SetText(Card.Body);
+	BodyText->SetColorAndOpacity(FSlateColor(FLinearColor(0.78f, 0.82f, 0.86f, 1.0f)));
+	BodyText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 13)));
+	BodyText->SetAutoWrapText(true);
+	TextCol->AddChildToVerticalBox(BodyText);
+	CardBorder->SetContent(TextCol);
+	if (UHorizontalBoxSlot* CardSlot = Row->AddChildToHorizontalBox(CardBorder))
+	{
+		CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		CardSlot->SetVerticalAlignment(VAlign_Center);
+	}
+
+	if (UVerticalBoxSlot* RowSlot = VB_Timeline->AddChildToVerticalBox(Row))
+	{
+		RowSlot->SetPadding(FMargin(0.0f, 0.0f, 0.0f, 8.0f));
+	}
+}
+
+UTexture2D* UEndingWidget::TimelineIconFor(ERunEventType Type) const
+{
+	switch (Type)
+	{
+	case ERunEventType::CorrectLift:
+	case ERunEventType::WrongLift:
+		return LiftIcon;
+	case ERunEventType::Ending:
+		return EndingIcon;
+	default:
+		return CallIcon;
+	}
 }
 
 void UEndingWidget::BindContinueButton()

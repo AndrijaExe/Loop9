@@ -6,7 +6,10 @@
 #include "EndingWidget.generated.h"
 
 class UButton;
+class UScrollBox;
 class UTextBlock;
+class UTexture2D;
+class UVerticalBox;
 class UWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndingContinueRequested);
@@ -17,6 +20,8 @@ class LOOP9_API UEndingWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UEndingWidget(const FObjectInitializer& ObjectInitializer);
+
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
@@ -64,6 +69,10 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UWidget> BT_Continue;
 
+	/** Optional authored host. C++ fills it from BuildRunEventCards() if present. */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UVerticalBox> VB_Timeline;
+
 	UFUNCTION()
 	void HandleContinueClicked();
 
@@ -71,7 +80,23 @@ private:
 	void RefreshBoundWidgets();
 	void BuildFallbackLayoutIfNeeded();
 	void BindContinueButton();
+	void EnsureTimelineHost();
+	void PopulateTimeline();
+	void AddTimelineRow(const FRunEventCard& Card);
+	UTexture2D* TimelineIconFor(ERunEventType Type) const;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UButton> FallbackContinueButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UScrollBox> TimelineScroll;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> CallIcon;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> LiftIcon;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> EndingIcon;
 };

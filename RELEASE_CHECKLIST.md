@@ -348,14 +348,17 @@ odgovore (17.08.2026).
 
 Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve review.
 
-- [~] Ending session timeline: C++ kartice su gotove (`BuildRunEventCards()`,
-  EN/SR/DE/FR/RU). Art je u `Content/MyStuff/UI/Timeline/`. Ostalo u editoru
-  po MCP briefu: na `WBP_Ending_*` ostavi naslov + 2–3 rečenice, ispod spawnuj
-  redove sa ikonicama. Bez grafa sirovih relationship brojeva.
+- [~] Ending session timeline: C++ sada sam crta redove ispod naslova/opisa
+  (`UEndingWidget::PopulateTimeline` ← `BuildRunEventCards()`), na svih šest
+  `WBP_Ending_*` bez Event Graph-a. Linija `Resets | AI interactions` je
+  sakrivena. Ikonice: `Content/MyStuff/UI/Timeline/ui_icon_*.png` (editor treba
+  da ih uveze). Ostaje vizuelni QA: da timeline ne prekrije Continue i da
+  TWO CALLS / boje prstenova sede. Bez grafa sirovih relationship brojeva.
 - [~] Main-menu dosije / arhiva smena: C++ `ShiftArchiveWidget` čita `SeenEndings`.
-  Ostalo u editoru: dugme tačno imena `Archive` na živom main-menu WBP-u;
-  opciono `ui_archive_star_plate` kao pozadina + labele preko čvorova.
-  Animaciju ne raditi. Brief:
+  `WBP_MainMenu` nema dugme `Archive`, pa ga `UMainMenuWidget` sada klonira
+  iz `Settings` (isto `WBP_Button`) i veže na `OnArchiveClicked`. Opciono
+  `ui_archive_star_plate` kao pozadina i dalje nije urađena. Animaciju ne raditi.
+  Brief:
   [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
 - [x] AI kontekst anomalija: C++ i backend su gotovi, a `FullOfficeMap` je sada
   označen. Od 35 anomaly komponenti 34 imaju `AnomalyObjectKind`;

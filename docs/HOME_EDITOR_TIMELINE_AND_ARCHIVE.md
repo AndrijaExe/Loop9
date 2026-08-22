@@ -6,11 +6,14 @@ Status: [`../RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) §9.
 
 ## Ostalo (za čoveka)
 
-1. Rebuild `Loop9Editor`.
-2. Timeline na `WBP_Ending_*` ispod naslova, iz `BuildRunEventCards()`.
-3. Dugme tačno imena `Archive` na main menu.
-4. Uvezi slike iz `Content/MyStuff/UI/Timeline/` i stavi ih kako piše ispod.
-5. GatherText + QA.
+C++ od 21.08.2026. sam crta timeline na ending ekranu i, ako fali, dodaje
+`Archive` dugme na main meni. Ne treba Event Graph.
+
+1. Rebuild `Loop9Editor` (hot reload posle `EndingWidget` / `MainMenuWidget`).
+2. Potvrdi da editor uveze `Content/MyStuff/UI/Timeline/ui_icon_*.png`.
+3. PIE: ending ekran pokazuje title + 2–3 rečenice, ispod kartice, Continue radi.
+4. PIE: main menu ima ARCHIVE između Settings i Quit; otvara dosije.
+5. Opciono: `ui_archive_star_plate` kao pozadina arhive.
 6. Animaciju čvorova **ne radi**.
 
 ---

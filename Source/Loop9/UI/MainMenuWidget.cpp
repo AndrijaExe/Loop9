@@ -7,7 +7,14 @@
 #include "Loop9WidgetClickBinder.h"
 #include "SettingsWidget.h"
 #include "ShiftArchiveWidget.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/PanelWidget.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/Widget.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -35,6 +42,7 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		Archive = GetWidgetFromName(TEXT("Archive"));
 	}
+	EnsureArchiveButton();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
@@ -256,4 +264,81 @@ void UMainMenuWidget::OnBackFromSettings()
 		OwningController->SetInputMode(InputMode);
 		FocusTarget->SetUserFocus(OwningController);
 	}
+}
+
+void UMainMenuWidget::EnsureArchiveButton()
+{
+	if (Archive || !Settings || !WidgetTree)
+	{
+		return;
+	}
+
+	UPanelWidget* Parent = Settings->GetParent();
+	if (!Parent)
+	{
+		return;
+	}
+
+	UWidget* NewButton = WidgetTree->ConstructWidget<UWidget>(Settings->GetClass(), TEXT("Archive"));
+	if (!NewButton)
+	{
+		return;
+	}
+
+	if (UVerticalBox* VBox = Cast<UVerticalBox>(Parent))
+	{
+		const int32 SettingsIndex = VBox->GetChildIndex(Settings);
+		if (SettingsIndex == INDEX_NONE)
+		{
+			return;
+		}
+		UPanelSlot* Inserted = VBox->InsertChildAt(SettingsIndex + 1, NewButton);
+		if (UVerticalBoxSlot* NewSlot = Cast<UVerticalBoxSlot>(Inserted))
+		{
+			if (UVerticalBoxSlot* SettingsSlot = Cast<UVerticalBoxSlot>(Settings->Slot))
+			{
+				NewSlot->SetPadding(SettingsSlot->GetPadding());
+				NewSlot->SetHorizontalAlignment(SettingsSlot->GetHorizontalAlignment());
+				NewSlot->SetVerticalAlignment(SettingsSlot->GetVerticalAlignment());
+				NewSlot->SetSize(SettingsSlot->GetSize());
+			}
+		}
+	}
+	else if (UCanvasPanel* Canvas = Cast<UCanvasPanel>(Parent))
+	{
+		UCanvasPanelSlot* NewSlot = Canvas->AddChildToCanvas(NewButton);
+		UCanvasPanelSlot* SettingsSlot = Cast<UCanvasPanelSlot>(Settings->Slot);
+		UCanvasPanelSlot* QuitSlot = Quit ? Cast<UCanvasPanelSlot>(Quit->Slot) : nullptr;
+		if (NewSlot && SettingsSlot)
+		{
+			NewSlot->SetAnchors(SettingsSlot->GetAnchors());
+			NewSlot->SetAlignment(SettingsSlot->GetAlignment());
+			NewSlot->SetAutoSize(SettingsSlot->GetAutoSize());
+			NewSlot->SetSize(SettingsSlot->GetSize());
+			NewSlot->SetZOrder(SettingsSlot->GetZOrder());
+			if (QuitSlot)
+			{
+				const FVector2D QuitPos = QuitSlot->GetPosition();
+				float DeltaY = QuitPos.Y - SettingsSlot->GetPosition().Y;
+				if (FMath::Abs(DeltaY) < 8.0f)
+				{
+					DeltaY = FMath::Max(SettingsSlot->GetSize().Y, 64.0f) + 8.0f;
+				}
+				NewSlot->SetPosition(QuitPos);
+				QuitSlot->SetPosition(QuitPos + FVector2D(0.0f, DeltaY));
+			}
+			else
+			{
+				const float DeltaY = FMath::Max(SettingsSlot->GetSize().Y, 64.0f) + 8.0f;
+				NewSlot->SetPosition(SettingsSlot->GetPosition() + FVector2D(0.0f, DeltaY));
+			}
+		}
+	}
+	else
+	{
+		Parent->AddChild(NewButton);
+	}
+
+	Archive = NewButton;
+	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button"));
 }

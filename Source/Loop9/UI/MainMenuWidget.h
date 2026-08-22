@@ -21,6 +21,7 @@ protected:
 
 	void ApplyLocalizedTexts();
 	void HandleCultureChanged();
+	void EnsureArchiveButton();
 
 public:
 	/** Called when Play button is clicked */

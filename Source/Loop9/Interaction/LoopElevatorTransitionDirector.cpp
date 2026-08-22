@@ -271,7 +271,28 @@ void ALoopElevatorTransitionDirector::BeginTravel()
 	{
 		return;
 	}
-	StartTravelSound();
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TravelSoundStartHandle);
+		const float StartDelay = FMath::Max(0.0f, TravelSoundStartDelaySeconds);
+		if (StartDelay <= KINDA_SMALL_NUMBER)
+		{
+			StartTravelSound();
+		}
+		else
+		{
+			World->GetTimerManager().SetTimer(
+				TravelSoundStartHandle,
+				this,
+				&ALoopElevatorTransitionDirector::StartTravelSound,
+				StartDelay,
+				false);
+		}
+	}
+	else
+	{
+		StartTravelSound();
+	}
 	// One continuous blackout: fade out, stay black until CommitAndArrive, then fade in once.
 	StartCameraFade(0.0f, 1.0f, FadeOutDurationSeconds);
 
@@ -987,6 +1008,11 @@ void ALoopElevatorTransitionDirector::PlayButtonPressSound(const ALiftButton* So
 
 void ALoopElevatorTransitionDirector::StartTravelSound()
 {
+	if (Phase != ELoopElevatorTransitionPhase::Travelling)
+	{
+		return;
+	}
+
 	StopTravelSound();
 	if (!IsValid(TravelSound))
 	{
@@ -1006,6 +1032,11 @@ void ALoopElevatorTransitionDirector::StartTravelSound()
 
 void ALoopElevatorTransitionDirector::StopTravelSound()
 {
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TravelSoundStartHandle);
+	}
+
 	if (!IsValid(ActiveTravelAudio))
 	{
 		ActiveTravelAudio = nullptr;
@@ -1032,5 +1063,6 @@ void ALoopElevatorTransitionDirector::ClearTimers()
 		TimerManager.ClearTimer(TravelTimerHandle);
 		TimerManager.ClearTimer(DoorOpenTimeoutHandle);
 		TimerManager.ClearTimer(AbandonedDoorReopenHandle);
+		TimerManager.ClearTimer(TravelSoundStartHandle);
 	}
 }
