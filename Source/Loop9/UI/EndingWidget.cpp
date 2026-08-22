@@ -50,7 +50,6 @@ void UEndingWidget::NativeConstruct()
 	BuildFallbackLayoutIfNeeded();
 	BindContinueButton();
 	RefreshBoundWidgets();
-	PopulateTimeline();
 }
 
 void UEndingWidget::NativeDestruct()
@@ -104,7 +103,6 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
 
 	RefreshBoundWidgets();
-	PopulateTimeline();
 	BP_OnEndingInitialized(EndingType);
 }
 
@@ -128,10 +126,25 @@ void UEndingWidget::RefreshBoundWidgets()
 	if (TB_Description)
 	{
 		TB_Description->SetText(EndingDescription);
-		// Do not force WrapTextAt / slot sizes — that was pushing the blurb off-screen
-		// in the authored WBP layout. Keep Blueprint anchors/position intact.
 		TB_Description->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		TB_Description->SetRenderOpacity(1.0f);
+		TB_Description->SetAutoWrapText(true);
+		TB_Description->SetWrapTextAt(0.0f);
+
+		// The six WBP_Ending_* put TB_Description on a Canvas slot with Auto
+		// Size on and Auto Wrap off (except Cold Betrayal). Auto-size grows to
+		// the unwrapped line, so the blurb leaves the screen. Force a wide
+		// box; never reuse a small authored Size.X (that wrapped every word).
+		if (UCanvasPanelSlot* DescSlot = Cast<UCanvasPanelSlot>(TB_Description->Slot))
+		{
+			constexpr float MinWrapWidth = 720.0f;
+			constexpr float MinWrapHeight = 160.0f;
+			DescSlot->SetAutoSize(false);
+			const FVector2D SlotSize = DescSlot->GetSize();
+			DescSlot->SetSize(FVector2D(
+				FMath::Max(SlotSize.X, MinWrapWidth),
+				FMath::Max(SlotSize.Y, MinWrapHeight)));
+		}
 	}
 
 	if (TB_Stats)

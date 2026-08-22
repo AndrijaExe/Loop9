@@ -16,6 +16,37 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/Widget.h"
 
+namespace
+{
+	UVerticalBox* FindAncestorVerticalBox(UWidget* Widget)
+	{
+		for (UWidget* Cursor = Widget ? Widget->GetParent() : nullptr; Cursor; Cursor = Cursor->GetParent())
+		{
+			if (UVerticalBox* Box = Cast<UVerticalBox>(Cursor))
+			{
+				return Box;
+			}
+		}
+		return nullptr;
+	}
+
+	float ButtonStackStep(UWidget* Widget)
+	{
+		if (!Widget)
+		{
+			return 76.0f;
+		}
+
+		Widget->ForceLayoutPrepass();
+		const float DesiredY = Widget->GetDesiredSize().Y;
+		if (const UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(Widget->Slot))
+		{
+			return FMath::Max(FMath::Max(DesiredY, CanvasSlot->GetSize().Y), 64.0f) + 12.0f;
+		}
+		return FMath::Max(DesiredY, 64.0f) + 12.0f;
+	}
+}
+
 void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -273,72 +304,92 @@ void UMainMenuWidget::EnsureArchiveButton()
 		return;
 	}
 
-	UPanelWidget* Parent = Settings->GetParent();
-	if (!Parent)
-	{
-		return;
-	}
-
 	UWidget* NewButton = WidgetTree->ConstructWidget<UWidget>(Settings->GetClass(), TEXT("Archive"));
 	if (!NewButton)
 	{
 		return;
 	}
 
-	if (UVerticalBox* VBox = Cast<UVerticalBox>(Parent))
+	// Requested order: Play, Settings, Archive, Quit. Anchor to Quit so Archive
+	// lands immediately above it instead of at the top of the canvas.
+	UVerticalBox* StackBox = FindAncestorVerticalBox(Quit ? Quit : Settings);
+	if (!StackBox)
 	{
-		const int32 SettingsIndex = VBox->GetChildIndex(Settings);
-		if (SettingsIndex == INDEX_NONE)
+		StackBox = FindAncestorVerticalBox(Settings);
+	}
+
+	if (StackBox)
+	{
+		int32 InsertIndex = StackBox->GetChildrenCount();
+		if (Quit)
 		{
-			return;
+			UWidget* StackChild = Quit;
+			while (StackChild && StackChild->GetParent() != StackBox)
+			{
+				StackChild = StackChild->GetParent();
+			}
+			const int32 QuitIndex = StackChild ? StackBox->GetChildIndex(StackChild) : INDEX_NONE;
+			if (QuitIndex != INDEX_NONE)
+			{
+				InsertIndex = QuitIndex;
+			}
 		}
-		UPanelSlot* Inserted = VBox->InsertChildAt(SettingsIndex + 1, NewButton);
+
+		UPanelSlot* Inserted = StackBox->InsertChildAt(InsertIndex, NewButton);
 		if (UVerticalBoxSlot* NewSlot = Cast<UVerticalBoxSlot>(Inserted))
 		{
-			if (UVerticalBoxSlot* SettingsSlot = Cast<UVerticalBoxSlot>(Settings->Slot))
+			UWidget* StyleSource = Settings;
+			if (Settings->GetParent() != StackBox)
 			{
-				NewSlot->SetPadding(SettingsSlot->GetPadding());
-				NewSlot->SetHorizontalAlignment(SettingsSlot->GetHorizontalAlignment());
-				NewSlot->SetVerticalAlignment(SettingsSlot->GetVerticalAlignment());
-				NewSlot->SetSize(SettingsSlot->GetSize());
+				UWidget* StackChild = Settings;
+				while (StackChild && StackChild->GetParent() != StackBox)
+				{
+					StackChild = StackChild->GetParent();
+				}
+				if (StackChild)
+				{
+					StyleSource = StackChild;
+				}
+			}
+			if (UVerticalBoxSlot* StyleSlot = Cast<UVerticalBoxSlot>(StyleSource->Slot))
+			{
+				NewSlot->SetPadding(StyleSlot->GetPadding());
+				NewSlot->SetHorizontalAlignment(StyleSlot->GetHorizontalAlignment());
+				NewSlot->SetVerticalAlignment(StyleSlot->GetVerticalAlignment());
+				NewSlot->SetSize(StyleSlot->GetSize());
 			}
 		}
 	}
-	else if (UCanvasPanel* Canvas = Cast<UCanvasPanel>(Parent))
+	else if (UCanvasPanel* Canvas = Cast<UCanvasPanel>(Quit ? Quit->GetParent() : Settings->GetParent()))
 	{
 		UCanvasPanelSlot* NewSlot = Canvas->AddChildToCanvas(NewButton);
-		UCanvasPanelSlot* SettingsSlot = Cast<UCanvasPanelSlot>(Settings->Slot);
 		UCanvasPanelSlot* QuitSlot = Quit ? Cast<UCanvasPanelSlot>(Quit->Slot) : nullptr;
-		if (NewSlot && SettingsSlot)
+		UCanvasPanelSlot* SettingsSlot = Cast<UCanvasPanelSlot>(Settings->Slot);
+		UCanvasPanelSlot* TemplateSlot = QuitSlot ? QuitSlot : SettingsSlot;
+		if (NewSlot && TemplateSlot)
 		{
-			NewSlot->SetAnchors(SettingsSlot->GetAnchors());
-			NewSlot->SetAlignment(SettingsSlot->GetAlignment());
-			NewSlot->SetAutoSize(SettingsSlot->GetAutoSize());
-			NewSlot->SetSize(SettingsSlot->GetSize());
-			NewSlot->SetZOrder(SettingsSlot->GetZOrder());
+			const float Step = ButtonStackStep(Quit ? Quit : Settings);
+			NewSlot->SetAnchors(TemplateSlot->GetAnchors());
+			NewSlot->SetAlignment(TemplateSlot->GetAlignment());
+			NewSlot->SetAutoSize(TemplateSlot->GetAutoSize());
+			NewSlot->SetSize(TemplateSlot->GetSize());
+			NewSlot->SetZOrder(TemplateSlot->GetZOrder());
 			if (QuitSlot)
 			{
-				const FVector2D QuitPos = QuitSlot->GetPosition();
-				float DeltaY = QuitPos.Y - SettingsSlot->GetPosition().Y;
-				if (FMath::Abs(DeltaY) < 8.0f)
-				{
-					DeltaY = FMath::Max(SettingsSlot->GetSize().Y, 64.0f) + 8.0f;
-				}
-				NewSlot->SetPosition(QuitPos);
-				QuitSlot->SetPosition(QuitPos + FVector2D(0.0f, DeltaY));
+				NewSlot->SetPosition(QuitSlot->GetPosition());
+				QuitSlot->SetPosition(QuitSlot->GetPosition() + FVector2D(0.0f, Step));
 			}
 			else
 			{
-				const float DeltaY = FMath::Max(SettingsSlot->GetSize().Y, 64.0f) + 8.0f;
-				NewSlot->SetPosition(SettingsSlot->GetPosition() + FVector2D(0.0f, DeltaY));
+				NewSlot->SetPosition(SettingsSlot->GetPosition() + FVector2D(0.0f, Step));
 			}
 		}
 	}
-	else
+	else if (UPanelWidget* Parent = Settings->GetParent())
 	{
 		Parent->AddChild(NewButton);
 	}
 
 	Archive = NewButton;
-	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button"));
+	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button above Quit"));
 }
