@@ -241,32 +241,32 @@ void UEndingWidget::EnsureTimelineHost()
 
 	if (Canvas)
 	{
-		if (UCanvasPanelSlot* Slot = Canvas->AddChildToCanvas(Scroll))
+		if (UCanvasPanelSlot* TimelineSlot = Canvas->AddChildToCanvas(Scroll))
 		{
 			if (TemplateSlot)
 			{
-				Slot->SetAnchors(TemplateSlot->GetAnchors());
-				Slot->SetAlignment(TemplateSlot->GetAlignment());
-				Slot->SetAutoSize(false);
+				TimelineSlot->SetAnchors(TemplateSlot->GetAnchors());
+				TimelineSlot->SetAlignment(TemplateSlot->GetAlignment());
+				TimelineSlot->SetAutoSize(false);
 				const FVector2D TemplateSize = TemplateSlot->GetSize();
 				const float Width = FMath::Max(TemplateSize.X, 640.0f);
 				FVector2D Position = TemplateSlot->GetPosition();
 				if (TB_Stats && TemplateSlot == Cast<UCanvasPanelSlot>(TB_Stats->Slot))
 				{
-					Slot->SetPosition(Position);
+					TimelineSlot->SetPosition(Position);
 				}
 				else
 				{
 					const float OffsetY = FMath::Max(TemplateSize.Y, 72.0f) + 16.0f;
-					Slot->SetPosition(Position + FVector2D(0.0f, OffsetY));
+					TimelineSlot->SetPosition(Position + FVector2D(0.0f, OffsetY));
 				}
-				Slot->SetSize(FVector2D(Width, 280.0f));
-				Slot->SetZOrder(TemplateSlot->GetZOrder());
+				TimelineSlot->SetSize(FVector2D(Width, 280.0f));
+				TimelineSlot->SetZOrder(TemplateSlot->GetZOrder());
 			}
 			else
 			{
-				Slot->SetAnchors(FAnchors(0.08f, 0.42f, 0.62f, 0.82f));
-				Slot->SetOffsets(FMargin(0.0f));
+				TimelineSlot->SetAnchors(FAnchors(0.08f, 0.42f, 0.62f, 0.82f));
+				TimelineSlot->SetOffsets(FMargin(0.0f));
 			}
 		}
 		return;
