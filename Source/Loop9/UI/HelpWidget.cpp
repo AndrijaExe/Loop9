@@ -163,7 +163,7 @@ void UHelpWidget::RefreshSections()
 	AddSection(VB_Sections,
 		LOCTEXT("HelpJobHeading", "YOUR SHIFT"),
 		LOCTEXT("HelpJobBody",
-			"You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, "
+			"You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, "
 			"and your only job is to decide one thing before you take the elevator: is this floor the way it should be, "
 			"or has something changed?"));
 

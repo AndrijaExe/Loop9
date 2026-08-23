@@ -1152,8 +1152,8 @@ msgstr "ВАША СМЕНА"
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
 #: Source/Loop9/UI/HelpWidget.cpp
 msgctxt "Loop9Help,HelpJobBody"
-msgid "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
-msgstr "Вы ночной техник на 9-м этаже. Каждая петля возвращает вас на тот же этаж того же офиса, и ваша единственная задача — решить одно, прежде чем войти в лифт: этот этаж такой, каким должен быть, или что-то изменилось?"
+msgid "You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "Вы ночной техник на втором этаже. Каждая петля возвращает вас на тот же этаж того же офиса, и ваша единственная задача — решить одно, прежде чем войти в лифт: этот этаж такой, каким должен быть, или что-то изменилось?"
 
 #. Key:	HelpBaselineHeading
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp

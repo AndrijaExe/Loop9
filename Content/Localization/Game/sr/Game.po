@@ -1152,8 +1152,8 @@ msgstr "TVOJA SMENA"
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
 #: Source/Loop9/UI/HelpWidget.cpp
 msgctxt "Loop9Help,HelpJobBody"
-msgid "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
-msgstr "Ti si noćni tehničar na 9. spratu. Svaka petlja te vraća na isti sprat iste kancelarije, a tvoj jedini posao je da odlučiš jednu stvar pre nego što uđeš u lift: da li je sprat onakav kakav treba da bude, ili se nešto promenilo?"
+msgid "You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "Ti si noćni tehničar na drugom spratu. Svaka petlja te vraća na isti sprat iste kancelarije, a tvoj jedini posao je da odlučiš jednu stvar pre nego što uđeš u lift: da li je sprat onakav kakav treba da bude, ili se nešto promenilo?"
 
 #. Key:	HelpBaselineHeading
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
