@@ -16,6 +16,15 @@ namespace
 {
 	constexpr bool bDebugAlwaysSpawnMoveAnomaly = false;
 
+	/**
+	 * Chance that a floor past the baseline carries at least one anomaly.
+	 * A clean floor is the exception that keeps the dark elevator worth taking,
+	 * not a coin flip: at 50% half the run was spent confirming nothing, which
+	 * reads as an empty level rather than as suspense. Floor 1 is exempt and
+	 * always clean, because the opening phone call promises the player that.
+	 */
+	constexpr float AnomalyChancePerLoop = 0.8f;
+
 	URelationshipSubsystem* GetRelationshipSubsystem(UGameInstance* GameInstance)
 	{
 		return GameInstance ? GameInstance->GetSubsystem<URelationshipSubsystem>() : nullptr;
@@ -745,7 +754,7 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 		return;
 	}
 
-	const bool bShouldHaveAnomaly = bDebugAlwaysSpawnMoveAnomaly ? true : FMath::RandBool();
+	const bool bShouldHaveAnomaly = bDebugAlwaysSpawnMoveAnomaly ? true : (FMath::FRand() < AnomalyChancePerLoop);
 	if (!bShouldHaveAnomaly)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Anomaly: NO"));

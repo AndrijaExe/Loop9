@@ -4,6 +4,7 @@
 #include "MainMenuGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Internationalization/Internationalization.h"
+#include "HelpWidget.h"
 #include "Loop9WidgetClickBinder.h"
 #include "SettingsWidget.h"
 #include "ShiftArchiveWidget.h"
@@ -73,12 +74,18 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		Archive = GetWidgetFromName(TEXT("Archive"));
 	}
+	if (!Help)
+	{
+		Help = GetWidgetFromName(TEXT("Help"));
+	}
 	EnsureArchiveButton();
+	EnsureHelpButton();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
 	FLoop9WidgetClickBinder::BindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
 	FLoop9WidgetClickBinder::BindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
+	FLoop9WidgetClickBinder::BindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
 
 	ApplyLocalizedTexts();
 
@@ -95,6 +102,7 @@ void UMainMenuWidget::NativeDestruct()
 	FLoop9WidgetClickBinder::UnbindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
+	FLoop9WidgetClickBinder::UnbindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
 
 	if (CultureChangedHandle.IsValid())
 	{
@@ -116,6 +124,7 @@ void UMainMenuWidget::ApplyLocalizedTexts()
 	FLoop9WidgetClickBinder::SetButtonText(Settings, NSLOCTEXT("Loop9Menu", "Settings", "SETTINGS"));
 	FLoop9WidgetClickBinder::SetButtonText(Quit, NSLOCTEXT("Loop9Menu", "Quit", "QUIT"));
 	FLoop9WidgetClickBinder::SetButtonText(Archive, NSLOCTEXT("Loop9Menu", "Archive", "ARCHIVE"));
+	FLoop9WidgetClickBinder::SetButtonText(Help, NSLOCTEXT("Loop9Menu", "Help", "HELP"));
 }
 
 void UMainMenuWidget::OnPlayClicked()
@@ -254,6 +263,79 @@ void UMainMenuWidget::OnBackFromArchive()
 	}
 }
 
+void UMainMenuWidget::OnHelpClicked()
+{
+	if (HelpWidgetInstance && HelpWidgetInstance->IsInViewport())
+	{
+		return;
+	}
+
+	const TSubclassOf<UUserWidget> WidgetClass = HelpWidgetClass
+		? HelpWidgetClass
+		: TSubclassOf<UUserWidget>(UHelpWidget::StaticClass());
+
+	APlayerController* OwningController = GetOwningPlayer();
+	HelpWidgetInstance = CreateWidget<UUserWidget>(
+		OwningController ? OwningController : UGameplayStatics::GetPlayerController(GetWorld(), 0),
+		WidgetClass);
+	if (!HelpWidgetInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MainMenuWidget: Failed to create help widget!"));
+		return;
+	}
+
+	if (UHelpWidget* HelpUI = Cast<UHelpWidget>(HelpWidgetInstance))
+	{
+		HelpUI->SetReturnTarget(this);
+	}
+
+	SetVisibility(ESlateVisibility::Hidden);
+	HelpWidgetInstance->AddToViewport(1);
+	if (OwningController)
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(HelpWidgetInstance);
+		if (!FocusTarget)
+		{
+			FocusTarget = HelpWidgetInstance;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
+}
+
+void UMainMenuWidget::OnBackFromHelp()
+{
+	if (HelpWidgetInstance)
+	{
+		HelpWidgetInstance->RemoveFromParent();
+		HelpWidgetInstance = nullptr;
+	}
+
+	ApplyLocalizedTexts();
+	SetVisibility(ESlateVisibility::Visible);
+
+	if (APlayerController* OwningController = GetOwningPlayer())
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Help);
+		if (!FocusTarget)
+		{
+			FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Play);
+		}
+		if (!FocusTarget)
+		{
+			FocusTarget = this;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
+}
+
 void UMainMenuWidget::OnQuitClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: Quit button clicked"));
@@ -299,19 +381,48 @@ void UMainMenuWidget::OnBackFromSettings()
 
 void UMainMenuWidget::EnsureArchiveButton()
 {
-	if (Archive || !Settings || !WidgetTree)
+	if (Archive)
 	{
 		return;
 	}
 
-	UWidget* NewButton = WidgetTree->ConstructWidget<UWidget>(Settings->GetClass(), TEXT("Archive"));
+	Archive = SynthesizeButtonAboveQuit(TEXT("Archive"));
+	if (Archive)
+	{
+		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button above Quit"));
+	}
+}
+
+void UMainMenuWidget::EnsureHelpButton()
+{
+	if (Help)
+	{
+		return;
+	}
+
+	Help = SynthesizeButtonAboveQuit(TEXT("Help"));
+	if (Help)
+	{
+		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Help button above Quit"));
+	}
+}
+
+UWidget* UMainMenuWidget::SynthesizeButtonAboveQuit(FName ButtonName)
+{
+	if (!Settings || !WidgetTree)
+	{
+		return nullptr;
+	}
+
+	UWidget* NewButton = WidgetTree->ConstructWidget<UWidget>(Settings->GetClass(), ButtonName);
 	if (!NewButton)
 	{
-		return;
+		return nullptr;
 	}
 
-	// Requested order: Play, Settings, Archive, Quit. Anchor to Quit so Archive
-	// lands immediately above it instead of at the top of the canvas.
+	// Anchoring to Quit rather than to a fixed index keeps Quit last however many
+	// entries get synthesized, and lets repeated calls stack cleanly: each new
+	// button takes Quit's place and pushes Quit one step further down.
 	UVerticalBox* StackBox = FindAncestorVerticalBox(Quit ? Quit : Settings);
 	if (!StackBox)
 	{
@@ -390,6 +501,5 @@ void UMainMenuWidget::EnsureArchiveButton()
 		Parent->AddChild(NewButton);
 	}
 
-	Archive = NewButton;
-	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button above Quit"));
+	return NewButton;
 }

@@ -19,6 +19,20 @@ public:
 	float AnomalyProbability = 0.5f;
 
 	/**
+	 * Relative odds of being drawn out of this component's own type pool, where
+	 * 1.0 is the norm and 2.0 is picked twice as often as a sibling at 1.0.
+	 *
+	 * This is not the same knob as AnomalyProbability: the manager first draws a
+	 * type, then a component inside that type, and only then rolls
+	 * AnomalyProbability to decide whether the draw activates. Weight moves a
+	 * component up the queue; probability decides whether its turn counts.
+	 * Raising the weight is the safe way to favour one placement over another,
+	 * because it never changes how full the floor ends up being.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anomaly", meta = (ClampMin = "0.01"))
+	float SelectionWeight = 1.0f;
+
+	/**
 	 * Coarse landmark the player would recognise from the screen, written in
 	 * English, e.g. "the north corridor". The AI is told the place but not the
 	 * item, so it can point without solving the search. Leave empty for

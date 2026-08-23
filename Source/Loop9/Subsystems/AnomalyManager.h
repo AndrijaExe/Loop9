@@ -46,6 +46,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Anomaly|Debug")
 	void PrintAnomalyStats();
 
+	/**
+	 * Logs every material-swap placement that could not be seen if it fired,
+	 * and returns how many are broken. Run it from a loaded floor: the mesh and
+	 * the normal material are only known once BeginPlay has run.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Anomaly|Debug")
+	int32 AuditMaterialAnomalies();
+
 	void UpdateLoopAnomalyTracking(int32 LoopIndex);
 	/** Invalidates the cached snapshot when a new floor visit begins. */
 	void BeginLoopVisit();

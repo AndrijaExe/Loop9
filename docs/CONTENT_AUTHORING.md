@@ -66,12 +66,37 @@ See [ANOMALIES.md](ANOMALIES.md). Checklist for each new anomaly actor:
    naming a landmark and a category rather than an asset. Rules and examples:
    [ANOMALIES.md](ANOMALIES.md#ai-context-tagging).
 
+### Move anomaly destinations
+
+Drop `AnomalyMovePoint` actors where a moved object is allowed to appear, then point
+the component at them. Two ways, either is fine:
+
+- List them in **Move Anomaly > Move Target Points** on the component.
+- Or leave that empty, set **Move Target Tag** on the component, and give each point
+  the same `PointTag`. The component then finds them in the level, which is easier
+  when several objects share a set of hiding places.
+
+The arrow on the actor is the rotation the object receives, so aim it the way the
+object should face. `Weight` biases the draw; `bEnabled` retires a point without
+deleting it. A point standing where the object already is gets skipped at runtime,
+because a move the player cannot see reads as a bug.
+
+Place at least two per object. With none placed, the component logs a warning and
+declines to activate rather than moving the object to the world origin.
+
 ## UI authoring
 
 - Keep player-facing strings as `FText` / `NSLOCTEXT` so GatherText can collect them.
 - Chat thinking indicator strings are localized in code (`Thinking...`, `Still thinking...`).
 - Ending widgets must initialize from `UEndingWidget::InitializeEnding`.
 - Replacement ending has a dedicated terminal presentation path.
+- The main menu synthesizes its Archive and Help buttons at runtime by cloning the
+  Settings button, so a WBP that predates them still shows them. Authoring real
+  buttons named `Archive` and `Help` in the WBP takes precedence and is preferred
+  once the menu is next touched.
+- `HelpWidget` builds a readable C++ layout when no WBP is assigned. To art-direct it,
+  make a WBP child and set it on the menu's **Help Widget Class**; bind `VB_Sections`
+  and the C++ fills the copy in.
 
 ## Safe extension workflow
 

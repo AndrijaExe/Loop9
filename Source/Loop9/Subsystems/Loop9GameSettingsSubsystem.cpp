@@ -1,11 +1,14 @@
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 
 #include "AudioDevice.h"
+#include "Components/AudioComponent.h"
 #include "Engine/Engine.h"
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainMenuGameMode.h"
 #include "Misc/App.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Sound/AmbientSound.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
 
@@ -33,6 +36,12 @@ void ULoop9GameSettingsSubsystem::Deinitialize()
 {
 	FlushPendingSettings();
 	FWorldDelegates::OnPostWorldInitialization.Remove(PostWorldInitHandle);
+
+	if (AudioBootstrapTickerHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(AudioBootstrapTickerHandle);
+		AudioBootstrapTickerHandle.Reset();
+	}
 
 	if (bVolumeMixPushed && VolumeMixWorld.IsValid() && VolumeSoundMix)
 	{
@@ -91,6 +100,55 @@ void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorl
 
 		ApplyMasterVolume();
 		ApplySoundClassVolumes(World);
+
+		// The world is not running yet, so try again once it is: actors have not
+		// had BeginPlay, and the audio device usually is not attached.
+		if (AudioBootstrapTickerHandle.IsValid())
+		{
+			FTSTicker::GetCoreTicker().RemoveTicker(AudioBootstrapTickerHandle);
+		}
+
+		AudioBootstrapTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateUObject(
+				this, &ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap),
+			0.5f);
+	}
+}
+
+bool ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap(float)
+{
+	AudioBootstrapTickerHandle.Reset();
+
+	UWorld* World = ResolveAudioWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	ApplyMasterVolume();
+	ApplySoundClassVolumes(World);
+	EnsureLevelAmbienceIsPlaying(World);
+	return false;
+}
+
+void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) const
+{
+	if (!World)
+	{
+		return;
+	}
+
+	for (TActorIterator<AAmbientSound> It(World); It; ++It)
+	{
+		UAudioComponent* Audio = It->GetAudioComponent();
+		if (!Audio || !Audio->Sound || Audio->IsPlaying())
+		{
+			continue;
+		}
+
+		Audio->Play();
+		UE_LOG(LogTemp, Log, TEXT("Loop9 audio: restarted level ambience '%s'"),
+			*It->GetActorNameOrLabel());
 	}
 }
 
@@ -178,6 +236,16 @@ void ULoop9GameSettingsSubsystem::ApplySoundClassVolumes(UWorld* World)
 		}
 		bVolumeMixPushed = false;
 		VolumeMixWorld.Reset();
+	}
+
+	// Only claim the push happened once the world can actually route audio.
+	// PushSoundMixModifier resolves the device off the world and returns without
+	// complaint when there is none, so recording success unconditionally left the
+	// mix permanently "pushed" but never active, and every ambient loop on this
+	// sound class inaudible for the rest of the level.
+	if (World->GetAudioDeviceRaw() == nullptr)
+	{
+		return;
 	}
 
 	if (!bVolumeMixPushed)

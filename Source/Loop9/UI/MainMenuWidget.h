@@ -22,6 +22,14 @@ protected:
 	void ApplyLocalizedTexts();
 	void HandleCultureChanged();
 	void EnsureArchiveButton();
+	void EnsureHelpButton();
+
+	/**
+	 * Clones the Settings button and inserts the copy directly above Quit, so a
+	 * WBP that predates this entry still shows it. Returns null when there is no
+	 * Settings button to copy the style from.
+	 */
+	UWidget* SynthesizeButtonAboveQuit(FName ButtonName);
 
 public:
 	/** Called when Play button is clicked */
@@ -42,6 +50,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void OnBackFromArchive();
 
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnHelpClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnBackFromHelp();
+
 	/** Settings Widget Class (set in Blueprint) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> SettingsWidgetClass;
@@ -49,6 +63,10 @@ public:
 	/** Optional dossier widget. Empty uses the C++ Shift Archive fallback. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> ArchiveWidgetClass;
+
+	/** Optional briefing widget. Empty uses the C++ Help fallback. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> HelpWidgetClass;
 
 	/** Back from settings to main menu */
 	UFUNCTION(BlueprintCallable, Category = "Menu")
@@ -60,6 +78,7 @@ private:
 	UWidget* Settings = nullptr;
 	UWidget* Quit = nullptr;
 	UWidget* Archive = nullptr;
+	UWidget* Help = nullptr;
 
 	/** Settings widget instance */
 	UPROPERTY()
@@ -67,6 +86,9 @@ private:
 
 	UPROPERTY()
 	UUserWidget* ArchiveWidgetInstance;
+
+	UPROPERTY()
+	UUserWidget* HelpWidgetInstance;
 
 	/** Cached game mode reference */
 	UPROPERTY()

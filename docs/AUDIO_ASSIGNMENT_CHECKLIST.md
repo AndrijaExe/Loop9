@@ -65,6 +65,26 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 - [ ] **Footstep Sounds** (niz) — hodanje po kancelariji
 - [ ] **Footstep Volume** — provera u igri
+- [ ] **Flashlight Toggle Sound** (`Audio|Flashlight`) — klik lampe na `F`.
+  Opciono: bez asseta lampa radi nemo. Klik iz `Sound/Elevator/ElevatorButtonPress`
+  bi bio prepoznatljiv, ali je bolji zaseban tiši klik.
+
+## Light flicker anomalije (`LightFlickerAnomalyComponent`)
+
+- [x] **Flicker Sound** — default u C++ konstruktoru je
+  `Sound/MainMenu/light-flicker`, isti asset koji koristi Merged Memory ending.
+  Svira se na poziciji **light komponente**, ne actor pivota, da bi igrača vodio
+  ka pravom mestu. Ne mora ništa da se dodeljuje po instanci; prazan slot znači
+  nemo treperenje.
+- [ ] **Flicker Sound Attenuation** — bez attenuation asseta zvuk se čuje sa cele
+  mape. Ovo je jedina stvar koju *treba* dodeliti: napravi attenuation sa radijusom
+  koji ne prelazi hodnik (npr. 300 / 1800 cm) i stavi na komponentu ili na class
+  defaults.
+- [ ] Volume / tajming po instanci — C++ defaulti su `Flicker Sound Volume` = 0.7,
+  `Flicker Sound Trigger Level` = 0.3 (dip ispod kog se pali),
+  `Min Seconds Between Flicker Sounds` = 0.5 + jitter do 0.9 s.
+  Ako zvuči kao mitraljez, digni min pauzu; ako se ne poklapa sa slikom, digni
+  trigger level.
 
 ## Doors (`DoorInteractable` instance u mapi)
 

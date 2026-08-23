@@ -14,11 +14,14 @@ namespace
 	{
 		UAnomalyComponentBase* Component = nullptr;
 		float Probability = 0.0f;
+		float Weight = 1.0f;
 	};
 
 	constexpr bool bDebugOnlyMoveAnomaly = false;
 
-	constexpr ELoopAnomalyType AnomalyTypeOrder[] =
+	constexpr int32 AnomalyTypeCount = 9;
+
+	constexpr ELoopAnomalyType AnomalyTypeOrder[AnomalyTypeCount] =
 	{
 		ELoopAnomalyType::Hide,
 		ELoopAnomalyType::Move,
@@ -42,6 +45,149 @@ namespace
 		}
 
 		return INDEX_NONE;
+	}
+
+	/**
+	 * How often a type is drawn relative to the others, where 1.0 is the norm.
+	 *
+	 * Not every anomaly is equally good at being an anomaly. The floor is a
+	 * search, so the types the player can actually solve by looking carry it,
+	 * and the ones that resolve themselves stay garnish.
+	 */
+	float GetTypeSelectionWeight(ELoopAnomalyType Type)
+	{
+		switch (Type)
+		{
+		// A missing object and a repainted surface are the two fair anomalies:
+		// the answer is in the room, and finding it feels like the player's own
+		// work rather than something that happened at them.
+		case ELoopAnomalyType::Hide:
+		case ELoopAnomalyType::Text:
+			return 1.8f;
+
+		// The pursuer converts the floor from an inspection into a chase and
+		// removes the choice at the elevator, so it lands as a rare shock.
+		case ELoopAnomalyType::Pursuer:
+			return 0.35f;
+
+		default:
+			return 1.0f;
+		}
+	}
+
+	/**
+	 * Draws an index in proportion to Weights, or INDEX_NONE when nothing has
+	 * positive weight. Walking the running sum keeps the draw allocation-free.
+	 */
+	int32 DrawWeightedIndex(const TArray<float>& Weights)
+	{
+		float TotalWeight = 0.0f;
+		for (const float Weight : Weights)
+		{
+			TotalWeight += FMath::Max(Weight, 0.0f);
+		}
+
+		if (TotalWeight <= 0.0f)
+		{
+			return INDEX_NONE;
+		}
+
+		float Target = FMath::FRandRange(0.0f, TotalWeight);
+		for (int32 Index = 0; Index < Weights.Num(); ++Index)
+		{
+			Target -= FMath::Max(Weights[Index], 0.0f);
+			if (Target <= 0.0f)
+			{
+				return Index;
+			}
+		}
+
+		return Weights.Num() - 1;
+	}
+
+	/** One pool per entry in AnomalyTypeOrder, holding every eligible component. */
+	using FCandidatePools = TArray<TArray<FCandidate>>;
+
+	FCandidatePools CollectCandidates(
+		const TArray<TWeakObjectPtr<UAnomalyComponentBase>>& RegisteredComponents,
+		float MinProbability)
+	{
+		FCandidatePools Pools;
+		Pools.SetNum(AnomalyTypeCount);
+
+		for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+		{
+			UAnomalyComponentBase* Component = ComponentPtr.Get();
+			if (!Component || Component->bIsAnomalyActive || Component->AnomalyProbability < MinProbability)
+			{
+				continue;
+			}
+
+			const ELoopAnomalyType Type = Component->GetAnomalyType();
+			if (bDebugOnlyMoveAnomaly && Type != ELoopAnomalyType::Move)
+			{
+				continue;
+			}
+
+			const int32 TypeIndex = GetTypeIndex(Type);
+			if (TypeIndex == INDEX_NONE)
+			{
+				continue;
+			}
+
+			FCandidate Candidate;
+			Candidate.Component = Component;
+			Candidate.Probability = Component->AnomalyProbability;
+			Candidate.Weight = FMath::Max(Component->SelectionWeight, 0.01f);
+			Pools[TypeIndex].Add(Candidate);
+		}
+
+		return Pools;
+	}
+
+	/**
+	 * Draws one candidate and removes it from its pool, so a caller that keeps
+	 * drawing walks the whole level exactly once. Returns false when nothing is
+	 * left to draw.
+	 */
+	bool DrawCandidate(FCandidatePools& Pools, FCandidate& OutCandidate)
+	{
+		TArray<int32> AvailableTypeIndices;
+		TArray<float> TypeWeights;
+		for (int32 Index = 0; Index < AnomalyTypeCount; ++Index)
+		{
+			if (Pools[Index].Num() > 0)
+			{
+				AvailableTypeIndices.Add(Index);
+				TypeWeights.Add(GetTypeSelectionWeight(AnomalyTypeOrder[Index]));
+			}
+		}
+
+		const int32 DrawnTypeSlot = DrawWeightedIndex(TypeWeights);
+		if (DrawnTypeSlot == INDEX_NONE)
+		{
+			return false;
+		}
+
+		TArray<FCandidate>& ChosenPool = Pools[AvailableTypeIndices[DrawnTypeSlot]];
+
+		TArray<float> ComponentWeights;
+		ComponentWeights.Reserve(ChosenPool.Num());
+		for (const FCandidate& Candidate : ChosenPool)
+		{
+			ComponentWeights.Add(Candidate.Weight);
+		}
+
+		const int32 DrawnComponentIndex = DrawWeightedIndex(ComponentWeights);
+		if (DrawnComponentIndex == INDEX_NONE)
+		{
+			ChosenPool.Empty();
+			return DrawCandidate(Pools, OutCandidate);
+		}
+
+		OutCandidate = ChosenPool[DrawnComponentIndex];
+		ChosenPool.RemoveAt(DrawnComponentIndex);
+		return true;
 	}
 }
 
@@ -179,62 +325,23 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 {
 	CleanupInvalidComponents();
 
-	bool AvailableTypes[UE_ARRAY_COUNT(AnomalyTypeOrder)] = {};
-	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
+	// This is the guarantee behind "the floor said it has an anomaly", so it
+	// ignores AnomalyProbability but keeps the type weights: a rescued floor
+	// should not quietly become the one place the pursuer is common. It also
+	// keeps drawing past a component that refuses to apply, otherwise a single
+	// misconfigured placement could hand the player a silently clean floor.
+	FCandidatePools CandidatePools = CollectCandidates(RegisteredComponents, /*MinProbability*/ 0.0f);
+
+	FCandidate Selected;
+	while (DrawCandidate(CandidatePools, Selected))
 	{
-		UAnomalyComponentBase* Component = ComponentPtr.Get();
-		if (!Component || Component->bIsAnomalyActive)
+		if (ForceActivateComponent(Selected.Component, INDEX_NONE))
 		{
-			continue;
-		}
-
-		const ELoopAnomalyType Type = Component->GetAnomalyType();
-		if (bDebugOnlyMoveAnomaly && Type != ELoopAnomalyType::Move)
-		{
-			continue;
-		}
-
-		const int32 TypeIndex = GetTypeIndex(Type);
-		if (TypeIndex != INDEX_NONE)
-		{
-			AvailableTypes[TypeIndex] = true;
+			return true;
 		}
 	}
 
-	int32 AvailableTypeIndices[UE_ARRAY_COUNT(AnomalyTypeOrder)];
-	int32 AvailableTypeCount = 0;
-	for (int32 TypeIndex = 0; TypeIndex < UE_ARRAY_COUNT(AnomalyTypeOrder); ++TypeIndex)
-	{
-		if (AvailableTypes[TypeIndex])
-		{
-			AvailableTypeIndices[AvailableTypeCount++] = TypeIndex;
-		}
-	}
-
-	if (AvailableTypeCount == 0)
-	{
-		return false;
-	}
-
-	const ELoopAnomalyType ChosenType =
-		AnomalyTypeOrder[AvailableTypeIndices[FMath::RandRange(0, AvailableTypeCount - 1)]];
-
-	UAnomalyComponentBase* Chosen = nullptr;
-	int32 CandidateCount = 0;
-	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
-	{
-		UAnomalyComponentBase* Component = ComponentPtr.Get();
-		if (Component && !Component->bIsAnomalyActive && Component->GetAnomalyType() == ChosenType)
-		{
-			++CandidateCount;
-			if (FMath::RandRange(1, CandidateCount) == 1)
-			{
-				Chosen = Component;
-			}
-		}
-	}
-
-	return ForceActivateComponent(Chosen, INDEX_NONE);
+	return false;
 }
 
 bool UAnomalyManager::ForceActivateByFilter(const FString& Filter, int32 MaterialIndex)
@@ -365,88 +472,26 @@ void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability)
 		return;
 	}
 
-	TArray<FCandidate> CandidatePools[UE_ARRAY_COUNT(AnomalyTypeOrder)];
-	for (TWeakObjectPtr<UAnomalyComponentBase> ComponentPtr : RegisteredComponents)
+	FCandidatePools CandidatePools = CollectCandidates(RegisteredComponents, MinProbability);
+
+	// Drawing removes the candidate, so this walks each placement at most once
+	// and stops when the floor is full or the level has nothing left to offer.
+	// A component that loses its probability roll, or whose ApplyAnomalyState
+	// refuses, therefore no longer costs the floor an anomaly: the next draw
+	// takes its place.
+	int32 AnomaliesTriggered = 0;
+	FCandidate Selected;
+	while (AnomaliesTriggered < Count && DrawCandidate(CandidatePools, Selected))
 	{
-		UAnomalyComponentBase* Component = ComponentPtr.Get();
-		if (!Component || Component->bIsAnomalyActive || Component->AnomalyProbability < MinProbability)
+		if (!Selected.Component || FMath::FRand() > Selected.Probability)
 		{
 			continue;
 		}
 
-		const int32 TypeIndex = GetTypeIndex(Component->GetAnomalyType());
-		if (TypeIndex != INDEX_NONE)
+		Selected.Component->ActivateAnomaly();
+		if (Selected.Component->bIsAnomalyActive)
 		{
-			CandidatePools[TypeIndex].Add({ Component, Component->AnomalyProbability });
-		}
-	}
-
-	if (bDebugOnlyMoveAnomaly)
-	{
-		for (int32 Index = 0; Index < UE_ARRAY_COUNT(AnomalyTypeOrder); ++Index)
-		{
-			if (AnomalyTypeOrder[Index] != ELoopAnomalyType::Move)
-			{
-				CandidatePools[Index].Empty();
-			}
-		}
-	}
-
-	bool bHasAnyCandidate = false;
-	for (const TArray<FCandidate>& Pool : CandidatePools)
-	{
-		if (Pool.Num() > 0)
-		{
-			bHasAnyCandidate = true;
-			break;
-		}
-	}
-
-	if (!bHasAnyCandidate)
-	{
-		return;
-	}
-
-	int32 AnomaliesTriggered = 0;
-	const int32 MaxAttempts = FMath::Max(Count * 4, 8);
-	int32 Attempts = 0;
-
-	while (AnomaliesTriggered < Count && Attempts < MaxAttempts)
-	{
-		Attempts++;
-
-		TArray<int32> AvailableTypeIndices;
-		for (int32 Index = 0; Index < UE_ARRAY_COUNT(AnomalyTypeOrder); ++Index)
-		{
-			if (CandidatePools[Index].Num() > 0)
-			{
-				AvailableTypeIndices.Add(Index);
-			}
-		}
-
-		if (AvailableTypeIndices.Num() == 0)
-		{
-			break;
-		}
-
-		const int32 ChosenTypeIndex = AvailableTypeIndices[FMath::RandRange(0, AvailableTypeIndices.Num() - 1)];
-		TArray<FCandidate>& ChosenPool = CandidatePools[ChosenTypeIndex];
-
-		const int32 RandomIndex = FMath::RandRange(0, ChosenPool.Num() - 1);
-		const FCandidate Selected = ChosenPool[RandomIndex];
-		ChosenPool.RemoveAt(RandomIndex);
-
-		if (Selected.Component)
-		{
-			const float Roll = FMath::FRand();
-			if (Roll <= Selected.Probability)
-			{
-				Selected.Component->ActivateAnomaly();
-				if (Selected.Component->bIsAnomalyActive)
-				{
-					AnomaliesTriggered++;
-				}
-			}
+			AnomaliesTriggered++;
 		}
 	}
 }
@@ -523,6 +568,42 @@ void UAnomalyManager::PrintAnomalyStats()
 			*Extra);
 	}
 
-	UE_LOG(LogLoop9, Log, TEXT("Commands: AnomalyList | AnomalyReset | AnomalyForce <filter> [matIndex] | AnomalyForceAny"));
+	UE_LOG(LogLoop9, Log, TEXT("Commands: AnomalyList | AnomalyReset | AnomalyForce <filter> [matIndex] | AnomalyForceAny | AnomalyAuditMaterials"));
 #endif
+}
+
+int32 UAnomalyManager::AuditMaterialAnomalies()
+{
+	CleanupInvalidComponents();
+
+	int32 Checked = 0;
+	int32 Broken = 0;
+
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		UMaterialSwapAnomalyComponent* MaterialSwap = Cast<UMaterialSwapAnomalyComponent>(ComponentPtr.Get());
+		if (!MaterialSwap)
+		{
+			continue;
+		}
+
+		++Checked;
+		const AActor* Owner = MaterialSwap->GetOwner();
+		const FString OwnerName = Owner ? Owner->GetActorNameOrLabel() : TEXT("None");
+		const FString Problem = MaterialSwap->DescribeConfigurationProblem();
+
+		if (Problem.IsEmpty())
+		{
+			UE_LOG(LogLoop9, Log, TEXT("MaterialAudit: OK   '%s' (slot %d, %d variants)"),
+				*OwnerName, MaterialSwap->MaterialSlot, MaterialSwap->AnomalyMaterials.Num());
+		}
+		else
+		{
+			++Broken;
+			UE_LOG(LogLoop9, Warning, TEXT("MaterialAudit: FAIL '%s' — %s"), *OwnerName, *Problem);
+		}
+	}
+
+	UE_LOG(LogLoop9, Log, TEXT("MaterialAudit: %d material anomalies checked, %d need authoring"), Checked, Broken);
+	return Broken;
 }

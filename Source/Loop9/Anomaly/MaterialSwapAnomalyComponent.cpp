@@ -1,13 +1,19 @@
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
 
 #include "Loop9.h"
+#include "Algo/Count.h"
 #include "Components/MeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInterface.h"
 
 UMaterialSwapAnomalyComponent::UMaterialSwapAnomalyComponent()
 {
-	AnomalyProbability = 0.5f;
+	// A repainted surface is the anomaly this game is actually about: it rewards
+	// looking rather than reacting, and it survives being checked twice. It
+	// shares the Text pool with the spawned-note anomaly, so the weight is what
+	// makes the swap the usual winner of that draw.
+	AnomalyProbability = 0.7f;
+	SelectionWeight = 2.0f;
 }
 
 UMeshComponent* UMaterialSwapAnomalyComponent::ResolveTargetMesh() const
@@ -127,24 +133,23 @@ bool UMaterialSwapAnomalyComponent::ApplyAnomalyState()
 	}
 	else
 	{
-		int32 ValidMaterialCount = 0;
-		for (int32 Index = 0; Index < AnomalyMaterials.Num(); ++Index)
+		// Only variants that differ from the baseline are eligible. Refusing
+		// here is deliberate: the manager then draws another placement, so a
+		// half-authored swap costs the floor nothing instead of turning it into
+		// an anomaly the player cannot possibly see.
+		const TArray<int32> VisibleIndices = CollectVisibleVariantIndices();
+		if (VisibleIndices.Num() > 0)
 		{
-			if (IsValid(AnomalyMaterials[Index]))
-			{
-				++ValidMaterialCount;
-				if (FMath::RandRange(1, ValidMaterialCount) == 1)
-				{
-					ChosenIndex = Index;
-				}
-			}
+			ChosenIndex = VisibleIndices[FMath::RandRange(0, VisibleIndices.Num() - 1)];
 		}
 	}
 
 	if (ChosenIndex == INDEX_NONE)
 	{
-		UE_LOG(LogLoop9, Warning, TEXT("MaterialSwapAnomaly on '%s': no valid anomaly materials"),
-			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"));
+		UE_LOG(LogLoop9, Warning,
+			TEXT("MaterialSwapAnomaly on '%s': no variant differs from the normal material, skipping (variants=%d). Run AnomalyAuditMaterials."),
+			GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+			AnomalyMaterials.Num());
 		return false;
 	}
 
@@ -166,4 +171,74 @@ void UMaterialSwapAnomalyComponent::RestoreNormalState()
 	{
 		TargetMesh->SetMaterial(MaterialSlot, NormalMaterial);
 	}
+}
+
+UMaterialInterface* UMaterialSwapAnomalyComponent::ResolveBaselineMaterial() const
+{
+	// While the anomaly is applied the slot holds a variant, so the captured
+	// material is the only honest baseline.
+	if (bNormalMaterialCaptured)
+	{
+		return NormalMaterial;
+	}
+
+	return IsValid(TargetMesh) && TargetMesh->GetNumMaterials() > MaterialSlot && MaterialSlot >= 0
+		? TargetMesh->GetMaterial(MaterialSlot)
+		: nullptr;
+}
+
+TArray<int32> UMaterialSwapAnomalyComponent::CollectVisibleVariantIndices() const
+{
+	const UMaterialInterface* Baseline = ResolveBaselineMaterial();
+
+	TArray<int32> Indices;
+	for (int32 Index = 0; Index < AnomalyMaterials.Num(); ++Index)
+	{
+		UMaterialInterface* Variant = AnomalyMaterials[Index];
+		if (IsValid(Variant) && Variant != Baseline)
+		{
+			Indices.Add(Index);
+		}
+	}
+
+	return Indices;
+}
+
+FString UMaterialSwapAnomalyComponent::DescribeConfigurationProblem() const
+{
+	if (!IsValid(TargetMesh))
+	{
+		return TargetComponentName.IsNone()
+			? TEXT("owner has no mesh component")
+			: FString::Printf(TEXT("no mesh component named '%s' on the owner"), *TargetComponentName.ToString());
+	}
+
+	if (MaterialSlot < 0 || MaterialSlot >= TargetMesh->GetNumMaterials())
+	{
+		return FString::Printf(TEXT("material slot %d is out of range (mesh has %d)"),
+			MaterialSlot, TargetMesh->GetNumMaterials());
+	}
+
+	if (AnomalyMaterials.IsEmpty())
+	{
+		return TEXT("no anomaly materials assigned");
+	}
+
+	const int32 NullCount = Algo::CountIf(AnomalyMaterials,
+		[](const TObjectPtr<UMaterialInterface>& Material) { return !IsValid(Material); });
+
+	if (CollectVisibleVariantIndices().IsEmpty())
+	{
+		return NullCount == AnomalyMaterials.Num()
+			? TEXT("every anomaly material entry is empty")
+			: TEXT("every anomaly material equals the normal material, so the swap would be invisible");
+	}
+
+	if (NullCount > 0)
+	{
+		return FString::Printf(TEXT("%d of %d anomaly material entries are empty"),
+			NullCount, AnomalyMaterials.Num());
+	}
+
+	return FString();
 }

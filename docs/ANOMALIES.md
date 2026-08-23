@@ -38,14 +38,52 @@ Loop 9 has **nine** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h
 
 Loop 1 is intended to stay clean so the player can learn the baseline.
 
+## How often anomalies appear
+
+Two knobs, both in `LoopManagerSubsystem.cpp`:
+
+- `AnomalyChancePerLoop` (currently `0.8`) — odds that a floor past the baseline
+  carries at least one anomaly. Loop 1 ignores it and is always clean, because the
+  opening phone call promises the player exactly that.
+- `ComputeAnomalyTargetCount` — how many anomalies an anomalous floor aims for,
+  scaling with loop index and falling AI stability.
+
+Which anomalies fill those slots is a two-stage weighted draw in
+`UAnomalyManager::TriggerRandomAnomalies`:
+
+1. A type is drawn using `GetTypeSelectionWeight`. Hide and Text sit at `1.8`
+   because they reward searching; Pursuer sits at `0.35` because it replaces the
+   search with a chase.
+2. A component inside that type is drawn using its own `SelectionWeight`.
+   `MaterialSwapAnomalyComponent` ships at `2.0`, so it wins the Text pool it
+   shares with the spawned-note anomaly.
+3. `AnomalyProbability` is rolled last and only decides whether that draw counts.
+   A lost roll no longer costs the floor an anomaly — the next draw replaces it.
+
+`SelectionWeight` is the safe knob for favouring one placement over another, since
+it never changes how full a floor ends up being. Note that a C++ constructor
+default only reaches placements that never overrode the value in the editor.
+
+If a floor claimed an anomaly but nothing activated, `ForceActivateAnyAnomaly`
+rescues it using the same type weights, and keeps trying past any component that
+refuses to apply.
+
 ## Authoring rules
 
 1. Put anomaly components on actors in `FullOfficeMap` (or Blueprint children).
 2. Prefer reusable Actor Components + Interfaces over one-off Blueprint logic.
 3. Ensure components register with `UAnomalyManager` on begin play and unregister on end play.
 4. For MaterialSwap variants, keep texture/material references intentional; tracked MaterialSwap content is large.
+   A variant identical to the slot's normal material is refused at activation, so run
+   `AnomalyAuditMaterials` on a loaded floor after authoring: it lists every swap the
+   player could not possibly see.
 5. Never rely on Sequencer alone to activate or deactivate anomalies.
-6. Fill `AnomalyZone` and `AnomalyObjectKind` (details panel, **Anomaly > AI Context**).
+6. Move anomalies need destinations. Place two or three `AAnomalyMovePoint` actors and
+   either list them on the component or match them by `MoveTargetTag`. The legacy
+   single `AnomalyLocation` is ignored while it is zero: a world-space zero is the
+   world origin, and shipping that default is what teleports objects onto a floor
+   that does not exist.
+7. Fill `AnomalyZone` and `AnomalyObjectKind` (details panel, **Anomaly > AI Context**).
    See [AI context tagging](#ai-context-tagging).
 
 ## AI context tagging
@@ -81,6 +119,7 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyReset` | Clear all active anomalies |
 | `AnomalyForceAny` | Force one random inactive anomaly |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
+| `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
 | `AnomalyHelp` | Print usage |
 
 Filter notes:

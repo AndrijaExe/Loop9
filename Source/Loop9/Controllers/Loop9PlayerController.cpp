@@ -208,6 +208,20 @@ void ALoop9PlayerController::AnomalyForce(const FString& Args)
 #endif
 }
 
+void ALoop9PlayerController::AnomalyAuditMaterials()
+{
+#if !UE_BUILD_SHIPPING
+	if (UAnomalyManager* Manager = GetAnomalyManager(this))
+	{
+		Manager->AuditMaterialAnomalies();
+	}
+	else
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("AnomalyAuditMaterials: AnomalyManager not available"));
+	}
+#endif
+}
+
 void ALoop9PlayerController::AnomalyHelp()
 {
 #if !UE_BUILD_SHIPPING
@@ -220,6 +234,7 @@ void ALoop9PlayerController::AnomalyHelp()
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
 		"    filter examples: MaterialSwap, Text, Move, OldMagazine, I01, F01, D01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
+		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
 		"  AnomalyHelp                         - this message"));
 #endif
 }

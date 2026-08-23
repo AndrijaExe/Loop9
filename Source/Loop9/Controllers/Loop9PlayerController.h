@@ -78,6 +78,10 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyForce(const FString& Args);
 
+	/** Report every material-swap placement that would be invisible if it fired. */
+	UFUNCTION(Exec)
+	void AnomalyAuditMaterials();
+
 	/** Print command help. */
 	UFUNCTION(Exec)
 	void AnomalyHelp();

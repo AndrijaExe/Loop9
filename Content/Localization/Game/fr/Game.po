@@ -1119,3 +1119,108 @@ msgstr "???"
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIVES"
+
+#. Key:	Help
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
+#: Source/Loop9/UI/MainMenuWidget.cpp
+msgctxt "Loop9Menu,Help"
+msgid "HELP"
+msgstr "AIDE"
+
+#. Key:	HelpTitle
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpTitle"
+msgid "HOW THE SHIFT WORKS"
+msgstr "COMMENT FONCTIONNE LE QUART"
+
+#. Key:	HelpBack
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBack"
+msgid "BACK"
+msgstr "RETOUR"
+
+#. Key:	HelpJobHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobHeading"
+msgid "YOUR SHIFT"
+msgstr "VOTRE QUART"
+
+#. Key:	HelpJobBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobBody"
+msgid "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "Vous êtes le technicien de nuit de l'étage 9. Chaque boucle vous ramène au même étage du même bureau, et votre seule tâche est de trancher une chose avant de prendre l'ascenseur : cet étage est-il tel qu'il devrait être, ou quelque chose a-t-il changé ?"
+
+#. Key:	HelpBaselineHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineHeading"
+msgid "THE FIRST LOOP IS CLEAN"
+msgstr "LA PREMIÈRE BOUCLE EST PROPRE"
+
+#. Key:	HelpBaselineBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineBody"
+msgid "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
+msgstr "Rien n'est jamais anormal dans la première boucle. Profitez-en. Parcourez tout l'étage, regardez les bureaux, les affiches, les chaises, les lampes, et retenez à quoi l'endroit est censé ressembler. Tout ce qui suit se mesure à ce que vous apprenez ici."
+
+#. Key:	HelpAnomalyHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyHeading"
+msgid "WHAT COUNTS AS AN ANOMALY"
+msgstr "CE QUI COMPTE COMME ANOMALIE"
+
+#. Key:	HelpAnomalyBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyBody"
+msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
+msgstr "Une anomalie est tout ce que le bureau ne ferait pas de lui-même. Un objet qui manque. Un objet posé là où il n'a jamais été. Une affiche ou un écran dont le texte a changé. Une lampe qui n'arrête pas de clignoter, et que vous entendez depuis le fond du couloir. Une porte verrouillée alors qu'elle ne l'a jamais été. Un son que rien ne produit. Quelque chose de la mauvaise taille. Un message sur votre téléphone que personne n'a envoyé. Et, rarement, quelque chose qui est à l'étage avec vous."
+
+#. Key:	HelpElevatorHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorHeading"
+msgid "THE TWO ELEVATORS"
+msgstr "LES DEUX ASCENSEURS"
+
+#. Key:	HelpElevatorBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorBody"
+msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
+msgstr "C'est tout le jeu, alors lisez deux fois. Si vous avez trouvé une anomalie, prenez l'ascenseur ÉCLAIRÉ. Si l'étage est propre, prenez le SOMBRE. Juste, et vous montez d'une boucle. Faux, et vous repartez du début. La boucle 9 met fin à votre quart, et la manière dont vous y êtes arrivé décide de la fin que vous obtenez."
+
+#. Key:	HelpPhoneHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneHeading"
+msgid "THE PHONE"
+msgstr "LE TÉLÉPHONE"
+
+#. Key:	HelpPhoneBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneBody"
+msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
+msgstr "Dragojlo surveille l'immeuble depuis une autre pièce et répond au téléphone. Il peut vous dire à peu près où chercher, et c'est la seule compagnie que vous avez ici. C'est aussi une personne, pas un outil : la façon dont vous lui parlez change ce qu'il vous dit et la manière dont le quart se termine. Il peut être fatigué, il peut se tromper, et si vous le traitez mal il peut cesser de vous aider. La décision devant l'ascenseur reste toujours la vôtre."
+
+#. Key:	HelpControlsHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsHeading"
+msgid "CONTROLS"
+msgstr "COMMANDES"
+
+#. Key:	HelpControlsBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsBody"
+msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
+msgstr "W A S D pour se déplacer, souris pour regarder, Espace pour sauter.\nE pour interagir : répondre au téléphone, ouvrir les portes, prendre un objet et l'examiner.\nF pour allumer et éteindre la lampe torche.\nÉchap pour mettre en pause, et pour reposer un objet pendant l'examen."

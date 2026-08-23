@@ -5,8 +5,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Engine/GameInstance.h"
@@ -46,6 +48,23 @@ ALoop9Character::ALoop9Character()
 	FirstPersonCameraComponent->bEnableFirstPersonScale = true;
 	FirstPersonCameraComponent->FirstPersonFieldOfView = 70.0f;
 	FirstPersonCameraComponent->FirstPersonScale = 0.6f;
+
+	// Handheld light. Attached to the camera so it always points where the
+	// player is looking, and created here rather than in the Blueprint so the
+	// key works on a fresh checkout.
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->SetupAttachment(FirstPersonCameraComponent);
+	Flashlight->SetRelativeLocationAndRotation(FVector(10.0f, 8.0f, -8.0f), FRotator::ZeroRotator);
+	Flashlight->SetIntensityUnits(ELightUnits::Lumens);
+	Flashlight->Intensity = 2600.0f;
+	Flashlight->AttenuationRadius = 1600.0f;
+	Flashlight->InnerConeAngle = 16.0f;
+	Flashlight->OuterConeAngle = 34.0f;
+	// Slightly warm and slightly dim: it should make a corridor searchable
+	// without erasing the dark the rest of the game is built on.
+	Flashlight->SetLightColor(FLinearColor(1.0f, 0.96f, 0.88f));
+	Flashlight->CastShadows = true;
+	Flashlight->SetVisibility(false);
 
 	// configure the character comps
 	GetMesh()->SetOwnerNoSee(true);
@@ -175,6 +194,13 @@ void ALoop9Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		{
 			EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ALoop9Character::OnPause);
 		}
+
+		// Flashlight
+		if (UInputAction* ResolvedFlashlightAction = ResolveFlashlightAction())
+		{
+			EnhancedInputComponent->BindAction(
+				ResolvedFlashlightAction, ETriggerEvent::Started, this, &ALoop9Character::ToggleFlashlight);
+		}
 	}
 	else
 	{
@@ -228,6 +254,59 @@ void ALoop9Character::AddGamepadFallbackMappings(UInputMappingContext* Context)
 		// Start / Menu button.
 		Context->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
 	}
+
+	if (UInputAction* ResolvedFlashlightAction = ResolveFlashlightAction())
+	{
+		// The keyboard key lives here too when no IA asset was assigned,
+		// because there is no IMC_Default entry to carry it.
+		if (!FlashlightAction)
+		{
+			Context->MapKey(ResolvedFlashlightAction, EKeys::F);
+		}
+
+		// Y on Xbox / Triangle on PlayStation.
+		Context->MapKey(ResolvedFlashlightAction, EKeys::Gamepad_FaceButton_Top);
+	}
+}
+
+UInputAction* ALoop9Character::ResolveFlashlightAction()
+{
+	if (FlashlightAction)
+	{
+		return FlashlightAction;
+	}
+
+	if (!RuntimeFlashlightAction)
+	{
+		RuntimeFlashlightAction = NewObject<UInputAction>(this, TEXT("IA_Flashlight_Runtime"));
+		RuntimeFlashlightAction->ValueType = EInputActionValueType::Boolean;
+	}
+
+	return RuntimeFlashlightAction;
+}
+
+bool ALoop9Character::IsFlashlightOn() const
+{
+	return Flashlight && Flashlight->IsVisible();
+}
+
+void ALoop9Character::ToggleFlashlight()
+{
+	if (!Flashlight || IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
+	const bool bTurningOn = !Flashlight->IsVisible();
+	Flashlight->SetVisibility(bTurningOn);
+
+	if (FlashlightToggleSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(), FlashlightToggleSound, GetActorLocation(), GetActorRotation(), FlashlightToggleVolume);
+	}
+
+	UE_LOG(LogLoop9, Log, TEXT("Flashlight %s"), bTurningOn ? TEXT("on") : TEXT("off"));
 }
 
 

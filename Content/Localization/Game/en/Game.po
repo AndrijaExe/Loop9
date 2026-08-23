@@ -1119,3 +1119,108 @@ msgstr "???"
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIVE"
+
+#. Key:	Help
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
+#: Source/Loop9/UI/MainMenuWidget.cpp
+msgctxt "Loop9Menu,Help"
+msgid "HELP"
+msgstr "HELP"
+
+#. Key:	HelpTitle
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpTitle"
+msgid "HOW THE SHIFT WORKS"
+msgstr "HOW THE SHIFT WORKS"
+
+#. Key:	HelpBack
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBack"
+msgid "BACK"
+msgstr "BACK"
+
+#. Key:	HelpJobHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobHeading"
+msgid "YOUR SHIFT"
+msgstr "YOUR SHIFT"
+
+#. Key:	HelpJobBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobBody"
+msgid "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+
+#. Key:	HelpBaselineHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineHeading"
+msgid "THE FIRST LOOP IS CLEAN"
+msgstr "THE FIRST LOOP IS CLEAN"
+
+#. Key:	HelpBaselineBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineBody"
+msgid "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
+msgstr "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
+
+#. Key:	HelpAnomalyHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyHeading"
+msgid "WHAT COUNTS AS AN ANOMALY"
+msgstr "WHAT COUNTS AS AN ANOMALY"
+
+#. Key:	HelpAnomalyBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyBody"
+msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
+msgstr "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
+
+#. Key:	HelpElevatorHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorHeading"
+msgid "THE TWO ELEVATORS"
+msgstr "THE TWO ELEVATORS"
+
+#. Key:	HelpElevatorBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorBody"
+msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
+msgstr "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
+
+#. Key:	HelpPhoneHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneHeading"
+msgid "THE PHONE"
+msgstr "THE PHONE"
+
+#. Key:	HelpPhoneBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneBody"
+msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
+msgstr "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
+
+#. Key:	HelpControlsHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsHeading"
+msgid "CONTROLS"
+msgstr "CONTROLS"
+
+#. Key:	HelpControlsBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsBody"
+msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
+msgstr "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."

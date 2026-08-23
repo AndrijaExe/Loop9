@@ -1119,3 +1119,108 @@ msgstr "???"
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARHIVA"
+
+#. Key:	Help
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
+#: Source/Loop9/UI/MainMenuWidget.cpp
+msgctxt "Loop9Menu,Help"
+msgid "HELP"
+msgstr "POMOĆ"
+
+#. Key:	HelpTitle
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpTitle"
+msgid "HOW THE SHIFT WORKS"
+msgstr "KAKO SMENA FUNKCIONIŠE"
+
+#. Key:	HelpBack
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBack"
+msgid "BACK"
+msgstr "NAZAD"
+
+#. Key:	HelpJobHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobHeading"
+msgid "YOUR SHIFT"
+msgstr "TVOJA SMENA"
+
+#. Key:	HelpJobBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpJobBody"
+msgid "You are the night technician on floor 9. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "Ti si noćni tehničar na 9. spratu. Svaka petlja te vraća na isti sprat iste kancelarije, a tvoj jedini posao je da odlučiš jednu stvar pre nego što uđeš u lift: da li je sprat onakav kakav treba da bude, ili se nešto promenilo?"
+
+#. Key:	HelpBaselineHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineHeading"
+msgid "THE FIRST LOOP IS CLEAN"
+msgstr "PRVA PETLJA JE ČISTA"
+
+#. Key:	HelpBaselineBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpBaselineBody"
+msgid "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
+msgstr "U prvoj petlji nikada ništa nije pogrešno. Iskoristi je. Prođi ceo sprat, pogledaj stolove, postere, stolice, svetla, i zapamti kako mesto treba da izgleda. Sve posle ovoga meri se prema onome što si tu naučio."
+
+#. Key:	HelpAnomalyHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyHeading"
+msgid "WHAT COUNTS AS AN ANOMALY"
+msgstr "ŠTA SE RAČUNA KAO ANOMALIJA"
+
+#. Key:	HelpAnomalyBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpAnomalyBody"
+msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
+msgstr "Anomalija je bilo koja stvar koju kancelarija ne bi uradila sama. Predmet koji nedostaje. Predmet koji stoji tamo gde nikada nije stajao. Poster ili ekran čiji se tekst promenio. Svetlo koje neprestano treperi, i koje čuješ iz dubine hodnika. Vrata zaključana koja nikada nisu bila. Zvuk koji ništa ne proizvodi. Nešto pogrešne veličine. Poruka na telefonu koju nije poslao niko. I, retko, nešto na spratu zajedno sa tobom."
+
+#. Key:	HelpElevatorHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorHeading"
+msgid "THE TWO ELEVATORS"
+msgstr "DVA LIFTA"
+
+#. Key:	HelpElevatorBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpElevatorBody"
+msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
+msgstr "Ovo je cela igra, pa pročitaj dvaput. Ako si našao anomaliju, uđi u OSVETLJENI lift. Ako je sprat čist, uđi u MRAČNI lift. Pogodiš li, ideš petlju dalje. Pogrešiš li, vraćaš se na početak. Deveta petlja završava tvoju smenu, a način na koji si do nje došao odlučuje koji kraj dobijaš."
+
+#. Key:	HelpPhoneHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneHeading"
+msgid "THE PHONE"
+msgstr "TELEFON"
+
+#. Key:	HelpPhoneBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpPhoneBody"
+msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
+msgstr "Dragojlo gleda zgradu iz druge sobe i odgovara na telefon. Može ti otprilike reći gde da tražiš, i jedino je društvo koje imaš ovde dole. On je i čovek, ne alat: način na koji mu se obraćaš menja koliko ti kaže i kako se smena završava. Može biti umoran, može se prevariti, a ako se ponašaš loše prema njemu može prestati da pomaže. Odluka pred liftom je uvek tvoja."
+
+#. Key:	HelpControlsHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsHeading"
+msgid "CONTROLS"
+msgstr "KONTROLE"
+
+#. Key:	HelpControlsBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
+#: Source/Loop9/UI/HelpWidget.cpp
+msgctxt "Loop9Help,HelpControlsBody"
+msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
+msgstr "W A S D za kretanje, miš za gledanje, Space za skok.\nE za interakciju: javljanje na telefon, otvaranje vrata, uzimanje i razgledanje predmeta.\nF za uključivanje i isključivanje lampe.\nEsc za pauzu, i za odlaganje predmeta dok ga razgledaš."

@@ -16,6 +16,7 @@ class ALiftButton;
 class AAI_Friend;
 class ADoorInteractable;
 class USoundBase;
+class USpotLightComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -34,6 +35,10 @@ class ALoop9Character : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
+
+	/** Handheld light, aimed with the camera and off until the player asks for it. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	USpotLightComponent* Flashlight;
 
 protected:
 
@@ -60,6 +65,22 @@ protected:
 	/** Pause Input Action (ESC key) */
 	UPROPERTY(EditAnywhere, Category ="Input")
 	class UInputAction* PauseAction;
+
+	/**
+	 * Flashlight toggle. Optional: when left empty the character builds its own
+	 * action and binds F at runtime, so the light works in a fresh build before
+	 * anyone opens the editor. Assign an IA asset here to put the key in
+	 * IMC_Default alongside the others and make it reconfigurable.
+	 */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	class UInputAction* FlashlightAction;
+
+	/** Sound played on each toggle, e.g. a plastic switch click. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Audio|Flashlight")
+	TObjectPtr<USoundBase> FlashlightToggleSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Audio|Flashlight")
+	float FlashlightToggleVolume = 0.6f;
 
 	/** Maximum distance for interaction line trace */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Interaction")
@@ -131,6 +152,13 @@ protected:
 	/** Called when player presses Pause key (ESC) */
 	void OnPause();
 
+	/** Turns the handheld light on or off. */
+	UFUNCTION(BlueprintCallable, Category="Flashlight")
+	void ToggleFlashlight();
+
+	UFUNCTION(BlueprintPure, Category="Flashlight")
+	bool IsFlashlightOn() const;
+
 	/** Performs precise line trace from camera to find interactable objects */
 	void PerformInteractTrace();
 
@@ -142,6 +170,13 @@ private:
 	/** Runtime-built mapping context with gamepad keys for actions that only have keyboard bindings in IMC_Default. */
 	UPROPERTY(Transient)
 	TObjectPtr<class UInputMappingContext> GamepadFallbackContext;
+
+	/** Stand-in action created only when no FlashlightAction asset was assigned. */
+	UPROPERTY(Transient)
+	TObjectPtr<class UInputAction> RuntimeFlashlightAction;
+
+	/** Returns the assigned action, creating the runtime stand-in on first use. */
+	UInputAction* ResolveFlashlightAction();
 
 	float FootstepTimer = 0.0f;
 

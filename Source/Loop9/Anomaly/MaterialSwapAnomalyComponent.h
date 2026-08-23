@@ -52,6 +52,18 @@ public:
 	 */
 	bool ForceMaterialVariant(int32 Index);
 
+	/**
+	 * Empty when this placement will actually read on screen, otherwise the
+	 * reason it will not. Call it in-game: the mesh and the normal material are
+	 * only resolved from BeginPlay onwards.
+	 *
+	 * A swap that activates but changes nothing is the worst outcome available
+	 * here. The floor then swears it holds an anomaly, the player searches,
+	 * finds every object exactly as it was, correctly concludes the floor is
+	 * clean, takes the dark elevator and is punished for being right.
+	 */
+	FString DescribeConfigurationProblem() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual bool ApplyAnomalyState() override;
@@ -71,4 +83,13 @@ private:
 	int32 ForcedMaterialIndex = INDEX_NONE;
 
 	UMeshComponent* ResolveTargetMesh() const;
+
+	/** The material the player treats as normal, whether or not it is applied right now. */
+	UMaterialInterface* ResolveBaselineMaterial() const;
+
+	/**
+	 * Indices that are non-null and actually differ from the baseline, i.e. the
+	 * variants that would be visible if applied.
+	 */
+	TArray<int32> CollectVisibleVariantIndices() const;
 };

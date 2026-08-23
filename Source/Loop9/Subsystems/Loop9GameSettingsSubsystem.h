@@ -88,6 +88,25 @@ private:
 	void ResolveAmbientSoundClass();
 	UWorld* ResolveAudioWorld() const;
 	void HandlePostWorldInit(UWorld* World, const UWorld::InitializationValues Values);
+
+	/**
+	 * Re-runs the audio setup once the new world is actually running.
+	 *
+	 * OnPostWorldInitialization is too early to be the only chance: the world has
+	 * no audio device yet, so PushSoundMixModifier quietly does nothing and every
+	 * later call is skipped because the mix is recorded as pushed. That is why
+	 * level music used to stay silent until the settings screen moved a slider
+	 * and forced the override through by hand.
+	 */
+	bool HandleDeferredAudioBootstrap(float DeltaSeconds);
+
+	/**
+	 * Starts any level-placed ambient loop that failed to begin on its own.
+	 * Volume is left alone here — the sound mix owns that — so the nudge cannot
+	 * scale a track twice.
+	 */
+	void EnsureLevelAmbienceIsPlaying(UWorld* World) const;
+
 	void SchedulePersistence();
 	bool HandlePersistenceTicker(float DeltaSeconds);
 
@@ -126,5 +145,6 @@ private:
 
 	FDelegateHandle PostWorldInitHandle;
 	FTSTicker::FDelegateHandle PersistenceTickerHandle;
+	FTSTicker::FDelegateHandle AudioBootstrapTickerHandle;
 	bool bSettingsDirty = false;
 };
