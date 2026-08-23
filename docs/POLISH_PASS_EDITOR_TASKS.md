@@ -87,9 +87,13 @@ ako u WBP-u ne postoji dugme po imenu `Help`. Tekst je lokalizovan i pisan u C++
 
 ## 6. Dragojlo ispod svetla na main menu-u
 
-Ovo je jedina stvar koju C++ ne može da odradi sam, jer flicker i spawn figure
-žive u **level Blueprintu mape `MainMenu`** (funkcije `ScheduleFlicker` / `DoFlicker`,
-promenljive `StartLoc` / `StartRot`), a ne u C++ direktoru.
+> **Andrija ovo radi ručno u editoru.** C++ strana je gotova i pušovana — nod
+> `Get Figure Transform Under Light` postoji i čeka da se veže. Ne treba ništa
+> dodatno u kodu.
+
+Flicker i spawn figure žive u **level Blueprintu mape `MainMenu`** (funkcije
+`ScheduleFlicker` / `DoFlicker`, promenljive `StartLoc` / `StartRot`), a ne u C++
+direktoru — zato ovo i ne može da se odradi iz koda.
 
 Izmena je jedan nod:
 
