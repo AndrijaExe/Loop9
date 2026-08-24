@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ConstructorHelpers.h"
 
 ADoorInteractable::ADoorInteractable()
 {
@@ -17,11 +18,59 @@ ADoorInteractable::ADoorInteractable()
 	DoorMesh->SetupAttachment(Root);
 	DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	DoorMesh->SetCollisionResponseToAllChannels(ECR_Block);
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> OpenFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/DoorOpen"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> CloseFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/DoorClose"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> LockedFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/DoorLocked"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> BlockedFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/DoorBlocked"));
+
+	if (OpenFinder.Succeeded())
+	{
+		OpenSound = OpenFinder.Object;
+		OpenCloseSound = OpenFinder.Object;
+	}
+	if (CloseFinder.Succeeded())
+	{
+		CloseSound = CloseFinder.Object;
+	}
+	if (LockedFinder.Succeeded())
+	{
+		LockedSound = LockedFinder.Object;
+	}
+	if (BlockedFinder.Succeeded())
+	{
+		BlockedSound = BlockedFinder.Object;
+	}
 }
 
 void ADoorInteractable::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!OpenSound)
+	{
+		OpenSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorOpen.DoorOpen"));
+	}
+	if (!CloseSound)
+	{
+		CloseSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorClose.DoorClose"));
+	}
+	if (!LockedSound)
+	{
+		LockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorLocked.DoorLocked"));
+	}
+	if (!BlockedSound)
+	{
+		BlockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorBlocked.DoorBlocked"));
+	}
+	if (!OpenCloseSound)
+	{
+		OpenCloseSound = OpenSound;
+	}
 
 	if (DoorMesh)
 	{
@@ -54,9 +103,9 @@ void ADoorInteractable::Tick(float DeltaSeconds)
 
 bool ADoorInteractable::Interact()
 {
-	if (bIsLocked)
+	if (bIsBlocked || bIsLocked)
 	{
-		PlayDoorSound(LockedSound);
+		PlayDoorSound(ResolveDeniedSound());
 		return false;
 	}
 
@@ -65,13 +114,18 @@ bool ADoorInteractable::Interact()
 	bIsMoving = true;
 	SetActorTickEnabled(true);
 
-	PlayDoorSound(OpenCloseSound);
+	PlayDoorSound(bIsOpen ? ResolveOpenSound() : ResolveCloseSound());
 	return true;
 }
 
 void ADoorInteractable::SetLocked(bool bLocked)
 {
 	bIsLocked = bLocked;
+}
+
+void ADoorInteractable::SetBlocked(bool bBlocked)
+{
+	bIsBlocked = bBlocked;
 }
 
 void ADoorInteractable::LockDoor()
@@ -91,6 +145,11 @@ bool ADoorInteractable::TryInteract_Implementation(APlayerController* Interactin
 
 FText ADoorInteractable::GetInteractionPromptText_Implementation() const
 {
+	if (bIsBlocked)
+	{
+		return NSLOCTEXT("Loop9Interaction", "DoorBlocked", "Blocked by something behind");
+	}
+
 	if (bIsLocked)
 	{
 		return NSLOCTEXT("Loop9Interaction", "DoorLocked", "Locked");
@@ -109,4 +168,27 @@ void ADoorInteractable::PlayDoorSound(USoundBase* SoundToPlay)
 	}
 
 	UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
+}
+
+USoundBase* ADoorInteractable::ResolveOpenSound() const
+{
+	return OpenSound ? OpenSound.Get() : OpenCloseSound.Get();
+}
+
+USoundBase* ADoorInteractable::ResolveCloseSound() const
+{
+	if (CloseSound)
+	{
+		return CloseSound.Get();
+	}
+	return ResolveOpenSound();
+}
+
+USoundBase* ADoorInteractable::ResolveDeniedSound() const
+{
+	if (bIsBlocked && BlockedSound)
+	{
+		return BlockedSound.Get();
+	}
+	return LockedSound.Get();
 }

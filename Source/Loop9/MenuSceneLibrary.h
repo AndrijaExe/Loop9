@@ -34,7 +34,7 @@ public:
 	 *                         when dead centre reads as too composed.
 	 * @param MaxDropDistance  How far down to look for a floor before giving up.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Menu Scene",
+	UFUNCTION(BlueprintPure, Category = "Menu Scene",
 		meta = (WorldContext = "WorldContextObject",
 			DisplayName = "Get Figure Transform Under Light",
 			AdvancedDisplay = "ForwardOffset,MaxDropDistance"))

@@ -408,9 +408,27 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 		return true;
 	}
 
-	// Allow short type names: Text, Move, Hide, ...
+	// Allow short type names: Text, Move, Hide, Light Flicker, ...
 	const FString TypeName = UEnum::GetDisplayValueAsText(Component->GetAnomalyType()).ToString();
 	if (TypeName.Equals(Filter, ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+
+	const FString TypeNameCompact = TypeName.Replace(TEXT(" "), TEXT(""));
+	if (TypeNameCompact.Equals(Filter, ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+
+	if (Filter.Equals(TEXT("Flicker"), ESearchCase::IgnoreCase)
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Light)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Phone"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Telephone"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Audio)
 	{
 		return true;
 	}

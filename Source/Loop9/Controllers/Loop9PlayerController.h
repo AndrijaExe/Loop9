@@ -78,6 +78,26 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyForce(const FString& Args);
 
+	/** Force every Light Flicker anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyFlicker();
+
+	/** Force every Audio (phone) anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyPhone();
+
+	/** Force the Pursuer anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyPursuer();
+
+	/** Force every Move anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyMove();
+
+	/** Force every MaterialSwap anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyMaterial();
+
 	/** Report every material-swap placement that would be invisible if it fired. */
 	UFUNCTION(Exec)
 	void AnomalyAuditMaterials();

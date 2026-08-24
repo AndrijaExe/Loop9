@@ -4,10 +4,18 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
+#include "UObject/ConstructorHelpers.h"
 
 UAudioAnomalyComponent::UAudioAnomalyComponent()
 {
 	AnomalyProbability = 0.5f;
+
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> PhoneAttenuationFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/ATT_PhoneRinging"));
+	if (PhoneAttenuationFinder.Succeeded())
+	{
+		AttenuationSettings = PhoneAttenuationFinder.Object;
+	}
 }
 
 void UAudioAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

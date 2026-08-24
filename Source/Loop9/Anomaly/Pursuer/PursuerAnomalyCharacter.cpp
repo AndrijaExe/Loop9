@@ -13,12 +13,34 @@
 #include "Sound/SoundAttenuation.h"
 #include "NiagaraComponent.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 APursuerAnomalyCharacter::APursuerAnomalyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-   AIControllerClass = APursuerAnomalyAIController::StaticClass();
+	AIControllerClass = APursuerAnomalyAIController::StaticClass();
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> MurmurFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/MumblingCrazy"));
+	if (MurmurFinder.Succeeded())
+	{
+		MovingMurmurLoopSound = MurmurFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> MurmurAttenuationFinder(
+		TEXT("/Game/MyStuff/Sound/Footsteps/ATT_PursuerFootstep"));
+	if (MurmurAttenuationFinder.Succeeded())
+	{
+		MovingMurmurAttenuation = MurmurAttenuationFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> DespawnFinder(
+		TEXT("/Game/MyStuff/Sound/Pursuer/PursuerDespawn"));
+	if (DespawnFinder.Succeeded())
+	{
+		DespawnSound = DespawnFinder.Object;
+	}
 }
 
 void APursuerAnomalyCharacter::BeginPlay()
@@ -28,6 +50,19 @@ void APursuerAnomalyCharacter::BeginPlay()
 	CachedPlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	CachedPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	ObservationCheckAccumulator = FMath::Max(0.01f, ObservationCheckInterval);
+
+	if (!MovingMurmurLoopSound)
+	{
+		MovingMurmurLoopSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Phone/MumblingCrazy.MumblingCrazy"));
+	}
+	if (!MovingMurmurAttenuation)
+	{
+		MovingMurmurAttenuation = LoadObject<USoundAttenuation>(nullptr, TEXT("/Game/MyStuff/Sound/Footsteps/ATT_PursuerFootstep.ATT_PursuerFootstep"));
+	}
+	if (!DespawnSound)
+	{
+		DespawnSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Pursuer/PursuerDespawn.PursuerDespawn"));
+	}
 }
 
 void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
@@ -293,29 +328,40 @@ void APursuerAnomalyCharacter::UpdateMovingAudio()
 	const float Speed = GetVelocity().Size2D();
 	const bool bShouldPlayMurmur = !bHasCaughtPlayer && !bIsObservedByPlayer && Speed > 10.0f;
 
-	if (bShouldPlayMurmur && !bMurmurPlaying)
+	if (bShouldPlayMurmur)
 	{
-		MovingMurmurAudioComponent = UGameplayStatics::SpawnSoundAttached(
-			MovingMurmurLoopSound,
-			GetMesh() ? GetMesh() : RootComponent,
-			NAME_None,
-			FVector::ZeroVector,
-			EAttachLocation::KeepRelativeOffset,
-			true,
-			MovingMurmurVolume,
-			1.0f,
-			0.0f,
-			MovingMurmurAttenuation,
-			nullptr,
-			true);
-
-		if (MovingMurmurAudioComponent)
+		const bool bNeedsRestart = !MovingMurmurAudioComponent || !MovingMurmurAudioComponent->IsPlaying();
+		if (bNeedsRestart)
 		{
-			MovingMurmurAudioComponent->bAutoDestroy = false;
-			bMurmurPlaying = true;
+			if (MovingMurmurAudioComponent)
+			{
+				MovingMurmurAudioComponent->Stop();
+				MovingMurmurAudioComponent->DestroyComponent();
+				MovingMurmurAudioComponent = nullptr;
+			}
+
+			MovingMurmurAudioComponent = UGameplayStatics::SpawnSoundAttached(
+				MovingMurmurLoopSound,
+				GetMesh() ? GetMesh() : RootComponent,
+				NAME_None,
+				FVector::ZeroVector,
+				EAttachLocation::KeepRelativeOffset,
+				true,
+				MovingMurmurVolume,
+				1.0f,
+				0.0f,
+				MovingMurmurAttenuation,
+				nullptr,
+				false);
+
+			if (MovingMurmurAudioComponent)
+			{
+				MovingMurmurAudioComponent->bAutoDestroy = false;
+				bMurmurPlaying = true;
+			}
 		}
 	}
-	else if (!bShouldPlayMurmur && bMurmurPlaying)
+	else if (bMurmurPlaying)
 	{
 		if (MovingMurmurAudioComponent)
 		{

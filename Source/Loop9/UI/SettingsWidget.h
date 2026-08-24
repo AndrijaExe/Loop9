@@ -27,6 +27,7 @@ protected:
 	UFUNCTION()
 	void HandleBackButtonClicked();
 
+	/** Combo selection only. Culture is applied in OnApplyClicked / SetLanguage. */
 	UFUNCTION()
 	void HandleLanguageSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 

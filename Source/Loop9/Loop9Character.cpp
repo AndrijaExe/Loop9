@@ -25,6 +25,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ConstructorHelpers.h"
 
 ALoop9Character::ALoop9Character()
 {
@@ -65,6 +66,22 @@ ALoop9Character::ALoop9Character()
 	Flashlight->SetLightColor(FLinearColor(1.0f, 0.96f, 0.88f));
 	Flashlight->CastShadows = true;
 	Flashlight->SetVisibility(false);
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> FlashlightClickFinder(
+		TEXT("/Game/MyStuff/Sound/Flashlight/FlashlightToggle"));
+	if (FlashlightClickFinder.Succeeded())
+	{
+		FlashlightToggleSound = FlashlightClickFinder.Object;
+	}
+	else
+	{
+		static ConstructorHelpers::FObjectFinder<USoundBase> MenuClickFallback(
+			TEXT("/Game/MyStuff/Sound/Elevator/ElevatorButtonPress"));
+		if (MenuClickFallback.Succeeded())
+		{
+			FlashlightToggleSound = MenuClickFallback.Object;
+		}
+	}
 
 	// configure the character comps
 	GetMesh()->SetOwnerNoSee(true);

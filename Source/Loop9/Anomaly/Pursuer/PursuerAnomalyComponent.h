@@ -53,7 +53,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio", meta = (ClampMin = "0.0"))
 	float ActiveAnomalyLoopVolume = 0.7f;
 
+	/** 2D tension bed that replaces level ambience while the pursuer exists. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio")
+	bool bReplaceLevelAmbience = true;
+
 protected:
+	virtual void BeginPlay() override;
 	virtual bool ApplyAnomalyState() override;
 	virtual void RestoreNormalState() override;
 
@@ -64,10 +69,16 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> ActiveAnomalyLoopAudioComponent = nullptr;
 
+	bool bAmbienceSuppressed = false;
+
 	UFUNCTION()
 	void OnSpawnedPursuerDestroyed(AActor* DestroyedActor);
+
+	void StartTensionMusic();
+	void StopTensionMusic();
 
 	bool TryGetSpawnTransformFromPoints(APawn* PlayerPawn, FTransform& OutTransform) const;
 	bool TryGetSpawnTransformFromRadius(APawn* PlayerPawn, FTransform& OutTransform) const;
 	bool ProjectToNavigation(const FVector& RawLocation, FVector& OutNavLocation) const;
+	void CollectEnabledSpawnPoints(TArray<APursuerSpawnPoint*>& OutPoints) const;
 };

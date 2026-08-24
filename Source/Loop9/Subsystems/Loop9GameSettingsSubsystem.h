@@ -81,6 +81,9 @@ public:
 	/** Immediately writes any live settings changes that are waiting on the debounce. */
 	void FlushPendingSettings();
 
+	/** Pause or resume level-placed AAmbientSound loops (pursuer tension stinger). */
+	void SuppressLevelAmbience(bool bSuppress);
+
 private:
 	void ApplyMasterVolume() const;
 	void ApplyGamma() const;
@@ -106,6 +109,7 @@ private:
 	 * scale a track twice.
 	 */
 	void EnsureLevelAmbienceIsPlaying(UWorld* World) const;
+	void ApplyLevelAmbienceSuppressState(UWorld* World) const;
 
 	void SchedulePersistence();
 	bool HandlePersistenceTicker(float DeltaSeconds);
@@ -147,4 +151,5 @@ private:
 	FTSTicker::FDelegateHandle PersistenceTickerHandle;
 	FTSTicker::FDelegateHandle AudioBootstrapTickerHandle;
 	bool bSettingsDirty = false;
+	int32 LevelAmbienceSuppressCount = 0;
 };

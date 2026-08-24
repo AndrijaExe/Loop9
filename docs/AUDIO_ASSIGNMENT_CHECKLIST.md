@@ -1,6 +1,6 @@
 # Audio assignment checklist
 
-Poslednje ažuriranje: **21.08.2026.**
+Poslednje ažuriranje: **24.08.2026.**
 
 Koristi ovo kao listu zvukova koje još treba da dodeliš u editoru
 (Blueprint / map actor Details). C++ samo čita reference — bez asseta
@@ -65,9 +65,10 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 - [ ] **Footstep Sounds** (niz) — hodanje po kancelariji
 - [ ] **Footstep Volume** — provera u igri
-- [ ] **Flashlight Toggle Sound** (`Audio|Flashlight`) — klik lampe na `F`.
-  Opciono: bez asseta lampa radi nemo. Klik iz `Sound/Elevator/ElevatorButtonPress`
-  bi bio prepoznatljiv, ali je bolji zaseban tiši klik.
+- [x] **Flashlight Toggle Sound** (`Audio|Flashlight`) — klik lampe na `F`.
+  Generisan `Sound/Flashlight/FlashlightToggle` (mono, 44.1 kHz, 0.11 s,
+  peak −8 dBFS, dva latch transijenta). C++ default na `Loop9Character`;
+  ako asset još nije uvezen, fallback je `Sound/Elevator/ElevatorButtonPress`.
 
 ## Light flicker anomalije (`LightFlickerAnomalyComponent`)
 
@@ -76,10 +77,11 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
   Svira se na poziciji **light komponente**, ne actor pivota, da bi igrača vodio
   ka pravom mestu. Ne mora ništa da se dodeljuje po instanci; prazan slot znači
   nemo treperenje.
-- [ ] **Flicker Sound Attenuation** — bez attenuation asseta zvuk se čuje sa cele
-  mape. Ovo je jedina stvar koju *treba* dodeliti: napravi attenuation sa radijusom
-  koji ne prelazi hodnik (npr. 300 / 1800 cm) i stavi na komponentu ili na class
-  defaults.
+- [x] **Flicker Sound Attenuation** — `Sound/MainMenu/ATT_FlickerHallway`
+  (inner 300 cm, falloff 1500 cm, silent at 18 m, Linear, LPF, bez occlusion da
+  plafon ne uguši klik). Dodeljen na `BP_Light_17` / `_35` / `_37` i kao C++
+  default na `LightFlickerAnomalyComponent`. Hodničko svetlo pored lifta i dalje
+  sme da se čuje iz kabine; svetla u back room / tool shelf ne.
 - [ ] Volume / tajming po instanci — C++ defaulti su `Flicker Sound Volume` = 0.7,
   `Flicker Sound Trigger Level` = 0.3 (dip ispod kog se pali),
   `Min Seconds Between Flicker Sounds` = 0.5 + jitter do 0.9 s.
@@ -88,19 +90,44 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Doors (`DoorInteractable` instance u mapi)
 
-- [ ] **Locked Sound** — pokušaj zaključanih vrata
-- [ ] **Open / Close Sound** — normalna vrata
+C++ defaulti učitavaju `Sound/Doors/DoorOpen|Close|Locked|Blocked` (generisani
+WAV u `Tools/make_door_and_pursuer_sfx.py`). Posle importa u editoru označi
+**Looping = false** na door clipovima.
+
+Odskrinuta vrata: na instanci (`BP_Door` / `BP_Door2`) uključi **Blocked From
+Behind** (`bIsBlocked`) i isključi **Locked**. Prompt je
+`Blocked by something behind` / sr `Nešto blokira s druge strane`. DoorLock
+anomalija preskače blocked vrata.
+
+- [x] **Locked Sound** — `Sound/Doors/DoorLocked` (C++ default)
+- [x] **Blocked Sound** — `Sound/Doors/DoorBlocked` (C++ default)
+- [x] **Open / Close Sound** — `Sound/Doors/DoorOpen` i `DoorClose` (C++ default)
+- [ ] Import WAV → uasset u editoru pre sledećeg Shipping cooka
+- [ ] Na odskrinutim vratima: `bIsBlocked = true`, `bIsLocked = false`
 
 ## Pursuer anomaly (`PursuerAnomalyCharacter` / component)
 
-- [ ] **Despawn Sound** (+ attenuation po želji)
-- [ ] **Moving Murmur Loop Sound** (+ attenuation)
-- [ ] **Active Anomaly Loop Sound** (na `PursuerAnomalyComponent`)
+Dok je figura živa, level `AAmbientSound` se gasi i svira 2D tension bed.
+Čim pursuer despawnuje, vraća se obična ambient muzika. Murmur je isti clip
+kao Dragojlo na telefonu (`MumblingCrazy`), spatial, samo dok se kreće i dok
+igrač ne gleda u njega.
+
+- [x] **Despawn Sound** — `Sound/Pursuer/PursuerDespawn` (C++ default)
+- [x] **Moving Murmur Loop Sound** — `Sound/Phone/MumblingCrazy` +
+  `ATT_PursuerFootstep` (C++ default; clip se ponavlja dok hoda)
+- [x] **Active Anomaly Loop Sound** — `Sound/Pursuer/PursuerTensionLoop` ako je
+  uvezen, inače fallback `Sound/MainMenu/HorrorAmbientSound`. Posle importa
+  tension WAV-a stavi **Looping = true**.
 
 ## Audio anomalies (svaki `AudioAnomalyComponent` u mapi)
 
-- [ ] **Anomaly Sound** po instanci (šta se čuje kad je anomalija aktivna)
-- [ ] Attenuation / volume / “play at location” po sceni
+- [x] **Anomaly Sound** po instanci — `telephone` i `telephone2` sviraju
+  `Sound/Phone/PhoneRingingSound`.
+- [x] Attenuation / volume / “play at location” — oba telefona su spatial, volume
+  0.2, `ATT_PhoneRinging` inner 180 cm / falloff 820 cm (**silent at 10 m**).
+  Lift je ~13.5–17 m od oba aparata, pa ring više nije čujan iz kabine; moraš
+  ući u kancelariju. Occlusion + LPF su uključeni da zidovi dodatno uguše.
+  Isti asset je C++ default na `AudioAnomalyComponent`.
 
 ## Main menu (`BP_MainMenuGameMode` ili MainMenu mapa)
 

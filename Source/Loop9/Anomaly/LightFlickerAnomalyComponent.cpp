@@ -20,6 +20,13 @@ ULightFlickerAnomalyComponent::ULightFlickerAnomalyComponent()
 	{
 		FlickerSound = FlickerSoundFinder.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> FlickerAttenuationFinder(
+		TEXT("/Game/MyStuff/Sound/MainMenu/ATT_FlickerHallway"));
+	if (FlickerAttenuationFinder.Succeeded())
+	{
+		FlickerSoundAttenuation = FlickerAttenuationFinder.Object;
+	}
 }
 
 void ULightFlickerAnomalyComponent::BeginPlay()

@@ -27,6 +27,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
 	bool bIsLocked = false;
 
+	/** Visually ajar / jammed. Prompt is "blocked", not "locked". */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door", meta = (DisplayName = "Blocked From Behind"))
+	bool bIsBlocked = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Door")
 	bool bIsOpen = false;
 
@@ -40,6 +44,16 @@ public:
 	TObjectPtr<class USoundBase> LockedSound = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<class USoundBase> BlockedSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<class USoundBase> OpenSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<class USoundBase> CloseSound = nullptr;
+
+	/** Used if OpenSound / CloseSound are empty. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	TObjectPtr<class USoundBase> OpenCloseSound = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category = "Door")
@@ -49,10 +63,16 @@ public:
 	void SetLocked(bool bLocked);
 
 	UFUNCTION(BlueprintCallable, Category = "Door")
+	void SetBlocked(bool bBlocked);
+
+	UFUNCTION(BlueprintCallable, Category = "Door")
 	void LockDoor();
 
 	UFUNCTION(BlueprintCallable, Category = "Door")
 	void UnlockDoor();
+
+	UFUNCTION(BlueprintPure, Category = "Door")
+	bool IsBlockedFromBehind() const { return bIsBlocked; }
 
 	virtual bool TryInteract_Implementation(APlayerController* InteractingController) override;
 	virtual FText GetInteractionPromptText_Implementation() const override;
@@ -64,4 +84,7 @@ private:
 	FRotator TargetRelativeRotation = FRotator::ZeroRotator;
 
 	void PlayDoorSound(USoundBase* SoundToPlay);
+	USoundBase* ResolveOpenSound() const;
+	USoundBase* ResolveCloseSound() const;
+	USoundBase* ResolveDeniedSound() const;
 };

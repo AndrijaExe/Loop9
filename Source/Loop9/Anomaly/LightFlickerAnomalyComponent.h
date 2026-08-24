@@ -37,7 +37,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flicker|Audio")
 	TObjectPtr<class USoundBase> FlickerSound;
 
-	/** Optional falloff. Leave empty to use the sound asset's own attenuation. */
+	/**
+	 * Falloff for the flicker click. Defaults to ATT_FlickerHallway (inner 300 cm,
+	 * silent at 1800 cm) so it leads the player down a corridor instead of playing
+	 * across the whole floor. Clear it only if you want a silent flicker.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flicker|Audio")
 	TObjectPtr<class USoundAttenuation> FlickerSoundAttenuation;
 

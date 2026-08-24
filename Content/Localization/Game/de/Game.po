@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-15 12:53\n"
-"PO-Revision-Date: 2026-07-15 12:53\n"
+"POT-Creation-Date: 2026-08-24 14:54\n"
+"PO-Revision-Date: 2026-08-24 14:54\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -46,6 +46,20 @@ msgstr ""
 #: /Game/MsvFx_Niagara_Explosion_Pack_01/Prefabs/Niagara_Smoke_Wind_01.Niagara_Smoke_Wind_01:Pyro_Exp_01_0.NiagaraEmitterEditorData_0.StackEditorData.StackEntryKeyToDisplayName(0 - Value).StackEntryKeyToDisplayName
 msgctxt ",E419318C4C27CDCC2E9FF99DD86E539E"
 msgid "Sub UVAnimation"
+msgstr ""
+
+#. Key:	6CDFC5B3416C3E3A09DA198F65ECA451
+#. SourceLocation:	/Game/MyStuff/Input/IA_Flashlight.IA_Flashlight.ActionDescription
+#: /Game/MyStuff/Input/IA_Flashlight.IA_Flashlight.ActionDescription
+msgctxt ",6CDFC5B3416C3E3A09DA198F65ECA451"
+msgid "Toggle flashlight"
+msgstr ""
+
+#. Key:	D1AC269B41B139A42AFF78BAEFAE4ADB
+#. SourceLocation:	/Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
+#: /Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
+msgctxt ",D1AC269B41B139A42AFF78BAEFAE4ADB"
+msgid "Who is the person in the corner?"
 msgstr ""
 
 #. Key:	C65A74E04351CAD16FDC0B90B8F7D3D5
@@ -118,13 +132,6 @@ msgctxt ",B9BAB0D943B90D132E7F408DD41D7556"
 msgid "Return to Main Menu"
 msgstr "Zurück zum Hauptmenü"
 
-#. Key:	TextBlockDefaultValue
-#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
-#: /Game/MyStuff/UI/Endings/WBP_Ending_ObedientFool.WBP_Ending_ObedientFool_C:WidgetTree.TB_Title.Text
-msgctxt "UMG,TextBlockDefaultValue"
-msgid "Text Block"
-msgstr ""
-
 #. Key:	BD6E93B141579D8FA626EF8209964764
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_Ending_ParanoidSurvivor.WBP_Ending_ParanoidSurvivor_C:WidgetTree.BT_Continue.ButtonText
@@ -139,6 +146,13 @@ msgctxt ",8AC00E3D4A820BDBE08BA1BA35EFAB8A"
 msgid "Return to Main Menu"
 msgstr "Zurück zum Hauptmenü"
 
+#. Key:	TextBlockDefaultValue
+#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.TB_Title.Text
+#: /Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.TB_Title.Text
+msgctxt "UMG,TextBlockDefaultValue"
+msgid "Text Block"
+msgstr ""
+
 #. Key:	8B3D79274E23AA42843A549FCD48CF80
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
@@ -146,82 +160,82 @@ msgctxt ",8B3D79274E23AA42843A549FCD48CF80"
 msgid "Return to Main Menu"
 msgstr "Zurück zum Hauptmenü"
 
+#. Key:	6CD5353A43D9DEEAC6EDEE9801E6CA35
+#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Archive.ButtonText
+#: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Archive.ButtonText
+msgctxt ",6CD5353A43D9DEEAC6EDEE9801E6CA35"
+msgid "QUIT"
+msgstr "BEENDEN"
+
 #. Key:	0414D10F4AB79DF2515732AFC462FEED
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Play.ButtonText
 msgctxt ",0414D10F4AB79DF2515732AFC462FEED"
 msgid "PLAY"
-msgstr ""
-
-#. Key:	6CD5353A43D9DEEAC6EDEE9801E6CA35
-#. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Quit.ButtonText
-#: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Quit.ButtonText
-msgctxt ",6CD5353A43D9DEEAC6EDEE9801E6CA35"
-msgid "QUIT"
-msgstr ""
+msgstr "SPIELEN"
 
 #. Key:	ACD0961C461E8604D9E251949DFB190E
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Settings.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Settings.ButtonText
 msgctxt ",ACD0961C461E8604D9E251949DFB190E"
 msgid "SETTINGS"
-msgstr ""
+msgstr "EINSTELLUNGEN"
 
 #. Key:	0DD48AE84EA72E74E6DE40AF305D340D
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.MainMenuButton.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.MainMenuButton.ButtonText
 msgctxt ",0DD48AE84EA72E74E6DE40AF305D340D"
 msgid "MAIN MENU"
-msgstr ""
+msgstr "HAUPTMENÜ"
 
 #. Key:	44D63E364C724FB0EBEC878F33708D49
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.QuitButton.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.QuitButton.ButtonText
 msgctxt ",44D63E364C724FB0EBEC878F33708D49"
 msgid "QUIT"
-msgstr ""
+msgstr "BEENDEN"
 
 #. Key:	228A86644EABD88ED24BBEBF9301B597
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.ResumeButton.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.ResumeButton.ButtonText
 msgctxt ",228A86644EABD88ED24BBEBF9301B597"
 msgid "RESUME"
-msgstr ""
+msgstr "FORTSETZEN"
 
 #. Key:	22C9EABB4A69B68087A07C8F6057FE51
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.SettingsButton.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.SettingsButton.ButtonText
 msgctxt ",22C9EABB4A69B68087A07C8F6057FE51"
 msgid "SETTINGS"
-msgstr ""
+msgstr "EINSTELLUNGEN"
 
 #. Key:	864473384C110DF63FAFA7916C5B2519
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.TextBlock_0.Text
 #: /Game/MyStuff/UI/MainMenu/WBP_PauseMenu.WBP_PauseMenu_C:WidgetTree.TextBlock_0.Text
 msgctxt ",864473384C110DF63FAFA7916C5B2519"
 msgid "PAUSED"
-msgstr ""
+msgstr "PAUSIERT"
 
 #. Key:	1A0D982946820109E1F72482B437DDA5
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Apply.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Apply.ButtonText
 msgctxt ",1A0D982946820109E1F72482B437DDA5"
 msgid "APPLY"
-msgstr ""
+msgstr "ANWENDEN"
 
 #. Key:	29E9D3AA42A9D6DDA48E4EAB5D9A22FF
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Back.ButtonText
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Btn_Back.ButtonText
 msgctxt ",29E9D3AA42A9D6DDA48E4EAB5D9A22FF"
 msgid "BACK"
-msgstr ""
+msgstr "ZURÜCK"
 
 #. Key:	38BF90CF42CFEDEB4AF7D4989F58EBC6
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.Label
 msgctxt ",38BF90CF42CFEDEB4AF7D4989F58EBC6"
 msgid "Invert Y Axis"
-msgstr ""
+msgstr "Y-Achse umkehren"
 
 #. Key:	8A8799F749FEB455A3C405AF8560DD52
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.ToolTipText
@@ -235,91 +249,91 @@ msgstr ""
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_VSync.Label
 msgctxt ",3C8733C0482B9B7DE452BCA7EB344A30"
 msgid "VSync"
-msgstr ""
+msgstr "VSync"
 
 #. Key:	2AF9E44E4AD19F5B99AD70B9E1C7CFF1
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_FPSLimit.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_FPSLimit.Label
 msgctxt ",2AF9E44E4AD19F5B99AD70B9E1C7CFF1"
 msgid "FPS Limit"
-msgstr ""
+msgstr "FPS-Limit"
 
 #. Key:	8E3DC3964D8E2CD7278A21940B0D548C
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Language.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Language.Label
 msgctxt ",8E3DC3964D8E2CD7278A21940B0D548C"
 msgid "Language"
-msgstr ""
+msgstr "Sprache"
 
 #. Key:	EB2CEEFF41551F04070B7A963E4E7D6E
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Quality.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Quality.Label
 msgctxt ",EB2CEEFF41551F04070B7A963E4E7D6E"
 msgid "Graphics Quality"
-msgstr ""
+msgstr "Grafikqualität"
 
 #. Key:	07ED97A44E49B2492F806E8417B74938
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Resolution.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_Resolution.Label
 msgctxt ",07ED97A44E49B2492F806E8417B74938"
 msgid "Resolution"
-msgstr ""
+msgstr "Auflösung"
 
 #. Key:	5AFAE3D044AC090BFAE215B81FA9CD37
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_WindowMode.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.ComboBoxString_WindowMode.Label
 msgctxt ",5AFAE3D044AC090BFAE215B81FA9CD37"
 msgid "Window Mode"
-msgstr ""
+msgstr "Fenstermodus"
 
 #. Key:	8E6374D54E122BA0BB6611AD8043AEDE
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_AmbientVolume.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_AmbientVolume.Label
 msgctxt ",8E6374D54E122BA0BB6611AD8043AEDE"
 msgid "Ambient Volume"
-msgstr ""
+msgstr "Umgebungslautstärke"
 
 #. Key:	CCECFFBA4C7ACBD5BCC46A9D82087376
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_Gamma.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_Gamma.Label
 msgctxt ",CCECFFBA4C7ACBD5BCC46A9D82087376"
 msgid "Brightness (Gamma)"
-msgstr ""
+msgstr "Helligkeit (Gamma)"
 
 #. Key:	1EE9EF184BE0D3CF149B2CA91B0AD239
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MasterVolume.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MasterVolume.Label
 msgctxt ",1EE9EF184BE0D3CF149B2CA91B0AD239"
 msgid "Master Volume"
-msgstr ""
+msgstr "Hauptlautstärke"
 
 #. Key:	0685BF3D4F867D80878D6893C50994E2
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MouseSensitivity.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_MouseSensitivity.Label
 msgctxt ",0685BF3D4F867D80878D6893C50994E2"
 msgid "Mouse Sensitivity"
-msgstr ""
+msgstr "Mausempfindlichkeit"
 
 #. Key:	5D009DC94C572A07A865BFB8D8FE29EB
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_ResolutionScale.Label
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.Slider_ResolutionScale.Label
 msgctxt ",5D009DC94C572A07A865BFB8D8FE29EB"
 msgid "Resolution Scale"
-msgstr ""
+msgstr "Auflösungsskala"
 
 #. Key:	84B3EEC6488BA4CCA1B94CA4C8D33AB3
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.TextBlock_0.Text
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.TextBlock_0.Text
 msgctxt ",84B3EEC6488BA4CCA1B94CA4C8D33AB3"
 msgid "SETTINGS"
-msgstr ""
+msgstr "EINSTELLUNGEN"
 
 #. Key:	66D281DE457452B484A764942219E855
 #. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.CloseButton1.ButtonText
 #: /Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.CloseButton1.ButtonText
 msgctxt ",66D281DE457452B484A764942219E855"
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #. Key:	AAB5B2B447A3FEA3D4B86C957329CA3F
 #. SourceLocation:	/Game/MyStuff/UI/WBP_AI_Chat.WBP_AI_Chat_C:WidgetTree.MessageInputBox.HintText
@@ -356,65 +370,86 @@ msgctxt ",8F43C2C54B86376327E192960FC9CC83"
 msgid "Tip: Look for missing objects"
 msgstr "Tipp: Achte auf fehlende Objekte"
 
-#. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
-#: Source/Loop9/AI_ChatWidget.cpp(150)
-msgctxt "Loop9Chat,PlayerPrefix"
-msgid "You: "
-msgstr "Du: "
-
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(151)
-#: Source/Loop9/AI_ChatWidget.cpp(151)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(149)
+#: Source/Loop9/AI_ChatWidget.cpp(149)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Dragojlo: "
 
-#. Key:	LowSignalReply
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(304)
-#: Source/Loop9/AI_Friend.cpp(304)
-msgctxt "Loop9Chat,LowSignalReply"
-msgid "Low signal. Try again later."
-msgstr "Schwaches Signal. Versuch es später noch mal."
+#. Key:	ThinkingIndicator
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
+#: Source/Loop9/AI_ChatWidget.cpp(150)
+msgctxt "Loop9Chat,ThinkingIndicator"
+msgid "Thinking..."
+msgstr ""
+
+#. Key:	StillThinkingIndicator
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(182)
+#: Source/Loop9/AI_ChatWidget.cpp(182)
+msgctxt "Loop9Chat,StillThinkingIndicator"
+msgid "Still thinking..."
+msgstr ""
+
+#. Key:	PlayerPrefix
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(235)
+#: Source/Loop9/AI_ChatWidget.cpp(235)
+msgctxt "Loop9Chat,PlayerPrefix"
+msgid "You: "
+msgstr "Du: "
 
 #. Key:	ChatConnectionLost
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(402)
-#: Source/Loop9/AI_Friend.cpp(402)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(507)
+#: Source/Loop9/AI_Friend.cpp(507)
 msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...die Leitung knistert und bricht ab. (Keine Verbindung. Prüfe dein Internet und versuch es erneut.)"
 
-#. Key:	ChatRateLimited
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(407)
-#: Source/Loop9/AI_Friend.cpp(407)
-msgctxt "Loop9Chat,ChatRateLimited"
-msgid "...the line is busy. He cannot take more calls right now. Try again later."
-msgstr "...die Leitung ist besetzt. Er kann gerade keine weiteren Anrufe annehmen. Versuch es später noch mal."
+#. Key:	ChatRateLimitedRetry
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(517)
+#: Source/Loop9/AI_Friend.cpp(517)
+msgctxt "Loop9Chat,ChatRateLimitedRetry"
+msgid "...the line is busy. Try again in {0}s."
+msgstr ""
 
 #. Key:	ChatServerError
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(412)
-#: Source/Loop9/AI_Friend.cpp(412)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(523)
+#: Source/Loop9/AI_Friend.cpp(523)
 msgctxt "Loop9Chat,ChatServerError"
 msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
 msgstr "...Rauschen zischt durch den Hörer. Auf der anderen Seite stimmt etwas nicht. Versuch es noch mal."
 
+#. Key:	ChatMessageTooLong
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(548)
+#: Source/Loop9/AI_Friend.cpp(548)
+msgctxt "Loop9Chat,ChatMessageTooLong"
+msgid "...he cuts you off. Keep it shorter."
+msgstr ""
+
+#. Key:	LowSignalReply
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(580)
+#: Source/Loop9/AI_Friend.cpp(580)
+msgctxt "Loop9Chat,LowSignalReply"
+msgid "Low signal. Try again later."
+msgstr "Schwaches Signal. Versuch es später noch mal."
+
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(610)
-#: Source/Loop9/AI_Friend.cpp(610)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(916)
+#: Source/Loop9/AI_Friend.cpp(916)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den beleuchteten Aufzug. Findest du keine Anomalie, nimm den dunklen Aufzug. Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
 
 #. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(660)
-#: Source/Loop9/AI_Friend.cpp(660)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(967)
+#: Source/Loop9/AI_Friend.cpp(967)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Abheben"
 
 #. Key:	PhoneRinging
-#. SourceLocation:	Source/Loop9/AI_Friend.h(96)
-#: Source/Loop9/AI_Friend.h(96)
+#. SourceLocation:	Source/Loop9/AI_Friend.h(99)
+#: Source/Loop9/AI_Friend.h(99)
 msgctxt "Loop9Chat,PhoneRinging"
 msgid "Phone ringing..."
 msgstr "Das Telefon klingelt..."
@@ -447,194 +482,453 @@ msgctxt "Loop9Anomaly,PhantomMsg4"
 msgid "Did you hear that too?"
 msgstr "Hast du das auch gehört?"
 
+#. Key:	LoadingHeader
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(106)
+#: Source/Loop9/GameHelpers.cpp(106)
+msgctxt "Loop9Loading,LoadingHeader"
+msgid "LOADING..."
+msgstr "LADEN..."
+
 #. Key:	Tip01
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(24)
-#: Source/Loop9/GameHelpers.cpp(24)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(79)
+#: Source/Loop9/GameHelpers.cpp(79)
 msgctxt "Loop9Loading,Tip01"
 msgid "Look for objects that disappear..."
 msgstr "Achte auf Objekte, die verschwinden..."
 
 #. Key:	Tip02
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(25)
-#: Source/Loop9/GameHelpers.cpp(25)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(80)
+#: Source/Loop9/GameHelpers.cpp(80)
 msgctxt "Loop9Loading,Tip02"
 msgid "Pay close attention to your surroundings"
 msgstr "Achte genau auf deine Umgebung"
 
 #. Key:	Tip03
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(26)
-#: Source/Loop9/GameHelpers.cpp(26)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(81)
+#: Source/Loop9/GameHelpers.cpp(81)
 msgctxt "Loop9Loading,Tip03"
 msgid "Trust your instincts, but verify everything"
 msgstr "Vertraue deinem Instinkt, aber überprüfe alles"
 
 #. Key:	Tip04
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(27)
-#: Source/Loop9/GameHelpers.cpp(27)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(82)
+#: Source/Loop9/GameHelpers.cpp(82)
 msgctxt "Loop9Loading,Tip04"
 msgid "Not everything is as it seems"
 msgstr "Nicht alles ist so, wie es scheint"
 
 #. Key:	Tip05
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(28)
-#: Source/Loop9/GameHelpers.cpp(28)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(83)
+#: Source/Loop9/GameHelpers.cpp(83)
 msgctxt "Loop9Loading,Tip05"
 msgid "The office changes when you're not looking"
 msgstr "Das Büro verändert sich, wenn du nicht hinsiehst"
 
 #. Key:	Tip06
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(29)
-#: Source/Loop9/GameHelpers.cpp(29)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(84)
+#: Source/Loop9/GameHelpers.cpp(84)
 msgctxt "Loop9Loading,Tip06"
 msgid "Dragojlo has been here for a very long time"
 msgstr "Dragojlo ist schon sehr lange hier"
 
 #. Key:	Tip07
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(30)
-#: Source/Loop9/GameHelpers.cpp(30)
+#. SourceLocation:	Source/Loop9/GameHelpers.cpp(85)
+#: Source/Loop9/GameHelpers.cpp(85)
 msgctxt "Loop9Loading,Tip07"
 msgid "Every loop is a chance to escape"
 msgstr "Jede Schleife ist eine Chance zu entkommen"
 
-#. Key:	LoadingHeader
-#. SourceLocation:	Source/Loop9/GameHelpers.cpp(51)
-#: Source/Loop9/GameHelpers.cpp(51)
-msgctxt "Loop9Loading,LoadingHeader"
-msgid "LOADING..."
-msgstr "LADEN..."
-
-#. Key:	DoorLocked
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(93)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(93)
-msgctxt "Loop9Interaction,DoorLocked"
-msgid "Locked"
-msgstr "Verschlossen"
-
 #. Key:	DoorClose
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(97)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(97)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(100)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(100)
 msgctxt "Loop9Interaction,DoorClose"
 msgid "Close"
 msgstr "Schließen"
 
 #. Key:	DoorOpen
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(98)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(98)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(101)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(101)
 msgctxt "Loop9Interaction,DoorOpen"
 msgid "Open"
 msgstr "Öffnen"
 
-#. Key:	LiftRestartLoop
-#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(131)
-#: Source/Loop9/Interaction/LiftButton.cpp(131)
-msgctxt "Loop9Interaction,LiftRestartLoop"
-msgid "Restart loop (interior light ON)"
-msgstr "Schleife neu starten (Innenlicht AN)"
+#. Key:	DoorLocked
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(96)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(96)
+msgctxt "Loop9Interaction,DoorLocked"
+msgid "Locked"
+msgstr "Verschlossen"
 
-#. Key:	LiftNextFloor
-#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(132)
-#: Source/Loop9/Interaction/LiftButton.cpp(132)
-msgctxt "Loop9Interaction,LiftNextFloor"
-msgid "Next floor (interior light OFF)"
-msgstr "Nächste Etage (Innenlicht AUS)"
+#. Key:	DoorBlocked
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(129)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(129)
+msgctxt "Loop9Interaction,DoorBlocked"
+msgid "Blocked by something behind"
+msgstr "Etwas blockiert von hinten"
+
+#. Key:	Inspect
+#. SourceLocation:	Source/Loop9/Interaction/InspectableComponent.h(41)
+#: Source/Loop9/Interaction/InspectableComponent.h(41)
+msgctxt "Loop9Interaction,Inspect"
+msgid "Examine"
+msgstr "Untersuchen"
+
+#. Key:	LiftEnterCabinFirst
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(226)
+#: Source/Loop9/Interaction/LiftButton.cpp(226)
+msgctxt "Loop9Interaction,LiftEnterCabinFirst"
+msgid "Enter the elevator first"
+msgstr ""
+
+#. Key:	LiftRestart
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(235)
+#: Source/Loop9/Interaction/LiftButton.cpp(235)
+msgctxt "Loop9Interaction,LiftRestart"
+msgid "Restart loop"
+msgstr "Schleife neu starten"
+
+#. Key:	LiftNext
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(236)
+#: Source/Loop9/Interaction/LiftButton.cpp(236)
+msgctxt "Loop9Interaction,LiftNext"
+msgid "Next floor"
+msgstr "Nächste Etage"
+
+#. Key:	TaskComplete
+#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
+#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
+msgctxt "Loop9Ending,TaskComplete"
+msgid "TASK COMPLETE"
+msgstr ""
+
+#. Key:	CallTitleTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)
+msgctxt "Loop9RunEvent,CallTitleTwice"
+msgid "LOOP {0} · TWO CALLS"
+msgstr "SCHLEIFE {0} · ZWEI ANRUFE"
+
+#. Key:	CallTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(118)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(118)
+msgctxt "Loop9RunEvent,CallTitle"
+msgid "LOOP {0} · CALL"
+msgstr "SCHLEIFE {0} · ANRUF"
+
+#. Key:	CallHostile
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(12)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(12)
+msgctxt "Loop9RunEvent,CallHostile"
+msgid "You spoke to him harshly. He heard it."
+msgstr "Du hast hart mit ihm gesprochen. Er hat es gehört."
+
+#. Key:	CorrectLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(124)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(124)
+msgctxt "Loop9RunEvent,CorrectLiftTitle"
+msgid "LOOP {0} · RIGHT ELEVATOR"
+msgstr "SCHLEIFE {0} · RICHTIGER AUFZUG"
+
+#. Key:	CorrectLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
+msgctxt "Loop9RunEvent,CorrectLiftAnomaly"
+msgid "You took the right elevator. The floor was already wrong."
+msgstr "Du hast den richtigen Aufzug genommen. Das Stockwerk war schon falsch."
+
+#. Key:	CorrectLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(127)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(127)
+msgctxt "Loop9RunEvent,CorrectLiftClean"
+msgid "You took the right elevator. The floor was clean."
+msgstr "Du hast den richtigen Aufzug genommen. Das Stockwerk war sauber."
+
+#. Key:	WrongLiftTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(131)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(131)
+msgctxt "Loop9RunEvent,WrongLiftTitle"
+msgid "LOOP {0} · WRONG ELEVATOR"
+msgstr "SCHLEIFE {0} · FALSCHER AUFZUG"
+
+#. Key:	WrongLiftAnomaly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
+msgctxt "Loop9RunEvent,WrongLiftAnomaly"
+msgid "You chose the wrong elevator. The floor was already lying."
+msgstr "Du hast den falschen Aufzug gewählt. Das Stockwerk hat schon gelogen."
+
+#. Key:	WrongLiftClean
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(134)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(134)
+msgctxt "Loop9RunEvent,WrongLiftClean"
+msgid "You chose the wrong elevator. The floor was clean."
+msgstr "Du hast den falschen Aufzug gewählt. Das Stockwerk war sauber."
+
+#. Key:	EndingBody
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(139)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(139)
+msgctxt "Loop9RunEvent,EndingBody"
+msgid "This is how the shift ended."
+msgstr "So endete die Schicht."
+
+#. Key:	CallSuspicious
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(14)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(14)
+msgctxt "Loop9RunEvent,CallSuspicious"
+msgid "You doubted the voice on the line."
+msgstr "Du hast die Stimme in der Leitung bezweifelt."
+
+#. Key:	CallFriendly
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(16)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(16)
+msgctxt "Loop9RunEvent,CallFriendly"
+msgid "You treated him with some warmth."
+msgstr "Du warst ein wenig warm zu ihm."
+
+#. Key:	CallNeutral
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(18)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(18)
+msgctxt "Loop9RunEvent,CallNeutral"
+msgid "You called him. Neither of you gave much away."
+msgstr "Du hast ihn angerufen. Keiner von euch hat viel preisgegeben."
+
+#. Key:	CallExtraTwiceAsk
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(27)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(27)
+msgctxt "Loop9RunEvent,CallExtraTwiceAsk"
+msgid "You called twice and asked him to decide."
+msgstr "Du hast zweimal angerufen und wolltest, dass er entscheidet."
+
+#. Key:	CallExtraTwiceKept
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(31)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(31)
+msgctxt "Loop9RunEvent,CallExtraTwiceKept"
+msgid "You called twice and kept the choice yourself."
+msgstr "Du hast zweimal angerufen und die Wahl selbst behalten."
+
+#. Key:	CallExtraTwice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(35)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(35)
+msgctxt "Loop9RunEvent,CallExtraTwice"
+msgid "You called twice on this floor."
+msgstr "Du hast auf diesem Stockwerk zweimal angerufen."
+
+#. Key:	CallExtraAskHim
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(39)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(39)
+msgctxt "Loop9RunEvent,CallExtraAskHim"
+msgid "You asked him to decide."
+msgstr "Du wolltest, dass er entscheidet."
+
+#. Key:	CallExtraKeptChoice
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(43)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(43)
+msgctxt "Loop9RunEvent,CallExtraKeptChoice"
+msgid "You kept the choice yourself."
+msgstr "Du hast die Wahl selbst behalten."
+
+#. Key:	CallBodyJoin
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(54)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(54)
+msgctxt "Loop9RunEvent,CallBodyJoin"
+msgid "{0} {1}"
+msgstr "{0} {1}"
 
 #. Key:	EscapeTogetherTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(43)
-#: Source/Loop9/UI/EndingWidget.cpp(43)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(68)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(68)
 msgctxt "Loop9Endings,EscapeTogetherTitle"
 msgid "ESCAPE TOGETHER"
 msgstr "GEMEINSAME FLUCHT"
 
-#. Key:	EscapeTogetherDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(44)
-#: Source/Loop9/UI/EndingWidget.cpp(44)
-msgctxt "Loop9Endings,EscapeTogetherDesc"
-msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
-msgstr "Du und Dragojlo habt Vertrauen aufgebaut, ohne dass du dich selbst verloren hast. Ihr seid der Schleife gemeinsam entkommen."
-
 #. Key:	ObedientFoolTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(47)
-#: Source/Loop9/UI/EndingWidget.cpp(47)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(70)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(70)
 msgctxt "Loop9Endings,ObedientFoolTitle"
 msgid "OBEDIENT FOOL"
 msgstr "GEHORSAMER NARR"
 
-#. Key:	ObedientFoolDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(48)
-#: Source/Loop9/UI/EndingWidget.cpp(48)
-msgctxt "Loop9Endings,ObedientFoolDesc"
-msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
-msgstr "Du hast blind vertraut und aufgehört, selbst zu entscheiden. Die falsche Stimme hat dein Schicksal gewählt."
-
 #. Key:	ColdBetrayalTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(51)
-#: Source/Loop9/UI/EndingWidget.cpp(51)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(72)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(72)
 msgctxt "Loop9Endings,ColdBetrayalTitle"
 msgid "COLD BETRAYAL"
 msgstr "KALTER VERRAT"
 
-#. Key:	ColdBetrayalDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(52)
-#: Source/Loop9/UI/EndingWidget.cpp(52)
-msgctxt "Loop9Endings,ColdBetrayalDesc"
-msgid "You relied on him but never respected him. One calm lie was enough."
-msgstr "Du hast dich auf ihn verlassen, ihn aber nie respektiert. Eine ruhige Lüge hat genügt."
-
 #. Key:	MergedMemoryTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(55)
-#: Source/Loop9/UI/EndingWidget.cpp(55)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(74)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(74)
 msgctxt "Loop9Endings,MergedMemoryTitle"
 msgid "MERGED MEMORY"
 msgstr "VERSCHMOLZENE ERINNERUNG"
 
-#. Key:	MergedMemoryDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(56)
-#: Source/Loop9/UI/EndingWidget.cpp(56)
-msgctxt "Loop9Endings,MergedMemoryDesc"
-msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
-msgstr "Deine Erinnerungen und seine Lecks haben sich verflochten. Du weißt nicht mehr, wer sich an was erinnert."
-
 #. Key:	TheReplacementTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(59)
-#: Source/Loop9/UI/EndingWidget.cpp(59)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(76)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(76)
 msgctxt "Loop9Endings,TheReplacementTitle"
 msgid "THE REPLACEMENT"
 msgstr "DER ERSATZ"
 
-#. Key:	TheReplacementDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(60)
-#: Source/Loop9/UI/EndingWidget.cpp(60)
-msgctxt "Loop9Endings,TheReplacementDesc"
-msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
-msgstr "Er hat dich nicht zerstört. Er hat dich gelernt. Jetzt bist du die Stimme am anderen Ende der Leitung."
-
 #. Key:	ParanoidSurvivorTitle
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(63)
-#: Source/Loop9/UI/EndingWidget.cpp(63)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
 msgctxt "Loop9Endings,ParanoidSurvivorTitle"
 msgid "PARANOID SURVIVOR"
 msgstr "PARANOIDER ÜBERLEBENDER"
 
-#. Key:	ParanoidSurvivorDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(64)
-#: Source/Loop9/UI/EndingWidget.cpp(64)
-msgctxt "Loop9Endings,ParanoidSurvivorDesc"
-msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
-msgstr "Du bist allein entkommen, weil du niemandem vertraut hast. Vielleicht hat dich das gerettet. Vielleicht hat es dich die Wahrheit gekostet."
-
 #. Key:	EndingStatsFormat
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(69)
-#: Source/Loop9/UI/EndingWidget.cpp(69)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(102)
+#: Source/Loop9/UI/EndingWidget.cpp(102)
 msgctxt "Loop9Endings,EndingStatsFormat"
 msgid "Resets: {0} | AI interactions: {1}"
 msgstr "Resets: {0} | KI-Interaktionen: {1}"
 
+#. Key:	EscapeTogetherDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(77)
+#: Source/Loop9/UI/EndingWidget.cpp(77)
+msgctxt "Loop9Endings,EscapeTogetherDesc"
+msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
+msgstr "Du und Dragojlo habt Vertrauen aufgebaut, ohne dass du dich selbst verloren hast. Ihr seid der Schleife gemeinsam entkommen."
+
+#. Key:	ObedientFoolDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(81)
+#: Source/Loop9/UI/EndingWidget.cpp(81)
+msgctxt "Loop9Endings,ObedientFoolDesc"
+msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
+msgstr "Du hast blind vertraut und aufgehört, selbst zu entscheiden. Die falsche Stimme hat dein Schicksal gewählt."
+
+#. Key:	ColdBetrayalDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(85)
+#: Source/Loop9/UI/EndingWidget.cpp(85)
+msgctxt "Loop9Endings,ColdBetrayalDesc"
+msgid "You relied on him but never respected him. One calm lie was enough."
+msgstr "Du hast dich auf ihn verlassen, ihn aber nie respektiert. Eine ruhige Lüge hat genügt."
+
+#. Key:	MergedMemoryDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(89)
+#: Source/Loop9/UI/EndingWidget.cpp(89)
+msgctxt "Loop9Endings,MergedMemoryDesc"
+msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
+msgstr "Deine Erinnerungen und seine Lecks haben sich verflochten. Du weißt nicht mehr, wer sich an was erinnert."
+
+#. Key:	TheReplacementDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(93)
+#: Source/Loop9/UI/EndingWidget.cpp(93)
+msgctxt "Loop9Endings,TheReplacementDesc"
+msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
+msgstr "Er hat dich nicht zerstört. Er hat dich gelernt. Jetzt bist du die Stimme am anderen Ende der Leitung."
+
+#. Key:	ParanoidSurvivorDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(97)
+#: Source/Loop9/UI/EndingWidget.cpp(97)
+msgctxt "Loop9Endings,ParanoidSurvivorDesc"
+msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
+msgstr "Du bist allein entkommen, weil du niemandem vertraut hast. Vielleicht hat dich das gerettet. Vielleicht hat es dich die Wahrheit gekostet."
+
 #. Key:	ContinueButtonLabel
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.h(51)
-#: Source/Loop9/UI/EndingWidget.h(51)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.h(56)
+#: Source/Loop9/UI/EndingWidget.h(56)
 msgctxt "Loop9Endings,ContinueButtonLabel"
 msgid "Return to Main Menu"
 msgstr "Zurück zum Hauptmenü"
+
+#. Key:	HelpJobHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(164)
+#: Source/Loop9/UI/HelpWidget.cpp(164)
+msgctxt "Loop9Help,HelpJobHeading"
+msgid "YOUR SHIFT"
+msgstr "DEINE SCHICHT"
+
+#. Key:	HelpJobBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(165)
+#: Source/Loop9/UI/HelpWidget.cpp(165)
+msgctxt "Loop9Help,HelpJobBody"
+msgid "You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
+msgstr "Du bist der Nachttechniker im zweiten Stock. Jede Schleife setzt dich auf dieselbe Etage desselben Büros zurück, und deine einzige Aufgabe ist es, vor dem Aufzug eine Sache zu entscheiden: Ist diese Etage so, wie sie sein sollte, oder hat sich etwas verändert?"
+
+#. Key:	HelpBaselineHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(171)
+#: Source/Loop9/UI/HelpWidget.cpp(171)
+msgctxt "Loop9Help,HelpBaselineHeading"
+msgid "THE FIRST LOOP IS CLEAN"
+msgstr "DIE ERSTE SCHLEIFE IST SAUBER"
+
+#. Key:	HelpBaselineBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(172)
+#: Source/Loop9/UI/HelpWidget.cpp(172)
+msgctxt "Loop9Help,HelpBaselineBody"
+msgid "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
+msgstr "In der ersten Schleife ist nie etwas falsch. Nutze sie. Geh die ganze Etage ab, sieh dir die Schreibtische an, die Poster, die Stühle, die Lampen, und merke dir, wie der Ort aussehen soll. Alles danach wird an dem gemessen, was du hier lernst."
+
+#. Key:	HelpAnomalyHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(178)
+#: Source/Loop9/UI/HelpWidget.cpp(178)
+msgctxt "Loop9Help,HelpAnomalyHeading"
+msgid "WHAT COUNTS AS AN ANOMALY"
+msgstr "WAS ALS ANOMALIE GILT"
+
+#. Key:	HelpAnomalyBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(179)
+#: Source/Loop9/UI/HelpWidget.cpp(179)
+msgctxt "Loop9Help,HelpAnomalyBody"
+msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
+msgstr "Eine Anomalie ist alles, was das Büro nicht von selbst tun würde. Ein Gegenstand, der fehlt. Ein Gegenstand, der dort steht, wo er nie stand. Ein Poster oder ein Bildschirm, dessen Text sich geändert hat. Eine Lampe, die nicht aufhört zu flackern und die du vom Ende des Korridors hörst. Eine Tür, die verschlossen ist, obwohl sie es nie war. Ein Geräusch, das nichts verursacht. Etwas in der falschen Größe. Eine Nachricht auf deinem Telefon, die niemand geschickt hat. Und, selten, etwas, das mit dir auf der Etage ist."
+
+#. Key:	HelpElevatorHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(187)
+#: Source/Loop9/UI/HelpWidget.cpp(187)
+msgctxt "Loop9Help,HelpElevatorHeading"
+msgid "THE TWO ELEVATORS"
+msgstr "DIE ZWEI AUFZÜGE"
+
+#. Key:	HelpElevatorBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
+#: Source/Loop9/UI/HelpWidget.cpp(188)
+msgctxt "Loop9Help,HelpElevatorBody"
+msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
+msgstr "Das ist das ganze Spiel, also lies es zweimal. Hast du eine Anomalie gefunden, nimm den ERLEUCHTETEN Aufzug. Ist die Etage sauber, nimm den DUNKLEN. Liegst du richtig, steigst du eine Schleife auf. Liegst du falsch, geht es zurück zum Anfang. Schleife 9 beendet deine Schicht, und wie du dorthin gekommen bist, entscheidet, welches Ende du bekommst."
+
+#. Key:	HelpPhoneHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(194)
+#: Source/Loop9/UI/HelpWidget.cpp(194)
+msgctxt "Loop9Help,HelpPhoneHeading"
+msgid "THE PHONE"
+msgstr "DAS TELEFON"
+
+#. Key:	HelpPhoneBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(195)
+#: Source/Loop9/UI/HelpWidget.cpp(195)
+msgctxt "Loop9Help,HelpPhoneBody"
+msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
+msgstr "Dragojlo beobachtet das Gebäude aus einem anderen Raum und geht ans Telefon. Er kann dir ungefähr sagen, wo du suchen sollst, und er ist die einzige Gesellschaft, die du hier unten hast. Er ist außerdem ein Mensch, kein Werkzeug: wie du mit ihm sprichst, ändert, wie viel er dir sagt und wie die Schicht endet. Er kann müde sein, er kann sich irren, und wenn du ihn schlecht behandelst, hört er auf zu helfen. Die Entscheidung am Aufzug ist immer deine."
+
+#. Key:	HelpControlsHeading
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(202)
+#: Source/Loop9/UI/HelpWidget.cpp(202)
+msgctxt "Loop9Help,HelpControlsHeading"
+msgid "CONTROLS"
+msgstr "STEUERUNG"
+
+#. Key:	HelpControlsBody
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(203)
+#: Source/Loop9/UI/HelpWidget.cpp(203)
+msgctxt "Loop9Help,HelpControlsBody"
+msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
+msgstr "W A S D zum Bewegen, Maus zum Umsehen, Leertaste zum Springen.\nE zum Interagieren: ans Telefon gehen, Türen öffnen, einen Gegenstand aufnehmen und untersuchen.\nF schaltet die Taschenlampe ein und aus.\nEsc pausiert, und legt einen Gegenstand beim Untersuchen wieder ab."
+
+#. Key:	HelpTitle
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(39)
+#: Source/Loop9/UI/HelpWidget.cpp(39)
+msgctxt "Loop9Help,HelpTitle"
+msgid "HOW THE SHIFT WORKS"
+msgstr "SO LÄUFT DIE SCHICHT"
+
+#. Key:	HelpBack
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(89)
+#: Source/Loop9/UI/HelpWidget.cpp(89)
+msgctxt "Loop9Help,HelpBack"
+msgid "BACK"
+msgstr "ZURÜCK"
 
 #. Key:	LoadingFallback
 #. SourceLocation:	Source/Loop9/UI/LoadingScreenWidget.cpp(101)
@@ -651,576 +945,324 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(46)
-#: Source/Loop9/UI/MainMenuWidget.cpp(46)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(123)
+#: Source/Loop9/UI/MainMenuWidget.cpp(123)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "SPIELEN"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(47)
-#: Source/Loop9/UI/MainMenuWidget.cpp(47)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(124)
+#: Source/Loop9/UI/MainMenuWidget.cpp(124)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "EINSTELLUNGEN"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(48)
-#: Source/Loop9/UI/MainMenuWidget.cpp(48)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(125)
+#: Source/Loop9/UI/MainMenuWidget.cpp(125)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "BEENDEN"
 
-#. Key:	Paused
-#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(43)
-#: Source/Loop9/UI/PauseMenuWidget.cpp(43)
-msgctxt "Loop9Menu,Paused"
-msgid "PAUSED"
-msgstr "PAUSIERT"
-
-#. Key:	Resume
-#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(46)
-#: Source/Loop9/UI/PauseMenuWidget.cpp(46)
-msgctxt "Loop9Menu,Resume"
-msgid "RESUME"
-msgstr "FORTSETZEN"
-
-#. Key:	MainMenu
-#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(48)
-#: Source/Loop9/UI/PauseMenuWidget.cpp(48)
-msgctxt "Loop9Menu,MainMenu"
-msgid "MAIN MENU"
-msgstr "HAUPTMENÜ"
-
-#. Key:	Line01
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(56)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(56)
-msgctxt "Loop9Terminal,Line01"
-msgid "Initializing interface..."
-msgstr "Initialisiere Schnittstelle..."
-
-#. Key:	Line02
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(57)
-msgctxt "Loop9Terminal,Line02"
-msgid "Loading conversation model..."
-msgstr "Lade Konversationsmodell..."
-
-#. Key:	Line03
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(58)
-msgctxt "Loop9Terminal,Line03"
-msgid "Importing behavioral profile..."
-msgstr "Importiere Verhaltensprofil..."
-
-#. Key:	Line04
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(59)
-msgctxt "Loop9Terminal,Line04"
-msgid "Importing subject language patterns..."
-msgstr "Importiere Sprachmuster des Subjekts..."
-
-#. Key:	Line05
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(60)
-msgctxt "Loop9Terminal,Line05"
-msgid "Loading response profile..."
-msgstr "Lade Antwortprofil..."
-
-#. Key:	Line06
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(61)
-msgctxt "Loop9Terminal,Line06"
-msgid "Personality imprint complete."
-msgstr "Persönlichkeitsabdruck abgeschlossen."
-
-#. Key:	Line07
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(62)
-msgctxt "Loop9Terminal,Line07"
-msgid "Source: Player"
-msgstr "Quelle: Spieler"
-
-#. Key:	Line08
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
-msgctxt "Loop9Terminal,Line08"
-msgid "Synchronization complete."
-msgstr "Synchronisation abgeschlossen."
-
-#. Key:	Line09
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
-msgctxt "Loop9Terminal,Line09"
-msgid "User connected."
-msgstr "Benutzer verbunden."
-
-#. Key:	Line10
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
-msgctxt "Loop9Terminal,Line10"
-msgid "User: Hello?"
-msgstr "Benutzer: Hallo?"
-
-#. Key:	Line11
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
-msgctxt "Loop9Terminal,Line11"
-msgid "User: Is someone there?"
-msgstr "Benutzer: Ist da jemand?"
-
-#. Key:	Line12
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
-msgctxt "Loop9Terminal,Line12"
-msgid "User: I think I'm stuck."
-msgstr "Benutzer: Ich glaube, ich stecke fest."
-
-#. Key:	Line13
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
-msgctxt "Loop9Terminal,Line13"
-msgid "User: Can you help me?"
-msgstr "Benutzer: Kannst du mir helfen?"
-
-#. Key:	QualityEpic
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(100)
-#: Source/Loop9/UI/SettingsWidget.cpp(100)
-msgctxt "Loop9Settings,QualityEpic"
-msgid "Epic"
-msgstr "Episch"
-
-#. Key:	FPSUncapped
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(106)
-#: Source/Loop9/UI/SettingsWidget.cpp(106)
-msgctxt "Loop9Settings,FPSUncapped"
-msgid "Uncapped"
-msgstr "Unbegrenzt"
-
-#. Key:	Title
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(156)
-#: Source/Loop9/UI/SettingsWidget.cpp(156)
-msgctxt "Loop9Settings,Title"
-msgid "SETTINGS"
-msgstr "EINSTELLUNGEN"
-
-#. Key:	WindowMode
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(161)
-#: Source/Loop9/UI/SettingsWidget.cpp(161)
-msgctxt "Loop9Settings,WindowMode"
-msgid "Window Mode"
-msgstr "Fenstermodus"
-
-#. Key:	Resolution
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(165)
-#: Source/Loop9/UI/SettingsWidget.cpp(165)
-msgctxt "Loop9Settings,Resolution"
-msgid "Resolution"
-msgstr "Auflösung"
-
-#. Key:	GraphicsQuality
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(169)
-#: Source/Loop9/UI/SettingsWidget.cpp(169)
-msgctxt "Loop9Settings,GraphicsQuality"
-msgid "Graphics Quality"
-msgstr "Grafikqualität"
-
-#. Key:	ResolutionScale
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(173)
-#: Source/Loop9/UI/SettingsWidget.cpp(173)
-msgctxt "Loop9Settings,ResolutionScale"
-msgid "Resolution Scale"
-msgstr "Auflösungsskala"
-
-#. Key:	FPSLimit
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(177)
-#: Source/Loop9/UI/SettingsWidget.cpp(177)
-msgctxt "Loop9Settings,FPSLimit"
-msgid "FPS Limit"
-msgstr "FPS-Limit"
-
-#. Key:	VSync
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(181)
-#: Source/Loop9/UI/SettingsWidget.cpp(181)
-msgctxt "Loop9Settings,VSync"
-msgid "VSync"
-msgstr "VSync"
-
-#. Key:	Brightness
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(185)
-#: Source/Loop9/UI/SettingsWidget.cpp(185)
-msgctxt "Loop9Settings,Brightness"
-msgid "Brightness (Gamma)"
-msgstr "Helligkeit (Gamma)"
-
-#. Key:	Language
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(189)
-#: Source/Loop9/UI/SettingsWidget.cpp(189)
-msgctxt "Loop9Settings,Language"
-msgid "Language"
-msgstr "Sprache"
-
-#. Key:	MasterVolume
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(193)
-#: Source/Loop9/UI/SettingsWidget.cpp(193)
-msgctxt "Loop9Settings,MasterVolume"
-msgid "Master Volume"
-msgstr "Hauptlautstärke"
-
-#. Key:	AmbientVolume
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(197)
-#: Source/Loop9/UI/SettingsWidget.cpp(197)
-msgctxt "Loop9Settings,AmbientVolume"
-msgid "Ambient Volume"
-msgstr "Umgebungslautstärke"
-
-#. Key:	MouseSensitivity
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(201)
-#: Source/Loop9/UI/SettingsWidget.cpp(201)
-msgctxt "Loop9Settings,MouseSensitivity"
-msgid "Mouse Sensitivity"
-msgstr "Mausempfindlichkeit"
-
-#. Key:	InvertY
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(205)
-#: Source/Loop9/UI/SettingsWidget.cpp(205)
-msgctxt "Loop9Settings,InvertY"
-msgid "Invert Y Axis"
-msgstr "Y-Achse umkehren"
-
-#. Key:	Apply
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(208)
-#: Source/Loop9/UI/SettingsWidget.cpp(208)
-msgctxt "Loop9Settings,Apply"
-msgid "APPLY"
-msgstr "ANWENDEN"
-
-#. Key:	Back
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(209)
-#: Source/Loop9/UI/SettingsWidget.cpp(209)
-msgctxt "Loop9Settings,Back"
-msgid "BACK"
-msgstr "ZURÜCK"
-
-#. Key:	WindowModeWindowed
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(80)
-#: Source/Loop9/UI/SettingsWidget.cpp(80)
-msgctxt "Loop9Settings,WindowModeWindowed"
-msgid "Windowed"
-msgstr "Fenster"
-
-#. Key:	WindowModeFullscreen
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(81)
-#: Source/Loop9/UI/SettingsWidget.cpp(81)
-msgctxt "Loop9Settings,WindowModeFullscreen"
-msgid "Fullscreen"
-msgstr "Vollbild"
-
-#. Key:	WindowModeBorderless
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(82)
-#: Source/Loop9/UI/SettingsWidget.cpp(82)
-msgctxt "Loop9Settings,WindowModeBorderless"
-msgid "Borderless"
-msgstr "Rahmenlos"
-
-#. Key:	QualityLow
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(97)
-#: Source/Loop9/UI/SettingsWidget.cpp(97)
-msgctxt "Loop9Settings,QualityLow"
-msgid "Low"
-msgstr "Niedrig"
-
-#. Key:	QualityMedium
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(98)
-#: Source/Loop9/UI/SettingsWidget.cpp(98)
-msgctxt "Loop9Settings,QualityMedium"
-msgid "Medium"
-msgstr "Mittel"
-
-#. Key:	QualityHigh
-#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(99)
-#: Source/Loop9/UI/SettingsWidget.cpp(99)
-msgctxt "Loop9Settings,QualityHigh"
-msgid "High"
-msgstr "Hoch"
-
-
-#. Key:	Inspect
-#. SourceLocation:	Source/Loop9/Interaction/InspectableItem.h(36)
-#: Source/Loop9/Interaction/InspectableItem.h(36)
-msgctxt "Loop9Interaction,Inspect"
-msgid "Examine"
-msgstr "Untersuchen"
-
-#. Key:	CallTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallTitle"
-msgid "LOOP {0} · CALL"
-msgstr "SCHLEIFE {0} · ANRUF"
-
-#. Key:	CallTitleTwice
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallTitleTwice"
-msgid "LOOP {0} · TWO CALLS"
-msgstr "SCHLEIFE {0} · ZWEI ANRUFE"
-
-#. Key:	CallHostile
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallHostile"
-msgid "You spoke to him harshly. He heard it."
-msgstr "Du hast hart mit ihm gesprochen. Er hat es gehört."
-
-#. Key:	CallSuspicious
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallSuspicious"
-msgid "You doubted the voice on the line."
-msgstr "Du hast die Stimme in der Leitung bezweifelt."
-
-#. Key:	CallFriendly
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallFriendly"
-msgid "You treated him with some warmth."
-msgstr "Du warst ein wenig warm zu ihm."
-
-#. Key:	CallNeutral
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallNeutral"
-msgid "You called him. Neither of you gave much away."
-msgstr "Du hast ihn angerufen. Keiner von euch hat viel preisgegeben."
-
-#. Key:	CallExtraAskHim
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallExtraAskHim"
-msgid "You asked him to decide."
-msgstr "Du wolltest, dass er entscheidet."
-
-#. Key:	CallExtraKeptChoice
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallExtraKeptChoice"
-msgid "You kept the choice yourself."
-msgstr "Du hast die Wahl selbst behalten."
-
-#. Key:	CallExtraTwice
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallExtraTwice"
-msgid "You called twice on this floor."
-msgstr "Du hast auf diesem Stockwerk zweimal angerufen."
-
-#. Key:	CallExtraTwiceAsk
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallExtraTwiceAsk"
-msgid "You called twice and asked him to decide."
-msgstr "Du hast zweimal angerufen und wolltest, dass er entscheidet."
-
-#. Key:	CallExtraTwiceKept
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallExtraTwiceKept"
-msgid "You called twice and kept the choice yourself."
-msgstr "Du hast zweimal angerufen und die Wahl selbst behalten."
-
-#. Key:	CallBodyJoin
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CallBodyJoin"
-msgid "{0} {1}"
-msgstr "{0} {1}"
-
-#. Key:	CorrectLiftTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CorrectLiftTitle"
-msgid "LOOP {0} · RIGHT ELEVATOR"
-msgstr "SCHLEIFE {0} · RICHTIGER AUFZUG"
-
-#. Key:	WrongLiftTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,WrongLiftTitle"
-msgid "LOOP {0} · WRONG ELEVATOR"
-msgstr "SCHLEIFE {0} · FALSCHER AUFZUG"
-
-#. Key:	CorrectLiftAnomaly
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CorrectLiftAnomaly"
-msgid "You took the right elevator. The floor was already wrong."
-msgstr "Du hast den richtigen Aufzug genommen. Das Stockwerk war schon falsch."
-
-#. Key:	CorrectLiftClean
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,CorrectLiftClean"
-msgid "You took the right elevator. The floor was clean."
-msgstr "Du hast den richtigen Aufzug genommen. Das Stockwerk war sauber."
-
-#. Key:	WrongLiftAnomaly
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,WrongLiftAnomaly"
-msgid "You chose the wrong elevator. The floor was already lying."
-msgstr "Du hast den falschen Aufzug gewählt. Das Stockwerk hat schon gelogen."
-
-#. Key:	WrongLiftClean
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,WrongLiftClean"
-msgid "You chose the wrong elevator. The floor was clean."
-msgstr "Du hast den falschen Aufzug gewählt. Das Stockwerk war sauber."
-
-#. Key:	EndingBody
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp
-msgctxt "Loop9RunEvent,EndingBody"
-msgid "This is how the shift ended."
-msgstr "So endete die Schicht."
-
-#. Key:	ArchiveTitle
-#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
-#: Source/Loop9/UI/ShiftArchiveWidget.cpp
-msgctxt "Loop9Archive,ArchiveTitle"
-msgid "SHIFT ARCHIVE"
-msgstr "SCHICHTARCHIV"
-
-#. Key:	ArchiveHub
-#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
-#: Source/Loop9/UI/ShiftArchiveWidget.cpp
-msgctxt "Loop9Archive,ArchiveHub"
-msgid "SHIFT"
-msgstr "SCHICHT"
-
-#. Key:	ArchiveBack
-#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
-#: Source/Loop9/UI/ShiftArchiveWidget.cpp
-msgctxt "Loop9Archive,ArchiveBack"
-msgid "BACK"
-msgstr "ZURÜCK"
-
-#. Key:	ArchiveLocked
-#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp
-#: Source/Loop9/UI/ShiftArchiveWidget.cpp
-msgctxt "Loop9Archive,ArchiveLocked"
-msgid "???"
-msgstr "???"
-
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
-#: Source/Loop9/UI/MainMenuWidget.cpp
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(126)
+#: Source/Loop9/UI/MainMenuWidget.cpp(126)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIV"
 
 #. Key:	Help
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp
-#: Source/Loop9/UI/MainMenuWidget.cpp
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(127)
+#: Source/Loop9/UI/MainMenuWidget.cpp(127)
 msgctxt "Loop9Menu,Help"
 msgid "HELP"
 msgstr "HILFE"
 
-#. Key:	HelpTitle
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpTitle"
-msgid "HOW THE SHIFT WORKS"
-msgstr "SO LÄUFT DIE SCHICHT"
+#. Key:	Paused
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(76)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(76)
+msgctxt "Loop9Menu,Paused"
+msgid "PAUSED"
+msgstr "PAUSIERT"
 
-#. Key:	HelpBack
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpBack"
+#. Key:	Resume
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(79)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(79)
+msgctxt "Loop9Menu,Resume"
+msgid "RESUME"
+msgstr "FORTSETZEN"
+
+#. Key:	MainMenu
+#. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(81)
+#: Source/Loop9/UI/PauseMenuWidget.cpp(81)
+msgctxt "Loop9Menu,MainMenu"
+msgid "MAIN MENU"
+msgstr "HAUPTMENÜ"
+
+#. Key:	Line01
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
+msgctxt "Loop9Terminal,Line01"
+msgid "Initializing interface..."
+msgstr "Initialisiere Schnittstelle..."
+
+#. Key:	Line02
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
+msgctxt "Loop9Terminal,Line02"
+msgid "Loading conversation model..."
+msgstr "Lade Konversationsmodell..."
+
+#. Key:	Line03
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
+msgctxt "Loop9Terminal,Line03"
+msgid "Importing behavioral profile..."
+msgstr "Importiere Verhaltensprofil..."
+
+#. Key:	Line04
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
+msgctxt "Loop9Terminal,Line04"
+msgid "Importing subject language patterns..."
+msgstr "Importiere Sprachmuster des Subjekts..."
+
+#. Key:	Line05
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
+msgctxt "Loop9Terminal,Line05"
+msgid "Loading response profile..."
+msgstr "Lade Antwortprofil..."
+
+#. Key:	Line06
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
+msgctxt "Loop9Terminal,Line06"
+msgid "Personality imprint complete."
+msgstr "Persönlichkeitsabdruck abgeschlossen."
+
+#. Key:	Line07
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(69)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(69)
+msgctxt "Loop9Terminal,Line07"
+msgid "Source: Player"
+msgstr "Quelle: Spieler"
+
+#. Key:	Line08
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(70)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(70)
+msgctxt "Loop9Terminal,Line08"
+msgid "Synchronization complete."
+msgstr "Synchronisation abgeschlossen."
+
+#. Key:	Line09
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(71)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(71)
+msgctxt "Loop9Terminal,Line09"
+msgid "User connected."
+msgstr "Benutzer verbunden."
+
+#. Key:	Line10
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(72)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(72)
+msgctxt "Loop9Terminal,Line10"
+msgid "User: Hello?"
+msgstr "Benutzer: Hallo?"
+
+#. Key:	Line11
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(73)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(73)
+msgctxt "Loop9Terminal,Line11"
+msgid "User: Is someone there?"
+msgstr "Benutzer: Ist da jemand?"
+
+#. Key:	QualityLow
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(111)
+#: Source/Loop9/UI/SettingsWidget.cpp(111)
+msgctxt "Loop9Settings,QualityLow"
+msgid "Low"
+msgstr "Niedrig"
+
+#. Key:	QualityMedium
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(112)
+#: Source/Loop9/UI/SettingsWidget.cpp(112)
+msgctxt "Loop9Settings,QualityMedium"
+msgid "Medium"
+msgstr "Mittel"
+
+#. Key:	QualityHigh
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(113)
+#: Source/Loop9/UI/SettingsWidget.cpp(113)
+msgctxt "Loop9Settings,QualityHigh"
+msgid "High"
+msgstr "Hoch"
+
+#. Key:	QualityEpic
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(114)
+#: Source/Loop9/UI/SettingsWidget.cpp(114)
+msgctxt "Loop9Settings,QualityEpic"
+msgid "Epic"
+msgstr "Episch"
+
+#. Key:	FPSUncapped
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(120)
+#: Source/Loop9/UI/SettingsWidget.cpp(120)
+msgctxt "Loop9Settings,FPSUncapped"
+msgid "Uncapped"
+msgstr "Unbegrenzt"
+
+#. Key:	Title
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(158)
+#: Source/Loop9/UI/SettingsWidget.cpp(158)
+msgctxt "Loop9Settings,Title"
+msgid "SETTINGS"
+msgstr "EINSTELLUNGEN"
+
+#. Key:	WindowMode
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(163)
+#: Source/Loop9/UI/SettingsWidget.cpp(163)
+msgctxt "Loop9Settings,WindowMode"
+msgid "Window Mode"
+msgstr "Fenstermodus"
+
+#. Key:	Resolution
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(167)
+#: Source/Loop9/UI/SettingsWidget.cpp(167)
+msgctxt "Loop9Settings,Resolution"
+msgid "Resolution"
+msgstr "Auflösung"
+
+#. Key:	GraphicsQuality
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(171)
+#: Source/Loop9/UI/SettingsWidget.cpp(171)
+msgctxt "Loop9Settings,GraphicsQuality"
+msgid "Graphics Quality"
+msgstr "Grafikqualität"
+
+#. Key:	ResolutionScale
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(175)
+#: Source/Loop9/UI/SettingsWidget.cpp(175)
+msgctxt "Loop9Settings,ResolutionScale"
+msgid "Resolution Scale"
+msgstr "Auflösungsskala"
+
+#. Key:	FPSLimit
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(179)
+#: Source/Loop9/UI/SettingsWidget.cpp(179)
+msgctxt "Loop9Settings,FPSLimit"
+msgid "FPS Limit"
+msgstr "FPS-Limit"
+
+#. Key:	VSync
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(183)
+#: Source/Loop9/UI/SettingsWidget.cpp(183)
+msgctxt "Loop9Settings,VSync"
+msgid "VSync"
+msgstr "VSync"
+
+#. Key:	Brightness
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(187)
+#: Source/Loop9/UI/SettingsWidget.cpp(187)
+msgctxt "Loop9Settings,Brightness"
+msgid "Brightness (Gamma)"
+msgstr "Helligkeit (Gamma)"
+
+#. Key:	Language
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(191)
+#: Source/Loop9/UI/SettingsWidget.cpp(191)
+msgctxt "Loop9Settings,Language"
+msgid "Language"
+msgstr "Sprache"
+
+#. Key:	MasterVolume
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(195)
+#: Source/Loop9/UI/SettingsWidget.cpp(195)
+msgctxt "Loop9Settings,MasterVolume"
+msgid "Master Volume"
+msgstr "Hauptlautstärke"
+
+#. Key:	AmbientVolume
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(199)
+#: Source/Loop9/UI/SettingsWidget.cpp(199)
+msgctxt "Loop9Settings,AmbientVolume"
+msgid "Ambient Volume"
+msgstr "Umgebungslautstärke"
+
+#. Key:	MouseSensitivity
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(203)
+#: Source/Loop9/UI/SettingsWidget.cpp(203)
+msgctxt "Loop9Settings,MouseSensitivity"
+msgid "Mouse Sensitivity"
+msgstr "Mausempfindlichkeit"
+
+#. Key:	InvertY
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(207)
+#: Source/Loop9/UI/SettingsWidget.cpp(207)
+msgctxt "Loop9Settings,InvertY"
+msgid "Invert Y Axis"
+msgstr "Y-Achse umkehren"
+
+#. Key:	Apply
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(210)
+#: Source/Loop9/UI/SettingsWidget.cpp(210)
+msgctxt "Loop9Settings,Apply"
+msgid "APPLY"
+msgstr "ANWENDEN"
+
+#. Key:	Back
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(211)
+#: Source/Loop9/UI/SettingsWidget.cpp(211)
+msgctxt "Loop9Settings,Back"
 msgid "BACK"
 msgstr "ZURÜCK"
 
-#. Key:	HelpJobHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpJobHeading"
-msgid "YOUR SHIFT"
-msgstr "DEINE SCHICHT"
+#. Key:	WindowModeWindowed
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(90)
+#: Source/Loop9/UI/SettingsWidget.cpp(90)
+msgctxt "Loop9Settings,WindowModeWindowed"
+msgid "Windowed"
+msgstr "Fenster"
 
-#. Key:	HelpJobBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpJobBody"
-msgid "You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, and your only job is to decide one thing before you take the elevator: is this floor the way it should be, or has something changed?"
-msgstr "Du bist der Nachttechniker im zweiten Stock. Jede Schleife setzt dich auf dieselbe Etage desselben Büros zurück, und deine einzige Aufgabe ist es, vor dem Aufzug eine Sache zu entscheiden: Ist diese Etage so, wie sie sein sollte, oder hat sich etwas verändert?"
+#. Key:	WindowModeFullscreen
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(91)
+#: Source/Loop9/UI/SettingsWidget.cpp(91)
+msgctxt "Loop9Settings,WindowModeFullscreen"
+msgid "Fullscreen"
+msgstr "Vollbild"
 
-#. Key:	HelpBaselineHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpBaselineHeading"
-msgid "THE FIRST LOOP IS CLEAN"
-msgstr "DIE ERSTE SCHLEIFE IST SAUBER"
+#. Key:	WindowModeBorderless
+#. SourceLocation:	Source/Loop9/UI/SettingsWidget.cpp(92)
+#: Source/Loop9/UI/SettingsWidget.cpp(92)
+msgctxt "Loop9Settings,WindowModeBorderless"
+msgid "Borderless"
+msgstr "Rahmenlos"
 
-#. Key:	HelpBaselineBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpBaselineBody"
-msgid "Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the chairs, the lights, and remember how the place is supposed to look. Everything after this is measured against what you learn here."
-msgstr "In der ersten Schleife ist nie etwas falsch. Nutze sie. Geh die ganze Etage ab, sieh dir die Schreibtische an, die Poster, die Stühle, die Lampen, und merke dir, wie der Ort aussehen soll. Alles danach wird an dem gemessen, was du hier lernst."
+#. Key:	ArchiveHub
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp(157)
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp(157)
+msgctxt "Loop9Archive,ArchiveHub"
+msgid "SHIFT"
+msgstr "SCHICHT"
 
-#. Key:	HelpAnomalyHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpAnomalyHeading"
-msgid "WHAT COUNTS AS AN ANOMALY"
-msgstr "WAS ALS ANOMALIE GILT"
+#. Key:	ArchiveLocked
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp(165)
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp(165)
+msgctxt "Loop9Archive,ArchiveLocked"
+msgid "???"
+msgstr "???"
 
-#. Key:	HelpAnomalyBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpAnomalyBody"
-msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
-msgstr "Eine Anomalie ist alles, was das Büro nicht von selbst tun würde. Ein Gegenstand, der fehlt. Ein Gegenstand, der dort steht, wo er nie stand. Ein Poster oder ein Bildschirm, dessen Text sich geändert hat. Eine Lampe, die nicht aufhört zu flackern und die du vom Ende des Korridors hörst. Eine Tür, die verschlossen ist, obwohl sie es nie war. Ein Geräusch, das nichts verursacht. Etwas in der falschen Größe. Eine Nachricht auf deinem Telefon, die niemand geschickt hat. Und, selten, etwas, das mit dir auf der Etage ist."
+#. Key:	ArchiveTitle
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp(45)
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp(45)
+msgctxt "Loop9Archive,ArchiveTitle"
+msgid "SHIFT ARCHIVE"
+msgstr "SCHICHTARCHIV"
 
-#. Key:	HelpElevatorHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpElevatorHeading"
-msgid "THE TWO ELEVATORS"
-msgstr "DIE ZWEI AUFZÜGE"
+#. Key:	ArchiveBack
+#. SourceLocation:	Source/Loop9/UI/ShiftArchiveWidget.cpp(92)
+#: Source/Loop9/UI/ShiftArchiveWidget.cpp(92)
+msgctxt "Loop9Archive,ArchiveBack"
+msgid "BACK"
+msgstr "ZURÜCK"
 
-#. Key:	HelpElevatorBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpElevatorBody"
-msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
-msgstr "Das ist das ganze Spiel, also lies es zweimal. Hast du eine Anomalie gefunden, nimm den ERLEUCHTETEN Aufzug. Ist die Etage sauber, nimm den DUNKLEN. Liegst du richtig, steigst du eine Schleife auf. Liegst du falsch, geht es zurück zum Anfang. Schleife 9 beendet deine Schicht, und wie du dorthin gekommen bist, entscheidet, welches Ende du bekommst."
-
-#. Key:	HelpPhoneHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpPhoneHeading"
-msgid "THE PHONE"
-msgstr "DAS TELEFON"
-
-#. Key:	HelpPhoneBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpPhoneBody"
-msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
-msgstr "Dragojlo beobachtet das Gebäude aus einem anderen Raum und geht ans Telefon. Er kann dir ungefähr sagen, wo du suchen sollst, und er ist die einzige Gesellschaft, die du hier unten hast. Er ist außerdem ein Mensch, kein Werkzeug: wie du mit ihm sprichst, ändert, wie viel er dir sagt und wie die Schicht endet. Er kann müde sein, er kann sich irren, und wenn du ihn schlecht behandelst, hört er auf zu helfen. Die Entscheidung am Aufzug ist immer deine."
-
-#. Key:	HelpControlsHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpControlsHeading"
-msgid "CONTROLS"
-msgstr "STEUERUNG"
-
-#. Key:	HelpControlsBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp
-#: Source/Loop9/UI/HelpWidget.cpp
-msgctxt "Loop9Help,HelpControlsBody"
-msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
-msgstr "W A S D zum Bewegen, Maus zum Umsehen, Leertaste zum Springen.\nE zum Interagieren: ans Telefon gehen, Türen öffnen, einen Gegenstand aufnehmen und untersuchen.\nF schaltet die Taschenlampe ein und aus.\nEsc pausiert, und legt einen Gegenstand beim Untersuchen wieder ab."

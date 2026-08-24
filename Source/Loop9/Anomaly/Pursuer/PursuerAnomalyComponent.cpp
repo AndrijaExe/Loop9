@@ -2,15 +2,57 @@
 
 #include "Anomaly/Pursuer/PursuerAnomalyCharacter.h"
 #include "Anomaly/Pursuer/PursuerSpawnPoint.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Loop9.h"
 #include "NavigationSystem.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
+#include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "UObject/ConstructorHelpers.h"
 
 UPursuerAnomalyComponent::UPursuerAnomalyComponent()
 {
 	AnomalyProbability = 0.4f;
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> TensionFinder(
+		TEXT("/Game/MyStuff/Sound/Pursuer/PursuerTensionLoop"));
+	if (TensionFinder.Succeeded())
+	{
+		ActiveAnomalyLoopSound = TensionFinder.Object;
+	}
+	else
+	{
+		static ConstructorHelpers::FObjectFinder<USoundBase> MenuAmbientFinder(
+			TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound"));
+		if (MenuAmbientFinder.Succeeded())
+		{
+			ActiveAnomalyLoopSound = MenuAmbientFinder.Object;
+		}
+	}
+}
+
+void UPursuerAnomalyComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+#if !UE_BUILD_SHIPPING
+	TArray<APursuerSpawnPoint*> Points;
+	CollectEnabledSpawnPoints(Points);
+	UE_LOG(LogLoop9, Log, TEXT("Pursuer on '%s': %d spawn point(s), fallback radius=%s"),
+		GetOwner() ? *GetOwner()->GetActorNameOrLabel() : TEXT("None"),
+		Points.Num(),
+		bFallbackToRadiusSpawn ? TEXT("on") : TEXT("off"));
+	for (const APursuerSpawnPoint* Point : Points)
+	{
+		if (Point)
+		{
+			UE_LOG(LogLoop9, Log, TEXT("  spawn point '%s' at %s"),
+				*Point->GetActorNameOrLabel(), *Point->GetActorLocation().ToCompactString());
+		}
+	}
+#endif
 }
 
 bool UPursuerAnomalyComponent::ApplyAnomalyState()
@@ -28,10 +70,12 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 
 	FTransform SpawnTransform;
 	bool bFoundSpawn = false;
+	bool bFromAuthoredPoint = false;
 
 	if (bUseSpawnPoints)
 	{
 		bFoundSpawn = TryGetSpawnTransformFromPoints(PlayerPawn, SpawnTransform);
+		bFromAuthoredPoint = bFoundSpawn;
 	}
 
 	if (!bFoundSpawn && bFallbackToRadiusSpawn)
@@ -41,6 +85,7 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 
 	if (!bFoundSpawn)
 	{
+		UE_LOG(LogLoop9, Warning, TEXT("Pursuer: no spawn transform (points and radius both failed)"));
 		return false;
 	}
 
@@ -53,41 +98,19 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 		return false;
 	}
 
+	UE_LOG(LogLoop9, Log, TEXT("Pursuer spawned via %s at %s"),
+		bFromAuthoredPoint ? TEXT("authored spawn point") : TEXT("radius fallback around player"),
+		*SpawnTransform.GetLocation().ToCompactString());
+
 	SpawnedPursuer->OnDestroyed.AddDynamic(this, &UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed);
-
-	if (ActiveAnomalyLoopSound)
-	{
-		ActiveAnomalyLoopAudioComponent = UGameplayStatics::SpawnSoundAttached(
-			ActiveAnomalyLoopSound,
-			SpawnedPursuer->GetRootComponent(),
-			NAME_None,
-			FVector::ZeroVector,
-			EAttachLocation::KeepRelativeOffset,
-			true,
-			ActiveAnomalyLoopVolume,
-			1.0f,
-			0.0f,
-			ActiveAnomalyLoopAttenuation,
-			nullptr,
-			true);
-
-		if (ActiveAnomalyLoopAudioComponent)
-		{
-			ActiveAnomalyLoopAudioComponent->bAutoDestroy = false;
-		}
-	}
+	StartTensionMusic();
 
 	return true;
 }
 
 void UPursuerAnomalyComponent::RestoreNormalState()
 {
-	if (ActiveAnomalyLoopAudioComponent)
-	{
-		ActiveAnomalyLoopAudioComponent->Stop();
-		ActiveAnomalyLoopAudioComponent->DestroyComponent();
-		ActiveAnomalyLoopAudioComponent = nullptr;
-	}
+	StopTensionMusic();
 
 	if (SpawnedPursuer)
 	{
@@ -100,17 +123,81 @@ void UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed(AActor* DestroyedActor)
 {
 	if (DestroyedActor == SpawnedPursuer)
 	{
-		if (ActiveAnomalyLoopAudioComponent)
-		{
-			ActiveAnomalyLoopAudioComponent->Stop();
-			ActiveAnomalyLoopAudioComponent->DestroyComponent();
-			ActiveAnomalyLoopAudioComponent = nullptr;
-		}
+		StopTensionMusic();
 
 		SpawnedPursuer = nullptr;
 		// Keep the anomaly active for the rest of this floor visit even after
 		// the manifestation despawns. Elevator judgment and achievements must
 		// reflect what the player encountered, not whether the actor still exists.
+	}
+}
+
+void UPursuerAnomalyComponent::StartTensionMusic()
+{
+	if (!ActiveAnomalyLoopSound)
+	{
+		ActiveAnomalyLoopSound = LoadObject<USoundBase>(
+			nullptr,
+			TEXT("/Game/MyStuff/Sound/Pursuer/PursuerTensionLoop.PursuerTensionLoop"));
+	}
+	if (!ActiveAnomalyLoopSound)
+	{
+		ActiveAnomalyLoopSound = LoadObject<USoundBase>(
+			nullptr,
+			TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound.HorrorAmbientSound"));
+	}
+	if (bReplaceLevelAmbience && GetWorld())
+	{
+		if (UGameInstance* GI = GetWorld()->GetGameInstance())
+		{
+			if (ULoop9GameSettingsSubsystem* Settings = GI->GetSubsystem<ULoop9GameSettingsSubsystem>())
+			{
+				Settings->SuppressLevelAmbience(true);
+				bAmbienceSuppressed = true;
+			}
+		}
+	}
+
+	if (!ActiveAnomalyLoopSound)
+	{
+		return;
+	}
+
+	ActiveAnomalyLoopAudioComponent = UGameplayStatics::SpawnSound2D(
+		this,
+		ActiveAnomalyLoopSound,
+		ActiveAnomalyLoopVolume,
+		1.0f,
+		0.0f,
+		nullptr,
+		false,
+		false);
+
+	if (ActiveAnomalyLoopAudioComponent)
+	{
+		ActiveAnomalyLoopAudioComponent->bAutoDestroy = false;
+	}
+}
+
+void UPursuerAnomalyComponent::StopTensionMusic()
+{
+	if (ActiveAnomalyLoopAudioComponent)
+	{
+		ActiveAnomalyLoopAudioComponent->Stop();
+		ActiveAnomalyLoopAudioComponent->DestroyComponent();
+		ActiveAnomalyLoopAudioComponent = nullptr;
+	}
+
+	if (bAmbienceSuppressed && GetWorld())
+	{
+		if (UGameInstance* GI = GetWorld()->GetGameInstance())
+		{
+			if (ULoop9GameSettingsSubsystem* Settings = GI->GetSubsystem<ULoop9GameSettingsSubsystem>())
+			{
+				Settings->SuppressLevelAmbience(false);
+			}
+		}
+		bAmbienceSuppressed = false;
 	}
 }
 
@@ -122,35 +209,7 @@ bool UPursuerAnomalyComponent::TryGetSpawnTransformFromPoints(APawn* PlayerPawn,
 	}
 
 	TArray<APursuerSpawnPoint*> Candidates;
-	for (APursuerSpawnPoint* P : ManualSpawnPoints)
-	{
-		if (IsValid(P) && P->bEnabled)
-		{
-			Candidates.Add(P);
-		}
-	}
-
-	if (Candidates.Num() == 0)
-	{
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuerSpawnPoint::StaticClass(), FoundActors);
-		for (AActor* A : FoundActors)
-		{
-			APursuerSpawnPoint* Point = Cast<APursuerSpawnPoint>(A);
-			if (!Point || !Point->bEnabled)
-			{
-				continue;
-			}
-
-			if (!SpawnPointTag.IsNone() && !Point->ActorHasTag(SpawnPointTag))
-			{
-				continue;
-			}
-
-			Candidates.Add(Point);
-		}
-	}
-
+	CollectEnabledSpawnPoints(Candidates);
 	if (Candidates.Num() == 0)
 	{
 		return false;
@@ -173,11 +232,63 @@ bool UPursuerAnomalyComponent::TryGetSpawnTransformFromPoints(APawn* PlayerPawn,
 		{
 			const FRotator SpawnRotation = (PlayerPawn->GetActorLocation() - NavLocation).Rotation();
 			OutTransform = FTransform(SpawnRotation, NavLocation);
+			UE_LOG(LogLoop9, Log, TEXT("Pursuer picked spawn point '%s'"), *Chosen->GetActorNameOrLabel());
 			return true;
 		}
+
+		UE_LOG(LogLoop9, Warning, TEXT("Pursuer spawn point '%s' is off navmesh, skipping"),
+			*Chosen->GetActorNameOrLabel());
 	}
 
 	return false;
+}
+
+void UPursuerAnomalyComponent::CollectEnabledSpawnPoints(TArray<APursuerSpawnPoint*>& OutPoints) const
+{
+	OutPoints.Reset();
+
+	for (APursuerSpawnPoint* Point : ManualSpawnPoints)
+	{
+		if (IsValid(Point) && Point->bEnabled)
+		{
+			OutPoints.Add(Point);
+		}
+	}
+
+	if (OutPoints.Num() > 0)
+	{
+		return;
+	}
+
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuerSpawnPoint::StaticClass(), FoundActors);
+
+	TArray<APursuerSpawnPoint*> AllEnabled;
+	TArray<APursuerSpawnPoint*> Tagged;
+	for (AActor* Actor : FoundActors)
+	{
+		APursuerSpawnPoint* Point = Cast<APursuerSpawnPoint>(Actor);
+		if (!Point || !Point->bEnabled)
+		{
+			continue;
+		}
+
+		AllEnabled.Add(Point);
+		if (SpawnPointTag.IsNone() || Point->ActorHasTag(SpawnPointTag))
+		{
+			Tagged.Add(Point);
+		}
+	}
+
+	// Prefer tagged points when any exist; otherwise every enabled
+	// BP_PursuerSpawnPoint counts so a forgotten tag does not silently
+	// fall back to a random radius spawn.
+	OutPoints = Tagged.Num() > 0 ? MoveTemp(Tagged) : MoveTemp(AllEnabled);
 }
 
 bool UPursuerAnomalyComponent::TryGetSpawnTransformFromRadius(APawn* PlayerPawn, FTransform& OutTransform) const

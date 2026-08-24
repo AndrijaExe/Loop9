@@ -21,7 +21,7 @@ void UDoorLockStateAnomalyComponent::BeginPlay()
 
 bool UDoorLockStateAnomalyComponent::ApplyAnomalyState()
 {
-	if (!DoorRef)
+	if (!DoorRef || DoorRef->IsBlockedFromBehind())
 	{
 		return false;
 	}

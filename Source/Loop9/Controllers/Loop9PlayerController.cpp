@@ -208,6 +208,31 @@ void ALoop9PlayerController::AnomalyForce(const FString& Args)
 #endif
 }
 
+void ALoop9PlayerController::AnomalyFlicker()
+{
+	AnomalyForce(TEXT("Flicker"));
+}
+
+void ALoop9PlayerController::AnomalyPhone()
+{
+	AnomalyForce(TEXT("Audio"));
+}
+
+void ALoop9PlayerController::AnomalyPursuer()
+{
+	AnomalyForce(TEXT("Pursuer"));
+}
+
+void ALoop9PlayerController::AnomalyMove()
+{
+	AnomalyForce(TEXT("Move"));
+}
+
+void ALoop9PlayerController::AnomalyMaterial()
+{
+	AnomalyForce(TEXT("MaterialSwap"));
+}
+
 void ALoop9PlayerController::AnomalyAuditMaterials()
 {
 #if !UE_BUILD_SHIPPING
@@ -230,9 +255,14 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyList                         - list all registered anomalies\n"
 		"  AnomalyReset                        - clear all active anomalies\n"
 		"  AnomalyForceAny                     - force one random inactive anomaly\n"
+		"  AnomalyFlicker                      - force every light-flicker anomaly\n"
+		"  AnomalyPhone                        - force every phone / audio anomaly\n"
+		"  AnomalyPursuer                      - force the pursuer\n"
+		"  AnomalyMove                         - force every move anomaly\n"
+		"  AnomalyMaterial                     - force every material-swap anomaly\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: MaterialSwap, Text, Move, OldMagazine, I01, F01, D01\n"
+		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
 		"  AnomalyHelp                         - this message"));

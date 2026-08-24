@@ -12,4 +12,6 @@ APursuerSpawnPoint::APursuerSpawnPoint()
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(Root);
 	DirectionArrow->ArrowSize = 1.0f;
+
+	Tags.AddUnique(FName(TEXT("PursuerSpawn")));
 }

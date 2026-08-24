@@ -144,18 +144,11 @@ void USettingsWidget::PopulateLanguageOptions()
 	ComboBoxString_Language->OnSelectionChanged.AddDynamic(this, &USettingsWidget::HandleLanguageSelectionChanged);
 }
 
-void USettingsWidget::HandleLanguageSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void USettingsWidget::HandleLanguageSelectionChanged(FString /*SelectedItem*/, ESelectInfo::Type /*SelectionType*/)
 {
-	if (bIsRefreshingLocalizedUI || SelectionType == ESelectInfo::Direct || !ComboBoxString_Language)
-	{
-		return;
-	}
-
-	const int32 Index = ComboBoxString_Language->GetSelectedIndex();
-	if (SupportedCultures.IsValidIndex(Index))
-	{
-		SetLanguage(SupportedCultures[Index]);
-	}
+	// Language is a pending widget value, like resolution. Do not call
+	// SetLanguage here — that would retarget the whole UI (and save the
+	// culture to config) before the player hits Apply.
 }
 
 void USettingsWidget::ApplyLocalizedLabels()

@@ -101,6 +101,8 @@ void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorl
 		ApplyMasterVolume();
 		ApplySoundClassVolumes(World);
 
+		LevelAmbienceSuppressCount = 0;
+
 		// The world is not running yet, so try again once it is: actors have not
 		// had BeginPlay, and the audio device usually is not attached.
 		if (AudioBootstrapTickerHandle.IsValid())
@@ -133,7 +135,7 @@ bool ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap(float)
 
 void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) const
 {
-	if (!World)
+	if (!World || LevelAmbienceSuppressCount > 0)
 	{
 		return;
 	}
@@ -149,6 +151,50 @@ void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) co
 		Audio->Play();
 		UE_LOG(LogTemp, Log, TEXT("Loop9 audio: restarted level ambience '%s'"),
 			*It->GetActorNameOrLabel());
+	}
+}
+
+void ULoop9GameSettingsSubsystem::SuppressLevelAmbience(bool bSuppress)
+{
+	if (bSuppress)
+	{
+		++LevelAmbienceSuppressCount;
+	}
+	else
+	{
+		LevelAmbienceSuppressCount = FMath::Max(0, LevelAmbienceSuppressCount - 1);
+	}
+
+	ApplyLevelAmbienceSuppressState(ResolveAudioWorld());
+}
+
+void ULoop9GameSettingsSubsystem::ApplyLevelAmbienceSuppressState(UWorld* World) const
+{
+	if (!World)
+	{
+		return;
+	}
+
+	const bool bPause = LevelAmbienceSuppressCount > 0;
+	for (TActorIterator<AAmbientSound> It(World); It; ++It)
+	{
+		UAudioComponent* Audio = It->GetAudioComponent();
+		if (!Audio || !Audio->Sound)
+		{
+			continue;
+		}
+
+		if (bPause)
+		{
+			if (Audio->IsPlaying())
+			{
+				Audio->Stop();
+			}
+		}
+		else if (!Audio->IsPlaying())
+		{
+			Audio->Play();
+		}
 	}
 }
 

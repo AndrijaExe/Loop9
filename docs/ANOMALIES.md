@@ -118,15 +118,22 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyList` | Print registered anomalies |
 | `AnomalyReset` | Clear all active anomalies |
 | `AnomalyForceAny` | Force one random inactive anomaly |
+| `AnomalyFlicker` | Force every light-flicker anomaly |
+| `AnomalyPhone` | Force every phone / audio anomaly |
+| `AnomalyPursuer` | Force the pursuer |
+| `AnomalyMove` | Force every Move anomaly |
+| `AnomalyMaterial` | Force every MaterialSwap anomaly |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
 | `AnomalyHelp` | Print usage |
 
+These are **tilde console** commands in PIE / Standalone / Development. They are compiled out of Shipping.
+
 Filter notes:
 
-- Type labels match exactly (case-insensitive).
+- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`).
 - Class/actor partial filters require at least 3 characters.
-- Examples: `MaterialSwap`, `Text`, `Move`, `OldMagazine`, `I01`, `F01`, `D01`.
+- Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 
 ## Achievements tied to anomalies
 
