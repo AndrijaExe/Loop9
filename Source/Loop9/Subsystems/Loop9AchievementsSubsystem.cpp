@@ -15,7 +15,7 @@ namespace
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
 	constexpr int32 EndingTypeCount = 6;
-	constexpr int32 AnomalyTypeCount = 9;
+	constexpr int32 SpotAllAnomalyTypeCount = 9;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
@@ -266,14 +266,14 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 		SavePersistedList(SpottedAnomaliesKey, Spotted);
 	}
 
-	if (Spotted.Num() >= AnomalyTypeCount)
+	if (Spotted.Num() >= SpotAllAnomalyTypeCount)
 	{
 		UnlockAchievement(FName(TEXT("ACH_SPOT_ALL")));
 	}
 	else if (bChanged)
 	{
 		FLoop9SteamUtils::IndicateAchievementProgress(
-			FName(TEXT("ACH_SPOT_ALL")), Spotted.Num(), AnomalyTypeCount);
+			FName(TEXT("ACH_SPOT_ALL")), Spotted.Num(), SpotAllAnomalyTypeCount);
 	}
 }
 
