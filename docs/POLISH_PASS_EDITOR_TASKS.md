@@ -2,15 +2,18 @@
 
 Poslednje ažuriranje: **25.08.2026.**
 
-C++ deo polish prolaza je odrađen i kompajlira se sam. Ono što je trebalo
-u editoru (Move, materijali, atenuacija, Help/Archive dugmad, figura u meniju,
-`IA_Flashlight`) je odrađeno. Ostaju dva uvoza zvuka, Compile Text i QA u igri.
+C++ deo polish prolaza je odrađen. Editorski deo (Move destinacije, materijali,
+atenuacija, Help/Archive dugmad, figura u meniju, `IA_Flashlight`) je takođe
+odrađen — te sekcije su izbačene iz ovog fajla 25.08.2026. jer su bile gotove;
+gde su bile trajno korisne, opis je u [ANOMALIES.md](ANOMALIES.md) i
+[AUDIO_ASSIGNMENT_CHECKLIST.md](AUDIO_ASSIGNMENT_CHECKLIST.md). Ispod je samo
+ono što je još otvoreno.
 
-Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti · `[x]` gotovo
+Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 
 ---
 
-## 0. Uvoz zvuka i lokalizacija (obavezno, novo 25.08.2026.)
+## 1. Uvoz zvuka i lokalizacija (obavezno)
 
 - [ ] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
   (`/Game/MyStuff/Sound/UI/TypewriterKey`). To je kucanje na endinzima. Bez uvoza
@@ -20,102 +23,29 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti · `[x]` gotovo
 - [ ] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` ako još nisu uvezeni
   (`DoorOpen`, `DoorClose`, `DoorLocked`, `DoorBlocked`). U repo-u su samo `.wav`
   fajlovi, bez `.uasset`, pa proveri da li `ADoorInteractable` nalazi zvuke.
-- [ ] Pokreni **Gather Text** pa **Compile Text**. Bez toga izmene Help teksta i
-  novi `SKIP` label rade samo na engleskom, jer igra čita `.locres`, ne `.po`.
+- [ ] Pokreni **Gather Text**. Jedna komanda uveze `.po` i kompajlira `.locres`
+  (vidi [LOCALIZATION.md](LOCALIZATION.md)). Bez toga Help tekst, `SKIP` label i
+  prevodi dodati 25.08.2026. rade samo na engleskom, jer igra čita `.locres`.
 
-## 1. Move anomalije — spawn pointovi (obavezno)
+## 2. Sitnice koje vredi proveriti u igri
 
-Bez ovoga Move anomalije **neće da se aktiviraju** — namerno. Umesto da objekat
-odu na koordinatu `(0,0,0)`, komponenta upiše warning u log i propusti se, pa
-manager izvuče drugu anomaliju. To je ono što je uzrokovalo Dragojla na
-nepostojećem trećem spratu.
-
-Četiri placementa u `FullOfficeMap` (24.08.2026), svaki na **legacy
-`AnomalyLocation`** (nema `AnomalyMovePoint` aktera). Sve destinacije su >20 cm
-od rest poze, pa se Move aktivira. Jedna destinacija po objektu — nema varijante
-između petlji. AI Context je ispravljen na category noun + zonu (ne opis anomalije).
-
-| Objekat | Kind / zona | Pomeraj |
-|---|---|---|
-| `SM_Chair_21` | an office chair / the meeting room with the long table | 288 cm |
-| `SM_flower_pot_3` | a potted plant / beside the elevator doors | 738 cm |
-| `SM_RubberMallet_A01_N1` | a rubber mallet / the tool shelf in the corner | 260 cm |
-| `SM_ComputerMonitor_A02_N2` | a computer monitor / the back shelves past the lifts | 132 cm |
-
-- [x] Destinacije autorovane (legacy `AnomalyLocation`, world space).
-- [~] Nema 2–3 `AnomalyMovePoint` po objektu — radi, ali uvek ista destinacija.
-- [x] Nijedna destinacija nije unutar 20 cm od rest poze.
-- [x] `AnomalyZone` / `AnomalyObjectKind` popunjeni na sva četiri.
-
-## 2. Material anomalije — audit (obavezno)
-
-- [x] 10/10 `MaterialSwapAnomalyComponent` u `FullOfficeMap`: svaka varijanta je
-  drugi asset od mesh defaulta (pamphlets I01/D01/F01 + `BP_OldMagazine` /
-  `BP_OldMagazine2`). Nema praznog slota ni identičnog materijala.
-- [x] `SelectionWeight` = 2.0 na svima. `AnomalyProbability` je 0.7 na većini;
-  `I01_N1`, `F01_N1` i `D01_N2` stoje na 1.0 (editor override, češće pucaju).
-
-## 3. Flashlight
-
-Radi bez ikakvog editorskog posla — `F` na tastaturi, `Y`/`Triangle` na padu,
-spot light je napravljen u C++ i zakačen na kameru.
-
-- [x] `IA_Flashlight` (`/Game/MyStuff/Input/IA_Flashlight`) dodeljen na
-  **Input > Flashlight Action** u `BP_Character`. `F` je u `IMC_Default`.
-  Gamepad `Y`/`Triangle` i dalje ide kroz C++ fallback, da se ne duplira bind.
-- [x] **Audio|Flashlight > Flashlight Toggle Sound** — `FlashlightToggle`
-  (generisan klik). Fallback: elevator button press ako wav još nije uvezen.
-- [ ] Proveri intenzitet u igri. C++ default je 2600 lm, cone 16°/34°, blago topla
+- [ ] **Intenzitet lampe.** C++ default je 2600 lm, cone 16°/34°, blago topla
   boja. Namerno ne briše mrak; ako je pretamno digni `Intensity` na komponenti
   `Flashlight` u BP-u karaktera.
-
-## 4. Zvuk treperenja svetla
-
-- [x] **Flicker Sound Attenuation** na `LightFlickerAnomalyComponent` — `ATT_FlickerHallway`
-  (inner 300 cm, silent at 1800 cm) na `BP_Light_17`, `BP_Light_35`, `BP_Light_37`
-  i kao C++ default. Detalji:
-  [AUDIO_ASSIGNMENT_CHECKLIST.md](AUDIO_ASSIGNMENT_CHECKLIST.md#light-flicker-anomalije-lightflickeranomalycomponent).
-
-## 5. Help ekran
-
-Dugme **HELP** je pravi widget u `WBP_MainMenu` (redosled: Play, Settings,
-Archive, Help, Quit). Tekst je lokalizovan i pisan u C++.
-
-- [x] Pravo dugme imena `Help` (i `Archive`) postoji u `WBP_MainMenu`.
-- [x] Sekcija o anomalijama je 25.08.2026. preokrenuta: sada piše **šta se NE
-  računa** kao anomalija, uključujući brojač petlje, mrak, tvoju lampu, Dragojlov
-  poziv i to što je jedan lift osvetljen. Stara lista devet tipova je izbačena.
-- [ ] Ako želiš slike u Help ekranu: napravi WBP dete od `HelpWidget`, bindaj
+- [~] **Move destinacije.** Sva četiri placementa imaju po jednu destinaciju, pa
+  je pomeraj isti u svakoj petlji. Ako želiš varijaciju, dodaj 2–3
+  `AnomalyMovePoint` aktera po objektu — vidi [ANOMALIES.md](ANOMALIES.md).
+- [ ] **`AmbientSound_0` u `FullOfficeMap`.** Muziku na spratu sada pušta
+  `ALoop9GameMode` kao 2D zvuk, a ovaj akter se pri startu utiša namerno da se
+  `HorrorAmbience1` ne bi svirao dva puta. Kod ga gasi sam, ali mapa je jasnija
+  bez njega. Drugi `AmbientSound` akteri koji **nisu** na `SC_Music` se ne diraju.
+- [ ] **Slike u Help ekranu (opciono).** Napravi WBP dete od `HelpWidget`, bindaj
   `VB_Sections` i postavi ga na **UI > Help Widget Class** na meniju. C++ i dalje
   ubacuje tekst, ti dodaješ vizual oko njega.
 
-## 6. Dragojlo na main menu-u
-
-- [x] Figura je namestena ručno u `DoFlicker` (spawn transform po oku, ka uglu
-  a ne tačno pod lampom). Izgled je odobren 24.08.2026. **Ne vezivati** nod
-  `Get Figure Transform Under Light` — to bi je vratilo pod svetlo.
-
-Flicker i dalje živi u level Blueprintu mape `MainMenu` (`ScheduleFlicker` /
-`DoFlicker`). Cilj treperenja je `BP_Light_1`, kamera je `CameraActor_0`
-(tag `MenuCamera`). C++ helper ostaje kao Pure funkcija ako ikad zatreba,
-ali trenutni look je hardcoded spawn.
-
-## 7. Muzika u nivou — vlasnik se promenio (novo 25.08.2026.)
-
-Muziku na spratu sada pušta `ALoop9GameMode` kao **2D** zvuk, isto kao što meni
-pušta svoju. Postavljeni `AmbientSound_0` u `FullOfficeMap` se pri startu **utiša
-namerno**, da se `HorrorAmbience1` ne bi svirao dva puta.
-
-- [ ] Slobodno obriši `AmbientSound_0` iz `FullOfficeMap`. Nije obavezno — kod ga
-  gasi sam — ali mapa je jasnija bez njega.
-- [ ] Ako želiš drugi track ili drugu jačinu: **BP_Loop9GameMode > Audio > Level
-  Music Sound / Level Music Volume**. Default je `HorrorAmbience1` na 0.35.
-- [ ] Ostali `AmbientSound` akteri koji **nisu** na `SC_Music` se ne diraju, i
-  dalje ih subsystem pokreće ako ne krenu sami.
-
 ---
 
-## QA prolaz posle svega
+## 3. QA prolaz posle svega
 
 - [ ] Odigraj 10 petlji i zabeleži koliko ih je imalo anomaliju. Očekivano ~8/10,
   loop 1 uvek čist.
@@ -138,3 +68,6 @@ namerno**, da se `HorrorAmbience1` ne bi svirao dva puta.
 - [ ] Ending ekran: tekst se iskucava (~20 znakova/s) sa zvukom tastera i povremenom
   greškom koju "ispravi". Dugme piše **SKIP** dok kuca, pa se vrati na **Return to
   Main Menu**. Prvi klik na SKIP dopuni tekst, ne izbaci te u meni.
+- [ ] Prebaci jezik na sr/de/fr/ru i proveri chat ("Razmišlja...", poruka o
+  predugačkoj poruci), prompt u liftu i `TASK COMPLETE` na kraju — to su stringovi
+  prevedeni 25.08.2026.

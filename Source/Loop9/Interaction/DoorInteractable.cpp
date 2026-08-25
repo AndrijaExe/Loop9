@@ -31,7 +31,6 @@ ADoorInteractable::ADoorInteractable()
 	if (OpenFinder.Succeeded())
 	{
 		OpenSound = OpenFinder.Object;
-		OpenCloseSound = OpenFinder.Object;
 	}
 	if (CloseFinder.Succeeded())
 	{
@@ -66,10 +65,6 @@ void ADoorInteractable::BeginPlay()
 	if (!BlockedSound)
 	{
 		BlockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorBlocked.DoorBlocked"));
-	}
-	if (!OpenCloseSound)
-	{
-		OpenCloseSound = OpenSound;
 	}
 
 	if (DoorMesh)
@@ -184,16 +179,12 @@ void ADoorInteractable::PlayDoorSound(USoundBase* SoundToPlay)
 
 USoundBase* ADoorInteractable::ResolveOpenSound() const
 {
-	return OpenSound ? OpenSound.Get() : OpenCloseSound.Get();
+	return OpenSound.Get();
 }
 
 USoundBase* ADoorInteractable::ResolveCloseSound() const
 {
-	if (CloseSound)
-	{
-		return CloseSound.Get();
-	}
-	return ResolveOpenSound();
+	return CloseSound ? CloseSound.Get() : OpenSound.Get();
 }
 
 void ADoorInteractable::StartRattle()

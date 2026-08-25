@@ -184,26 +184,4 @@ void UGameHelpers::LoadLevelWithLoadingScreen(
 	UGameplayStatics::OpenLevel(World, LevelName);
 }
 
-void UGameHelpers::LoadLevelAsync(
-	UObject* WorldContextObject,
-	FName LevelName,
-	TSubclassOf<UUserWidget> LoadingScreenClass)
-{
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
-	if (!World)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameHelpers: Invalid world context for async load"));
-		return;
-	}
-
-	UE_LOG(LogTemp, Log, TEXT("GameHelpers: Async loading level '%s'"), *LevelName.ToString());
-
-	if (LoadingScreenClass)
-	{
-		SetupBlockingLoadingScreen(World, LoadingScreenClass, 0.0f);
-	}
-
-	UGameplayStatics::OpenLevel(World, LevelName);
-}
-
 #undef LOCTEXT_NAMESPACE

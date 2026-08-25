@@ -6,7 +6,6 @@
 #include "Loop9CameraManager.h"
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/LoopManagerSubsystem.h"
-#include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "HorrorCharacter.h"
@@ -67,14 +66,6 @@ void ALoop9PlayerController::OnPossess(APawn* InPawn)
 			GameplayUI->SetCrosshairVisible(true);
 			ClearInteractionPrompt();
 		}
-	}
-}
-
-void ALoop9PlayerController::ShowGameplayNotification(const FText& Message, float DisplayDuration)
-{
-	if (ULoop9GameplayNotificationSubsystem* Notifications = ULoop9GameplayNotificationSubsystem::GetGameplayNotifications(this))
-	{
-		Notifications->AddMessage(Message, DisplayDuration);
 	}
 }
 

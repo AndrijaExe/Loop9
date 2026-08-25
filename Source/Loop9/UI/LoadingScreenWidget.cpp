@@ -106,14 +106,4 @@ FText ULoadingScreenWidget::GetRandomLoadingTip() const
 	return LoadingTips[RandomIndex];
 }
 
-void ULoadingScreenWidget::ShowLoadingScreen(UObject* WorldContextObject)
-{
-	UE_LOG(LogTemp, Log, TEXT("LoadingScreenWidget: Show (simple version)"));
-}
-
-void ULoadingScreenWidget::HideLoadingScreen(UObject* WorldContextObject)
-{
-	UE_LOG(LogTemp, Log, TEXT("LoadingScreenWidget: Hide"));
-}
-
 #undef LOCTEXT_NAMESPACE

@@ -53,14 +53,14 @@ msgstr ""
 #: /Game/MyStuff/Input/IA_Flashlight.IA_Flashlight.ActionDescription
 msgctxt ",6CDFC5B3416C3E3A09DA198F65ECA451"
 msgid "Toggle flashlight"
-msgstr ""
+msgstr "Включить/выключить фонарь"
 
 #. Key:	D1AC269B41B139A42AFF78BAEFAE4ADB
 #. SourceLocation:	/Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
 #: /Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
 msgctxt ",D1AC269B41B139A42AFF78BAEFAE4ADB"
 msgid "Who is the person in the corner?"
-msgstr ""
+msgstr "Кто этот человек в углу?"
 
 #. Key:	C65A74E04351CAD16FDC0B90B8F7D3D5
 #. SourceLocation:	/Game/MyStuff/UI/Components/WBP_Button.WBP_Button_C:WidgetTree.TextBlock_129.Text
@@ -242,7 +242,7 @@ msgstr "Инверсия оси Y"
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.ToolTipText
 msgctxt ",8A8799F749FEB455A3C405AF8560DD52"
 msgid "Invert Y"
-msgstr ""
+msgstr "Инверсия оси Y"
 
 #. Key:	3C8733C0482B9B7DE452BCA7EB344A30
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_VSync.Label
@@ -382,14 +382,14 @@ msgstr "Драгойло: "
 #: Source/Loop9/AI_ChatWidget.cpp(150)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
-msgstr ""
+msgstr "Думает..."
 
 #. Key:	StillThinkingIndicator
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(182)
 #: Source/Loop9/AI_ChatWidget.cpp(182)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
-msgstr ""
+msgstr "Всё ещё думает..."
 
 #. Key:	PlayerPrefix
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(235)
@@ -410,7 +410,7 @@ msgstr "...линия трещит и обрывается. (Нет соедин
 #: Source/Loop9/AI_Friend.cpp(517)
 msgctxt "Loop9Chat,ChatRateLimitedRetry"
 msgid "...the line is busy. Try again in {0}s."
-msgstr ""
+msgstr "...линия занята. Попробуй снова через {0} с."
 
 #. Key:	ChatServerError
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(523)
@@ -424,7 +424,7 @@ msgstr "...в трубке шипят помехи. На той стороне �
 #: Source/Loop9/AI_Friend.cpp(548)
 msgctxt "Loop9Chat,ChatMessageTooLong"
 msgid "...he cuts you off. Keep it shorter."
-msgstr ""
+msgstr "...он тебя перебивает. Короче."
 
 #. Key:	LowSignalReply
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(580)
@@ -578,7 +578,7 @@ msgstr "Осмотреть"
 #: Source/Loop9/Interaction/LiftButton.cpp(226)
 msgctxt "Loop9Interaction,LiftEnterCabinFirst"
 msgid "Enter the elevator first"
-msgstr ""
+msgstr "Сначала войди в лифт"
 
 #. Key:	LiftRestart
 #. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(235)
@@ -599,7 +599,7 @@ msgstr "Следующий этаж"
 #: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
 msgctxt "Loop9Ending,TaskComplete"
 msgid "TASK COMPLETE"
-msgstr ""
+msgstr "ЗАДАЧА ВЫПОЛНЕНА"
 
 #. Key:	CallTitleTwice
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)

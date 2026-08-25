@@ -43,16 +43,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UCanvasPanel* RootCanvas;
 
-	/** Deprecated: loading screens require a configured widget class. Use GameHelpers when opening a level. */
-	UFUNCTION(BlueprintCallable, Category = "Loading",
-		meta = (DeprecatedFunction, DeprecationMessage = "Use GameHelpers.LoadLevelWithLoadingScreen."))
-	static void ShowLoadingScreen(UObject* WorldContextObject);
-
-	/** Deprecated: MoviePlayer owns the blocking loading-screen lifetime. */
-	UFUNCTION(BlueprintCallable, Category = "Loading",
-		meta = (DeprecatedFunction, DeprecationMessage = "MoviePlayer hides the loading screen after level load."))
-	static void HideLoadingScreen(UObject* WorldContextObject);
-
 private:
 	/** Hardcoded loading tips */
 	static const TArray<FText> LoadingTips;

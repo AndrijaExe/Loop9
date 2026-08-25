@@ -36,6 +36,24 @@ On Windows, use the matching `UnrealEditor-Cmd.exe` path for your UE 5.8 install
 4. Run GatherText again to compile locres.
 5. Verify in-editor language switching via settings.
 
+## Coverage
+
+As of 25.08.2026, every player-facing string is translated in all five cultures.
+
+Twelve entries per culture are deliberately left with an empty `msgstr`, so an
+empty entry is not automatically a gap. They are engine and placeholder text that
+the player never reads, and an empty `msgstr` correctly falls back to source:
+
+- `M_Mannequin` texture channel names (`AO`, `Roughness`, `Metallic`)
+- Niagara sample-pack content (`EXPLOSION AREA`, `Sub UVAnimation`)
+- UMG designer defaults that C++ overwrites at runtime: `Button Text` in
+  `WBP_Button`, `Label` in `WBP_CheckRow` / `WBP_ComboRow` / `WBP_SliderRow`,
+  `100%` in `WBP_SliderRow`, `Text Block` in `WBP_Ending_TheReplacement`
+- `TB_CrosshairDot` in `WBP_HorrorUI`, which is a single `.`
+
+Before translating an empty entry, check its `SourceLocation` comment. If it
+points at a placeholder or third-party asset, leave it empty.
+
 ## Authoring rules
 
 - Prefer `FText` / `NSLOCTEXT` over raw `FString` for player-facing text.

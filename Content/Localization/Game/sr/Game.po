@@ -53,14 +53,14 @@ msgstr ""
 #: /Game/MyStuff/Input/IA_Flashlight.IA_Flashlight.ActionDescription
 msgctxt ",6CDFC5B3416C3E3A09DA198F65ECA451"
 msgid "Toggle flashlight"
-msgstr ""
+msgstr "Uključi/isključi lampu"
 
 #. Key:	D1AC269B41B139A42AFF78BAEFAE4ADB
 #. SourceLocation:	/Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
 #: /Game/MyStuff/Maps/FullOfficeMap.FullOfficeMap:PersistentLevel.BP_AI_Friend_C_1.PhantomMessageAnomaly.PhantomMessages(4).PhantomMessages
 msgctxt ",D1AC269B41B139A42AFF78BAEFAE4ADB"
 msgid "Who is the person in the corner?"
-msgstr ""
+msgstr "Ko je osoba u uglu?"
 
 #. Key:	C65A74E04351CAD16FDC0B90B8F7D3D5
 #. SourceLocation:	/Game/MyStuff/UI/Components/WBP_Button.WBP_Button_C:WidgetTree.TextBlock_129.Text
@@ -242,7 +242,7 @@ msgstr "Invertuj Y osu"
 #: /Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_InvertY.ToolTipText
 msgctxt ",8A8799F749FEB455A3C405AF8560DD52"
 msgid "Invert Y"
-msgstr ""
+msgstr "Invertuj Y osu"
 
 #. Key:	3C8733C0482B9B7DE452BCA7EB344A30
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_Settings.WBP_Settings_C:WidgetTree.CheckBox_VSync.Label
@@ -382,14 +382,14 @@ msgstr "Dragojlo: "
 #: Source/Loop9/AI_ChatWidget.cpp(150)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
-msgstr ""
+msgstr "Razmišlja..."
 
 #. Key:	StillThinkingIndicator
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(182)
 #: Source/Loop9/AI_ChatWidget.cpp(182)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
-msgstr ""
+msgstr "Još razmišlja..."
 
 #. Key:	PlayerPrefix
 #. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(235)
@@ -410,7 +410,7 @@ msgstr "...veza krči i prekida se. (Nema konekcije. Proveri internet i pokušaj
 #: Source/Loop9/AI_Friend.cpp(517)
 msgctxt "Loop9Chat,ChatRateLimitedRetry"
 msgid "...the line is busy. Try again in {0}s."
-msgstr ""
+msgstr "...linija je zauzeta. Pokušaj ponovo za {0} s."
 
 #. Key:	ChatServerError
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(523)
@@ -424,7 +424,7 @@ msgstr "...šum krči kroz slušalicu. Nešto nije u redu sa druge strane. Poku�
 #: Source/Loop9/AI_Friend.cpp(548)
 msgctxt "Loop9Chat,ChatMessageTooLong"
 msgid "...he cuts you off. Keep it shorter."
-msgstr ""
+msgstr "...prekida te. Skrati."
 
 #. Key:	LowSignalReply
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(580)
@@ -578,7 +578,7 @@ msgstr "Pregledaj"
 #: Source/Loop9/Interaction/LiftButton.cpp(226)
 msgctxt "Loop9Interaction,LiftEnterCabinFirst"
 msgid "Enter the elevator first"
-msgstr ""
+msgstr "Prvo uđi u lift"
 
 #. Key:	LiftRestart
 #. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(235)
@@ -599,7 +599,7 @@ msgstr "Sledeći sprat"
 #: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
 msgctxt "Loop9Ending,TaskComplete"
 msgid "TASK COMPLETE"
-msgstr ""
+msgstr "ZADATAK ZAVRŠEN"
 
 #. Key:	CallTitleTwice
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)

@@ -15,7 +15,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Notifications", meta = (WorldContext = "WorldContextObject", DisplayName = "Add Message (String)"))
 	static void AddGameplayMessageString(UObject* WorldContextObject, const FString& Message, float TimeDuration = 4.0f);
-
-	UFUNCTION(BlueprintCallable, Category = "Gameplay Notifications", meta = (WorldContext = "WorldContextObject", DeprecatedFunction, DeprecationMessage = "Use Add Message instead"))
-	static void ShowGameplayNotification(UObject* WorldContextObject, const FText& Message, float DisplayDuration = 4.0f);
 };

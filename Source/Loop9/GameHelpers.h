@@ -24,14 +24,4 @@ public:
 		FName LevelName,
 		TSubclassOf<UUserWidget> LoadingScreenClass = nullptr
 	);
-
-	/** Legacy alias. OpenLevel is blocking; use LoadLevelWithLoadingScreen for accurate semantics. */
-	UFUNCTION(BlueprintCallable, Category = "Game",
-		meta = (WorldContext = "WorldContextObject", DeprecatedFunction,
-			DeprecationMessage = "This was never asynchronous. Use LoadLevelWithLoadingScreen."))
-	static void LoadLevelAsync(
-		UObject* WorldContextObject,
-		FName LevelName,
-		TSubclassOf<UUserWidget> LoadingScreenClass = nullptr
-	);
 };

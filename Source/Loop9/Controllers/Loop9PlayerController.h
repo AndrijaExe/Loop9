@@ -21,9 +21,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Gameplay")
 	TSubclassOf<ULoop9NotificationWidget> NotificationWidgetClass;
 
-	UFUNCTION(BlueprintCallable, Category="UI|Gameplay", meta=(DeprecatedFunction, DeprecationMessage="Use Gameplay Notifications subsystem Add Message instead"))
-	void ShowGameplayNotification(const FText& Message, float DisplayDuration = 4.0f);
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI|Cutscene")
 	TSubclassOf<UBlinkOverlayWidget> BlinkOverlayWidgetClass;

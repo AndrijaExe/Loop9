@@ -52,10 +52,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	TObjectPtr<class USoundBase> CloseSound = nullptr;
 
-	/** Used if OpenSound / CloseSound are empty. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
-	TObjectPtr<class USoundBase> OpenCloseSound = nullptr;
-
 	/** Shudder the door in its frame when the handle will not turn. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle")
 	bool bRattleWhenDenied = true;
