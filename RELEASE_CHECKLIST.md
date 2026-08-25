@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **21.08.2026.**
+Poslednje ažuriranje: **25.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -8,13 +8,21 @@ Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju 
 `[Marketing/Steam/STORE_PAGE.md](Marketing/Steam/STORE_PAGE.md)`, a cinematic
 dokumentacija u `[docs/CINEMATICS_AND_AUDIO.md](docs/CINEMATICS_AND_AUDIO.md)`.
 Zvukovi za dodelu: `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
+Otvoreni editorski ostaci polish prolaza:
+`[docs/POLISH_PASS_EDITOR_TASKS.md](docs/POLISH_PASS_EDITOR_TASKS.md)`.
 
 Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
 
+**Važno o dva stanja.** `[x]` ispod znači da je stvar u `main` repou, ne
+nužno i na Steam playtestu. Live playtest je **v1.0.0** (SteamPipe skripte
+prebačene na `Builds/v1.0.0/Windows` u commitu `98bdc6e`, 24.08.2026; pre
+toga je bila Alfa, BuildID `24782464`). Taj cook je od 24.08, pa **ne
+sadrži** 25.08 posao: muziku sprata, kucanje na endinzima i završne prevode.
+Ne sadrži ni zvuke vrata kao assete ni novi `.locres`, jer ta dva koraka
+traže uvoz u editoru pre cooka.
+
 ---
-
-
 
 ## 1. Content lock — završiti pre finalnog QA builda
 
@@ -26,34 +34,37 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 - [x] **Bug:** dugme lifta se može pritisnuti i kada igrač nije u kabini —
   C++ gate u `ALiftButton` (door-plane depth + distance; optional `CabinVolume`).
   U editoru po želji uvećati `CabinVolume` box extent za stroži overlap check.
+
 - [~] U `BP_LoopElevatorTransitionDirector` postavljeni `Button Press Sound`
-  (`Sound/Elevator/ElevatorButtonPress`) i looping `Travel Sound`
-  (`Sound/Elevator/ElevatorTravelLoop`, `Looping` = true na SoundWave-u) — i na
-  class defaults i na instancu u `FullOfficeMap`. Zvukovi su uvezeni iz CC0
-  izvora; licence i izvorni URL-ovi su u
-  `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`
-  (atribucija nije potrebna). Volume/fade ostaju na defaultima
-  (`1.0 / 1.0 / 0.15 s`) — **ostaje jedno slušanje u igri** da se potvrdi mix
-  i da travel loop ne slaže loopove kroz ponovljene vožnje.
+(`Sound/Elevator/ElevatorButtonPress`) i looping `Travel Sound`
+(`Sound/Elevator/ElevatorTravelLoop`, `Looping` = true na SoundWave-u) — i na
+class defaults i na instancu u `FullOfficeMap`. Zvukovi su uvezeni iz CC0
+izvora; licence i izvorni URL-ovi su u
+`[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`
+(atribucija nije potrebna). Volume/fade ostaju na defaultima
+(`1.0 / 1.0 / 0.15 s`) — **ostaje jedno slušanje u igri** da se potvrdi mix
+i da travel loop ne slaže loopove kroz ponovljene vožnje.
+
 - [x] Obrisani `LS_Elevator_Lit` i `LS_Elevator_Dark`. Pre brisanja potvrđeno
   nulom referenci (asset registry) i binarnom proverom da ih ni
   `BP_LoopElevatorTransitionDirector` ni `FullOfficeMap` više ne pominju.
 - [x] Implementiran C++ ending Sequence player sa šest soft-reference slotova,
   watchdogom i postojećim fade/widget fallbackom.
 - [x] Napravljeno i povezano šest osnovnih 3–8 s ending Level Sequence asseta.
+
 - [~] Vizuelno i zvučno dotegnuti svih šest ending mini-sekvenci: kamera,
-  svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
-  Detaljan Unreal MCP handoff:
-  `[docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md)`.
-  Napomena: kadar i svetlo vodi C++ `ALoopEndingSceneDirector`, ne Sequencer keyevi.
-  Slotovi na instanci u `FullOfficeMap` su popunjeni (phone, chair, arrival point,
-  tri dimmable RectLighta, companion class, footstep/phone-ring/flicker zvuk,
-  i `Line Cut Sound` = `Sound/Phone/PhoneLineCut` za Cold Betrayal).
+svetlo, sitne prop animacije i završni prelaz u postojeći widget/terminal.
+Detaljan Unreal MCP handoff:
+`[docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md](docs/UNREAL_MCP_ENDING_SCENES_HANDOFF.md)`.
+Napomena: kadar i svetlo vodi C++ `ALoopEndingSceneDirector`, ne Sequencer keyevi.
+Slotovi na instanci u `FullOfficeMap` su popunjeni (phone, chair, arrival point,
+tri dimmable RectLighta, companion class, footstep/phone-ring/flicker zvuk,
+i `Line Cut Sound` = `Sound/Phone/PhoneLineCut` za Cold Betrayal).
+
 - [x] **Bug:** prazan `Cold Betrayal Door Wings` je terao `GatherColdBetrayalDoors()`
   na fallback koji hvata *sve* `ALiftDoorWing` aktere u mapi (20+), pa je beat
   čekao da se otvore i lift vrata koja nemaju veze sa dolaskom. Slot je sada
   vezan na ista arrival krila kao elevator director (`BP_LiftDoorWing_C_3/4`).
-
 
 
 ### Ending mini-scene brief
@@ -81,7 +92,6 @@ skeletal animacija i bez gameplay logike u Event Tracku.
   zatim se prikazuje postojeći Replacement terminal.
 
 
-
 ### Ending balance targets
 
 Pragovi su podešeni za prvi prolaz od približno 9–17 odluka, bez znanja skrivenih
@@ -105,7 +115,12 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [ ] QA dependency: na bilo kom jeziku, predaja odluke Dragojlu diže
   `[STATE]DEPENDENCY=1` i gura ka Obedient Fool; samostalna odluka spušta.
 
-- [ ] Rebuildovati `Loop9Editor` posle trenutnih C++ anomaly/debug popravki.
+
+### Runtime hardening (urađeno pre 21.08)
+
+- [ ] Rebuildovati `Loop9Editor` posle C++ izmena od 22–25.08 (Help, lampa,
+  vrata, typewriter, muzika sprata, dead-code cleanup). Stariji rebuild od
+  pre 21.08 više nije dovoljan.
 - [x] U tracked `Config/DefaultEngine.ini` postavljeno:
   - `SteamDevAppId=4982260`
   - `r.VirtualTextures=True`
@@ -125,14 +140,65 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] UI/runtime cleanup implementiran:
   stale notification/widget timeri se čiste, main/settings meni fokusira pravo
   dugme za gamepad/tastaturu, a telemetry razlikuje transport uspeh od HTTP 2xx.
-- [x] Ponovo pokrenuti GatherText jer su `de/fr/ru/sr` PO fajlovi menjani posle
-  poslednjih commitovanih `.locres` fajlova; zatim smoke-testirati svih pet jezika.
+- [x] GatherText od **21.08.2026.** — tada su `de/fr/ru/sr` PO i `.locres`
+  bili usklađeni, plus smoke svih pet jezika.
+- [ ] **Ponovo GatherText posle 25.08.** PO fajlovi su noviji od `.locres`
+  (`po` 09:31, `locres` 08:54 istog dana). Bez toga Help tekst, `SKIP` na
+  ending dugmetu i prevodi dodati 25.08. rade samo na engleskom, jer igra
+  čita `.locres`. Jedna komanda: `[docs/LOCALIZATION.md](docs/LOCALIZATION.md)`.
 - [x] Item inspection smoke:
   otvaranje/zatvaranje, rotacija 15 s, bez ljubičastih artefakata, povratak inputa
   i pause menija.
-- [x] MaterialSwap smoke za Magazine, I01, F01 i D01; potvrditi vraćanje originalnog
+- [x] MaterialSwap smoke za Magazine, I01, F01 i D01; potvrđeno vraćanje originalnog
   materijala na sledećem loopu.
 
+
+### Polish pass u `main` (22–25.08.2026.) — nije na trenutnom Steam playtestu
+
+C++ i editorski deo (Move destinacije, materijali, atenuacija, Help/Archive
+dugmad, figura u meniju, `IA_Flashlight`) su odrađeni. Sitnice koje još stoje
+u editoru: `[docs/POLISH_PASS_EDITOR_TASKS.md](docs/POLISH_PASS_EDITOR_TASKS.md)`.
+
+- [x] Anomalija na ~80 % petlji, 20 % čistih; loop 1 i dalje uvek čist
+  (`AnomalyChancePerLoop = 0.8`).
+- [x] Hide i Material/Text češći, Pursuer ređi.
+- [x] Dragojlo ima 2–3 fiksne spawn tačke umesto random poda koji ne postoji.
+- [x] Material anomalije vidljivije i češće.
+- [x] Zeleni telefon i flicker najbliži liftu pomerani dublje u mapu da se
+  ne čuju iz kabine.
+- [x] Zvuk treperenja na poziciji svetla, sa `ATT_FlickerHallway` atenuacijom
+  (C++ default, ne per-instance assignment).
+- [x] Baterijska lampa na `F` (gasi se tokom pauze i inspekcije). Default
+  2600 lm, cone 16°/34°, namerno ne briše mrak.
+- [x] Help na main meniju: šta **nije** anomalija, dva lifta, broj petlje
+  nije anomalija; C++ puni tekst, WBP može da doda slike.
+- [x] Lore zapisano u `[docs/LORE.md](docs/LORE.md)`.
+- [x] Pursuer pušta napetiju muziku dok juri; ambient se vraća kad nestane
+  (popravljen brojač utišavanja koji je sprat ostavljao tih do kraja sesije).
+- [x] Background muzika sprata sada ide iz `ALoop9GameMode` kao 2D bed, ne iz
+  `AmbientSound_0`. Kod namerno utiša stari akter da se `HorrorAmbience1` ne
+  duplira. Konzola: `AudioStatus`.
+- [x] Ending widget kuca tekst (~20 znakova/s) sa greškom koju „ispravi“.
+  Dugme piše **SKIP** dok kuca (prvi klik dopuni tekst), pa **Return to Main Menu**.
+- [x] Vrata: locked / blocked / open / close zvukovi + blagi shake na zaključanim
+  (2°, 0.35 s). C++ traži assete po imenu i ne puca ako fale.
+- [x] Session timeline na ending ekranu i Archive na meniju čitaju `SeenEndings`.
+- [x] Dead code očišćen; svi player-facing stringovi prevedeni u PO za 5 jezika.
+
+Ostaje u editoru pre sledećeg Shipping builda:
+
+- [ ] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
+  `/Game/MyStuff/Sound/UI/TypewriterKey`, Sound Class **`SC_SFX`**. Bez uvoza
+  tekst se kuca, samo je nemo.
+- [ ] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` (`DoorOpen`, `DoorClose`,
+  `DoorLocked`, `DoorBlocked`). U repo-u su samo `.wav`, nema `.uasset`.
+- [ ] GatherText — vidi gore.
+- [ ] Proveri intenzitet lampe u BP karaktera; digni `Intensity` samo ako je
+  pretamno.
+- [ ] Obriši `AmbientSound_0` iz `FullOfficeMap` (samo taj, i samo ako je na
+  `SC_Music`). Nije bloker — kôd ga već utišava.
+- [ ] Opciono: slike u Help WBP-u; 2–3 `AnomalyMovePoint` po Move objektu
+  ako pomeraj deluje previše isti svaku petlju.
 
 
 ## 2. Steamworks — Store Presence
@@ -150,6 +216,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 - [x] Sačekati potvrdu pricing promena.
 - [x] Steam Cloud Auto-Cloud podešen za
   `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
+  Tu žive viđeni endinzi i uočene anomalije (`SeenEndings`, `SpottedAnomalies`).
+  Grafika i jezik su u `GameUserSettings.ini` i **ne** idu na Cloud.
 - [ ] Dodati `GameUserSettings.ini` samo ako želiš sync grafike i jezika između
   računara; nije release bloker.
 - [x] Javni privacy policy postoji na backendu.
@@ -158,8 +226,6 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
 
 - [x] Content Survey i Steamworks promene provereni u **Publish** tabu; izmene su
 publish-ovane, ne samo sačuvane.
-
-
 
 ### Store grafika
 
@@ -176,8 +242,39 @@ publish-ovane, ne samo sačuvane.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
 
-
 ## 3. Steam achievements
+
+Dva odvojena spremišta. Nijedno **nije** namerno privremeno na playtestu.
+
+| Šta vidiš | Gde živi | Treba da preživi restart? |
+|---|---|---|
+| Steam toast / overlay lista | Steam nalog, App ID `4982260` | Da. Isto pre i posle release-a, čim su Stats & Achievements publish-ovani. |
+| Archive / „koje endinge sam video“ | `%LOCALAPPDATA%/Loop9/Saved/Config/Windows/Game.ini` → `[/Script/Loop9.Loop9AchievementsSubsystem]` `SeenEndings` | Da. Novi run ih ne briše. Steam Cloud treba da ih prenese na drugi PC. |
+
+Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
+
+- [x] **Bug (nađen 25.08.2026., popravljen u `main`, nije u v1.0.0):** nijedan
+  achievement se nikad nije otključavao — video se samo progress toast
+  („Sharp Eye 6/7“) pa ništa. Dva različita puta u kodu: progress ide
+  direktnim Steamworks pozivom (`FLoop9SteamUtils::IndicateAchievementProgress`)
+  i radio je, a unlock je išao preko Online Subsystema, koji u UE odbija
+  **svaki** read i write ako achievementi nisu popisani u `DefaultEngine.ini`
+  pod `[OnlineSubsystemSteam]` kao `Achievement_N_Id=...`. Tog bloka nije bilo,
+  pa je `QueryAchievements` padao, `bCacheReady` nikad nije postao `true` i
+  `FlushPendingUnlocks` se nikad nije ni pozvao. Popravka je dvostruka:
+  svih 27 imena je upisano u config (redom od 0, bez navodnika), a
+  `UnlockAchievement` sada prvo zove Steamworks direktno
+  (`SetAchievement` + `StoreStats`), pa tek onda pada na subsystem. Direktan
+  put ne traži ni keširanu listu ni online identitet, pa radi i ako engine
+  opet ne pročita config.
+- [ ] Verifikovati popravku na Windows buildu: log treba da ima
+  `Achievements: unlock ACH_FIRST_CALL -> OK` i toast treba da se pojavi.
+  Obavezno iz Steam Library-ja — iz Explorera nema Steam sesije.
+
+Ako Archive zaboravi endinge, to je lokalni `Game.ini` (ili Cloud koji ga
+pregazi praznim fajlom), ne Steam. Archive je u v1.0.0 (ušao 22.08), pa se
+tamo može proveriti: `SeenEndings` se upisuje čak i kad Steam unlock padne,
+jer su to dva nezavisna zapisa.
 
 - [x] Definisano svih **27** API imena tačno po
   `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`.
@@ -186,8 +283,16 @@ publish-ovane, ne samo sačuvane.
   `ACH_SPOT_PHANTOM`.
 - [x] Publishovati Stats & Achievements promene.
 - [ ] Testirati najmanje po jedan achievement iz svake grupe, zatim svih šest
-  endinga i `ACH_SPOT_ALL` sa 9 anomaly tipova.
-
+  endinga i `ACH_SPOT_ALL` sa 9 anomaly tipova. **Ovo do 25.08. nije moglo da
+  prođe** zbog buga iznad; ponoviti od nule na novom buildu.
+- [ ] **Persist QA:** otključaj jedan achievement i jedan ending → potpuno
+  izađi iz igre i Steama → ponovo iz Library-ja. Overlay i dalje pokazuje
+  unlock; `Game.ini` i dalje ima taj `SeenEndings` red; Archive (na novom
+  buildu) i dalje pokazuje čvor. Ako Steam lista padne a `Game.ini` ostane,
+  to je Steam stats, ne save. Ako padne `Game.ini`, prvo Cloud konflikt.
+- [ ] Ako neki achievement i posle popravke ne pukne, proveri da li je to ime
+  publish-ovano u Steamworksu. Direktan `SetAchievement` tiho ne uspeva za
+  ime koje Steam ne poznaje, a `ACH_SPOT_*` imena moraju da se slažu do slova.
 
 
 ## 4. Backend / production
@@ -209,20 +314,20 @@ publish-ovane, ne samo sačuvane.
   izmisli mesto; sa popunjenim `AnomalyZone`/`AnomalyObjectKind` ume da pokaže deo
   sprata bez odavanja predmeta, srazmerno poverenju igrača. §9 ima editor deo.
 
-- [ ] Render env za parove modela: `AI_MODEL=gpt-5.6-terra` (tier `best`, otvara
+- [x] Render env za parove modela: `AI_MODEL=gpt-5.6-terra` (tier `best`, otvara
   petlje 4+) i `AI_FALLBACK2_MODEL=gpt-5.6-luna` (tier `cheap`, otvara petlje 1–3),
-  uz `AI_FALLBACK2_ENABLED=true`, URL i ključ. **Prazan `AI_FALLBACK2_API_KEY` tiho
+  uz `AI_FALLBACK2_ENABLED=true`, URL i ključ. **Prazan** `AI_FALLBACK2_API_KEY` **tiho
   izbacuje ceo cheap tier** i sve petlje idu na primary, bez ijedne greške u logu.
-- [ ] Potvrditi koji je `AI_MODEL` zaista aktivan na Renderu. Ako promenljiva tamo
+- [x] Potvrditi koji je `AI_MODEL` zaista aktivan na Renderu. Ako promenljiva tamo
   nije postavljena, važi commitovani `.env` default, pa se model menja samim
   deployom a ne svesnom odlukom.
-- [ ] Ponoviti prompt QA za čist sprat i na kasnijoj petlji, ne samo na prvoj.
+- [x] Ponoviti prompt QA za čist sprat i na kasnijoj petlji, ne samo na prvoj.
   Klijent za čist sprat šalje `anomaly_key="none"`, što je backend do 20.08.2026.
   čitao kao aktivnu anomaliju i forsirao osvetljeni lift tamo gde je mračni tačan.
 
 - [x] `STEAM_APP_ID=4982260` i `STEAM_WEB_API_KEY` potvrđeni pravim auth zahtevom:
 playtest build pokrenut iz Steam Library-ja dobio je ticket, sesiju i žive AI
-odgovore (17.08.2026).
+odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 
 - [x] Nevalidan `AI_MODERATION_API_KEY` vraća HTTP 200, ali svaki odgovor postaje
   ista in-fiction fallback rečenica i chat provajder se nikad ne pozove. Kad
@@ -232,7 +337,7 @@ odgovore (17.08.2026).
 - [x] Javni `https://loop9-backend.onrender.com/readyz` vraća
   `{"status":"ready"}` (provereno 07.08.2026.).
 - [ ] Render Health Check Path postaviti/potvrditi kao `/readyz`.
-- [ ] Pre javnog release-a ukloniti cold start: Render Starter ili ekvivalentan
+- [x] Pre javnog release-a ukloniti cold start: Render Starter ili ekvivalentan
   always-on plan. Spoljni keep-alive free servisa nije pouzdan production plan.
 - [ ] Posle prelaska na always-on plan proveriti prvi zahtev nakon duže
   neaktivnosti: bez Render wake stranice, bez client timeouta i sa prihvatljivim
@@ -245,33 +350,35 @@ odgovore (17.08.2026).
   watcher može da čita brojače bez parsiranja logova.
 
 
-
 ## 5. Build i SteamPipe
 
-- [~] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka. Alfa
-  Shipping build od 17.08.2026 je odigran preko Steama; finalni ide posle locka.
+- [~] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
+v1.0.0 (cook od 24.08.2026) je odigran preko Steama. **Sledeći build je
+obavezan** i mora da uključi: popravku achievementa, muziku sprata, kucanje
+na endinzima, uvezene zvuke vrata i typewriter, i nov `.locres`.
+
 - [x] Proveriti da build ne sadrži:
   `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
-  `Builds/Alfa/Windows` (2.06 GB) nema `steam_appid.txt`, `*.pdb`, logove ni
-  `Saved/`; jedini staged config je `Engine/Config/StagedBuild_Loop9.ini`.
+  Provereno na `Builds/Alfa/Windows` (2.06 GB): nema `steam_appid.txt`, `*.pdb`,
+  logove ni `Saved/`; jedini staged config je `Engine/Config/StagedBuild_Loop9.ini`.
+- [ ] Ponoviti tu proveru na `Builds/v1.0.0/Windows` i na sledećem buildu.
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  BuildID `24782464` je live na passwordovanom `playtest`.
+  v1.0.0 je live na passwordovanom `playtest` (prethodni BuildID `24782464`
+  je bio Alfa). Zabeležiti BuildID svakog novog uploada.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
-- [ ] Posle QA postaviti odobreni build na default branch. Isti Alfa build je
-  trenutno live i na `default`; bezopasno je dok igra nije released, ali finalni
-  build tamo treba da ide svesnom odlukom (SteamCMD `setlive` ne može `default`).
-
+- [ ] Posle QA postaviti odobreni build na default branch. Bezopasno je dok igra
+  nije released, ali finalni build tamo treba da ide svesnom odlukom
+  (SteamCMD `setlive` ne može `default`).
 
 
 ## 6. Release-candidate QA
-
 
 
 ### Kritični gameplay
@@ -279,12 +386,26 @@ odgovore (17.08.2026).
 - [x] Svih 9 loopova: advance/reset pravila, anomaly generation i tačan završetak.
 - [x] Novi direktni elevator transition ne prihvata dupli input, ne ostavlja igrača zaključanog
   i teleportuje samo dok su vrata zatvorena/ekran skriven.
+
 - [~] Svih 6 endinga i njihove mini-sekvence su dostižni; widget/terminal se
-  pojavljuje posle sekvence i Continue vraća u Main Menu. Prolaz je u principu
-  dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
+pojavljuje posle sekvence i Continue vraća u Main Menu. Prolaz je u principu
+dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
+
 - [x] Item inspection, pursuer, Scale, Phantom i MaterialSwap anomaly smoke.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
+  (C++ već briše `ClockAnomaly` iz `SpottedAnomalies` pri startu.)
 
+Polish smoke na **novom** Shipping buildu (v1.0.0 od 24.08 ne pokriva sve ovo):
+
+- [ ] ~8/10 petlji ima anomaliju; loop 1 čist; Hide/Material češći, Pursuer ređi.
+- [ ] Nijedna aktivna anomalija nije nevidljiva (`AnomalyList` u konzoli).
+- [ ] Muzika sprata od ulaska u nivo, bez settings menija; posle Pursuer-a se vraća.
+- [ ] Flicker se čuje samo blizu tog svetla.
+- [ ] `F` pali/gasi lampu; ne radi u pauzi i inspekciji.
+- [ ] Zaključana vrata: zvuk + shake; open/close različiti.
+- [ ] Ending kuca, SKIP dopuni tekst, zatim Return to Main Menu.
+- [ ] sr/de/fr/ru: chat („Razmišlja…“), predugačka poruka, prompt u liftu,
+  `TASK COMPLETE`, Help, SKIP.
 
 
 ### Steam i online
@@ -299,13 +420,14 @@ odgovore (17.08.2026).
 - [x] Cold-start/timeout: `Thinking…` i `Still thinking…` rade; zahtev završi odgovorom
   ili lokalizovanom greškom pre client timeouta od 65 s.
 - [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
-- [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save → progres se vrati.
-
+- [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save →
+  `SeenEndings` / `SpottedAnomalies` se vrate. Ovo je i persist QA iz §3.
 
 
 ### Platforma, UI i performanse
 
 - [x] EN/SR/DE/FR/RU: meni, settings, chat, promptovi, ending i terminal.
+  Ponoviti posle GatherText-a od 25.08 zbog Help/SKIP/novih stringova.
 - [ ] Tastatura/miš i gamepad kompletan prolaz; floating keyboard na Deck-u ili
   Steam Input testu.
 - [x] Alt-Tab, promena rezolucije/fullscreena, pause/resume i Steam Overlay.
@@ -315,7 +437,6 @@ odgovore (17.08.2026).
 - [ ] Proveriti nove VT anomaly teksture u cooked buildu i peak VRAM; izvorni novi
   `.uasset` fajlovi trenutno zauzimaju oko 158 MB u repou.
 - [ ] Test na čistoj mašini bez Unreal Engine-a i lokalnih config fajlova.
-
 
 
 ## 7. Valve review i Coming Soon
@@ -332,7 +453,6 @@ odgovore (17.08.2026).
   **21.08.2026.** ako se objavi 07.08.), uz završen Valve review i QA.
 
 
-
 ## 8. Release day
 
 - [ ] Zamrznuti kod i sačuvati tačan commit/build ID koji ide live.
@@ -343,23 +463,24 @@ odgovore (17.08.2026).
 - [ ] Imati prethodni stabilni depot/build spreman za rollback.
 
 
-
 ## 9. Post-release (nije launch bloker)
 
 Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve review.
 
 - [~] Ending session timeline: C++ sada sam crta redove ispod naslova/opisa
-  (`UEndingWidget::PopulateTimeline` ← `BuildRunEventCards()`), na svih šest
-  `WBP_Ending_*` bez Event Graph-a. Linija `Resets | AI interactions` je
-  sakrivena. Ikonice: `Content/MyStuff/UI/Timeline/ui_icon_*.png` (editor treba
-  da ih uveze). Ostaje vizuelni QA: da timeline ne prekrije Continue i da
-  TWO CALLS / boje prstenova sede. Bez grafa sirovih relationship brojeva.
+(`UEndingWidget::PopulateTimeline` ← `BuildRunEventCards()`), na svih šest
+`WBP_Ending_*` bez Event Graph-a. Linija `Resets | AI interactions` je
+sakrivena. Ikonice: `Content/MyStuff/UI/Timeline/ui_icon_*.png` (editor treba
+da ih uveze). Ending tekst ostaje na ekranu; Archive je iznad Quit.
+Ostaje vizuelni QA: da timeline ne prekrije Continue i da TWO CALLS / boje
+prstenova sede. Bez grafa sirovih relationship brojeva.
 - [~] Main-menu dosije / arhiva smena: C++ `ShiftArchiveWidget` čita `SeenEndings`.
-  `WBP_MainMenu` nema dugme `Archive`, pa ga `UMainMenuWidget` sada klonira
-  iz `Settings` (isto `WBP_Button`) i veže na `OnArchiveClicked`. Opciono
-  `ui_archive_star_plate` kao pozadina i dalje nije urađena. Animaciju ne raditi.
-  Brief:
-  [`docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md`](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md).
+`WBP_MainMenu` nema dugme `Archive`, pa ga `UMainMenuWidget` sada klonira
+iz `Settings` (isto `WBP_Button`) i veže na `OnArchiveClicked`. Opciono
+`ui_archive_star_plate` kao pozadina i dalje nije urađena. Animaciju ne raditi.
+Brief:
+`[docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md](docs/HOME_EDITOR_TIMELINE_AND_ARCHIVE.md)`.
+
 - [x] AI kontekst anomalija: C++ i backend su gotovi, a `FullOfficeMap` je sada
   označen. Od 35 anomaly komponenti 34 imaju `AnomalyObjectKind`;
   `PhantomMessage` po pravilu ima praznu zonu, a `PursuerAnomaly` je namerno
@@ -368,20 +489,29 @@ Radi se posle Coming Soon / live-a, samo ako ostane vreme. Ne blokira Valve revi
   koristi ime aktera. Upotrebljene zone: desk row, overhead cabinets, cabinets
   with potted plants, filing cabinets, meeting room, back room with the radio,
   tool shelf, storage corner, corridor between lifts and desks.
-  Pravila i primeri: [`docs/ANOMALIES.md`](docs/ANOMALIES.md#ai-context-tagging).
+  Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
+
+- [ ] Help slike (WBP dete od `HelpWidget`) — opciono, vidi §1.
+- [ ] Replacement terminal typing / prompt-complete zvukovi, phone pickup i
+  chat mumble — i dalje prazni slotovi u
+  `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
+  Nisu launch bloker.
+
 
 ---
 
-
-
 ## Trenutni kritični put
 
-1. Gameplay trailer — jedino što još realno blokira Store review.
-   (Audio slotovi iz §1 su popunjeni CC0 zvukovima 21.08.2026; ostaje samo
-   jedno slušanje lift klika / lift huma / line cut-a u igri radi mixa.)
-2. Render: potvrditi aktivan `AI_MODEL`/`AI_FALLBACK2_*` par, health check `/readyz`
-   i always-on plan; pa alarmi preko `/metrics`.
-3. Ending balance QA (šest profila) + achievement test po grupi.
-4. Novi Shipping build → `playtest` → QA iz Library-ja (Cloud, offline, gamepad).
-5. Valve review → Coming Soon najmanje 14 dana → release.
-
+1. Editor pre cooka: uvezi 5 `.wav` (typewriter + vrata), GatherText, rebuild
+   `Loop9Editor`. Bez toga novi Shipping i dalje ima neme endinge/vrata i
+   stare prevode.
+2. Gameplay trailer — jedino što još realno blokira Store review.
+   (Audio slotovi lifta / line cut-a su popunjeni CC0 zvukovima 21.08.2026;
+   ostaje jedno slušanje mixa u igri.)
+3. Achievement test po grupi — sada prvi put ima smisla, popravka je u `main`
+   a v1.0.0 je i dalje imao mrtav unlock. Uz to ending balance QA (šest
+   profila) i **persist QA** iz §3.
+4. Novi Shipping build → `playtest` → QA iz Library-ja. Trenutni playtest je
+   v1.0.0 od 24.08 i **ne sadrži** achievement popravku ni 25.08 posao.
+5. Na tom buildu: Cloud, offline, gamepad, polish smoke iz §6.
+6. Valve review → Coming Soon najmanje 14 dana → release.
