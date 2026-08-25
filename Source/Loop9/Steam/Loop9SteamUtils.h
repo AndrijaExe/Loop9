@@ -25,4 +25,12 @@ struct FLoop9SteamUtils
 	 * and does not unlock anything.
 	 */
 	static void IndicateAchievementProgress(FName AchievementId, int32 Current, int32 Max);
+
+	/**
+	 * Unlocks an achievement straight through Steamworks and stores it, which is
+	 * what makes the toast appear. Returns false when Steam is absent or has not
+	 * handed us this user's stats yet, so the caller can retry or fall back to
+	 * the online subsystem. Already-unlocked achievements report success.
+	 */
+	static bool UnlockAchievement(FName AchievementId);
 };

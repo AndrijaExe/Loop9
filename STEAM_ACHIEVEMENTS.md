@@ -8,8 +8,15 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
 ## Kako sistem radi (ukratko)
 
 - `Loop9AchievementsSubsystem` prati gameplay događaje (odluke kod lifta,
-  poruke Dragojlu, loopove, endinge) i šalje unlock Steamu preko Online
-  Subsystem-a.
+  poruke Dragojlu, loopove, endinge) i šalje unlock Steamu — prvo direktnim
+  Steamworks pozivom (`SetAchievement` + `StoreStats`), pa ako to ne prođe,
+  preko Online Subsystem-a sa retry redom.
+- **Svih 27 imena mora da stoji i u `Config/DefaultEngine.ini`** pod
+  `[OnlineSubsystemSteam]` kao `Achievement_N_Id=IME` (redom od 0, bez
+  navodnika). Online Subsystem odbija svaki read i write ako tog bloka nema.
+  Simptom je bio da se vidi samo progress toast, a unlock nikad ne padne, jer
+  progress ide direktnim pozivom koji ne zavisi od te liste. Kad dodaješ nov
+  achievement, dodaj ga i tamo.
 - Bez Steama (dev build, drugi launcher) sve je no-op — ništa ne puca.
 - Napredak koji se skuplja kroz više prolaza (viđeni endinzi, uočene anomalije)
   čuva se u `Saved/Config/.../Game.ini`, pa meta-achievementi rade i ako igrač
@@ -139,6 +146,8 @@ da ne pomešaš pri uploadu.
 2. U igri izazovi uslov (npr. pošalji prvu poruku Dragojlu) i proveri:
    - Steam overlay notifikaciju u donjem desnom uglu,
    - log igre: `Achievements: unlock ACH_FIRST_CALL -> OK`.
+   Ako u logu nema ni `OK` ni `FAILED`, unlock nije ni pokušan — proveri
+   `Achievement_N_Id` blok iz sekcije gore.
 3. Za ponovno testiranje resetuj svoje achievemente:
    **Steamworks → tvoja app → Stats & Achievements → "Reset achievements for
    your account"**, ili koristi `steam_testing` reset kroz Steam konzolu:

@@ -50,3 +50,38 @@ void FLoop9SteamUtils::IndicateAchievementProgress(FName AchievementId, int32 Cu
 		static_cast<uint32>(Max));
 #endif
 }
+
+bool FLoop9SteamUtils::UnlockAchievement(FName AchievementId)
+{
+#if LOOP9_WITH_STEAM
+	if (SteamUserStats() == nullptr || AchievementId.IsNone())
+	{
+		return false;
+	}
+
+	const FString Name = AchievementId.ToString();
+
+	// GetAchievement fails until Steam has this user's stats, so it doubles as
+	// the readiness check that SetAchievement itself does not offer.
+	bool bAlreadyUnlocked = false;
+	if (!SteamUserStats()->GetAchievement(TCHAR_TO_UTF8(*Name), &bAlreadyUnlocked))
+	{
+		return false;
+	}
+
+	if (bAlreadyUnlocked)
+	{
+		return true;
+	}
+
+	if (!SteamUserStats()->SetAchievement(TCHAR_TO_UTF8(*Name)))
+	{
+		return false;
+	}
+
+	// Without StoreStats the unlock stays local and no toast is shown.
+	return SteamUserStats()->StoreStats();
+#else
+	return false;
+#endif
+}

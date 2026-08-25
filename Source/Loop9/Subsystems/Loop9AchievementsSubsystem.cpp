@@ -302,6 +302,20 @@ void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)
 		return;
 	}
 
+	// Straight through Steamworks first. That path needs neither the online
+	// subsystem's cached achievement list nor a resolved identity, and the
+	// subsystem refuses every write unless every achievement is also listed
+	// under [OnlineSubsystemSteam] in DefaultEngine.ini.
+	if (FLoop9SteamUtils::UnlockAchievement(AchievementId))
+	{
+		UnlockedThisSession.Add(AchievementId);
+		PendingUnlocks.Remove(AchievementId);
+		PersistPendingUnlocks();
+		UE_LOG(LogTemp, Log, TEXT("Achievements: unlock %s -> OK"), *AchievementId.ToString());
+
+		return;
+	}
+
 	QueuePendingUnlock(AchievementId);
 
 	if (!GetAchievementsInterface().IsValid() || !GetLocalPlayerId().IsValid())
@@ -397,6 +411,16 @@ void ULoop9AchievementsSubsystem::FlushPendingUnlocks()
 
 bool ULoop9AchievementsSubsystem::WriteUnlock(FName AchievementId)
 {
+	// Retries land here, so give Steamworks another direct turn before falling
+	// back to the online subsystem.
+	if (FLoop9SteamUtils::UnlockAchievement(AchievementId))
+	{
+		UnlockedThisSession.Add(AchievementId);
+		UE_LOG(LogTemp, Log, TEXT("Achievements: unlock %s -> OK"), *AchievementId.ToString());
+
+		return true;
+	}
+
 	IOnlineAchievementsPtr Achievements = GetAchievementsInterface();
 	FUniqueNetIdPtr PlayerId = GetLocalPlayerId();
 	if (!Achievements.IsValid() || !PlayerId.IsValid())
@@ -475,11 +499,12 @@ void ULoop9AchievementsSubsystem::SchedulePendingRetry()
 bool ULoop9AchievementsSubsystem::HandlePendingRetry(float)
 {
 	PendingRetryTickerHandle.Reset();
-	if (bCacheReady)
-	{
-		FlushPendingUnlocks();
-	}
-	else
+
+	// The direct Steam write inside WriteUnlock can succeed even when the
+	// subsystem cache never becomes ready, so it always gets a turn.
+	FlushPendingUnlocks();
+
+	if (!bCacheReady && PendingUnlocks.Num() > 0)
 	{
 		QueryAchievementsCache();
 	}

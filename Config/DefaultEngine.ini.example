@@ -64,6 +64,36 @@ DefaultPlatformService=Steam
 [OnlineSubsystemSteam]
 bEnabled=true
 SteamDevAppId=4982260
+; Required for achievement unlocks: the Steam achievements interface reads this
+; list and fails every read/write when it is missing. Sequential from 0, no
+; quotes. Keep in sync with STEAM_ACHIEVEMENTS.md and DefaultEngine.ini.
+Achievement_0_Id=ACH_ENDING_ESCAPE_TOGETHER
+Achievement_1_Id=ACH_ENDING_OBEDIENT_FOOL
+Achievement_2_Id=ACH_ENDING_COLD_BETRAYAL
+Achievement_3_Id=ACH_ENDING_PARANOID_SURVIVOR
+Achievement_4_Id=ACH_ENDING_MERGED_MEMORY
+Achievement_5_Id=ACH_ENDING_THE_REPLACEMENT
+Achievement_6_Id=ACH_ALL_ENDINGS
+Achievement_7_Id=ACH_FINISH_RUN
+Achievement_8_Id=ACH_FIRST_CALL
+Achievement_9_Id=ACH_FIRST_RESET
+Achievement_10_Id=ACH_REACH_LOOP_5
+Achievement_11_Id=ACH_PERFECT_RUN
+Achievement_12_Id=ACH_STREAK_7
+Achievement_13_Id=ACH_SILENT_RUN
+Achievement_14_Id=ACH_HOTLINE
+Achievement_15_Id=ACH_GROUNDHOG
+Achievement_16_Id=ACH_DEJA_VU
+Achievement_17_Id=ACH_SPOT_HIDE
+Achievement_18_Id=ACH_SPOT_MOVE
+Achievement_19_Id=ACH_SPOT_LIGHT
+Achievement_20_Id=ACH_SPOT_AUDIO
+Achievement_21_Id=ACH_SPOT_TEXT
+Achievement_22_Id=ACH_SPOT_DOORLOCK
+Achievement_23_Id=ACH_SPOT_PURSUER
+Achievement_24_Id=ACH_SPOT_SCALE
+Achievement_25_Id=ACH_SPOT_PHANTOM
+Achievement_26_Id=ACH_SPOT_ALL
 
 [/Script/Engine.GameEngine]
 +NetDriverDefinitions=(DefName="GameNetDriver",DriverClassName="OnlineSubsystemSteam.SteamNetDriver",DriverClassNameFallback="OnlineSubsystemUtils.IpNetDriver")
