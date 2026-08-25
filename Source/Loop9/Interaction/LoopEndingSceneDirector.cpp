@@ -6,8 +6,10 @@
 #include "Components/LightComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "LiftDoorWing.h"
@@ -25,7 +27,7 @@ namespace
 	constexpr uint8 AudioBitFlicker1 = 1 << 4;
 	constexpr uint8 AudioBitFlicker2 = 1 << 5;
 
-	constexpr float ReplacementEarlyFinishSeconds = 0.7f;
+	constexpr float ReplacementEarlyFinishSeconds = 1.2f;
 	constexpr float ObedientExtraDistanceCm = 50.0f;
 	constexpr float ColdDoorOpenTimeoutSeconds = 3.0f;
 	constexpr float ColdBlackoutDelayAfterDoorsSeconds = 0.5f;
@@ -131,6 +133,9 @@ bool ALoopEndingSceneDirector::PlayEnding(ELoopEndingType EndingType, APlayerCon
 	bColdEyesShown = false;
 	bReplacementFadeStarted = false;
 	bHoldingCinematicUntilAbort = false;
+	bMergedPhoneWasHidden = false;
+	bMergedDiskWasHidden = false;
+	MergedMemoryDisk.Reset();
 	ColdDoorsOpenedAtSeconds = -1.0f;
 	ColdEyesShownAtSeconds = -1.0f;
 	SavedLightIntensities.Reset();
@@ -252,6 +257,7 @@ void ALoopEndingSceneDirector::BeginSceneSetup()
 		CamEndRotation = CamStartRotation;
 		AccentLight->SetLightColor(FLinearColor(0.85f, 0.9f, 1.0f));
 		AccentLight->SetWorldLocation(PhoneLoc + FVector(0.0f, 0.0f, 120.0f));
+		BeginMergedMemoryProps();
 		break;
 	}
 	case ELoopEndingType::TheReplacement:
@@ -398,22 +404,7 @@ void ALoopEndingSceneDirector::UpdateScene(float /*DeltaTime*/)
 			AccentLight->SetIntensity(400.0f);
 		}
 
-		if (T >= 1.85f && T < 3.6f && PhoneActor && !DuplicateProp.IsValid())
-		{
-			FActorSpawnParameters Params;
-			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			if (AActor* Dup = GetWorld()->SpawnActor<AActor>(PhoneActor->GetClass(), PhoneActor->GetActorTransform(), Params))
-			{
-				Dup->SetActorLocation(PhoneActor->GetActorLocation() + FVector(25.0f, -18.0f, 8.0f));
-				Dup->SetActorEnableCollision(false);
-				DuplicateProp = Dup;
-			}
-		}
-		if (T >= 3.6f && DuplicateProp.IsValid())
-		{
-			DuplicateProp->Destroy();
-			DuplicateProp.Reset();
-		}
+		ApplyMergedMemoryVisibility(T);
 		break;
 	}
 	case ELoopEndingType::TheReplacement:
@@ -498,6 +489,7 @@ void ALoopEndingSceneDirector::RestoreWorldMods()
 	RestoreLightDims();
 	RestoreNearbyWorldLights();
 	CleanupEscapeTogetherCompanion();
+	RestoreMergedMemoryProps();
 
 	for (const TWeakObjectPtr<ALiftDoorWing>& Door : ActiveColdDoors)
 	{
@@ -513,11 +505,6 @@ void ALoopEndingSceneDirector::RestoreWorldMods()
 	if (ChairActor)
 	{
 		ChairActor->SetActorRotation(ChairStartRotation);
-	}
-	if (DuplicateProp.IsValid())
-	{
-		DuplicateProp->Destroy();
-		DuplicateProp.Reset();
 	}
 }
 
@@ -1032,4 +1019,110 @@ void ALoopEndingSceneDirector::CleanupEscapeTogetherCompanion()
 	EscapeCompanionMovementMode = 0;
 	EscapeCompanionCustomMovementMode = 0;
 	bEscapeCompanionHasMovementSnapshot = false;
+}
+
+void ALoopEndingSceneDirector::BeginMergedMemoryProps()
+{
+	RestoreMergedMemoryProps();
+
+	MergedMemoryDisk = MemoryDiskActor ? MemoryDiskActor.Get() : FindNearbyMemoryDisk();
+	bMergedPhoneWasHidden = PhoneActor ? PhoneActor->IsHidden() : false;
+	bMergedDiskWasHidden = MergedMemoryDisk.IsValid() ? MergedMemoryDisk->IsHidden() : false;
+
+	UE_LOG(LogLoop9, Log, TEXT("MergedMemory desk disk: %s"),
+		MergedMemoryDisk.IsValid() ? *MergedMemoryDisk->GetActorNameOrLabel() : TEXT("(none found)"));
+}
+
+void ALoopEndingSceneDirector::RestoreMergedMemoryProps()
+{
+	if (PhoneActor)
+	{
+		PhoneActor->SetActorHiddenInGame(bMergedPhoneWasHidden);
+	}
+	if (AActor* Disk = MergedMemoryDisk.Get())
+	{
+		Disk->SetActorHiddenInGame(bMergedDiskWasHidden);
+	}
+	MergedMemoryDisk.Reset();
+}
+
+void ALoopEndingSceneDirector::ApplyMergedMemoryVisibility(float T)
+{
+	// Desk props blink in sequence: disk, then phone 0.2s later, then they
+	// return the same way, then the disk vanishes for the hold.
+	constexpr float DiskHideA = 1.85f;
+	constexpr float PhoneHideA = 2.05f;
+	constexpr float DiskShow = 2.65f;
+	constexpr float PhoneShow = 2.85f;
+	constexpr float DiskHideB = 3.55f;
+
+	const bool bPhoneHiddenNow = (T >= PhoneHideA && T < PhoneShow);
+	const bool bDiskHiddenNow = (T >= DiskHideA && T < DiskShow) || T >= DiskHideB;
+
+	if (PhoneActor)
+	{
+		PhoneActor->SetActorHiddenInGame(bPhoneHiddenNow);
+	}
+	if (AActor* Disk = MergedMemoryDisk.Get())
+	{
+		Disk->SetActorHiddenInGame(bDiskHiddenNow);
+	}
+}
+
+AActor* ALoopEndingSceneDirector::FindNearbyMemoryDisk() const
+{
+	UWorld* World = GetWorld();
+	if (!World || !PhoneActor)
+	{
+		return nullptr;
+	}
+
+	const FVector PhoneLoc = PhoneActor->GetActorLocation();
+	AActor* Best = nullptr;
+	float BestDistSq = FMath::Square(160.0f);
+
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!Actor || Actor == PhoneActor || Actor == this)
+		{
+			continue;
+		}
+
+		TArray<UStaticMeshComponent*> Meshes;
+		Actor->GetComponents<UStaticMeshComponent>(Meshes);
+		bool bLooksLikeDeskMedia = false;
+		for (const UStaticMeshComponent* Mesh : Meshes)
+		{
+			const UStaticMesh* Asset = Mesh ? Mesh->GetStaticMesh() : nullptr;
+			if (!Asset)
+			{
+				continue;
+			}
+
+			const FString Name = Asset->GetName();
+			if (Name.Contains(TEXT("Floppy"))
+				|| Name.Contains(TEXT("Diskette"))
+				|| Name.Contains(TEXT("Cassette"))
+				|| Name.Contains(TEXT("OfficeTape")))
+			{
+				bLooksLikeDeskMedia = true;
+				break;
+			}
+		}
+
+		if (!bLooksLikeDeskMedia)
+		{
+			continue;
+		}
+
+		const float DistSq = FVector::DistSquared(Actor->GetActorLocation(), PhoneLoc);
+		if (DistSq < BestDistSq)
+		{
+			BestDistSq = DistSq;
+			Best = Actor;
+		}
+	}
+
+	return Best;
 }

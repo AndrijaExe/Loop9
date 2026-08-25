@@ -154,6 +154,7 @@ private:
 	bool WillAdvanceToEnding() const;
 	FVector ResolveSourceDoorCenter() const;
 	FRotator ResolveClosingLookTarget(APlayerController* InteractingController) const;
+	FRotator ResolveSourceDoorLookRotation(APlayerController* InteractingController) const;
 	void PlayButtonPressSound(const ALiftButton* SourceButton);
 	void StartTravelSound();
 	void StopTravelSound();

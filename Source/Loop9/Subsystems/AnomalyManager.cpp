@@ -432,6 +432,13 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 	{
 		return true;
 	}
+	if ((Filter.Equals(TEXT("Door"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Doors"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("DoorLock"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::DoorLock)
+	{
+		return true;
+	}
 
 	// Avoid accidental mass activation from filters such as "a", "e" or "01".
 	if (Filter.Len() < 3)

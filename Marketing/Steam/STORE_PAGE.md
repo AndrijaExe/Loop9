@@ -317,7 +317,13 @@ Une connexion Internet est nécessaire pour les conversations avec l’IA.
   konekcija potrebna za AI chat** (igra radi i offline, chat prikazuje
   in-fiction poruku o prekidu veze) — OBAVEZNO navesti u opisu sistemskih
   zahteva ("Requires internet connection for AI conversations").
-- **Release date:** postavi "Coming soon" / kvartal dok ne budeš siguran.
+- **Legal / audio credits** (stavi na dno About ili u Steamworks Legal):
+
+  > Door closing: "Door, Front, Closing, A.wav" by InspectorJ
+  > (www.jshaw.co.uk) of Freesound.org.
+  > Locked door: "Door Locked" by BenjaminNelan of Freesound.org.
+  > Blocked door: "car_door_slam_flat_block_overvecht.wav" by alfonsseelen
+  > of Freesound.org. Door opening generated with Adobe Firefly.
 
 ## Screenshots & capsule
 

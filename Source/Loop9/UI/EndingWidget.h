@@ -116,6 +116,8 @@ private:
 	void TypeNextCharacter();
 	void ApplyDescriptionText();
 	void RefreshContinueButtonLabel();
+	void ApplyTerminalTextColor();
+	void ExpandContinueButtonHitArea();
 	void PopulateTimeline();
 	void AddTimelineRow(const FRunEventCard& Card);
 	UTexture2D* TimelineIconFor(ERunEventType Type) const;

@@ -10,6 +10,8 @@
 void UReplacementTerminalWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	StopAllAnimations();
+	SetRenderOpacity(1.0f);
 	BindContinueButton();
 }
 

@@ -1,5 +1,6 @@
 #include "Interaction/DoorInteractable.h"
 
+#include "Anomaly/DoorLockStateAnomalyComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,30 +20,50 @@ ADoorInteractable::ADoorInteractable()
 	DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	DoorMesh->SetCollisionResponseToAllChannels(ECR_Block);
 
-	static ConstructorHelpers::FObjectFinder<USoundBase> OpenFinder(
-		TEXT("/Game/MyStuff/Sound/Doors/DoorOpen"));
+	DoorLockAnomaly = CreateDefaultSubobject<UDoorLockStateAnomalyComponent>(TEXT("DoorLockAnomaly"));
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> OpeningFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/DoorOpeningSound"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> CloseFinder(
 		TEXT("/Game/MyStuff/Sound/Doors/DoorClose"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> CloseAltFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/431118__inspectorj__door-front-closing-a"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> LockedFinder(
 		TEXT("/Game/MyStuff/Sound/Doors/DoorLocked"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> LockedAltFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/321087__benjaminnelan__door-locked"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> BlockedFinder(
 		TEXT("/Game/MyStuff/Sound/Doors/DoorBlocked"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> BlockedAltFinder(
+		TEXT("/Game/MyStuff/Sound/Doors/475850__alfonsseelen__car_door_slam_flat_block_overvecht"));
 
-	if (OpenFinder.Succeeded())
+	if (OpeningFinder.Succeeded())
 	{
-		OpenSound = OpenFinder.Object;
+		OpenSound = OpeningFinder.Object;
 	}
 	if (CloseFinder.Succeeded())
 	{
 		CloseSound = CloseFinder.Object;
 	}
+	else if (CloseAltFinder.Succeeded())
+	{
+		CloseSound = CloseAltFinder.Object;
+	}
 	if (LockedFinder.Succeeded())
 	{
 		LockedSound = LockedFinder.Object;
 	}
+	else if (LockedAltFinder.Succeeded())
+	{
+		LockedSound = LockedAltFinder.Object;
+	}
 	if (BlockedFinder.Succeeded())
 	{
 		BlockedSound = BlockedFinder.Object;
+	}
+	else if (BlockedAltFinder.Succeeded())
+	{
+		BlockedSound = BlockedAltFinder.Object;
 	}
 }
 
@@ -52,19 +73,31 @@ void ADoorInteractable::BeginPlay()
 
 	if (!OpenSound)
 	{
-		OpenSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorOpen.DoorOpen"));
+		OpenSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorOpeningSound.DoorOpeningSound"));
 	}
 	if (!CloseSound)
 	{
 		CloseSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorClose.DoorClose"));
 	}
+	if (!CloseSound)
+	{
+		CloseSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/431118__inspectorj__door-front-closing-a.431118__inspectorj__door-front-closing-a"));
+	}
 	if (!LockedSound)
 	{
 		LockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorLocked.DoorLocked"));
 	}
+	if (!LockedSound)
+	{
+		LockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/321087__benjaminnelan__door-locked.321087__benjaminnelan__door-locked"));
+	}
 	if (!BlockedSound)
 	{
 		BlockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/DoorBlocked.DoorBlocked"));
+	}
+	if (!BlockedSound)
+	{
+		BlockedSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Doors/475850__alfonsseelen__car_door_slam_flat_block_overvecht.475850__alfonsseelen__car_door_slam_flat_block_overvecht"));
 	}
 
 	if (DoorMesh)

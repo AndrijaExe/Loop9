@@ -206,6 +206,14 @@ void UHelpWidget::RefreshSections()
 			"E to interact: answer the phone, open doors, pick an object up and examine it.\n"
 			"F to switch your flashlight on and off.\n"
 			"Esc to pause, and to put an object down while examining it."));
+
+	AddSection(VB_Sections,
+		LOCTEXT("HelpCreditsHeading", "SOUND CREDITS"),
+		LOCTEXT("HelpCreditsBody",
+			"\"Door, Front, Closing, A.wav\" by InspectorJ (www.jshaw.co.uk) of Freesound.org.\n"
+			"\"Door Locked\" by BenjaminNelan of Freesound.org.\n"
+			"\"car_door_slam_flat_block_overvecht.wav\" by alfonsseelen of Freesound.org.\n"
+			"Door opening generated with Adobe Firefly."));
 }
 
 void UHelpWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)

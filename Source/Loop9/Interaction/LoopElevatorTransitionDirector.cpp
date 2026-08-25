@@ -21,6 +21,7 @@ namespace
 {
 	constexpr float ParanoidLookDurationSeconds = 2.85f;
 	constexpr float ParanoidGlimpseStartSeconds = 2.15f;
+	constexpr float ParanoidGlimpseWalkSeconds = 0.42f;
 }
 
 ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
@@ -818,7 +819,7 @@ void ALoopElevatorTransitionDirector::BeginParanoidClosingLook(APlayerController
 	}
 
 	LookBlendStartRotation = PC->GetControlRotation();
-	ParanoidDoorLookRotation = ResolveClosingLookTarget(PC);
+	ParanoidDoorLookRotation = ResolveSourceDoorLookRotation(PC);
 	LookBlendTargetRotation = ParanoidDoorLookRotation;
 	LookBlendElapsedSeconds = 0.0f;
 	ParanoidCloseElapsedSeconds = 0.0f;
@@ -870,7 +871,7 @@ void ALoopElevatorTransitionDirector::UpdateParanoidClosingLook(float DeltaTime)
 	if (ActiveParanoidGlimpse.IsValid())
 	{
 		const float WalkAlpha = FMath::Clamp(
-			(T - ParanoidGlimpseStartSeconds) / 0.7f,
+			(T - ParanoidGlimpseStartSeconds) / ParanoidGlimpseWalkSeconds,
 			0.0f,
 			1.0f);
 		const float SmoothWalk = WalkAlpha * WalkAlpha * (3.0f - 2.0f * WalkAlpha);
@@ -909,7 +910,7 @@ void ALoopElevatorTransitionDirector::SpawnOrRevealParanoidGlimpse()
 		Glimpse = GetWorld()->SpawnActor<AActor>(
 			ParanoidWalkerClass,
 			ParanoidGlimpseStart,
-			DoorLook,
+			DoorLook + FRotator(0.0f, -90.0f, 0.0f),
 			Params);
 		if (Glimpse)
 		{
@@ -920,7 +921,7 @@ void ALoopElevatorTransitionDirector::SpawnOrRevealParanoidGlimpse()
 	if (Glimpse)
 	{
 		Glimpse->SetActorLocation(ParanoidGlimpseStart);
-		Glimpse->SetActorRotation(DoorLook);
+		Glimpse->SetActorRotation(DoorLook + FRotator(0.0f, -90.0f, 0.0f));
 		ActiveParanoidGlimpse = Glimpse;
 	}
 }
@@ -986,6 +987,41 @@ FRotator ALoopElevatorTransitionDirector::ResolveClosingLookTarget(
 	{
 		DoorCenter /= static_cast<float>(DoorCount);
 		return (DoorCenter - EyeLocation).Rotation();
+	}
+
+	return InteractingController->GetControlRotation();
+}
+
+FRotator ALoopElevatorTransitionDirector::ResolveSourceDoorLookRotation(
+	APlayerController* InteractingController) const
+{
+	if (!InteractingController)
+	{
+		return FRotator::ZeroRotator;
+	}
+
+	FVector DoorCenter = FVector::ZeroVector;
+	int32 DoorCount = 0;
+	for (const TWeakObjectPtr<ALiftDoorWing>& DoorWing : SourceDoorWings)
+	{
+		if (DoorWing.IsValid())
+		{
+			DoorCenter += DoorWing->GetActorLocation();
+			++DoorCount;
+		}
+	}
+
+	const APawn* Pawn = InteractingController->GetPawn();
+	const FVector EyeLocation = Pawn
+		? Pawn->GetPawnViewLocation()
+		: InteractingController->GetFocalLocation();
+	if (DoorCount > 0)
+	{
+		DoorCenter /= static_cast<float>(DoorCount);
+		FRotator Look = (DoorCenter - EyeLocation).Rotation();
+		Look.Pitch = FMath::Clamp(Look.Pitch, -15.0f, 8.0f);
+		Look.Roll = 0.0f;
+		return Look;
 	}
 
 	return InteractingController->GetControlRotation();

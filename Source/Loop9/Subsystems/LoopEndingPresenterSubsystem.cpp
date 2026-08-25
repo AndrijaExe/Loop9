@@ -39,6 +39,7 @@ namespace
 		if (PlayerController && PlayerController->PlayerCameraManager)
 		{
 			PlayerController->PlayerCameraManager->StopCameraFade();
+			PlayerController->PlayerCameraManager->SetManualCameraFade(0.0f, FLinearColor::Black, false);
 		}
 	}
 }
@@ -151,8 +152,8 @@ bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType Ending
 		return false;
 	}
 
-	// Paranoid Survivor's look/glimpse already played while the elevator doors closed
-	// (works for both lit and dark source cabins — uses whichever doors the pressed button owns).
+	// Paranoid Survivor's look/glimpse already played while the elevator doors closed.
+	// Look-at is the source doors (lit or dark), so the walker stays in the doorway.
 	if (EndingType == ELoopEndingType::ParanoidSurvivor)
 	{
 		// Keep blackout; PresentPendingEndingFromBlack owns the hold → widget.
@@ -384,6 +385,14 @@ void ULoopEndingPresenterSubsystem::HandleEndingSequenceFinished()
 	}
 
 	PresentationState = EPresentationState::FadingToWidget;
+
+	if (PendingEndingType == ELoopEndingType::TheReplacement)
+	{
+		CleanupActiveSequence(true);
+		ShowPendingEndingWidget();
+		return;
+	}
+
 	StartCameraFade(PC, 0.0f, 1.0f, 0.75f);
 	TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
 	World->GetTimerManager().SetTimer(
@@ -743,6 +752,9 @@ bool ULoopEndingPresenterSubsystem::ShowReplacementTerminal()
 	}
 
 	ActiveTerminalWidget = TerminalWidget;
+	TerminalWidget->StopAllAnimations();
+	TerminalWidget->SetRenderOpacity(1.0f);
+	TerminalWidget->SetColorAndOpacity(FLinearColor::White);
 	TerminalWidget->OnContinueRequested.AddDynamic(this, &ULoopEndingPresenterSubsystem::HandleReplacementTerminalContinueRequested);
 	TerminalWidget->AddToViewport(3000);
 	TerminalWidget->StartTerminalSequence();

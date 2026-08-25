@@ -91,6 +91,10 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyMove();
 
+	/** Force every DoorLock anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyDoor();
+
 	/** Force every MaterialSwap anomaly. Editor / non-Shipping only. */
 	UFUNCTION(Exec)
 	void AnomalyMaterial();

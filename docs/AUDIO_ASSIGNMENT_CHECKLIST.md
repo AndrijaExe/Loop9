@@ -1,6 +1,6 @@
 # Audio assignment checklist
 
-Poslednje ažuriranje: **24.08.2026.**
+Poslednje ažuriranje: **25.08.2026.**
 
 Koristi ovo kao listu zvukova koje još treba da dodeliš u editoru
 (Blueprint / map actor Details). C++ samo čita reference — bez asseta
@@ -46,8 +46,17 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Replacement terminal (WBP / `ReplacementTerminalWidget` class defaults)
 
-- [ ] **Typing Sound** — typewriter klikovi tokom zelenog terminala
+Sledeća sesija (25.08 uveče, nije rađeno): terminal mora da zvuči i skipuje
+kao ending WBP. Kod već zove `PlaySound2D` kad `TypingSound` nije null, ali
+C++ default je prazan (za razliku od `EndingWidget` koji učitava `TypewriterKey`).
+Continue je `Collapsed` dok se linije kucaju — nema SKIP.
+
+- [ ] **Typing Sound** — isti `/Game/MyStuff/Sound/UI/TypewriterKey` kao ending
+  widget (C++ `ConstructorHelpers` default, `SC_SFX`, volume ~0.55, pitch jitter).
+- [ ] **SKIP** tokom ispisa: dugme vidljivo od početka; prvi klik dovrši sav
+  preostali terminal tekst, ne ide u meni; posle toga **Return to Main Menu**.
 - [ ] **Prompt Complete Sound** — posle hold-a na `You:_`, pre ending kartice
+  (nije deo SKIP zahteva; ostaje zaseban slot)
 
 ## Phone / Dragojlo (`BP_AI_Friend`)
 
@@ -95,9 +104,9 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Doors (`DoorInteractable` instance u mapi)
 
-C++ defaulti učitavaju `Sound/Doors/DoorOpen|Close|Locked|Blocked` (generisani
-WAV u `Tools/make_door_and_pursuer_sfx.py`). Posle importa u editoru označi
-**Looping = false** na door clipovima.
+C++ defaulti: open = `DoorOpeningSound` (Firefly), close = `DoorClose`
+(InspectorJ), locked = `DoorLocked` (BenjaminNelan), blocked = `DoorBlocked`
+(alfonsseelen slam, isečen na 0.0–0.4 s). Posle importa označi **Looping = false**.
 
 Odskrinuta vrata: na instanci (`BP_Door` / `BP_Door2`) uključi **Blocked From
 Behind** (`bIsBlocked`) i isključi **Locked**. Prompt je
@@ -114,7 +123,7 @@ kategoriji `Door|Rattle`.
 - [x] **Rattle** — C++ defaulti su `Rattle Angle Deg` = 2.0,
   `Rattle Duration Seconds` = 0.35, `Rattle Shakes Per Second` = 13.
   Isključi preko `bRattleWhenDenied` ako neka vrata ne smeju da se pomeraju.
-- [ ] Import WAV → uasset u editoru pre sledećeg Shipping cooka
+- [x] Import WAV → uasset (`DoorOpen` / `Close` / `Locked` / `Blocked`, 25.08.2026)
 - [ ] Na odskrinutim vratima: `bIsBlocked = true`, `bIsLocked = false`
 
 ## Pursuer anomaly (`PursuerAnomalyCharacter` / component)
@@ -181,10 +190,21 @@ duplira; ostali ambient akteri se ne diraju.
 
 ## Licence uvezenih zvukova (obavezno pre release-a)
 
-Sva tri zvuka uvezena 21.08.2026. su izvedena isključivo iz **CC0 / public
-domain** izvora. **Nijedan ne zahteva atribuciju** — ne mora ništa da ide u
-credits. Ako se ipak želi „thanks to“ sekcija, imena autora su niže.
-Nijedan izvor nije NonCommercial ni ShareAlike.
+Svi OpenGameArt zvukovi uvezeni 21.08.2026. su **CC0**. Freesound door clipovi
+uvezeni 25.08.2026. uključuju **CC BY** (InspectorJ mora atribuciju).
+
+Sledeća sesija (25.08 uveče, nije rađeno):
+
+- [ ] Proći sve slotove koji stvarno sviraju (C++ `ConstructorHelpers`, BP
+  defaults, mapa) i upisati **svakog** autora u in-game Credits. Help trenutno
+  ima samo četiri door linije; tabela ispod ima i OwlishMedia, LEGIT Audio,
+  rubberduck, bretbernhoft, Firefly — plus proveriti footsteps, phone ring,
+  flicker, flashlight, pursuer, typewriter, menu ambient.
+- [ ] Credits **odvojiti od Help-a**: novo dugme na main meniju, poseban ekran.
+  Help ostaje how-to. Steam Legal / About i dalje nosi CC BY tekst
+  (`Marketing/Steam/STORE_PAGE.md`).
+- [ ] Posle kompletnog spiska, uskladiti ovu tabelu, Help (ukloniti SOUND
+  CREDITS sekciju) i Steam copy.
 
 | Asset | Izvor (URL) | Autor | Licenca | Šta je urađeno |
 |---|---|---|---|---|
@@ -192,6 +212,10 @@ Nijedan izvor nije NonCommercial ni ShareAlike.
 | `Sound/Elevator/ElevatorTravelLoop` | https://opengameart.org/content/the-shop (`legit_audio_-_the_shop_free_sfx_wav.zip` → `TheShopCollection_convenience_store_drinks_fridge_drone.wav`) | LEGIT Audio | CC0 1.0 | najstabilnijih 6.9 s, 96→44.1 kHz, equal-power crossfade preko šava, peak −6 dBFS |
 | `Sound/Phone/PhoneLineCut` (klak) | https://opengameart.org/content/100-cc0-sfx (`100-CC0-SFX.zip` → `switch_01.ogg`) | rubberduck | CC0 1.0 | trim, mono, 44.1 kHz |
 | `Sound/Phone/PhoneLineCut` (šum linije) | https://opengameart.org/content/frequency-static-sound-effects (`static4.wav`) | bretbernhoft | CC0 1.0 / PD | isečak, band-pass 300–3200 Hz, −20 dBFS, tvrd rez bez fade-a |
+| `Sound/Doors/DoorClose` | https://freesound.org/people/InspectorJ/sounds/431118/ | InspectorJ (www.jshaw.co.uk) | CC BY | copy into `DoorClose.wav`; **attribution required** |
+| `Sound/Doors/DoorLocked` | https://freesound.org/people/BenjaminNelan/sounds/321087/ | BenjaminNelan | CC0 1.0 | copy into `DoorLocked.wav` |
+| `Sound/Doors/DoorBlocked` | https://freesound.org/people/alfonsseelen/sounds/475850/ | alfonsseelen | Freesound | trim 0.0–0.4 s into `DoorBlocked.wav` |
+| `Sound/Doors/DoorOpeningSound` | Adobe Firefly Sound Effects | Adobe Firefly | Firefly ToS | imported as-is |
 
 Napomene:
 

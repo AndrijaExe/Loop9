@@ -15,12 +15,15 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
 
 **Važno o dva stanja.** `[x]` ispod znači da je stvar u `main` repou, ne
-nužno i na Steam playtestu. Live playtest je **v1.0.0** (SteamPipe skripte
-prebačene na `Builds/v1.0.0/Windows` u commitu `98bdc6e`, 24.08.2026; pre
-toga je bila Alfa, BuildID `24782464`). Taj cook je od 24.08, pa **ne
-sadrži** 25.08 posao: muziku sprata, kucanje na endinzima i završne prevode.
-Ne sadrži ni zvuke vrata kao assete ni novi `.locres`, jer ta dva koraka
-traže uvoz u editoru pre cooka.
+nužno i na Steam playtestu. **`Builds/v1.0.0`** je trenutni fallback Shipping
+drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
+**`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
+se kuva. SteamPipe contentroot ostaje **`Builds/v1.0.0/Windows`** dok se
+eksplicitno ne promeni. Stari `Builds/Alfa` i `Builds/Beta` više nisu cilj.
+Live playtest na Steamu je i dalje cook od **24.08.2026** (BuildID `24910264`)
+dok se novi v1.0.0 ne uploaduje — taj Steam build **ne sadrži** 25.08 posao
+(achievement unlock, muziku sprata, kucanje, door/typewriter uassete, novi
+`.locres`). Prethodni Alfa playtest je bio BuildID `24782464`.
 
 ---
 
@@ -187,18 +190,25 @@ u editoru: `[docs/POLISH_PASS_EDITOR_TASKS.md](docs/POLISH_PASS_EDITOR_TASKS.md)
 
 Ostaje u editoru pre sledećeg Shipping builda:
 
-- [ ] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
-  `/Game/MyStuff/Sound/UI/TypewriterKey`, Sound Class **`SC_SFX`**. Bez uvoza
-  tekst se kuca, samo je nemo.
-- [ ] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` (`DoorOpen`, `DoorClose`,
-  `DoorLocked`, `DoorBlocked`). U repo-u su samo `.wav`, nema `.uasset`.
-- [ ] GatherText — vidi gore.
+- [x] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
+  `/Game/MyStuff/Sound/UI/TypewriterKey`, Sound Class **`SC_SFX`**.
+- [x] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` (`DoorOpen`, `DoorClose`,
+  `DoorLocked`, `DoorBlocked`). `.uasset` postoje od 25.08.2026.
+- [x] GatherText — urađen 25.08.2026.; `.locres` je u ovom commitu.
 - [ ] Proveri intenzitet lampe u BP karaktera; digni `Intensity` samo ako je
   pretamno.
 - [ ] Obriši `AmbientSound_0` iz `FullOfficeMap` (samo taj, i samo ako je na
   `SC_Music`). Nije bloker — kôd ga već utišava.
 - [ ] Opciono: slike u Help WBP-u; 2–3 `AnomalyMovePoint` po Move objektu
   ako pomeraj deluje previše isti svaku petlju.
+
+Sledeća sesija (zabeleženo 25.08.2026. uveče, **nije rađeno**):
+
+- [ ] Replacement terminal: isti typewriter zvuk kao ending WBP
+  (`TypewriterKey`) i **SKIP** tokom ispisa (prvi klik dovrši tekst, ne meni).
+- [ ] Kompletan audio credits spisak (svi autori, ne samo vrata) na **odvojenom**
+  Credits ekranu; novo dugme na main meniju. Help više ne nosi SOUND CREDITS.
+- [ ] Main-menu dugme `HELP` preimenovati u **HOW TO PLAY**.
 
 
 ## 2. Steamworks — Store Presence
@@ -360,15 +370,18 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 ## 5. Build i SteamPipe
 
 - [~] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
-v1.0.0 (cook od 24.08.2026) je odigran preko Steama. **Sledeći build je
-obavezan** i mora da uključi: popravku achievementa, muziku sprata, kucanje
-na endinzima, uvezene zvuke vrata i typewriter, i nov `.locres`.
+  `Tools/PackageWindowsShipping.bat` bez argumenta kuva u `Builds/Feature`.
+  `PackageWindowsShipping.bat v1.0.1` kuva u `Builds/v1.0.1`. **`Builds/v1.0.0`
+  se ne dira** dok se eksplicitno ne zatraži. Steam playtest je još cook od
+  24.08.2026. Feature/sledeći versioned cook treba da uključi: popravku
+  achievementa, muziku sprata, kucanje na endinzima, uvezene zvuke vrata i
+  typewriter, i nov `.locres`.
 
 - [x] Proveriti da build ne sadrži:
   `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
-  Provereno na `Builds/Alfa/Windows` (2.06 GB): nema `steam_appid.txt`, `*.pdb`,
-  logove ni `Saved/`; jedini staged config je `Engine/Config/StagedBuild_Loop9.ini`.
-- [ ] Ponoviti tu proveru na `Builds/v1.0.0/Windows` i na sledećem buildu.
+  Ranije provereno na starom `Builds/Alfa/Windows`; aktuelna provera ide na
+  `Builds/v1.0.0/Windows`.
+- [ ] Ponoviti tu proveru na sledećem `Builds/v1.0.0` cooku.
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
@@ -402,7 +415,7 @@ dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
   (C++ već briše `ClockAnomaly` iz `SpottedAnomalies` pri startu.)
 
-Polish smoke na **novom** Shipping buildu (v1.0.0 od 24.08 ne pokriva sve ovo):
+Polish smoke na **novom** `v1.0.0` Shipping cooku (Steam playtest od 24.08 ovo ne pokriva):
 
 - [ ] ~8/10 petlji ima anomaliju; loop 1 čist; Hide/Material češći, Pursuer ređi.
 - [ ] Nijedna aktivna anomalija nije nevidljiva (`AnomalyList` u konzoli).
@@ -501,26 +514,25 @@ Brief:
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
 
 - [ ] Help slike (WBP dete od `HelpWidget`) — opciono, vidi §1.
-- [ ] Replacement terminal typing / prompt-complete zvukovi, phone pickup i
-  chat mumble — i dalje prazni slotovi u
+- [ ] Replacement terminal: typewriter zvuk + SKIP (sledeća sesija, vidi §1).
+  Prompt-complete, phone pickup i chat mumble ostaju prazni slotovi u
   `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
   Nisu launch bloker.
+- [ ] Credits ekran odvojen od Help-a + How to Play label (sledeća sesija, §1).
 
 
 ---
 
 ## Trenutni kritični put
 
-1. Editor pre cooka: uvezi 5 `.wav` (typewriter + vrata), GatherText, rebuild
-   `Loop9Editor`. Bez toga novi Shipping i dalje ima neme endinge/vrata i
-   stare prevode.
-2. Gameplay trailer — jedino što još realno blokira Store review.
-   (Audio slotovi lifta / line cut-a su popunjeni CC0 zvukovima 21.08.2026;
-   ostaje jedno slušanje mixa u igri.)
-3. Achievement test po grupi — sada prvi put ima smisla, popravka je u `main`
-   a v1.0.0 je i dalje imao mrtav unlock. Uz to ending balance QA (šest
-   profila) i **persist QA** iz §3.
-4. Novi Shipping build → `playtest` → QA iz Library-ja. Trenutni playtest je
-   v1.0.0 od 24.08 i **ne sadrži** achievement popravku ni 25.08 posao.
-5. Na tom buildu: Cloud, offline, gamepad, polish smoke iz §6.
+1. Zatvori Unreal Editor, pa `Tools/PackageWindowsShipping.bat` (WIP izlaz
+   `Builds/Feature`; nova verzija npr. `PackageWindowsShipping.bat v1.0.1`).
+   **`Builds/v1.0.0` se ne overwrite-uje.** Typewriter + vrata `.uasset` i
+   GatherText su urađeni; bez zatvorenog editora cooker udara na MCP port.
+2. Lokalni QA tog cooka (mix, vrata, ending kucanje, jezici). Achievementi i
+   AI chat samo iz Steam Library-ja posle uploada.
+3. Achievement test po grupi + persist QA iz §3 + ending balance (šest profila).
+4. `UploadPlaytest.bat` → Steamworks Set Live na `playtest` (i `default` kad
+   odlučiš). SteamCMD `setlive` ne može `default`.
+5. Na tom Steam buildu: Cloud, offline, gamepad, polish smoke iz §6.
 6. Valve review → Coming Soon najmanje 14 dana → release.

@@ -5,6 +5,8 @@
 #include "Interaction/Loop9Interactable.h"
 #include "DoorInteractable.generated.h"
 
+class UDoorLockStateAnomalyComponent;
+
 UCLASS()
 class LOOP9_API ADoorInteractable : public AActor, public ILoop9Interactable
 {
@@ -51,6 +53,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	TObjectPtr<class USoundBase> CloseSound = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anomaly")
+	TObjectPtr<UDoorLockStateAnomalyComponent> DoorLockAnomaly;
 
 	/** Shudder the door in its frame when the handle will not turn. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle")

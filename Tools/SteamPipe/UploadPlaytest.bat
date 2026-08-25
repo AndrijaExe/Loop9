@@ -1,12 +1,12 @@
 @echo off
 setlocal
-rem Upload Builds\Beta\Windows to SteamPipe. Set branch playtest live in Steamworks.
+rem Upload Builds\v1.0.0\Windows to SteamPipe. SetLive stays empty; set playtest in Steamworks.
 rem Confirm depot 4982261 in Steamworks before the first run.
 rem Create passworded branch "playtest" first or this will fail at SetLive.
 
 set "STEAMCMD=D:\steamcmd\steamcmd.exe"
 set "VDF=%~dp0app_build_4982260.vdf"
-set "CONTENT=D:\UE Course\Loop 9 AI\Builds\Beta\Windows"
+set "CONTENT=D:\UE Course\Loop 9 AI\Builds\v1.0.0\Windows"
 
 if not exist "%STEAMCMD%" (
 	echo Missing SteamCMD: %STEAMCMD%

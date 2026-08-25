@@ -13,19 +13,41 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 
 ---
 
+## 0. Sledeća sesija — zabeleženo 25.08.2026. uveče
+
+Nije rađeno danas; uraditi pre sledećeg Feature cooka.
+
+- [ ] **Replacement terminal: kucanje + SKIP.** `WBP` / `UReplacementTerminalWidget`
+  već ima `TypingSound` slot i `FTypewriterHelper`, ali slot je prazan i Continue
+  je sakriven dok se redovi ispisuju. Treba isto ponašanje kao `EndingWidget`:
+  C++ default na `/Game/MyStuff/Sound/UI/TypewriterKey` (`SC_SFX`, volume ~0.55,
+  pitch jitter kao na endingima), dugme vidljivo tokom kucanja, label **SKIP**,
+  prvi klik dovrši sav preostali tekst (ne izbacuje u meni), posle toga
+  **Return to Main Menu**. Detalj: [AUDIO_ASSIGNMENT_CHECKLIST.md](AUDIO_ASSIGNMENT_CHECKLIST.md)
+  § Replacement terminal.
+- [ ] **Credits odvojeni od Help-a.** Pronaći sve autore čije smo zvukove
+  iskoristili (Help trenutno nabraja samo četiri door clipa; tabela u audio
+  checklisti ima i OpenGameArt / Firefly). Napraviti poseban Credits ekran, ne
+  sekciju u Help-u. Na main meniju: zasebno dugme **CREDITS** pored How to Play
+  (uobičajen red: Play → How to Play → Settings → Archive → Credits → Quit;
+  Credits ne ide u Settings). Steam Legal / About i dalje mora da ima atribuciju
+  za CC BY. Izvori: `HelpWidget.cpp` SOUND CREDITS, audio tabela, `STORE_PAGE.md`.
+- [ ] **Help dugme → How to Play.** `UMainMenuWidget::ApplyLocalizedTexts` sada
+  piše `HELP`. Promeniti u **HOW TO PLAY** (i WBP label ako je hardcodovan).
+  Help sadržaj ostaje briefing, samo ime dugmeta. Posle toga GatherText.
+
+---
+
 ## 1. Uvoz zvuka i lokalizacija (obavezno)
 
-- [ ] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
-  (`/Game/MyStuff/Sound/UI/TypewriterKey`). To je kucanje na endinzima. Bez uvoza
-  tekst se i dalje iskucava, samo nema zvuka — `EndingWidget` je otporan na
-  nedostajući asset. Preporuka: **Sound Class = `SC_SFX`**, ne `SC_Music`, da ne
-  ide kroz ambient slider.
-- [ ] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` ako još nisu uvezeni
-  (`DoorOpen`, `DoorClose`, `DoorLocked`, `DoorBlocked`). U repo-u su samo `.wav`
-  fajlovi, bez `.uasset`, pa proveri da li `ADoorInteractable` nalazi zvuke.
-- [ ] Pokreni **Gather Text**. Jedna komanda uveze `.po` i kompajlira `.locres`
-  (vidi [LOCALIZATION.md](LOCALIZATION.md)). Bez toga Help tekst, `SKIP` label i
-  prevodi dodati 25.08.2026. rade samo na engleskom, jer igra čita `.locres`.
+- [x] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
+  (`/Game/MyStuff/Sound/UI/TypewriterKey`). Uvezeno 25.08.2026. Preporuka:
+  **Sound Class = `SC_SFX`**, ne `SC_Music`.
+- [x] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav`
+  (`DoorOpen`, `DoorClose`, `DoorLocked`, `DoorBlocked`). `.uasset` postoje
+  od 25.08.2026.
+- [x] **Gather Text** pokrenut 25.08.2026. (komanda iz
+  [LOCALIZATION.md](LOCALIZATION.md)). `.locres` je u repou.
 
 ## 2. Sitnice koje vredi proveriti u igri
 

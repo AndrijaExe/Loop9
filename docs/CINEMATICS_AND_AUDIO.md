@@ -94,7 +94,9 @@ When an advance would finish the run (`CurrentLoop` 9 → 10), `CommitAndArrive`
 
 ### Paranoid Survivor door-close
 
-While source doors close on the ending advance, the elevator director looks left/right and optionally reveals `ParanoidGlimpseActor` (or spawns `ParanoidWalkerClass`) crossing the doorway in the last beat. Assign a walker mesh/actor on `BP_LoopElevatorTransitionDirector`.
+While source doors close on the ending advance, the elevator director looks at
+those doors (lit or dark cabin) and reveals `ParanoidGlimpseActor` (or spawns
+`ParanoidWalkerClass`) crossing the doorway, yawed 90° left of the door facing.
 
 ### Obedient Fool audio
 

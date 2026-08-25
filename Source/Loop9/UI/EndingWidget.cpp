@@ -2,6 +2,7 @@
 
 #include "UI/Loop9WidgetClickBinder.h"
 #include "Subsystems/RelationshipSubsystem.h"
+#include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -15,6 +16,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Widgets/Layout/Anchors.h"
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -24,6 +26,78 @@
 #include "UObject/ConstructorHelpers.h"
 
 #define LOCTEXT_NAMESPACE "Loop9Endings"
+
+namespace
+{
+	const FLinearColor EndingTextColor = FLinearColor::White;
+
+	void RecolorTextBlocksInTree(UWidget* Root)
+	{
+		if (!Root)
+		{
+			return;
+		}
+
+		if (UTextBlock* Text = Cast<UTextBlock>(Root))
+		{
+			Text->SetColorAndOpacity(FSlateColor(EndingTextColor));
+			return;
+		}
+
+		UUserWidget* AsUserWidget = Cast<UUserWidget>(Root);
+		if (!AsUserWidget || !AsUserWidget->WidgetTree)
+		{
+			return;
+		}
+
+		TArray<UWidget*> Children;
+		AsUserWidget->WidgetTree->GetAllWidgets(Children);
+		for (UWidget* Child : Children)
+		{
+			if (UTextBlock* Text = Cast<UTextBlock>(Child))
+			{
+				Text->SetColorAndOpacity(FSlateColor(EndingTextColor));
+			}
+			else if (UUserWidget* Nested = Cast<UUserWidget>(Child))
+			{
+				RecolorTextBlocksInTree(Nested);
+			}
+		}
+	}
+
+	void ExpandHitArea(UWidget* Widget, float MinWidth, float MinHeight)
+	{
+		if (!Widget)
+		{
+			return;
+		}
+
+		if (UCanvasPanelSlot* Slot = Cast<UCanvasPanelSlot>(Widget->Slot))
+		{
+			const FAnchors Anchors = Slot->GetAnchors();
+			const bool bStretched =
+				!FMath::IsNearlyEqual(Anchors.Minimum.X, Anchors.Maximum.X)
+				|| !FMath::IsNearlyEqual(Anchors.Minimum.Y, Anchors.Maximum.Y);
+			if (!bStretched)
+			{
+				Slot->SetAutoSize(false);
+				const FVector2D Size = Slot->GetSize();
+				Slot->SetSize(FVector2D(
+					FMath::Max(Size.X, MinWidth),
+					FMath::Max(Size.Y, MinHeight)));
+			}
+		}
+
+		if (USizeBox* Box = Cast<USizeBox>(Widget))
+		{
+			Box->ClearMaxDesiredWidth();
+			Box->SetMinDesiredWidth(MinWidth);
+			Box->SetMinDesiredHeight(MinHeight);
+			Box->SetWidthOverride(MinWidth);
+			Box->SetHeightOverride(MinHeight);
+		}
+	}
+}
 
 UEndingWidget::UEndingWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -61,6 +135,8 @@ void UEndingWidget::NativeConstruct()
 	BuildFallbackLayoutIfNeeded();
 	BindContinueButton();
 	RefreshBoundWidgets();
+	ApplyTerminalTextColor();
+	ExpandContinueButtonHitArea();
 
 	// InitializeEnding usually runs before the widget reaches the viewport, so
 	// start here too: the line should begin arriving when the screen appears, and
@@ -254,8 +330,12 @@ void UEndingWidget::RefreshContinueButtonLabel()
 		if (UTextBlock* LabelText = Cast<UTextBlock>(FallbackContinueButton->GetChildAt(0)))
 		{
 			LabelText->SetText(Label);
+			LabelText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 		}
 	}
+
+	ApplyTerminalTextColor();
+	ExpandContinueButtonHitArea();
 }
 
 void UEndingWidget::RefreshBoundWidgets()
@@ -263,6 +343,7 @@ void UEndingWidget::RefreshBoundWidgets()
 	if (TB_Title)
 	{
 		TB_Title->SetText(EndingTitle);
+		TB_Title->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	}
 
 	if (TB_Description)
@@ -273,6 +354,7 @@ void UEndingWidget::RefreshBoundWidgets()
 			TypedDescription = FullDescription;
 		}
 		ApplyDescriptionText();
+		TB_Description->SetColorAndOpacity(FSlateColor(EndingTextColor));
 
 		TB_Description->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		TB_Description->SetRenderOpacity(1.0f);
@@ -301,6 +383,43 @@ void UEndingWidget::RefreshBoundWidgets()
 		// but do not show raw Resets | AI interactions.
 		TB_Stats->SetVisibility(ESlateVisibility::Collapsed);
 	}
+
+	ApplyTerminalTextColor();
+	ExpandContinueButtonHitArea();
+}
+
+void UEndingWidget::ApplyTerminalTextColor()
+{
+	RecolorTextBlocksInTree(this);
+	RecolorTextBlocksInTree(BT_Continue);
+}
+
+void UEndingWidget::ExpandContinueButtonHitArea()
+{
+	constexpr float MinWidth = 520.0f;
+	constexpr float MinHeight = 72.0f;
+
+	ExpandHitArea(BT_Continue, MinWidth, MinHeight);
+	ExpandHitArea(FallbackContinueButton, MinWidth, MinHeight);
+
+	if (UUserWidget* ButtonWidget = Cast<UUserWidget>(BT_Continue))
+	{
+		TArray<UWidget*> Children;
+		if (ButtonWidget->WidgetTree)
+		{
+			ButtonWidget->WidgetTree->GetAllWidgets(Children);
+		}
+
+		for (UWidget* Child : Children)
+		{
+			ExpandHitArea(Child, MinWidth, MinHeight);
+			if (UTextBlock* Label = Cast<UTextBlock>(Child))
+			{
+				Label->SetAutoWrapText(false);
+				Label->SetColorAndOpacity(FSlateColor(EndingTextColor));
+			}
+		}
+	}
 }
 
 void UEndingWidget::BuildFallbackLayoutIfNeeded()
@@ -323,14 +442,14 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 
 	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("TitleText"));
 	TitleText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 48)));
-	TitleText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
+	TitleText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	TitleText->SetJustification(ETextJustify::Center);
 	VBox->AddChildToVerticalBox(TitleText);
 	TB_Title = TitleText;
 
 	UTextBlock* DescText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("DescText"));
 	DescText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 24)));
-	DescText->SetColorAndOpacity(FSlateColor(FLinearColor(0.85f, 0.85f, 0.85f, 1.0f)));
+	DescText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	DescText->SetJustification(ETextJustify::Center);
 	DescText->SetAutoWrapText(true);
 	DescText->SetWrapTextAt(780.0f);
@@ -339,7 +458,7 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 
 	UTextBlock* StatsText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("StatsText"));
 	StatsText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 18)));
-	StatsText->SetColorAndOpacity(FSlateColor(FLinearColor(0.65f, 0.65f, 0.65f, 1.0f)));
+	StatsText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	StatsText->SetJustification(ETextJustify::Center);
 	VBox->AddChildToVerticalBox(StatsText);
 	TB_Stats = StatsText;
@@ -360,8 +479,15 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 	UTextBlock* ContinueLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("ContinueLabel"));
 	ContinueLabel->SetText(ContinueButtonLabel);
 	ContinueLabel->SetJustification(ETextJustify::Center);
+	ContinueLabel->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	FallbackContinueButton->AddChild(ContinueLabel);
-	VBox->AddChildToVerticalBox(FallbackContinueButton);
+	USizeBox* ContinueSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("ContinueSize"));
+	ContinueSize->SetMinDesiredWidth(520.0f);
+	ContinueSize->SetMinDesiredHeight(72.0f);
+	ContinueSize->SetWidthOverride(520.0f);
+	ContinueSize->SetHeightOverride(72.0f);
+	ContinueSize->SetContent(FallbackContinueButton);
+	VBox->AddChildToVerticalBox(ContinueSize);
 }
 
 void UEndingWidget::EnsureTimelineHost()
@@ -524,12 +650,12 @@ void UEndingWidget::AddTimelineRow(const FRunEventCard& Card)
 	UVerticalBox* TextCol = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	TitleText->SetText(Card.Title);
-	TitleText->SetColorAndOpacity(FSlateColor(IceBlue));
+	TitleText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	TitleText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 16)));
 	TextCol->AddChildToVerticalBox(TitleText);
 	UTextBlock* BodyText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	BodyText->SetText(Card.Body);
-	BodyText->SetColorAndOpacity(FSlateColor(FLinearColor(0.78f, 0.82f, 0.86f, 1.0f)));
+	BodyText->SetColorAndOpacity(FSlateColor(EndingTextColor));
 	BodyText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 13)));
 	BodyText->SetAutoWrapText(true);
 	TextCol->AddChildToVerticalBox(BodyText);

@@ -55,6 +55,13 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ending Scene|Anchors")
 	TObjectPtr<AActor> ChairActor;
 
+	/**
+	 * Blue floppy / cassette on the desk next to the phone (Merged Memory).
+	 * If empty, the nearest Floppy/Diskette/Cassette mesh beside PhoneActor is used.
+	 */
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ending Scene|Anchors")
+	TObjectPtr<AActor> MemoryDiskActor;
+
 	/** Preferred viewpoint after arriving in the lit elevator (Escape / Paranoid). */
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ending Scene|Anchors")
 	TObjectPtr<AActor> ArrivalViewpointActor;
@@ -143,8 +150,8 @@ private:
 
 	TWeakObjectPtr<APlayerController> Controller;
 	TWeakObjectPtr<AActor> PreviousViewTarget;
-	TWeakObjectPtr<AActor> DuplicateProp;
 	TWeakObjectPtr<AActor> ActiveEscapeCompanion;
+	TWeakObjectPtr<AActor> MergedMemoryDisk;
 
 	ELoopEndingType ActiveEnding = ELoopEndingType::ParanoidSurvivor;
 	bool bPlaying = false;
@@ -176,6 +183,8 @@ private:
 	bool bColdEyesShown = false;
 	bool bReplacementFadeStarted = false;
 	bool bHoldingCinematicUntilAbort = false;
+	bool bMergedPhoneWasHidden = false;
+	bool bMergedDiskWasHidden = false;
 	float ColdDoorsOpenedAtSeconds = -1.0f;
 	float ColdEyesShownAtSeconds = -1.0f;
 
@@ -212,6 +221,10 @@ private:
 
 	void BeginEscapeTogetherCompanion();
 	void CleanupEscapeTogetherCompanion();
+	void BeginMergedMemoryProps();
+	void RestoreMergedMemoryProps();
+	void ApplyMergedMemoryVisibility(float T);
+	AActor* FindNearbyMemoryDisk() const;
 
 	UFUNCTION()
 	void HandleColdDoorMovementFinished(bool bIsOpen);

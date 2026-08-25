@@ -226,6 +226,11 @@ void ALoop9PlayerController::AnomalyMove()
 	AnomalyForce(TEXT("Move"));
 }
 
+void ALoop9PlayerController::AnomalyDoor()
+{
+	AnomalyForce(TEXT("DoorLock"));
+}
+
 void ALoop9PlayerController::AnomalyMaterial()
 {
 	AnomalyForce(TEXT("MaterialSwap"));
@@ -257,10 +262,11 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyPhone                        - force every phone / audio anomaly\n"
 		"  AnomalyPursuer                      - force the pursuer\n"
 		"  AnomalyMove                         - force every move anomaly\n"
+		"  AnomalyDoor                         - force every door-lock anomaly\n"
 		"  AnomalyMaterial                     - force every material-swap anomaly\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, I01\n"
+		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, DoorLock, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
 		"  AudioStatus                         - report why the floor is silent\n"

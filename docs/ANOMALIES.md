@@ -71,6 +71,8 @@ refuses to apply.
 ## Authoring rules
 
 1. Put anomaly components on actors in `FullOfficeMap` (or Blueprint children).
+   Door lock is an exception: `ADoorInteractable` / `BP_Door` already owns a native
+   `DoorLockAnomaly` component, so office doors can lock without extra placement.
 2. Prefer reusable Actor Components + Interfaces over one-off Blueprint logic.
 3. Ensure components register with `UAnomalyManager` on begin play and unregister on end play.
 4. For MaterialSwap variants, keep texture/material references intentional; tracked MaterialSwap content is large.
@@ -122,6 +124,7 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyPhone` | Force every phone / audio anomaly |
 | `AnomalyPursuer` | Force the pursuer |
 | `AnomalyMove` | Force every Move anomaly |
+| `AnomalyDoor` | Force every DoorLock anomaly |
 | `AnomalyMaterial` | Force every MaterialSwap anomaly |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
@@ -132,7 +135,7 @@ These are **tilde console** commands in PIE / Standalone / Development. They are
 
 Filter notes:
 
-- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`).
+- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`).
 - Class/actor partial filters require at least 3 characters.
 - Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 
