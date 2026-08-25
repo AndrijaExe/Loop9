@@ -79,9 +79,14 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
   nemo treperenje.
 - [x] **Flicker Sound Attenuation** — `Sound/MainMenu/ATT_FlickerHallway`
   (inner 300 cm, falloff 1500 cm, silent at 18 m, Linear, LPF, bez occlusion da
-  plafon ne uguši klik). Dodeljen na `BP_Light_17` / `_35` / `_37` i kao C++
-  default na `LightFlickerAnomalyComponent`. Hodničko svetlo pored lifta i dalje
-  sme da se čuje iz kabine; svetla u back room / tool shelf ne.
+  plafon ne uguši klik). Dodeljena kao **C++ default** na
+  `LightFlickerAnomalyComponent`, pa važi za svako treperavo svetlo bez ikakvog
+  posla po instanci. `FullOfficeMap` ne sadrži ni jedan per-instance override
+  (provereno 25.08.2026.), tako da je ovaj default jedino što drži domet — ako ga
+  menjaš, menjaj sam asset ili C++ default, ne pojedinačna svetla.
+- [ ] Proveri u igri da li se svetlo najbliže liftu čuje iz kabine. Ako se čuje,
+  a ne želiš to, ovom svetlu treba **svoja** atenuacija sa manjim `silent at`
+  (npr. 8 m) — deljeni `ATT_FlickerHallway` je na 18 m i vredi za sva svetla.
 - [ ] Volume / tajming po instanci — C++ defaulti su `Flicker Sound Volume` = 0.7,
   `Flicker Sound Trigger Level` = 0.3 (dip ispod kog se pali),
   `Min Seconds Between Flicker Sounds` = 0.5 + jitter do 0.9 s.
