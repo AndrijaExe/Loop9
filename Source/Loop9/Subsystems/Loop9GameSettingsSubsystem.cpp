@@ -5,6 +5,7 @@
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Loop9GameMode.h"
 #include "MainMenuGameMode.h"
 #include "Misc/App.h"
 #include "Misc/ConfigCacheIni.h"
@@ -110,6 +111,7 @@ void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorl
 			FTSTicker::GetCoreTicker().RemoveTicker(AudioBootstrapTickerHandle);
 		}
 
+		AudioBootstrapAttemptsLeft = 10;
 		AudioBootstrapTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
 			FTickerDelegate::CreateUObject(
 				this, &ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap),
@@ -119,11 +121,30 @@ void ULoop9GameSettingsSubsystem::HandlePostWorldInit(UWorld* World, const UWorl
 
 bool ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap(float)
 {
-	AudioBootstrapTickerHandle.Reset();
+	--AudioBootstrapAttemptsLeft;
 
 	UWorld* World = ResolveAudioWorld();
+
+	// Keep asking until the world can actually route audio. A single attempt was
+	// enough to hide the bug rather than fix it: whenever the device attached late,
+	// nothing re-ran and the floor stayed silent until the settings slider moved.
+	const bool bAudioReady = World && World->GetAudioDeviceRaw() != nullptr;
+	if (!bAudioReady && AudioBootstrapAttemptsLeft > 0)
+	{
+		return true;
+	}
+
+	AudioBootstrapTickerHandle.Reset();
+
 	if (!World)
 	{
+		return false;
+	}
+
+	if (!bAudioReady)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("Loop9 audio: gave up waiting for an audio device; the floor will be silent"));
 		return false;
 	}
 
@@ -133,6 +154,20 @@ bool ULoop9GameSettingsSubsystem::HandleDeferredAudioBootstrap(float)
 	return false;
 }
 
+bool ULoop9GameSettingsSubsystem::IsMusicAmbience(const UAudioComponent* Audio) const
+{
+	if (!Audio || !Audio->Sound || !AmbientSoundClass)
+	{
+		return false;
+	}
+
+	const USoundClass* Resolved = Audio->SoundClassOverride
+		? Audio->SoundClassOverride.Get()
+		: Audio->Sound->SoundClassObject.Get();
+
+	return Resolved == AmbientSoundClass;
+}
+
 void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) const
 {
 	if (!World || LevelAmbienceSuppressCount > 0)
@@ -140,10 +175,36 @@ void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) co
 		return;
 	}
 
+	// The game mode plays the music bed itself, so a map-placed loop on the music
+	// sound class would double the track rather than rescue it. Silence those and
+	// leave the rest of the placed ambience alone.
+	ALoop9GameMode* MusicOwner = ResolveMusicOwningGameMode(World);
+	if (MusicOwner)
+	{
+		MusicOwner->EnsureLevelMusicPlaying();
+	}
+
 	for (TActorIterator<AAmbientSound> It(World); It; ++It)
 	{
 		UAudioComponent* Audio = It->GetAudioComponent();
-		if (!Audio || !Audio->Sound || Audio->IsPlaying())
+		if (!Audio || !Audio->Sound)
+		{
+			continue;
+		}
+
+		if (MusicOwner && IsMusicAmbience(Audio))
+		{
+			if (Audio->IsPlaying())
+			{
+				Audio->Stop();
+				UE_LOG(LogTemp, Log,
+					TEXT("Loop9 audio: silenced map-placed music '%s'; the game mode owns the bed"),
+					*It->GetActorNameOrLabel());
+			}
+			continue;
+		}
+
+		if (Audio->IsPlaying())
 		{
 			continue;
 		}
@@ -152,6 +213,12 @@ void ULoop9GameSettingsSubsystem::EnsureLevelAmbienceIsPlaying(UWorld* World) co
 		UE_LOG(LogTemp, Log, TEXT("Loop9 audio: restarted level ambience '%s'"),
 			*It->GetActorNameOrLabel());
 	}
+}
+
+ALoop9GameMode* ULoop9GameSettingsSubsystem::ResolveMusicOwningGameMode(UWorld* World) const
+{
+	ALoop9GameMode* GameMode = World ? Cast<ALoop9GameMode>(World->GetAuthGameMode()) : nullptr;
+	return (GameMode && GameMode->LevelMusicSound) ? GameMode : nullptr;
 }
 
 void ULoop9GameSettingsSubsystem::SuppressLevelAmbience(bool bSuppress)
@@ -176,6 +243,13 @@ void ULoop9GameSettingsSubsystem::ApplyLevelAmbienceSuppressState(UWorld* World)
 	}
 
 	const bool bPause = LevelAmbienceSuppressCount > 0;
+	ALoop9GameMode* MusicOwner = ResolveMusicOwningGameMode(World);
+
+	if (MusicOwner)
+	{
+		MusicOwner->SetMusicSuppressed(bPause);
+	}
+
 	for (TActorIterator<AAmbientSound> It(World); It; ++It)
 	{
 		UAudioComponent* Audio = It->GetAudioComponent();
@@ -191,7 +265,7 @@ void ULoop9GameSettingsSubsystem::ApplyLevelAmbienceSuppressState(UWorld* World)
 				Audio->Stop();
 			}
 		}
-		else if (!Audio->IsPlaying())
+		else if (!Audio->IsPlaying() && !(MusicOwner && IsMusicAmbience(Audio)))
 		{
 			Audio->Play();
 		}
@@ -238,9 +312,14 @@ void ULoop9GameSettingsSubsystem::SetAmbientVolume(float Volume)
 
 	if (UWorld* World = ResolveAudioWorld())
 	{
-		if (AMainMenuGameMode* MainMenu = Cast<AMainMenuGameMode>(World->GetAuthGameMode()))
+		AGameModeBase* GameMode = World->GetAuthGameMode();
+		if (AMainMenuGameMode* MainMenu = Cast<AMainMenuGameMode>(GameMode))
 		{
 			MainMenu->ApplyAmbientVolume(AmbientVolume);
+		}
+		else if (ALoop9GameMode* Gameplay = Cast<ALoop9GameMode>(GameMode))
+		{
+			Gameplay->ApplyAmbientVolume(AmbientVolume);
 		}
 	}
 

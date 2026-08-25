@@ -108,6 +108,17 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 	return true;
 }
 
+void UPursuerAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// The base class does not restore anomaly state on EndPlay, so a pursuer torn
+	// down while still active used to leave the ambience suppression count above
+	// zero. A loop reset does not reload the world, so that left the floor silent
+	// for the rest of the session.
+	StopTensionMusic();
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void UPursuerAnomalyComponent::RestoreNormalState()
 {
 	StopTensionMusic();
@@ -146,7 +157,9 @@ void UPursuerAnomalyComponent::StartTensionMusic()
 			nullptr,
 			TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound.HorrorAmbientSound"));
 	}
-	if (bReplaceLevelAmbience && GetWorld())
+	// Guarded because the count is shared: suppressing twice without an
+	// intervening stop would leave the floor silent after the chase ended.
+	if (bReplaceLevelAmbience && !bAmbienceSuppressed && GetWorld())
 	{
 		if (UGameInstance* GI = GetWorld()->GetGameInstance())
 		{

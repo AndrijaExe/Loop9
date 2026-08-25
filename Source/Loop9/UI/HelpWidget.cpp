@@ -175,20 +175,21 @@ void UHelpWidget::RefreshSections()
 			"against what you learn here."));
 
 	AddSection(VB_Sections,
-		LOCTEXT("HelpAnomalyHeading", "WHAT COUNTS AS AN ANOMALY"),
+		LOCTEXT("HelpAnomalyHeading", "WHAT DOES NOT COUNT AS AN ANOMALY"),
 		LOCTEXT("HelpAnomalyBody",
-			"An anomaly is any single thing the office would not do on its own. An object that is missing. An object "
-			"standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop "
-			"flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound "
-			"with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, "
-			"rarely, something on the floor with you."));
+			"An anomaly is something the office would not do on its own, and the floor is full of things that look "
+			"wrong without being wrong. The loop number on your screen counts up every loop because that is what a "
+			"counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not "
+			"evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot "
+			"tell whether something belongs, the first loop already answered it: if it was there on loop one, it "
+			"belongs."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("HelpElevatorHeading", "THE TWO ELEVATORS"),
 		LOCTEXT("HelpElevatorBody",
 			"This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is "
 			"clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the "
-			"beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."));
+			"beginning. Reach loop 9 to end your shift and find out which ending you get."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("HelpPhoneHeading", "THE PHONE"),

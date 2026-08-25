@@ -1,15 +1,27 @@
 # Polish pass — šta ostaje u editoru
 
-Poslednje ažuriranje: **24.08.2026.**
+Poslednje ažuriranje: **25.08.2026.**
 
 C++ deo polish prolaza je odrađen i kompajlira se sam. Ono što je trebalo
 u editoru (Move, materijali, atenuacija, Help/Archive dugmad, figura u meniju,
-`IA_Flashlight`) je odrađeno. Gather Text je pokrenut 24.08.2026. Ostaje QA
-u igri i opciono klik lampe.
+`IA_Flashlight`) je odrađeno. Ostaju dva uvoza zvuka, Compile Text i QA u igri.
 
 Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti · `[x]` gotovo
 
 ---
+
+## 0. Uvoz zvuka i lokalizacija (obavezno, novo 25.08.2026.)
+
+- [ ] Uvezi `Content/MyStuff/Sound/UI/TypewriterKey.wav` kao `SoundWave`
+  (`/Game/MyStuff/Sound/UI/TypewriterKey`). To je kucanje na endinzima. Bez uvoza
+  tekst se i dalje iskucava, samo nema zvuka — `EndingWidget` je otporan na
+  nedostajući asset. Preporuka: **Sound Class = `SC_SFX`**, ne `SC_Music`, da ne
+  ide kroz ambient slider.
+- [ ] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` ako još nisu uvezeni
+  (`DoorOpen`, `DoorClose`, `DoorLocked`, `DoorBlocked`). U repo-u su samo `.wav`
+  fajlovi, bez `.uasset`, pa proveri da li `ADoorInteractable` nalazi zvuke.
+- [ ] Pokreni **Gather Text** pa **Compile Text**. Bez toga izmene Help teksta i
+  novi `SKIP` label rade samo na engleskom, jer igra čita `.locres`, ne `.po`.
 
 ## 1. Move anomalije — spawn pointovi (obavezno)
 
@@ -67,21 +79,15 @@ spot light je napravljen u C++ i zakačen na kameru.
 ## 5. Help ekran
 
 Dugme **HELP** je pravi widget u `WBP_MainMenu` (redosled: Play, Settings,
-Archive, Help, Quit). C++ `EnsureHelpButton()` se više ne klonira u runtime-u
-jer `GetWidgetFromName("Help")` nalazi dugme. Tekst je lokalizovan i pisan u C++.
+Archive, Help, Quit). Tekst je lokalizovan i pisan u C++.
 
-- [x] Pokreni meni i proveri da HELP stoji iznad QUIT i da se BACK vraća u meni.
 - [x] Pravo dugme imena `Help` (i `Archive`) postoji u `WBP_MainMenu`.
+- [x] Sekcija o anomalijama je 25.08.2026. preokrenuta: sada piše **šta se NE
+  računa** kao anomalija, uključujući brojač petlje, mrak, tvoju lampu, Dragojlov
+  poziv i to što je jedan lift osvetljen. Stara lista devet tipova je izbačena.
 - [ ] Ako želiš slike u Help ekranu: napravi WBP dete od `HelpWidget`, bindaj
   `VB_Sections` i postavi ga na **UI > Help Widget Class** na meniju. C++ i dalje
   ubacuje tekst, ti dodaješ vizual oko njega.
-- [x] **Lokalizacija** je odrađena: svih 14 `Loop9Help,*` ključeva plus
-  `Loop9Menu,Help` prevedeni su za `sr`, `de`, `fr`, `ru` i upisani direktno u
-  PO fajlove. `msgid` je proveren znak po znak prema C++ izvoru, pa GatherText
-  treba da ih prepozna i sačuva `msgstr`.
-- [x] Ipak pokreni **Gather Text** pa **Compile Text** i posle toga potvrdi da
-  prevodi nisu ispali. Ako neki `msgstr` postane prazan, znači da se `msgid`
-  razlikuje — u tom slučaju je najlakše prekopirati tekst iz `en/Game.po`.
 
 ## 6. Dragojlo na main menu-u
 
@@ -94,6 +100,19 @@ Flicker i dalje živi u level Blueprintu mape `MainMenu` (`ScheduleFlicker` /
 (tag `MenuCamera`). C++ helper ostaje kao Pure funkcija ako ikad zatreba,
 ali trenutni look je hardcoded spawn.
 
+## 7. Muzika u nivou — vlasnik se promenio (novo 25.08.2026.)
+
+Muziku na spratu sada pušta `ALoop9GameMode` kao **2D** zvuk, isto kao što meni
+pušta svoju. Postavljeni `AmbientSound_0` u `FullOfficeMap` se pri startu **utiša
+namerno**, da se `HorrorAmbience1` ne bi svirao dva puta.
+
+- [ ] Slobodno obriši `AmbientSound_0` iz `FullOfficeMap`. Nije obavezno — kod ga
+  gasi sam — ali mapa je jasnija bez njega.
+- [ ] Ako želiš drugi track ili drugu jačinu: **BP_Loop9GameMode > Audio > Level
+  Music Sound / Level Music Volume**. Default je `HorrorAmbience1` na 0.35.
+- [ ] Ostali `AmbientSound` akteri koji **nisu** na `SC_Music` se ne diraju, i
+  dalje ih subsystem pokreće ako ne krenu sami.
+
 ---
 
 ## QA prolaz posle svega
@@ -104,8 +123,18 @@ ali trenutni look je hardcoded spawn.
   Pursuer osetno ređe.
 - [ ] Nijedna aktivna anomalija ne sme biti nevidljiva. Ako se to opet desi,
   `AnomalyList` u konzoli pokazuje šta je aktivno na tom spratu.
-- [ ] Background muzika radi **bez** ulaska u settings menu. Ovo je bio bug: mix se
-  smatrao primenjenim i kad audio device još nije bio spreman, pa je ulazak u
-  settings bio jedini način da se ponovo primeni.
+- [ ] Background muzika radi **od ulaska u nivo**, bez ulaska u settings menu.
+  Ako ne radi, otvori konzolu i pokreni **`AudioStatus`** — ispisaće da li postoji
+  audio device, koje su jačine, da li muzički bed svira i šta je sa svakim
+  `AmbientSound` akterom u mapi. Pošalji mi taj ispis, to je dovoljno da se vidi
+  gde je stalo.
+- [ ] Posle jedne Pursuer anomalije muzika se **vrati** kad Dragojlo nestane. Ovo
+  je bio bug: brojač utišavanja nije padao na nulu kad se komponenta uništi, a
+  reset petlje ne učitava novi svet, pa je sprat ostajao tih do kraja sesije.
 - [ ] Zvuk treperenja se čuje samo blizu tog svetla, ne kroz celu mapu.
 - [ ] `F` gasi i pali lampu, i ne radi tokom pauze i inspekcije objekta.
+- [ ] Zaključana vrata: čuje se `DoorLocked`/`DoorBlocked` **i** vrata se blago
+  zatresu (2°, 0.35 s). Otvaranje i zatvaranje imaju različite zvuke.
+- [ ] Ending ekran: tekst se iskucava (~20 znakova/s) sa zvukom tastera i povremenom
+  greškom koju "ispravi". Dugme piše **SKIP** dok kuca, pa se vrati na **Return to
+  Main Menu**. Prvi klik na SKIP dopuni tekst, ne izbaci te u meni.

@@ -99,9 +99,16 @@ Behind** (`bIsBlocked`) i isključi **Locked**. Prompt je
 `Blocked by something behind` / sr `Nešto blokira s druge strane`. DoorLock
 anomalija preskače blocked vrata.
 
+Uz zvuk, vrata se i **zatresu** kad ne mogu da se otvore: kratak šut oko rest
+rotacije, amplituda opada da se ne zaustavi u pola trzaja. Po instanci u
+kategoriji `Door|Rattle`.
+
 - [x] **Locked Sound** — `Sound/Doors/DoorLocked` (C++ default)
 - [x] **Blocked Sound** — `Sound/Doors/DoorBlocked` (C++ default)
 - [x] **Open / Close Sound** — `Sound/Doors/DoorOpen` i `DoorClose` (C++ default)
+- [x] **Rattle** — C++ defaulti su `Rattle Angle Deg` = 2.0,
+  `Rattle Duration Seconds` = 0.35, `Rattle Shakes Per Second` = 13.
+  Isključi preko `bRattleWhenDenied` ako neka vrata ne smeju da se pomeraju.
 - [ ] Import WAV → uasset u editoru pre sledećeg Shipping cooka
 - [ ] Na odskrinutim vratima: `bIsBlocked = true`, `bIsLocked = false`
 
@@ -128,6 +135,30 @@ igrač ne gleda u njega.
   Lift je ~13.5–17 m od oba aparata, pa ring više nije čujan iz kabine; moraš
   ući u kancelariju. Occlusion + LPF su uključeni da zidovi dodatno uguše.
   Isti asset je C++ default na `AudioAnomalyComponent`.
+
+## Ending typing (`EndingWidget` class defaults, `Ending|Typing`)
+
+Zadnji red na ending ekranu se iskucava kao da ga Dragojlo piše, kroz isti
+`FTypewriterHelper` koji koristi replacement terminal.
+
+- [x] **Typing Sound** — `Sound/UI/TypewriterKey` (C++ default, generisan u
+  `Tools/make_typewriter_key.py`). Pitch se randomizuje 0.92–1.08 po znaku, pa
+  jedan clip ne zvuči kao mitraljez. Posle importa: **Looping = false**,
+  **Sound Class = `SC_SFX`** (ne `SC_Music`, da ne ide kroz ambient slider).
+- [x] **Typing Characters Per Second** = 20, **Typing Typo Probability** = 0.02
+  (povremeno omaši slovo pa ga ispravi), **Typing Sound Volume** = 0.55.
+- [ ] Ako `TypewriterKey` nije uvezen: tekst se i dalje iskucava, samo bez zvuka.
+
+## Level music (`BP_Loop9GameMode > Audio`)
+
+Muziku na spratu pušta game mode kao 2D zvuk, a ne `AAmbientSound` u mapi.
+Postavljeni `AmbientSound_0` na `SC_Music` se pri startu utiša da se track ne
+duplira; ostali ambient akteri se ne diraju.
+
+- [x] **Level Music Sound** — `Sound/Ambient/HorrorAmbience1` (C++ default)
+- [x] **Level Music Volume** = 0.35, množi se ambient sliderom
+- [ ] QA: muzika radi od ulaska u nivo, bez otvaranja settings menija. Ako ne
+  radi, `AudioStatus` u konzoli ispisuje device / jačine / bed / ambient aktere.
 
 ## Main menu (`BP_MainMenuGameMode` ili MainMenu mapa)
 

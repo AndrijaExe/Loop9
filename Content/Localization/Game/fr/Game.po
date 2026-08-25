@@ -825,6 +825,13 @@ msgctxt "Loop9Endings,ParanoidSurvivorDesc"
 msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
 msgstr "Tu t'es échappé seul en ne faisant confiance à personne. Cela t'a peut-être sauvé. Cela t'a peut-être coûté la vérité."
 
+#. Key:	SkipTypingLabel
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.h(79)
+#: Source/Loop9/UI/EndingWidget.h(79)
+msgctxt "Loop9Endings,SkipTypingLabel"
+msgid "SKIP"
+msgstr "PASSER"
+
 #. Key:	ContinueButtonLabel
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.h(56)
 #: Source/Loop9/UI/EndingWidget.h(56)
@@ -864,15 +871,15 @@ msgstr "Rien n'est jamais anormal dans la première boucle. Profitez-en. Parcour
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(178)
 #: Source/Loop9/UI/HelpWidget.cpp(178)
 msgctxt "Loop9Help,HelpAnomalyHeading"
-msgid "WHAT COUNTS AS AN ANOMALY"
-msgstr "CE QUI COMPTE COMME ANOMALIE"
+msgid "WHAT DOES NOT COUNT AS AN ANOMALY"
+msgstr "CE QUI NE COMPTE PAS COMME ANOMALIE"
 
 #. Key:	HelpAnomalyBody
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(179)
 #: Source/Loop9/UI/HelpWidget.cpp(179)
 msgctxt "Loop9Help,HelpAnomalyBody"
-msgid "An anomaly is any single thing the office would not do on its own. An object that is missing. An object standing somewhere it never stood. A poster or a screen whose text has changed. A light that will not stop flickering, and that you can hear from down the corridor. A door that is locked when it never was. A sound with nothing making it. Something that is the wrong size. A message on your phone that nobody sent. And, rarely, something on the floor with you."
-msgstr "Une anomalie est tout ce que le bureau ne ferait pas de lui-même. Un objet qui manque. Un objet posé là où il n'a jamais été. Une affiche ou un écran dont le texte a changé. Une lampe qui n'arrête pas de clignoter, et que vous entendez depuis le fond du couloir. Une porte verrouillée alors qu'elle ne l'a jamais été. Un son que rien ne produit. Quelque chose de la mauvaise taille. Un message sur votre téléphone que personne n'a envoyé. Et, rarement, quelque chose qui est à l'étage avec vous."
+msgid "An anomaly is something the office would not do on its own, and the floor is full of things that look wrong without being wrong. The loop number on your screen counts up every loop because that is what a counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot tell whether something belongs, the first loop already answered it: if it was there on loop one, it belongs."
+msgstr "Une anomalie est quelque chose que le bureau ne ferait pas de lui-même, et l'étage est plein de choses qui semblent anormales sans l'être. Le numéro de boucle affiché à l'écran augmente à chaque boucle parce que c'est le rôle d'un compteur ; il n'est jamais l'anomalie. Le bureau est toujours aussi sombre, et ta propre lampe torche n'est pas une preuve. Que Dragojlo t'appelle est normal. Qu'un ascenseur soit éclairé et l'autre sombre l'est aussi. Si tu n'arrives pas à dire si quelque chose est à sa place, la première boucle a déjà répondu : si c'était là à la boucle un, c'est à sa place."
 
 #. Key:	HelpElevatorHeading
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(187)
@@ -885,8 +892,8 @@ msgstr "LES DEUX ASCENSEURS"
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
 #: Source/Loop9/UI/HelpWidget.cpp(188)
 msgctxt "Loop9Help,HelpElevatorBody"
-msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reaching loop 9 ends your shift, and how you got there decides which ending you get."
-msgstr "C'est tout le jeu, alors lisez deux fois. Si vous avez trouvé une anomalie, prenez l'ascenseur ÉCLAIRÉ. Si l'étage est propre, prenez le SOMBRE. Juste, et vous montez d'une boucle. Faux, et vous repartez du début. La boucle 9 met fin à votre quart, et la manière dont vous y êtes arrivé décide de la fin que vous obtenez."
+msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reach loop 9 to end your shift and find out which ending you get."
+msgstr "C'est tout le jeu, alors lis-le deux fois. Si tu as trouvé une anomalie, prends l'ascenseur ÉCLAIRÉ. Si l'étage est propre, prends l'ascenseur SOMBRE. Si tu as raison, tu montes d'une boucle. Si tu te trompes, tu repars du début. Atteins la boucle 9 pour terminer ton service et découvrir quelle fin tu obtiens."
 
 #. Key:	HelpPhoneHeading
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(194)

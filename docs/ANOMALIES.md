@@ -125,6 +125,7 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyMaterial` | Force every MaterialSwap anomaly |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
+| `AudioStatus` | Report why the floor is silent: audio device, volumes, music bed, placed ambience |
 | `AnomalyHelp` | Print usage |
 
 These are **tilde console** commands in PIE / Standalone / Development. They are compiled out of Shipping.

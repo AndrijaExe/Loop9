@@ -56,6 +56,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	TObjectPtr<class USoundBase> OpenCloseSound = nullptr;
 
+	/** Shudder the door in its frame when the handle will not turn. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle")
+	bool bRattleWhenDenied = true;
+
+	/** Peak yaw of the shudder. A couple of degrees reads as a door held shut. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle", meta = (ClampMin = "0.0", ClampMax = "15.0"))
+	float RattleAngleDeg = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle", meta = (ClampMin = "0.05"))
+	float RattleDurationSeconds = 0.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Rattle", meta = (ClampMin = "1.0"))
+	float RattleShakesPerSecond = 13.0f;
+
 	UFUNCTION(BlueprintCallable, Category = "Door")
 	bool Interact();
 
@@ -83,8 +97,12 @@ private:
 	FRotator OpenRelativeRotation = FRotator::ZeroRotator;
 	FRotator TargetRelativeRotation = FRotator::ZeroRotator;
 
+	float RattleTimeRemaining = 0.0f;
+
 	void PlayDoorSound(USoundBase* SoundToPlay);
 	USoundBase* ResolveOpenSound() const;
 	USoundBase* ResolveCloseSound() const;
 	USoundBase* ResolveDeniedSound() const;
+	void StartRattle();
+	void TickRattle(float DeltaSeconds);
 };

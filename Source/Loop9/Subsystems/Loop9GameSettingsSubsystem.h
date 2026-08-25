@@ -111,6 +111,12 @@ private:
 	void EnsureLevelAmbienceIsPlaying(UWorld* World) const;
 	void ApplyLevelAmbienceSuppressState(UWorld* World) const;
 
+	/** True when the loop is routed through the sound class the ambient slider drives. */
+	bool IsMusicAmbience(const class UAudioComponent* Audio) const;
+
+	/** The gameplay game mode, but only when it is playing the music bed itself. */
+	class ALoop9GameMode* ResolveMusicOwningGameMode(UWorld* World) const;
+
 	void SchedulePersistence();
 	bool HandlePersistenceTicker(float DeltaSeconds);
 
@@ -152,4 +158,5 @@ private:
 	FTSTicker::FDelegateHandle AudioBootstrapTickerHandle;
 	bool bSettingsDirty = false;
 	int32 LevelAmbienceSuppressCount = 0;
+	int32 AudioBootstrapAttemptsLeft = 0;
 };

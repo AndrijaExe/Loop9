@@ -7,11 +7,18 @@
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
+#include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "HorrorCharacter.h"
 #include "HorrorUI.h"
+#include "AudioDevice.h"
+#include "Components/AudioComponent.h"
 #include "Engine/GameInstance.h"
+#include "EngineUtils.h"
 #include "Loop/LoopTypes.h"
+#include "Loop9GameMode.h"
+#include "Sound/AmbientSound.h"
+#include "Sound/SoundBase.h"
 
 ALoop9PlayerController::ALoop9PlayerController()
 {
@@ -265,7 +272,55 @@ void ALoop9PlayerController::AnomalyHelp()
 		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
+		"  AudioStatus                         - report why the floor is silent\n"
 		"  AnomalyHelp                         - this message"));
+#endif
+}
+
+void ALoop9PlayerController::AudioStatus()
+{
+#if !UE_BUILD_SHIPPING
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	const ULoop9GameSettingsSubsystem* Settings = nullptr;
+	if (const UGameInstance* GameInstance = GetGameInstance())
+	{
+		Settings = GameInstance->GetSubsystem<ULoop9GameSettingsSubsystem>();
+	}
+
+	UE_LOG(LogLoop9, Log, TEXT("Audio status: device=%s master=%.2f ambient=%.2f"),
+		World->GetAudioDeviceRaw() ? TEXT("yes") : TEXT("NO"),
+		Settings ? Settings->GetMasterVolume() : -1.0f,
+		Settings ? Settings->GetAmbientVolume() : -1.0f);
+
+	if (const ALoop9GameMode* GameMode = Cast<ALoop9GameMode>(World->GetAuthGameMode()))
+	{
+		UE_LOG(LogLoop9, Log, TEXT("  music bed: sound=%s volume=%.2f playing=%s"),
+			GameMode->LevelMusicSound ? *GameMode->LevelMusicSound->GetName() : TEXT("NONE"),
+			GameMode->LevelMusicVolume,
+			GameMode->IsLevelMusicPlaying() ? TEXT("yes") : TEXT("NO"));
+	}
+	else
+	{
+		UE_LOG(LogLoop9, Log, TEXT("  music bed: game mode is not ALoop9GameMode"));
+	}
+
+	int32 AmbientCount = 0;
+	for (TActorIterator<AAmbientSound> It(World); It; ++It)
+	{
+		++AmbientCount;
+		const UAudioComponent* Audio = It->GetAudioComponent();
+		UE_LOG(LogLoop9, Log, TEXT("  ambient '%s': sound=%s playing=%s"),
+			*It->GetActorNameOrLabel(),
+			(Audio && Audio->Sound) ? *Audio->Sound->GetName() : TEXT("NONE"),
+			(Audio && Audio->IsPlaying()) ? TEXT("yes") : TEXT("no"));
+	}
+
+	UE_LOG(LogLoop9, Log, TEXT("  %d AmbientSound actor(s) placed in the map"), AmbientCount);
 #endif
 }
 

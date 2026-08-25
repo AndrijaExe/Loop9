@@ -84,7 +84,18 @@ void ADoorInteractable::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!bIsMoving || !DoorMesh)
+	if (!DoorMesh)
+	{
+		return;
+	}
+
+	if (RattleTimeRemaining > 0.0f)
+	{
+		TickRattle(DeltaSeconds);
+		return;
+	}
+
+	if (!bIsMoving)
 	{
 		return;
 	}
@@ -106,6 +117,7 @@ bool ADoorInteractable::Interact()
 	if (bIsBlocked || bIsLocked)
 	{
 		PlayDoorSound(ResolveDeniedSound());
+		StartRattle();
 		return false;
 	}
 
@@ -182,6 +194,42 @@ USoundBase* ADoorInteractable::ResolveCloseSound() const
 		return CloseSound.Get();
 	}
 	return ResolveOpenSound();
+}
+
+void ADoorInteractable::StartRattle()
+{
+	// Swinging and shuddering at once would fight over the same rotation, and a
+	// door that is mid-swing is not the one refusing to open.
+	if (!bRattleWhenDenied || !DoorMesh || bIsMoving || RattleAngleDeg <= 0.0f)
+	{
+		return;
+	}
+
+	RattleTimeRemaining = RattleDurationSeconds;
+	SetActorTickEnabled(true);
+}
+
+void ADoorInteractable::TickRattle(float DeltaSeconds)
+{
+	RattleTimeRemaining = FMath::Max(0.0f, RattleTimeRemaining - DeltaSeconds);
+
+	if (RattleTimeRemaining <= 0.0f)
+	{
+		DoorMesh->SetRelativeRotation(ClosedRelativeRotation);
+		if (!bIsMoving)
+		{
+			SetActorTickEnabled(false);
+		}
+		return;
+	}
+
+	// Amplitude falls off with the remaining time so the door settles instead of
+	// stopping mid-shudder.
+	const float Remaining = RattleTimeRemaining / FMath::Max(RattleDurationSeconds, KINDA_SMALL_NUMBER);
+	const float Elapsed = RattleDurationSeconds - RattleTimeRemaining;
+	const float Offset = FMath::Sin(Elapsed * RattleShakesPerSecond * 2.0f * PI) * RattleAngleDeg * Remaining;
+
+	DoorMesh->SetRelativeRotation(ClosedRelativeRotation + FRotator(0.0f, Offset, 0.0f));
 }
 
 USoundBase* ADoorInteractable::ResolveDeniedSound() const

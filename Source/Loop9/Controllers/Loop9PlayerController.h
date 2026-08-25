@@ -107,6 +107,14 @@ public:
 	void AnomalyHelp();
 
 	/**
+	 * Report why the floor is or is not making sound: audio device, volumes, the
+	 * music bed, and every ambient loop placed in the map. Cheaper than another
+	 * round of guessing when the level goes silent.
+	 */
+	UFUNCTION(Exec)
+	void AudioStatus();
+
+	/**
 	 * Debug: set loop 9 + relationship state for an ending, then press ADVANCE.
 	 * Examples: EndingSetup EscapeTogether | EndingSetup 0 | EndingSetup Help
 	 */

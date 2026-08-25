@@ -16,7 +16,11 @@
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Engine/Texture2D.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "Styling/CoreStyle.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 #define LOCTEXT_NAMESPACE "Loop9Endings"
@@ -42,6 +46,13 @@ UEndingWidget::UEndingWidget(const FObjectInitializer& ObjectInitializer)
 	{
 		EndingIcon = EndingFinder.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> KeyFinder(
+		TEXT("/Game/MyStuff/Sound/UI/TypewriterKey"));
+	if (KeyFinder.Succeeded())
+	{
+		TypingSound = KeyFinder.Object;
+	}
 }
 
 void UEndingWidget::NativeConstruct()
@@ -50,10 +61,17 @@ void UEndingWidget::NativeConstruct()
 	BuildFallbackLayoutIfNeeded();
 	BindContinueButton();
 	RefreshBoundWidgets();
+
+	// InitializeEnding usually runs before the widget reaches the viewport, so
+	// start here too: the line should begin arriving when the screen appears, and
+	// this is also the first point at which a C++ fallback layout has a text block.
+	StartTyping();
 }
 
 void UEndingWidget::NativeDestruct()
 {
+	StopTypingTimer();
+
 	if (FallbackContinueButton)
 	{
 		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UEndingWidget::HandleContinueClicked);
@@ -103,6 +121,7 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
 
 	RefreshBoundWidgets();
+	StartTyping();
 	BP_OnEndingInitialized(EndingType);
 }
 
@@ -113,7 +132,130 @@ void UEndingWidget::RequestContinue()
 
 void UEndingWidget::HandleContinueClicked()
 {
+	// While the line is still arriving the button reads SKIP, so honour that
+	// rather than throwing the player back to the menu mid-sentence.
+	if (bIsTyping)
+	{
+		FinishTyping();
+		return;
+	}
+
 	RequestContinue();
+}
+
+void UEndingWidget::StartTyping()
+{
+	StopTypingTimer();
+	FullDescription = EndingDescription.ToString();
+
+	UWorld* World = GetWorld();
+	const bool bCanType = bTypeOutDescription && TB_Description && World && !FullDescription.IsEmpty();
+	if (!bCanType)
+	{
+		bIsTyping = false;
+		TypedDescription = FullDescription;
+		ApplyDescriptionText();
+		RefreshContinueButtonLabel();
+		return;
+	}
+
+	// Same helper the replacement terminal and the phone use, so Dragojlo types
+	// the same way here as he does everywhere else, typos and all.
+	const float Duration = FullDescription.Len() / FMath::Max(TypingCharactersPerSecond, 1.0f);
+	FTypewriterHelper::Begin(TypingState, FullDescription, Duration, TypingTypoProbability);
+
+	TypedDescription.Empty();
+	bIsTyping = true;
+
+	ApplyDescriptionText();
+	RefreshContinueButtonLabel();
+	TypeNextCharacter();
+}
+
+void UEndingWidget::StopTypingTimer()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TypingTimerHandle);
+	}
+	TypingTimerHandle.Invalidate();
+}
+
+void UEndingWidget::TypeNextCharacter()
+{
+	UWorld* World = GetWorld();
+	if (!bIsTyping || !World)
+	{
+		return;
+	}
+
+	bool bPlayTypingSound = false;
+	const float NextDelay = FTypewriterHelper::Step(TypingState, TypedDescription, bPlayTypingSound);
+
+	ApplyDescriptionText();
+
+	if (bPlayTypingSound && TypingSound)
+	{
+		UGameplayStatics::PlaySound2D(
+			this,
+			TypingSound,
+			TypingSoundVolume,
+			FMath::FRandRange(0.92f, 1.08f));
+	}
+
+	if (TypingState.bFinished)
+	{
+		FinishTyping();
+		return;
+	}
+
+	World->GetTimerManager().SetTimer(
+		TypingTimerHandle, this, &UEndingWidget::TypeNextCharacter, NextDelay, /*bLoop*/ false);
+}
+
+void UEndingWidget::FinishTyping()
+{
+	if (!bIsTyping)
+	{
+		return;
+	}
+
+	StopTypingTimer();
+	bIsTyping = false;
+	TypedDescription = FullDescription;
+	ApplyDescriptionText();
+	RefreshContinueButtonLabel();
+}
+
+void UEndingWidget::ApplyDescriptionText()
+{
+	if (!TB_Description)
+	{
+		return;
+	}
+
+	// Trailing caret while typing, so a half-finished line reads as someone still
+	// at the keyboard rather than as text that got cut off.
+	TB_Description->SetText(FText::FromString(
+		bIsTyping ? TypedDescription + TEXT("_") : FullDescription));
+}
+
+void UEndingWidget::RefreshContinueButtonLabel()
+{
+	const FText Label = bIsTyping ? SkipTypingButtonLabel : ContinueButtonLabel;
+
+	if (BT_Continue)
+	{
+		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, Label);
+	}
+
+	if (FallbackContinueButton)
+	{
+		if (UTextBlock* LabelText = Cast<UTextBlock>(FallbackContinueButton->GetChildAt(0)))
+		{
+			LabelText->SetText(Label);
+		}
+	}
 }
 
 void UEndingWidget::RefreshBoundWidgets()
@@ -125,7 +267,13 @@ void UEndingWidget::RefreshBoundWidgets()
 
 	if (TB_Description)
 	{
-		TB_Description->SetText(EndingDescription);
+		if (!bIsTyping)
+		{
+			FullDescription = EndingDescription.ToString();
+			TypedDescription = FullDescription;
+		}
+		ApplyDescriptionText();
+
 		TB_Description->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		TB_Description->SetRenderOpacity(1.0f);
 		TB_Description->SetAutoWrapText(true);
@@ -420,7 +568,6 @@ void UEndingWidget::BindContinueButton()
 			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UEndingWidget, HandleContinueClicked));
 		FLoop9WidgetClickBinder::BindClicked(
 			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UEndingWidget, HandleContinueClicked));
-		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, ContinueButtonLabel);
 		BT_Continue->SetVisibility(ESlateVisibility::Visible);
 	}
 
@@ -430,6 +577,10 @@ void UEndingWidget::BindContinueButton()
 		FallbackContinueButton->OnClicked.AddDynamic(this, &UEndingWidget::HandleContinueClicked);
 		FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
 	}
+
+	// After binding, not before: InitializeEnding can run ahead of NativeConstruct,
+	// and the label has to agree with whether the line is still typing.
+	RefreshContinueButtonLabel();
 }
 
 #undef LOCTEXT_NAMESPACE
