@@ -154,6 +154,27 @@ namespace Loop9RuntimePolicies
 		return !AchievementId.IsEmpty() && SeenAchievementIds.Contains(AchievementId);
 	}
 
+	/**
+	 * Folds Additions into Values, keeping order and skipping duplicates and
+	 * empties. Returns true when anything was actually added, so the caller
+	 * knows whether the merged list is worth writing back to disk.
+	 */
+	inline bool AddMissingValues(TArray<FString>& Values, const TArray<FString>& Additions)
+	{
+		bool bChanged = false;
+
+		for (const FString& Addition : Additions)
+		{
+			if (!Addition.IsEmpty() && !Values.Contains(Addition))
+			{
+				Values.Add(Addition);
+				bChanged = true;
+			}
+		}
+
+		return bChanged;
+	}
+
 	inline bool ShouldKeepSprintTimerActive(
 		bool bSprinting,
 		bool bRecovering,

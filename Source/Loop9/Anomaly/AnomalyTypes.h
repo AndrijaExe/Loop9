@@ -17,6 +17,21 @@ enum class ELoopAnomalyType : uint8
 	PhantomMessage UMETA(DisplayName = "Phantom Message"),
 };
 
+inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
+{
+	return {
+		ELoopAnomalyType::Hide,
+		ELoopAnomalyType::Move,
+		ELoopAnomalyType::Light,
+		ELoopAnomalyType::Audio,
+		ELoopAnomalyType::Text,
+		ELoopAnomalyType::DoorLock,
+		ELoopAnomalyType::Pursuer,
+		ELoopAnomalyType::Scale,
+		ELoopAnomalyType::PhantomMessage,
+	};
+}
+
 inline FName GetLoopAnomalyTypeLabel(ELoopAnomalyType Type)
 {
 	switch (Type)

@@ -1,5 +1,6 @@
 #include "Subsystems/Loop9AchievementsSubsystem.h"
 
+#include "Anomaly/AnomalyTypes.h"
 #include "Misc/ConfigCacheIni.h"
 #include "OnlineSubsystem.h"
 #include "OnlineStats.h"
@@ -30,6 +31,41 @@ namespace
 		}
 
 		return nullptr;
+	}
+
+	/** Ending achievements against the value SeenEndings stores for each. */
+	TMap<FName, FString> EndingAchievementRecord()
+	{
+		TMap<FName, FString> Record;
+
+		for (const ELoopEndingType EndingType : Loop9RuntimePolicies::AllEndingTypes())
+		{
+			const FName AchievementId = ULoop9AchievementsSubsystem::EndingAchievementId(EndingType);
+			if (!AchievementId.IsNone())
+			{
+				Record.Add(AchievementId, AchievementId.ToString());
+			}
+		}
+
+		return Record;
+	}
+
+	/** Spot achievements against the anomaly label SpottedAnomalies stores. */
+	TMap<FName, FString> SpotAchievementRecord()
+	{
+		TMap<FName, FString> Record;
+
+		for (const ELoopAnomalyType AnomalyType : AllLoopAnomalyTypes())
+		{
+			const FString Label = GetLoopAnomalyTypeLabel(AnomalyType).ToString();
+			const FName AchievementId = ULoop9AchievementsSubsystem::SpotAchievementId(Label);
+			if (!AchievementId.IsNone())
+			{
+				Record.Add(AchievementId, Label);
+			}
+		}
+
+		return Record;
 	}
 
 	FUniqueNetIdPtr GetLocalPlayerId()
@@ -210,7 +246,7 @@ void ULoop9AchievementsSubsystem::NotifyRunRestarted()
 
 TArray<FString> ULoop9AchievementsSubsystem::GetSeenEndingIds() const
 {
-	return LoadPersistedList(SeenEndingsKey);
+	return MergeWithSteam(SeenEndingsKey, EndingAchievementRecord());
 }
 
 void ULoop9AchievementsSubsystem::RecordSeenEnding(ELoopEndingType EndingType)
@@ -221,7 +257,7 @@ void ULoop9AchievementsSubsystem::RecordSeenEnding(ELoopEndingType EndingType)
 		return;
 	}
 
-	TArray<FString> Seen = LoadPersistedList(SeenEndingsKey);
+	TArray<FString> Seen = MergeWithSteam(SeenEndingsKey, EndingAchievementRecord());
 	Seen.AddUnique(EndingId.ToString());
 	SavePersistedList(SeenEndingsKey, Seen);
 
@@ -241,7 +277,7 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 	TArray<FString> Labels;
 	AnomalyKey.ParseIntoArray(Labels, TEXT("|"), true);
 
-	TArray<FString> Spotted = LoadPersistedList(SpottedAnomaliesKey);
+	TArray<FString> Spotted = MergeWithSteam(SpottedAnomaliesKey, SpotAchievementRecord());
 	bool bChanged = Spotted.Remove(TEXT("ClockAnomaly")) > 0;
 
 	for (const FString& Label : Labels)
@@ -291,6 +327,32 @@ void ULoop9AchievementsSubsystem::SavePersistedList(const TCHAR* Key, const TArr
 {
 	GConfig->SetString(PersistSection, Key, *FString::Join(Values, TEXT(",")), GGameIni);
 	GConfig->Flush(false, GGameIni);
+}
+
+TArray<FString> ULoop9AchievementsSubsystem::MergeWithSteam(
+	const TCHAR* Key,
+	const TMap<FName, FString>& AchievementToValue) const
+{
+	TArray<FString> Values = LoadPersistedList(Key);
+
+	TArray<FName> Candidates;
+	AchievementToValue.GetKeys(Candidates);
+
+	TArray<FString> FromSteam;
+	for (const FName& AchievementId : FLoop9SteamUtils::UnlockedAchievements(Candidates))
+	{
+		if (const FString* Value = AchievementToValue.Find(AchievementId))
+		{
+			FromSteam.Add(*Value);
+		}
+	}
+
+	if (Loop9RuntimePolicies::AddMissingValues(Values, FromSteam))
+	{
+		SavePersistedList(Key, Values);
+	}
+
+	return Values;
 }
 
 void ULoop9AchievementsSubsystem::UnlockAchievement(FName AchievementId)

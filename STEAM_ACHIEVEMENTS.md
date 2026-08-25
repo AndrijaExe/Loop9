@@ -21,6 +21,12 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
 - Napredak koji se skuplja kroz više prolaza (viđeni endinzi, uočene anomalije)
   čuva se u `Saved/Config/.../Game.ini`, pa meta-achievementi rade i ako igrač
   restartuje igru.
+- Pri čitanju se ta lista **spaja sa onim što Steam već drži**. Šest
+  `ACH_ENDING_*` i devet `ACH_SPOT_*` govore istu stvar kao lokalni fajl, pa
+  arhiva i `ACH_SPOT_ALL` prežive izgubljen ili Cloudom pregažen `Game.ini`,
+  a i dalje rade offline i bez Steama, gde je fajl jedini izvor. Spojena
+  lista se odmah upiše natrag, tako da se fajl sam popravi.
+- Posledica: reset achievementa u Steamworksu prazni i arhivu.
 - Dodatne achievemente možeš okidati i iz Blueprinta:
   `Get Game Instance Subsystem (Loop9AchievementsSubsystem)` →
   `UnlockAchievement("ACH_NEKO_IME")`.
@@ -154,7 +160,8 @@ da ne pomešaš pri uploadu.
    `reset_all_stats <AppID>` (Steam klijent pokrenut sa `-console`).
 4. Za meta-achievemente (svi endinzi / sve anomalije) obriši i lokalni
    napredak: sekcija `[/Script/Loop9.Loop9AchievementsSubsystem]` u
-   `Saved/Config/<platforma>/Game.ini`.
+   `Saved/Config/<platforma>/Game.ini`. Obriši ga **posle** Steam reseta, jer
+   se lista pri čitanju dopunjava iz Steama i inače se odmah vrati.
 
 ### D. Checklist pre launcha
 

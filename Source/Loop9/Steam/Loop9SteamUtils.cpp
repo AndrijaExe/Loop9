@@ -85,3 +85,33 @@ bool FLoop9SteamUtils::UnlockAchievement(FName AchievementId)
 	return false;
 #endif
 }
+
+TArray<FName> FLoop9SteamUtils::UnlockedAchievements(const TArray<FName>& Candidates)
+{
+	TArray<FName> Unlocked;
+
+#if LOOP9_WITH_STEAM
+	if (SteamUserStats() == nullptr)
+	{
+		return Unlocked;
+	}
+
+	for (const FName& AchievementId : Candidates)
+	{
+		if (AchievementId.IsNone())
+		{
+			continue;
+		}
+
+		// GetAchievement returns false while Steam still lacks this user's
+		// stats, which is why a miss is never read as "not unlocked".
+		bool bAchieved = false;
+		if (SteamUserStats()->GetAchievement(TCHAR_TO_UTF8(*AchievementId.ToString()), &bAchieved) && bAchieved)
+		{
+			Unlocked.Add(AchievementId);
+		}
+	}
+#endif
+
+	return Unlocked;
+}

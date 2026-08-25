@@ -244,12 +244,13 @@ publish-ovane, ne samo sačuvane.
 
 ## 3. Steam achievements
 
-Dva odvojena spremišta. Nijedno **nije** namerno privremeno na playtestu.
+Dva spremišta, od 25.08.2026. spojena pri čitanju. Nijedno **nije** namerno
+privremeno na playtestu.
 
 | Šta vidiš | Gde živi | Treba da preživi restart? |
 |---|---|---|
 | Steam toast / overlay lista | Steam nalog, App ID `4982260` | Da. Isto pre i posle release-a, čim su Stats & Achievements publish-ovani. |
-| Archive / „koje endinge sam video“ | `%LOCALAPPDATA%/Loop9/Saved/Config/Windows/Game.ini` → `[/Script/Loop9.Loop9AchievementsSubsystem]` `SeenEndings` | Da. Novi run ih ne briše. Steam Cloud treba da ih prenese na drugi PC. |
+| Archive / „koje endinge sam video“ | `%LOCALAPPDATA%/Loop9/Saved/Config/Windows/Game.ini` → `[/Script/Loop9.Loop9AchievementsSubsystem]` `SeenEndings` | Da, i sada se dopunjava iz Steama. |
 
 Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
 
@@ -271,10 +272,16 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
   `Achievements: unlock ACH_FIRST_CALL -> OK` i toast treba da se pojavi.
   Obavezno iz Steam Library-ja — iz Explorera nema Steam sesije.
 
-Ako Archive zaboravi endinge, to je lokalni `Game.ini` (ili Cloud koji ga
-pregazi praznim fajlom), ne Steam. Archive je u v1.0.0 (ušao 22.08), pa se
-tamo može proveriti: `SeenEndings` se upisuje čak i kad Steam unlock padne,
-jer su to dva nezavisna zapisa.
+- [x] **Arhiva se sama popravlja (25.08.2026.):** `GetSeenEndingIds` i
+  `RecordSpottedAnomalies` više ne čitaju samo `Game.ini`, nego ga spajaju sa
+  onim što Steam drži za šest `ACH_ENDING_*` i devet `ACH_SPOT_*`. Isti podatak,
+  dva izvora: Steam preživi izgubljen ili Cloudom pregažen fajl, a fajl radi
+  offline i bez Steama, gde Steam ne vraća ništa. Promašaj sa Steama se nikad ne
+  čita kao „nije otključano“, pa nema lažnog brisanja. Spojena lista se upiše
+  natrag samo kad se dve razlikuju. Time Cloud prestaje da bude nosiva greda za
+  arhivu i za `ACH_SPOT_ALL`.
+- [ ] Provera: pusti jedan ending, obriši `SeenEndings` red iz `Game.ini`,
+  otvori Archive. Čvor treba da se vrati sa Steama i red da se ponovo upiše.
 
 - [x] Definisano svih **27** API imena tačno po
   `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`.
@@ -421,7 +428,9 @@ Polish smoke na **novom** Shipping buildu (v1.0.0 od 24.08 ne pokriva sve ovo):
   ili lokalizovanom greškom pre client timeouta od 65 s.
 - [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
 - [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save →
-  `SeenEndings` / `SpottedAnomalies` se vrate. Ovo je i persist QA iz §3.
+  `SeenEndings` / `SpottedAnomalies` se vrate. Ovo je i persist QA iz §3. Od
+  25.08. arhiva se ionako dopunjava iz Steama, pa Cloud više nije jedini put;
+  ako ovaj test padne, nije bloker koliko je bio.
 
 
 ### Platforma, UI i performanse

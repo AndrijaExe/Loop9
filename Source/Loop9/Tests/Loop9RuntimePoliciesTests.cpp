@@ -150,6 +150,31 @@ bool FLoop9ShiftArchivePolicyTest::RunTest(const FString&)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9MergePersistedValuesTest,
+	"Loop9.Runtime.Archive.MergeValues",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9MergePersistedValuesTest::RunTest(const FString&)
+{
+	TArray<FString> Values = { TEXT("ACH_ENDING_ESCAPE_TOGETHER") };
+
+	TestFalse(
+		TEXT("Nothing new leaves the list alone"),
+		Loop9RuntimePolicies::AddMissingValues(Values, { TEXT("ACH_ENDING_ESCAPE_TOGETHER") }));
+	TestEqual(TEXT("A duplicate is not stored twice"), Values.Num(), 1);
+
+	TestFalse(TEXT("Empty additions change nothing"), Loop9RuntimePolicies::AddMissingValues(Values, { TEXT("") }));
+
+	TestTrue(
+		TEXT("An ending only Steam knows is folded in"),
+		Loop9RuntimePolicies::AddMissingValues(Values, { TEXT("ACH_ENDING_MERGED_MEMORY") }));
+	TestEqual(TEXT("The recovered ending is kept"), Values.Num(), 2);
+	TestEqual(TEXT("Existing entries keep their order"), Values[0], FString(TEXT("ACH_ENDING_ESCAPE_TOGETHER")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FLoop9AnomalyDetailSelectionTest,
 	"Loop9.Runtime.Anomaly.DetailSelection",
 	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)

@@ -71,6 +71,15 @@ private:
 	TArray<FString> LoadPersistedList(const TCHAR* Key) const;
 	void SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const;
 
+	/**
+	 * The persisted list plus whatever Steam already holds, written back when the
+	 * two disagree. Steam is the only copy that survives a lost or cloud-clobbered
+	 * Game.ini; the file is the only one that works offline and without Steam, so
+	 * neither is trusted alone. AchievementToValue maps each achievement to the
+	 * string this list stores for it.
+	 */
+	TArray<FString> MergeWithSteam(const TCHAR* Key, const TMap<FName, FString>& AchievementToValue) const;
+
 	// Online plumbing
 	bool bCacheReady = false;
 	bool bQueryInFlight = false;

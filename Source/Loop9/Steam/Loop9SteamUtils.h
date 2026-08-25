@@ -33,4 +33,11 @@ struct FLoop9SteamUtils
 	 * the online subsystem. Already-unlocked achievements report success.
 	 */
 	static bool UnlockAchievement(FName AchievementId);
+
+	/**
+	 * Reports which of the given achievements Steam already holds for this user.
+	 * An empty result also means "Steam could not tell us", so callers merge this
+	 * into their own record rather than treating it as the whole truth.
+	 */
+	static TArray<FName> UnlockedAchievements(const TArray<FName>& Candidates);
 };
