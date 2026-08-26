@@ -23,13 +23,14 @@ protected:
 	void HandleCultureChanged();
 	void EnsureArchiveButton();
 	void EnsureHelpButton();
+	void EnsureCreditsButton();
 
 	/**
-	 * Clones the Settings button and inserts the copy directly above Quit, so a
-	 * WBP that predates this entry still shows it. Returns null when there is no
-	 * Settings button to copy the style from.
+	 * Clones the Settings button and inserts the copy immediately before Anchor
+	 * (Quit if Anchor is null), so a WBP that predates this entry still shows it.
+	 * Returns null when there is no Settings button to copy the style from.
 	 */
-	UWidget* SynthesizeButtonAboveQuit(FName ButtonName);
+	UWidget* SynthesizeButtonBefore(FName ButtonName, UWidget* Anchor);
 
 public:
 	/** Called when Play button is clicked */
@@ -56,6 +57,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void OnBackFromHelp();
 
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnCreditsClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnBackFromCredits();
+
 	/** Settings Widget Class (set in Blueprint) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> SettingsWidgetClass;
@@ -68,6 +75,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> HelpWidgetClass;
 
+	/** Optional credits widget. Empty uses the C++ Credits fallback. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> CreditsWidgetClass;
+
 	/** Back from settings to main menu */
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void OnBackFromSettings();
@@ -79,6 +90,7 @@ private:
 	UWidget* Quit = nullptr;
 	UWidget* Archive = nullptr;
 	UWidget* Help = nullptr;
+	UWidget* Credits = nullptr;
 
 	/** Settings widget instance */
 	UPROPERTY()
@@ -89,6 +101,9 @@ private:
 
 	UPROPERTY()
 	UUserWidget* HelpWidgetInstance;
+
+	UPROPERTY()
+	UUserWidget* CreditsWidgetInstance;
 
 	/** Cached game mode reference */
 	UPROPERTY()

@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **25.08.2026.**
+Poslednje ažuriranje: **26.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -202,13 +202,16 @@ Ostaje u editoru pre sledećeg Shipping builda:
 - [ ] Opciono: slike u Help WBP-u; 2–3 `AnomalyMovePoint` po Move objektu
   ako pomeraj deluje previše isti svaku petlju.
 
-Sledeća sesija (zabeleženo 25.08.2026. uveče, **nije rađeno**):
+Sledeća sesija (urađeno 26.08.2026.):
 
-- [ ] Replacement terminal: isti typewriter zvuk kao ending WBP
+- [x] Replacement terminal: isti typewriter zvuk kao ending WBP
   (`TypewriterKey`) i **SKIP** tokom ispisa (prvi klik dovrši tekst, ne meni).
-- [ ] Kompletan audio credits spisak (svi autori, ne samo vrata) na **odvojenom**
-  Credits ekranu; novo dugme na main meniju. Help više ne nosi SOUND CREDITS.
-- [ ] Main-menu dugme `HELP` preimenovati u **HOW TO PLAY**.
+- [x] Credits odvojeni od Help-a: `CreditsWidget` + dugme na meniju
+  (Play → How to Play → Settings → Archive → Credits → Quit). Help više
+  ne nosi SOUND CREDITS.
+- [x] Main-menu dugme `HELP` preimenovano u **HOW TO PLAY**.
+- [ ] GatherText posle ovih stringova da `HOW TO PLAY` / `CREDITS` uđu u
+  `.locres` (PO je već popunjen za 5 jezika).
 
 
 ## 2. Steamworks — Store Presence
@@ -247,8 +250,10 @@ publish-ovane, ne samo sačuvane.
   `600×900`, `920×430`, `3840×1240` hero bez teksta i transparentni logo.
 - [x] Shortcut ICO i App Icon JPG imaju spremne minimalističke v2 varijante.
 - [x] Dodati opcioni Page Background `1438×810`.
-- [ ] Snimiti i montirati gameplay trailer. Trailer je veoma preporučen pre
-  Store review-a, iako nije tehnički potreban za prvi build upload.
+- [x] Gameplay trailer snimljen, montiran i uploadovan u Steamworks
+  (Store Presence → Trailers + Publish). Valve review traje od oko
+  **22.08.2026.** (četiri dana na 26.08.). Thumbnail je u
+  `Marketing/Steam/StoreUpload/trailer_thumbnail_1920x1080.jpg`.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
 
@@ -463,8 +468,9 @@ Polish smoke na **novom** `v1.0.0` Shipping cooku (Steam playtest od 24.08 ovo n
 
 ## 7. Valve review i Coming Soon
 
-- [ ] Publishovati sve Store Presence promene.
-- [ ] Poslati Store Page na Valve review.
+- [x] Publishovati sve Store Presence promene (uključujući trailer).
+- [x] Store Page poslata na Valve review ~22.08.2026.; review je u toku
+  (četiri dana na 26.08.).
 - [ ] Poslati release-candidate build na Valve review.
 - [ ] Ispraviti eventualne review primedbe i ponovo poslati.
 - [ ] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
@@ -514,11 +520,11 @@ Brief:
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
 
 - [ ] Help slike (WBP dete od `HelpWidget`) — opciono, vidi §1.
-- [ ] Replacement terminal: typewriter zvuk + SKIP (sledeća sesija, vidi §1).
+- [x] Replacement terminal: typewriter zvuk + SKIP (26.08.2026.).
   Prompt-complete, phone pickup i chat mumble ostaju prazni slotovi u
   `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
   Nisu launch bloker.
-- [ ] Credits ekran odvojen od Help-a + How to Play label (sledeća sesija, §1).
+- [x] Credits ekran odvojen od Help-a + How to Play label (26.08.2026.).
 
 
 ---
@@ -529,10 +535,12 @@ Brief:
    `Builds/Feature`; nova verzija npr. `PackageWindowsShipping.bat v1.0.1`).
    **`Builds/v1.0.0` se ne overwrite-uje.** Typewriter + vrata `.uasset` i
    GatherText su urađeni; bez zatvorenog editora cooker udara na MCP port.
-2. Lokalni QA tog cooka (mix, vrata, ending kucanje, jezici). Achievementi i
-   AI chat samo iz Steam Library-ja posle uploada.
+2. GatherText za HOW TO PLAY / CREDITS, zatim lokalni QA cooka (mix, vrata,
+   ending i terminal kucanje, jezici). Achievementi i AI chat samo iz Steam
+   Library-ja posle uploada.
 3. Achievement test po grupi + persist QA iz §3 + ending balance (šest profila).
 4. `UploadPlaytest.bat` → Steamworks Set Live na `playtest` (i `default` kad
    odlučiš). SteamCMD `setlive` ne može `default`.
 5. Na tom Steam buildu: Cloud, offline, gamepad, polish smoke iz §6.
-6. Valve review → Coming Soon najmanje 14 dana → release.
+6. Valve Store review je u toku (trailer poslat ~22.08.). Posle odobrenja:
+   Coming Soon najmanje 14 dana → release.

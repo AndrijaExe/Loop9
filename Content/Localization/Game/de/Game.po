@@ -979,12 +979,19 @@ msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIV"
 
-#. Key:	Help
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(127)
-#: Source/Loop9/UI/MainMenuWidget.cpp(127)
-msgctxt "Loop9Menu,Help"
-msgid "HELP"
-msgstr "HILFE"
+#. Key:	HowToPlay
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
+#: Source/Loop9/UI/MainMenuWidget.cpp(135)
+msgctxt "Loop9Menu,HowToPlay"
+msgid "HOW TO PLAY"
+msgstr "SPIELANLEITUNG"
+
+#. Key:	Credits
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
+#: Source/Loop9/UI/MainMenuWidget.cpp(136)
+msgctxt "Loop9Menu,Credits"
+msgid "CREDITS"
+msgstr "CREDITS"
 
 #. Key:	Paused
 #. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(76)

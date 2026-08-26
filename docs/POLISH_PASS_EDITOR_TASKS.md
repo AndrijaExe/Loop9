@@ -1,6 +1,6 @@
 # Polish pass — šta ostaje u editoru
 
-Poslednje ažuriranje: **25.08.2026.**
+Poslednje ažuriranje: **26.08.2026.**
 
 C++ deo polish prolaza je odrađen. Editorski deo (Move destinacije, materijali,
 atenuacija, Help/Archive dugmad, figura u meniju, `IA_Flashlight`) je takođe
@@ -13,28 +13,17 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 
 ---
 
-## 0. Sledeća sesija — zabeleženo 25.08.2026. uveče
+## 0. Sledeća sesija — urađeno 26.08.2026.
 
-Nije rađeno danas; uraditi pre sledećeg Feature cooka.
-
-- [ ] **Replacement terminal: kucanje + SKIP.** `WBP` / `UReplacementTerminalWidget`
-  već ima `TypingSound` slot i `FTypewriterHelper`, ali slot je prazan i Continue
-  je sakriven dok se redovi ispisuju. Treba isto ponašanje kao `EndingWidget`:
-  C++ default na `/Game/MyStuff/Sound/UI/TypewriterKey` (`SC_SFX`, volume ~0.55,
-  pitch jitter kao na endingima), dugme vidljivo tokom kucanja, label **SKIP**,
-  prvi klik dovrši sav preostali tekst (ne izbacuje u meni), posle toga
-  **Return to Main Menu**. Detalj: [AUDIO_ASSIGNMENT_CHECKLIST.md](AUDIO_ASSIGNMENT_CHECKLIST.md)
-  § Replacement terminal.
-- [ ] **Credits odvojeni od Help-a.** Pronaći sve autore čije smo zvukove
-  iskoristili (Help trenutno nabraja samo četiri door clipa; tabela u audio
-  checklisti ima i OpenGameArt / Firefly). Napraviti poseban Credits ekran, ne
-  sekciju u Help-u. Na main meniju: zasebno dugme **CREDITS** pored How to Play
-  (uobičajen red: Play → How to Play → Settings → Archive → Credits → Quit;
-  Credits ne ide u Settings). Steam Legal / About i dalje mora da ima atribuciju
-  za CC BY. Izvori: `HelpWidget.cpp` SOUND CREDITS, audio tabela, `STORE_PAGE.md`.
-- [ ] **Help dugme → How to Play.** `UMainMenuWidget::ApplyLocalizedTexts` sada
-  piše `HELP`. Promeniti u **HOW TO PLAY** (i WBP label ako je hardcodovan).
-  Help sadržaj ostaje briefing, samo ime dugmeta. Posle toga GatherText.
+- [x] **Replacement terminal: kucanje + SKIP.** C++ default na
+  `/Game/MyStuff/Sound/UI/TypewriterKey` (`SC_SFX`, volume 0.55, pitch jitter),
+  dugme vidljivo tokom kucanja, label **SKIP**, prvi klik dovrši sav preostali
+  tekst, posle toga **Return to Main Menu**.
+- [x] **Credits odvojeni od Help-a.** `CreditsWidget` + dugme na meniju
+  (Play → How to Play → Settings → Archive → Credits → Quit). Help više nema
+  SOUND CREDITS. Steam Legal / About i dalje nosi CC BY tekst.
+- [x] **Help dugme → How to Play.** `ApplyLocalizedTexts` piše **HOW TO PLAY**.
+- [ ] GatherText da novi stringovi uđu u `.locres`. PO je već popunjen.
 
 ---
 

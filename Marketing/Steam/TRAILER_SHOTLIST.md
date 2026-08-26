@@ -1,8 +1,8 @@
 # Loop 9 — trailer shot-list (snimanje + montaža)
 
 Steam App ID: **4982260**
-Cilj: gotov trailer koji odblokira Store review (`RELEASE_CHECKLIST.md`,
-sekcija **Store grafika** → „Snimiti i montirati gameplay trailer").
+Cilj: gotov trailer za Store review. **Ispunjeno 22.08.2026.** — trailer je
+uploadovan i Valve review je u toku. Vidi `RELEASE_CHECKLIST.md` §2 / §7.
 
 Ukupno trajanje: **68 sekundi**.
 Broj klipova koje snimaš: **12** (svaki snimi 10–20 s, u montaži koristiš samo
@@ -365,7 +365,7 @@ da je igra gotova.
 - [ ] Nigde nijedan kadar iz ending sekvence.
 - [ ] Nijedan kadar nije iz editora / PIE-a.
 - [ ] Export 1080p60 H.264, thumbnail = frame iz Klipa 1.
-- [ ] Upload u Steamworks → Store Presence → Trailers; zatim **Publish**,
-      ne samo Save (`RELEASE_CHECKLIST.md` §2).
-- [ ] Štiklirati „Snimiti i montirati gameplay trailer" u
+- [x] Upload u Steamworks → Store Presence → Trailers; zatim **Publish**,
+      ne samo Save (`RELEASE_CHECKLIST.md` §2). Valve review od ~22.08.2026.
+- [x] Štiklirati „Snimiti i montirati gameplay trailer" u
       `RELEASE_CHECKLIST.md`, sekcija **Store grafika**.

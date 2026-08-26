@@ -18,6 +18,8 @@ class LOOP9_API UReplacementTerminalWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UReplacementTerminalWidget(const FObjectInitializer& ObjectInitializer);
+
 	UFUNCTION(BlueprintCallable, Category = "Terminal")
 	void StartTerminalSequence();
 
@@ -60,6 +62,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
 	TObjectPtr<USoundBase> TypingSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal", meta = (ClampMin = "0.0"))
+	float TypingSoundVolume = 0.55f;
+
+	/** Shown on the continue button while the terminal is still revealing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
+	FText SkipTypingButtonLabel = NSLOCTEXT("Loop9Endings", "SkipTypingLabel", "SKIP");
+
 	/** Played after the idle "You:_" prompt holds, just before the ending card. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terminal")
 	TObjectPtr<USoundBase> PromptCompleteSound;
@@ -87,9 +96,13 @@ private:
 	void TypeNextCharacter();
 	void BeginYouPromptHold();
 	void FinishYouPromptHold();
+	void FinishReveal();
 	void ToggleCursorBlink();
 	void UpdateTerminalDisplay(const FString& BaseText);
 	void BindContinueButton();
+	void RefreshContinueButtonLabel();
+	void SetContinueVisible(bool bVisible);
+	bool IsRevealing() const;
 
 	TArray<FString> Lines;
 	int32 CurrentLineIndex = 0;

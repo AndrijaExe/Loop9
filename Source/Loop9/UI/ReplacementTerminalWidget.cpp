@@ -6,6 +6,18 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ConstructorHelpers.h"
+
+UReplacementTerminalWidget::UReplacementTerminalWidget(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	static ConstructorHelpers::FObjectFinder<USoundBase> KeyFinder(
+		TEXT("/Game/MyStuff/Sound/UI/TypewriterKey"));
+	if (KeyFinder.Succeeded())
+	{
+		TypingSound = KeyFinder.Object;
+	}
+}
 
 void UReplacementTerminalWidget::NativeConstruct()
 {
@@ -43,6 +55,12 @@ void UReplacementTerminalWidget::RequestContinue()
 
 void UReplacementTerminalWidget::HandleContinueClicked()
 {
+	if (IsRevealing())
+	{
+		FinishReveal();
+		return;
+	}
+
 	RequestContinue();
 }
 
@@ -88,14 +106,8 @@ void UReplacementTerminalWidget::StartTerminalSequence()
 	bCursorVisible = true;
 	CurrentBaseText.Empty();
 
-	if (BT_Continue)
-	{
-		BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
-	}
-	if (FallbackContinueButton)
-	{
-		FallbackContinueButton->SetVisibility(ESlateVisibility::Collapsed);
-	}
+	SetContinueVisible(true);
+	RefreshContinueButtonLabel();
 
 	if (bUseBlinkingCursor)
 	{
@@ -158,7 +170,11 @@ void UReplacementTerminalWidget::TypeNextCharacter()
 
 	if (bPlayTypingSound && TypingSound)
 	{
-		UGameplayStatics::PlaySound2D(this, TypingSound);
+		UGameplayStatics::PlaySound2D(
+			this,
+			TypingSound,
+			TypingSoundVolume,
+			FMath::FRandRange(0.92f, 1.08f));
 	}
 
 	if (ActiveTypingState.bFinished)
@@ -192,6 +208,7 @@ void UReplacementTerminalWidget::BeginYouPromptHold()
 	bSequenceFinished = true;
 	bHoldingYouPrompt = true;
 	OnTerminalSequenceFinished();
+	RefreshContinueButtonLabel();
 
 	if (!CompletedText.IsEmpty())
 	{
@@ -227,7 +244,47 @@ void UReplacementTerminalWidget::FinishYouPromptHold()
 		UGameplayStatics::PlaySound2D(this, PromptCompleteSound);
 	}
 
-	RequestContinue();
+	RefreshContinueButtonLabel();
+}
+
+void UReplacementTerminalWidget::FinishReveal()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TypingTimerHandle);
+		World->GetTimerManager().ClearTimer(NextLineTimerHandle);
+		World->GetTimerManager().ClearTimer(YouPromptHoldTimerHandle);
+		World->GetTimerManager().ClearTimer(CursorBlinkTimerHandle);
+	}
+
+	CompletedText.Empty();
+	for (int32 Index = 0; Index < Lines.Num(); ++Index)
+	{
+		if (Index > 0)
+		{
+			CompletedText += TEXT("\n");
+		}
+		CompletedText += Lines[Index];
+	}
+	if (!CompletedText.IsEmpty())
+	{
+		CompletedText += TEXT("\n");
+	}
+	CompletedText += TEXT("You:");
+
+	CurrentLineIndex = Lines.Num();
+	ActiveTypingState.bFinished = true;
+	bSequenceFinished = true;
+	bHoldingYouPrompt = false;
+	bCursorVisible = false;
+	UpdateTerminalDisplay(CompletedText);
+
+	if (PromptCompleteSound)
+	{
+		UGameplayStatics::PlaySound2D(this, PromptCompleteSound);
+	}
+
+	RefreshContinueButtonLabel();
 }
 
 void UReplacementTerminalWidget::BindContinueButton()
@@ -238,16 +295,53 @@ void UReplacementTerminalWidget::BindContinueButton()
 			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
 		FLoop9WidgetClickBinder::BindClicked(
 			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
-		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, ContinueButtonLabel);
-		BT_Continue->SetVisibility(ESlateVisibility::Collapsed);
+		BT_Continue->SetVisibility(ESlateVisibility::Visible);
 	}
 
 	if (FallbackContinueButton)
 	{
 		FallbackContinueButton->OnClicked.RemoveDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
 		FallbackContinueButton->OnClicked.AddDynamic(this, &UReplacementTerminalWidget::HandleContinueClicked);
-		FallbackContinueButton->SetVisibility(ESlateVisibility::Collapsed);
+		FallbackContinueButton->SetVisibility(ESlateVisibility::Visible);
 	}
+
+	RefreshContinueButtonLabel();
+}
+
+void UReplacementTerminalWidget::RefreshContinueButtonLabel()
+{
+	const FText Label = IsRevealing() ? SkipTypingButtonLabel : ContinueButtonLabel;
+
+	if (BT_Continue)
+	{
+		FLoop9WidgetClickBinder::SetButtonText(BT_Continue, Label);
+	}
+
+	if (FallbackContinueButton)
+	{
+		FLoop9WidgetClickBinder::SetButtonText(FallbackContinueButton, Label);
+	}
+}
+
+void UReplacementTerminalWidget::SetContinueVisible(bool bVisible)
+{
+	const ESlateVisibility Visibility = bVisible
+		? ESlateVisibility::Visible
+		: ESlateVisibility::Collapsed;
+
+	if (BT_Continue)
+	{
+		BT_Continue->SetVisibility(Visibility);
+	}
+	if (FallbackContinueButton)
+	{
+		FallbackContinueButton->SetVisibility(Visibility);
+	}
+}
+
+bool UReplacementTerminalWidget::IsRevealing() const
+{
+	return !bSequenceFinished || bHoldingYouPrompt;
 }
 
 void UReplacementTerminalWidget::ToggleCursorBlink()

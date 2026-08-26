@@ -1,6 +1,6 @@
 # Audio assignment checklist
 
-Poslednje ažuriranje: **25.08.2026.**
+Poslednje ažuriranje: **26.08.2026.**
 
 Koristi ovo kao listu zvukova koje još treba da dodeliš u editoru
 (Blueprint / map actor Details). C++ samo čita reference — bez asseta
@@ -46,14 +46,11 @@ Legenda: `[ ]` nije dodeljeno · `[~]` delimično / treba proveriti · `[x]` got
 
 ## Replacement terminal (WBP / `ReplacementTerminalWidget` class defaults)
 
-Sledeća sesija (25.08 uveče, nije rađeno): terminal mora da zvuči i skipuje
-kao ending WBP. Kod već zove `PlaySound2D` kad `TypingSound` nije null, ali
-C++ default je prazan (za razliku od `EndingWidget` koji učitava `TypewriterKey`).
-Continue je `Collapsed` dok se linije kucaju — nema SKIP.
+Urađeno 26.08.2026.: terminal zvuči i skipuje kao ending WBP.
 
-- [ ] **Typing Sound** — isti `/Game/MyStuff/Sound/UI/TypewriterKey` kao ending
-  widget (C++ `ConstructorHelpers` default, `SC_SFX`, volume ~0.55, pitch jitter).
-- [ ] **SKIP** tokom ispisa: dugme vidljivo od početka; prvi klik dovrši sav
+- [x] **Typing Sound** — isti `/Game/MyStuff/Sound/UI/TypewriterKey` kao ending
+  widget (C++ `ConstructorHelpers` default, `SC_SFX`, volume 0.55, pitch jitter).
+- [x] **SKIP** tokom ispisa: dugme vidljivo od početka; prvi klik dovrši sav
   preostali terminal tekst, ne ide u meni; posle toga **Return to Main Menu**.
 - [ ] **Prompt Complete Sound** — posle hold-a na `You:_`, pre ending kartice
   (nije deo SKIP zahteva; ostaje zaseban slot)
@@ -193,18 +190,16 @@ duplira; ostali ambient akteri se ne diraju.
 Svi OpenGameArt zvukovi uvezeni 21.08.2026. su **CC0**. Freesound door clipovi
 uvezeni 25.08.2026. uključuju **CC BY** (InspectorJ mora atribuciju).
 
-Sledeća sesija (25.08 uveče, nije rađeno):
+Urađeno 26.08.2026.:
 
-- [ ] Proći sve slotove koji stvarno sviraju (C++ `ConstructorHelpers`, BP
-  defaults, mapa) i upisati **svakog** autora u in-game Credits. Help trenutno
-  ima samo četiri door linije; tabela ispod ima i OwlishMedia, LEGIT Audio,
-  rubberduck, bretbernhoft, Firefly — plus proveriti footsteps, phone ring,
-  flicker, flashlight, pursuer, typewriter, menu ambient.
-- [ ] Credits **odvojiti od Help-a**: novo dugme na main meniju, poseban ekran.
+- [x] Credits ekran nabraja vrata, lift, telefon i originalne clipove
+  (OwlishMedia, LEGIT Audio, rubberduck, bretbernhoft, InspectorJ, Firefly).
+  Footsteps / phone ring / flicker / pursuer / menu ambient i dalje nemaju
+  dokumentovanog autora — dodati kad se nađe.
+- [x] Credits **odvojeni od Help-a**: `CreditsWidget` + dugme na main meniju.
   Help ostaje how-to. Steam Legal / About i dalje nosi CC BY tekst
   (`Marketing/Steam/STORE_PAGE.md`).
-- [ ] Posle kompletnog spiska, uskladiti ovu tabelu, Help (ukloniti SOUND
-  CREDITS sekciju) i Steam copy.
+- [x] Help više nema SOUND CREDITS sekciju.
 
 | Asset | Izvor (URL) | Autor | Licenca | Šta je urađeno |
 |---|---|---|---|---|

@@ -4,6 +4,7 @@
 #include "MainMenuGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Internationalization/Internationalization.h"
+#include "CreditsWidget.h"
 #include "HelpWidget.h"
 #include "Loop9WidgetClickBinder.h"
 #include "SettingsWidget.h"
@@ -78,14 +79,21 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		Help = GetWidgetFromName(TEXT("Help"));
 	}
-	EnsureArchiveButton();
+	if (!Credits)
+	{
+		Credits = GetWidgetFromName(TEXT("Credits"));
+	}
+	// Desired order: Play, How to Play, Settings, Archive, Credits, Quit.
 	EnsureHelpButton();
+	EnsureArchiveButton();
+	EnsureCreditsButton();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
 	FLoop9WidgetClickBinder::BindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
 	FLoop9WidgetClickBinder::BindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 	FLoop9WidgetClickBinder::BindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
+	FLoop9WidgetClickBinder::BindClicked(Credits, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnCreditsClicked));
 
 	ApplyLocalizedTexts();
 
@@ -103,6 +111,7 @@ void UMainMenuWidget::NativeDestruct()
 	FLoop9WidgetClickBinder::UnbindClicked(Quit, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnQuitClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
+	FLoop9WidgetClickBinder::UnbindClicked(Credits, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnCreditsClicked));
 
 	if (CultureChangedHandle.IsValid())
 	{
@@ -124,7 +133,8 @@ void UMainMenuWidget::ApplyLocalizedTexts()
 	FLoop9WidgetClickBinder::SetButtonText(Settings, NSLOCTEXT("Loop9Menu", "Settings", "SETTINGS"));
 	FLoop9WidgetClickBinder::SetButtonText(Quit, NSLOCTEXT("Loop9Menu", "Quit", "QUIT"));
 	FLoop9WidgetClickBinder::SetButtonText(Archive, NSLOCTEXT("Loop9Menu", "Archive", "ARCHIVE"));
-	FLoop9WidgetClickBinder::SetButtonText(Help, NSLOCTEXT("Loop9Menu", "Help", "HELP"));
+	FLoop9WidgetClickBinder::SetButtonText(Help, NSLOCTEXT("Loop9Menu", "HowToPlay", "HOW TO PLAY"));
+	FLoop9WidgetClickBinder::SetButtonText(Credits, NSLOCTEXT("Loop9Menu", "Credits", "CREDITS"));
 }
 
 void UMainMenuWidget::OnPlayClicked()
@@ -336,6 +346,79 @@ void UMainMenuWidget::OnBackFromHelp()
 	}
 }
 
+void UMainMenuWidget::OnCreditsClicked()
+{
+	if (CreditsWidgetInstance && CreditsWidgetInstance->IsInViewport())
+	{
+		return;
+	}
+
+	const TSubclassOf<UUserWidget> WidgetClass = CreditsWidgetClass
+		? CreditsWidgetClass
+		: TSubclassOf<UUserWidget>(UCreditsWidget::StaticClass());
+
+	APlayerController* OwningController = GetOwningPlayer();
+	CreditsWidgetInstance = CreateWidget<UUserWidget>(
+		OwningController ? OwningController : UGameplayStatics::GetPlayerController(GetWorld(), 0),
+		WidgetClass);
+	if (!CreditsWidgetInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MainMenuWidget: Failed to create credits widget!"));
+		return;
+	}
+
+	if (UCreditsWidget* CreditsUI = Cast<UCreditsWidget>(CreditsWidgetInstance))
+	{
+		CreditsUI->SetReturnTarget(this);
+	}
+
+	SetVisibility(ESlateVisibility::Hidden);
+	CreditsWidgetInstance->AddToViewport(1);
+	if (OwningController)
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(CreditsWidgetInstance);
+		if (!FocusTarget)
+		{
+			FocusTarget = CreditsWidgetInstance;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
+}
+
+void UMainMenuWidget::OnBackFromCredits()
+{
+	if (CreditsWidgetInstance)
+	{
+		CreditsWidgetInstance->RemoveFromParent();
+		CreditsWidgetInstance = nullptr;
+	}
+
+	ApplyLocalizedTexts();
+	SetVisibility(ESlateVisibility::Visible);
+
+	if (APlayerController* OwningController = GetOwningPlayer())
+	{
+		UWidget* FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Credits);
+		if (!FocusTarget)
+		{
+			FocusTarget = FLoop9WidgetClickBinder::ResolveFocusableWidget(Play);
+		}
+		if (!FocusTarget)
+		{
+			FocusTarget = this;
+		}
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(FocusTarget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		OwningController->SetInputMode(InputMode);
+		FocusTarget->SetUserFocus(OwningController);
+	}
+}
+
 void UMainMenuWidget::OnQuitClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: Quit button clicked"));
@@ -386,7 +469,7 @@ void UMainMenuWidget::EnsureArchiveButton()
 		return;
 	}
 
-	Archive = SynthesizeButtonAboveQuit(TEXT("Archive"));
+	Archive = SynthesizeButtonBefore(TEXT("Archive"), Quit);
 	if (Archive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Archive button above Quit"));
@@ -400,14 +483,28 @@ void UMainMenuWidget::EnsureHelpButton()
 		return;
 	}
 
-	Help = SynthesizeButtonAboveQuit(TEXT("Help"));
+	Help = SynthesizeButtonBefore(TEXT("Help"), Settings);
 	if (Help)
 	{
-		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Help button above Quit"));
+		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized How to Play button before Settings"));
 	}
 }
 
-UWidget* UMainMenuWidget::SynthesizeButtonAboveQuit(FName ButtonName)
+void UMainMenuWidget::EnsureCreditsButton()
+{
+	if (Credits)
+	{
+		return;
+	}
+
+	Credits = SynthesizeButtonBefore(TEXT("Credits"), Quit);
+	if (Credits)
+	{
+		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Credits button above Quit"));
+	}
+}
+
+UWidget* UMainMenuWidget::SynthesizeButtonBefore(FName ButtonName, UWidget* Anchor)
 {
 	if (!Settings || !WidgetTree)
 	{
@@ -420,10 +517,8 @@ UWidget* UMainMenuWidget::SynthesizeButtonAboveQuit(FName ButtonName)
 		return nullptr;
 	}
 
-	// Anchoring to Quit rather than to a fixed index keeps Quit last however many
-	// entries get synthesized, and lets repeated calls stack cleanly: each new
-	// button takes Quit's place and pushes Quit one step further down.
-	UVerticalBox* StackBox = FindAncestorVerticalBox(Quit ? Quit : Settings);
+	UWidget* PlaceBefore = Anchor ? Anchor : Quit;
+	UVerticalBox* StackBox = FindAncestorVerticalBox(PlaceBefore ? PlaceBefore : Settings);
 	if (!StackBox)
 	{
 		StackBox = FindAncestorVerticalBox(Settings);
@@ -432,17 +527,17 @@ UWidget* UMainMenuWidget::SynthesizeButtonAboveQuit(FName ButtonName)
 	if (StackBox)
 	{
 		int32 InsertIndex = StackBox->GetChildrenCount();
-		if (Quit)
+		if (PlaceBefore)
 		{
-			UWidget* StackChild = Quit;
+			UWidget* StackChild = PlaceBefore;
 			while (StackChild && StackChild->GetParent() != StackBox)
 			{
 				StackChild = StackChild->GetParent();
 			}
-			const int32 QuitIndex = StackChild ? StackBox->GetChildIndex(StackChild) : INDEX_NONE;
-			if (QuitIndex != INDEX_NONE)
+			const int32 AnchorIndex = StackChild ? StackBox->GetChildIndex(StackChild) : INDEX_NONE;
+			if (AnchorIndex != INDEX_NONE)
 			{
-				InsertIndex = QuitIndex;
+				InsertIndex = AnchorIndex;
 			}
 		}
 
@@ -471,24 +566,31 @@ UWidget* UMainMenuWidget::SynthesizeButtonAboveQuit(FName ButtonName)
 			}
 		}
 	}
-	else if (UCanvasPanel* Canvas = Cast<UCanvasPanel>(Quit ? Quit->GetParent() : Settings->GetParent()))
+	else if (UCanvasPanel* Canvas = Cast<UCanvasPanel>(PlaceBefore ? PlaceBefore->GetParent() : Settings->GetParent()))
 	{
 		UCanvasPanelSlot* NewSlot = Canvas->AddChildToCanvas(NewButton);
-		UCanvasPanelSlot* QuitSlot = Quit ? Cast<UCanvasPanelSlot>(Quit->Slot) : nullptr;
+		UCanvasPanelSlot* AnchorSlot = PlaceBefore ? Cast<UCanvasPanelSlot>(PlaceBefore->Slot) : nullptr;
 		UCanvasPanelSlot* SettingsSlot = Cast<UCanvasPanelSlot>(Settings->Slot);
-		UCanvasPanelSlot* TemplateSlot = QuitSlot ? QuitSlot : SettingsSlot;
+		UCanvasPanelSlot* TemplateSlot = AnchorSlot ? AnchorSlot : SettingsSlot;
 		if (NewSlot && TemplateSlot)
 		{
-			const float Step = ButtonStackStep(Quit ? Quit : Settings);
+			const float Step = ButtonStackStep(PlaceBefore ? PlaceBefore : Settings);
 			NewSlot->SetAnchors(TemplateSlot->GetAnchors());
 			NewSlot->SetAlignment(TemplateSlot->GetAlignment());
 			NewSlot->SetAutoSize(TemplateSlot->GetAutoSize());
 			NewSlot->SetSize(TemplateSlot->GetSize());
 			NewSlot->SetZOrder(TemplateSlot->GetZOrder());
-			if (QuitSlot)
+			if (AnchorSlot)
 			{
-				NewSlot->SetPosition(QuitSlot->GetPosition());
-				QuitSlot->SetPosition(QuitSlot->GetPosition() + FVector2D(0.0f, Step));
+				NewSlot->SetPosition(AnchorSlot->GetPosition());
+				AnchorSlot->SetPosition(AnchorSlot->GetPosition() + FVector2D(0.0f, Step));
+				if (PlaceBefore != Quit)
+				{
+					if (UCanvasPanelSlot* QuitSlot = Quit ? Cast<UCanvasPanelSlot>(Quit->Slot) : nullptr)
+					{
+						QuitSlot->SetPosition(QuitSlot->GetPosition() + FVector2D(0.0f, Step));
+					}
+				}
 			}
 			else
 			{

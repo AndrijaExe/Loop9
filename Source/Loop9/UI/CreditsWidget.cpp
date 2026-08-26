@@ -1,4 +1,4 @@
-#include "UI/HelpWidget.h"
+#include "UI/CreditsWidget.h"
 
 #include "UI/Loop9WidgetClickBinder.h"
 #include "UI/MainMenuWidget.h"
@@ -13,7 +13,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Styling/CoreStyle.h"
 
-#define LOCTEXT_NAMESPACE "Loop9Help"
+#define LOCTEXT_NAMESPACE "Loop9Credits"
 
 namespace
 {
@@ -22,81 +22,79 @@ namespace
 	const FLinearColor ScreenFill(0.02f, 0.04f, 0.06f, 0.96f);
 }
 
-void UHelpWidget::NativeOnInitialized()
+void UCreditsWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	// Must run before RebuildWidget() reads WidgetTree->RootWidget, otherwise
-	// the layout is captured too late and the screen renders empty.
 	BuildFallbackLayoutIfNeeded();
 }
 
-void UHelpWidget::NativeConstruct()
+void UCreditsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	if (TB_Title)
 	{
-		TB_Title->SetText(LOCTEXT("HelpTitle", "HOW THE SHIFT WORKS"));
+		TB_Title->SetText(LOCTEXT("CreditsTitle", "CREDITS"));
 	}
 
 	BindBackButton();
 	RefreshSections();
 }
 
-void UHelpWidget::NativeDestruct()
+void UCreditsWidget::NativeDestruct()
 {
 	if (FallbackBackButton)
 	{
-		FallbackBackButton->OnClicked.RemoveDynamic(this, &UHelpWidget::HandleBackClicked);
+		FallbackBackButton->OnClicked.RemoveDynamic(this, &UCreditsWidget::HandleBackClicked);
 	}
 
 	FLoop9WidgetClickBinder::UnbindClicked(
-		BT_Back, this, GET_FUNCTION_NAME_CHECKED(UHelpWidget, HandleBackClicked));
+		BT_Back, this, GET_FUNCTION_NAME_CHECKED(UCreditsWidget, HandleBackClicked));
 
 	Super::NativeDestruct();
 }
 
-void UHelpWidget::SetReturnTarget(UUserWidget* Target)
+void UCreditsWidget::SetReturnTarget(UUserWidget* Target)
 {
 	ReturnTarget = Target;
 }
 
-void UHelpWidget::RequestClose()
+void UCreditsWidget::RequestClose()
 {
 	OnClosed.Broadcast();
 	if (UMainMenuWidget* Menu = Cast<UMainMenuWidget>(ReturnTarget))
 	{
-		Menu->OnBackFromHelp();
+		Menu->OnBackFromCredits();
 		return;
 	}
 
 	RemoveFromParent();
 }
 
-void UHelpWidget::HandleBackClicked()
+void UCreditsWidget::HandleBackClicked()
 {
 	RequestClose();
 }
 
-void UHelpWidget::BindBackButton()
+void UCreditsWidget::BindBackButton()
 {
 	if (BT_Back)
 	{
 		FLoop9WidgetClickBinder::UnbindClicked(
-			BT_Back, this, GET_FUNCTION_NAME_CHECKED(UHelpWidget, HandleBackClicked));
+			BT_Back, this, GET_FUNCTION_NAME_CHECKED(UCreditsWidget, HandleBackClicked));
 		FLoop9WidgetClickBinder::BindClicked(
-			BT_Back, this, GET_FUNCTION_NAME_CHECKED(UHelpWidget, HandleBackClicked));
-		FLoop9WidgetClickBinder::SetButtonText(BT_Back, LOCTEXT("HelpBack", "BACK"));
+			BT_Back, this, GET_FUNCTION_NAME_CHECKED(UCreditsWidget, HandleBackClicked));
+		FLoop9WidgetClickBinder::SetButtonText(BT_Back, LOCTEXT("CreditsBack", "BACK"));
 	}
 
 	if (FallbackBackButton)
 	{
-		FallbackBackButton->OnClicked.RemoveDynamic(this, &UHelpWidget::HandleBackClicked);
-		FallbackBackButton->OnClicked.AddDynamic(this, &UHelpWidget::HandleBackClicked);
+		FallbackBackButton->OnClicked.RemoveDynamic(this, &UCreditsWidget::HandleBackClicked);
+		FallbackBackButton->OnClicked.AddDynamic(this, &UCreditsWidget::HandleBackClicked);
 	}
 }
 
-void UHelpWidget::BuildFallbackLayoutIfNeeded()
+void UCreditsWidget::BuildFallbackLayoutIfNeeded()
 {
 	if (VB_Sections || !WidgetTree || WidgetTree->RootWidget)
 	{
@@ -127,7 +125,6 @@ void UHelpWidget::BuildFallbackLayoutIfNeeded()
 	}
 	TB_Title = TitleText;
 
-	// The body outgrows any fixed height once translated, so it scrolls.
 	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(), TEXT("SectionScroll"));
 	if (UVerticalBoxSlot* ScrollSlot = Frame->AddChildToVerticalBox(Scroll))
 	{
@@ -141,7 +138,7 @@ void UHelpWidget::BuildFallbackLayoutIfNeeded()
 
 	FallbackBackButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("BackButton"));
 	UTextBlock* BackLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("BackLabel"));
-	BackLabel->SetText(LOCTEXT("HelpBack", "BACK"));
+	BackLabel->SetText(LOCTEXT("CreditsBack", "BACK"));
 	BackLabel->SetJustification(ETextJustify::Center);
 	FallbackBackButton->AddChild(BackLabel);
 	if (UVerticalBoxSlot* BackSlot = Frame->AddChildToVerticalBox(FallbackBackButton))
@@ -151,7 +148,7 @@ void UHelpWidget::BuildFallbackLayoutIfNeeded()
 	}
 }
 
-void UHelpWidget::RefreshSections()
+void UCreditsWidget::RefreshSections()
 {
 	if (!VB_Sections)
 	{
@@ -161,54 +158,32 @@ void UHelpWidget::RefreshSections()
 	VB_Sections->ClearChildren();
 
 	AddSection(VB_Sections,
-		LOCTEXT("HelpJobHeading", "YOUR SHIFT"),
-		LOCTEXT("HelpJobBody",
-			"You are the night technician on the second floor. Every loop puts you back on the same floor of the same office, "
-			"and your only job is to decide one thing before you take the elevator: is this floor the way it should be, "
-			"or has something changed?"));
+		LOCTEXT("CreditsDoorsHeading", "DOORS"),
+		LOCTEXT("CreditsDoorsBody",
+			"\"Door, Front, Closing, A.wav\" by InspectorJ (www.jshaw.co.uk) of Freesound.org. Licensed under CC BY.\n"
+			"\"Door Locked\" by BenjaminNelan of Freesound.org (CC0).\n"
+			"\"car_door_slam_flat_block_overvecht.wav\" by alfonsseelen of Freesound.org.\n"
+			"Door opening generated with Adobe Firefly."));
 
 	AddSection(VB_Sections,
-		LOCTEXT("HelpBaselineHeading", "THE FIRST LOOP IS CLEAN"),
-		LOCTEXT("HelpBaselineBody",
-			"Nothing is ever wrong on the first loop. Use it. Walk the whole floor, look at the desks, the posters, the "
-			"chairs, the lights, and remember how the place is supposed to look. Everything after this is measured "
-			"against what you learn here."));
+		LOCTEXT("CreditsElevatorHeading", "ELEVATOR"),
+		LOCTEXT("CreditsElevatorBody",
+			"Button click: OwlishMedia, \"87 Clickety Clips\" (click70.wav), OpenGameArt, CC0.\n"
+			"Travel hum: LEGIT Audio, \"The Shop\" fridge drone, OpenGameArt, CC0."));
 
 	AddSection(VB_Sections,
-		LOCTEXT("HelpAnomalyHeading", "WHAT DOES NOT COUNT AS AN ANOMALY"),
-		LOCTEXT("HelpAnomalyBody",
-			"An anomaly is something the office would not do on its own, and the floor is full of things that look "
-			"wrong without being wrong. The loop number on your screen counts up every loop because that is what a "
-			"counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not "
-			"evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot "
-			"tell whether something belongs, the first loop already answered it: if it was there on loop one, it "
-			"belongs."));
+		LOCTEXT("CreditsPhoneHeading", "PHONE"),
+		LOCTEXT("CreditsPhoneBody",
+			"Line cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\n"
+			"Line noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain."));
 
 	AddSection(VB_Sections,
-		LOCTEXT("HelpElevatorHeading", "THE TWO ELEVATORS"),
-		LOCTEXT("HelpElevatorBody",
-			"This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is "
-			"clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the "
-			"beginning. Reach loop 9 to end your shift and find out which ending you get."));
-
-	AddSection(VB_Sections,
-		LOCTEXT("HelpPhoneHeading", "THE PHONE"),
-		LOCTEXT("HelpPhoneBody",
-			"Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to "
-			"look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him "
-			"changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat "
-			"him badly he can stop being helpful. The decision at the elevator is always yours."));
-
-	AddSection(VB_Sections,
-		LOCTEXT("HelpControlsHeading", "CONTROLS"),
-		LOCTEXT("HelpControlsBody",
-			"W A S D to move, mouse to look, Space to jump.\n"
-			"E to interact: answer the phone, open doors, pick an object up and examine it.\n"
-			"F to switch your flashlight on and off.\n"
-			"Esc to pause, and to put an object down while examining it."));
+		LOCTEXT("CreditsOriginalHeading", "ORIGINAL"),
+		LOCTEXT("CreditsOriginalBody",
+			"Flashlight click and typewriter key were generated for this game."));
 }
 
-void UHelpWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)
+void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)
 {
 	if (!Parent || !WidgetTree)
 	{
