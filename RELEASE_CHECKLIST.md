@@ -208,7 +208,9 @@ Sledeća sesija (urađeno 26.08.2026.):
   (`TypewriterKey`) i **SKIP** tokom ispisa (prvi klik dovrši tekst, ne meni).
 - [x] Credits odvojeni od Help-a: `CreditsWidget` + dugme na meniju
   (Play → How to Play → Settings → Archive → Credits → Quit). Help više
-  ne nosi SOUND CREDITS.
+  ne nosi SOUND CREDITS. Freesound autori iz download istorije su u
+  Credits i `STORE_PAGE.md` Legal (26.08.). Ostaje da se isti tekst
+  upiše u Steamworks Legal / About i Publish-uje.
 - [x] Main-menu dugme `HELP` preimenovano u **HOW TO PLAY**.
 - [ ] GatherText posle ovih stringova da `HOW TO PLAY` / `CREDITS` uđu u
   `.locres` (PO je već popunjen za 5 jezika).
@@ -521,9 +523,8 @@ Brief:
 
 - [ ] Help slike (WBP dete od `HelpWidget`) — opciono, vidi §1.
 - [x] Replacement terminal: typewriter zvuk + SKIP (26.08.2026.).
-  Prompt-complete, phone pickup i chat mumble ostaju prazni slotovi u
-  `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`.
-  Nisu launch bloker.
+  Phone pickup, ring, chat mumble i koraci imaju C++ default (26.08.).
+  Prompt-complete i chat typing i dalje prazni; nisu launch bloker.
 - [x] Credits ekran odvojen od Help-a + How to Play label (26.08.2026.).
 
 

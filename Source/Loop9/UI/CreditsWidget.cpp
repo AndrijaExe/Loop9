@@ -174,13 +174,33 @@ void UCreditsWidget::RefreshSections()
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsPhoneHeading", "PHONE"),
 		LOCTEXT("CreditsPhoneBody",
+			"Ring: \"Phone Ringing #2\" by AUDACITIER of Freesound.org.\n"
+			"Pickup: \"Phone Pick Up.wav\" by MootMcnoodles of Freesound.org (CC0).\n"
 			"Line cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\n"
-			"Line noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain."));
+			"Line noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain.\n"
+			"Mumbling: \"Mumbling.wav\" by so0rec of Freesound.org.\n"
+			"Pursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org."));
+
+	AddSection(VB_Sections,
+		LOCTEXT("CreditsFootstepsHeading", "FOOTSTEPS"),
+		LOCTEXT("CreditsFootstepsBody",
+			"\"Hard Female Footstep (3)\" and \"Hard Female Footstep (4)\" by OwlStorm "
+			"(Ashe Kirk / Owlish Media) of Freesound.org (CC0)."));
+
+	AddSection(VB_Sections,
+		LOCTEXT("CreditsAmbientHeading", "AMBIENT"),
+		LOCTEXT("CreditsAmbientBody",
+			"\"Horror ambient.mp3\" by ZHRØ of Freesound.org."));
+
+	AddSection(VB_Sections,
+		LOCTEXT("CreditsPursuerHeading", "PURSUER"),
+		LOCTEXT("CreditsPursuerBody",
+			"Despawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsOriginalHeading", "ORIGINAL"),
 		LOCTEXT("CreditsOriginalBody",
-			"Flashlight click and typewriter key were generated for this game."));
+			"Flashlight click, typewriter key, light flicker, and pursuer tension bed were generated for this game."));
 }
 
 void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)

@@ -12,10 +12,40 @@
 #include "Components/AudioComponent.h"
 #include "Engine/GameViewportClient.h"
 #include "Steam/Loop9SteamUtils.h"
+#include "UObject/ConstructorHelpers.h"
+
+UAI_ChatWidget::UAI_ChatWidget(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	static ConstructorHelpers::FObjectFinder<USoundBase> NormalMumbleFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/MumblingNormal"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> CrazyMumbleFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/MumblingCrazy"));
+
+	if (NormalMumbleFinder.Succeeded())
+	{
+		AIMumbleSound = NormalMumbleFinder.Object;
+	}
+	if (CrazyMumbleFinder.Succeeded())
+	{
+		AIMumbleAnomalySound = CrazyMumbleFinder.Object;
+	}
+}
 
 void UAI_ChatWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (!AIMumbleSound)
+	{
+		AIMumbleSound = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Phone/MumblingNormal.MumblingNormal"));
+	}
+	if (!AIMumbleAnomalySound)
+	{
+		AIMumbleAnomalySound = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Phone/MumblingCrazy.MumblingCrazy"));
+	}
 
 	SendButton = ResolveInnerButton(SendButton1, InnerButtonName);
 	CloseButton = ResolveInnerButton(CloseButton1, InnerButtonName);

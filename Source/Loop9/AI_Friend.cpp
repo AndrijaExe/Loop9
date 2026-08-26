@@ -19,6 +19,7 @@
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Internationalization/Culture.h"
 #include "Misc/Guid.h"
+#include "UObject/ConstructorHelpers.h"
 
 AAI_Friend::AAI_Friend()
 {
@@ -33,6 +34,29 @@ AAI_Friend::AAI_Friend()
 	TriggerBox->SetupAttachment(PhoneMesh);
 	TriggerBox->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
 	TriggerBox->SetCollisionProfileName(TEXT("Trigger"));
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> RingFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/PhoneRingingSound"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> PickupFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/PhonePickup"));
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> PhoneAttenuationFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/ATT_PhoneRinging"));
+
+	if (RingFinder.Succeeded())
+	{
+		InitialRingSound = RingFinder.Object;
+	}
+	if (PickupFinder.Succeeded())
+	{
+		PhoneInteractSound = PickupFinder.Object;
+		PhoneAnswerSound = PickupFinder.Object;
+	}
+	if (PhoneAttenuationFinder.Succeeded())
+	{
+		InitialRingAttenuationSettings = PhoneAttenuationFinder.Object;
+		PhoneInteractAttenuationSettings = PhoneAttenuationFinder.Object;
+		PhoneAnswerAttenuationSettings = PhoneAttenuationFinder.Object;
+	}
 }
 
 int32 AAI_Friend::ResolveCurrentLoopIndex() const
@@ -297,6 +321,34 @@ void AAI_Friend::BeginPlay()
 		{
 			LoopManager->RegisterAIFriend(this);
 		}
+	}
+
+	if (!InitialRingSound)
+	{
+		InitialRingSound = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Phone/PhoneRingingSound.PhoneRingingSound"));
+	}
+	if (!PhoneInteractSound)
+	{
+		PhoneInteractSound = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Phone/PhonePickup.PhonePickup"));
+	}
+	if (!PhoneAnswerSound)
+	{
+		PhoneAnswerSound = PhoneInteractSound;
+	}
+	if (!InitialRingAttenuationSettings)
+	{
+		InitialRingAttenuationSettings = LoadObject<USoundAttenuation>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Phone/ATT_PhoneRinging.ATT_PhoneRinging"));
+	}
+	if (!PhoneInteractAttenuationSettings)
+	{
+		PhoneInteractAttenuationSettings = InitialRingAttenuationSettings;
+	}
+	if (!PhoneAnswerAttenuationSettings)
+	{
+		PhoneAnswerAttenuationSettings = InitialRingAttenuationSettings;
 	}
 
 	StartInitialRingIfNeeded();

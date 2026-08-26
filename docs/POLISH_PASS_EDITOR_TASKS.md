@@ -21,7 +21,8 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
   tekst, posle toga **Return to Main Menu**.
 - [x] **Credits odvojeni od Help-a.** `CreditsWidget` + dugme na meniju
   (Play → How to Play → Settings → Archive → Credits → Quit). Help više nema
-  SOUND CREDITS. Steam Legal / About i dalje nosi CC BY tekst.
+  SOUND CREDITS. Freesound autori iz download istorije su u Credits i
+  `STORE_PAGE.md`. Steamworks Legal / About treba da se uskladi i Publish-uje.
 - [x] **Help dugme → How to Play.** `ApplyLocalizedTexts` piše **HOW TO PLAY**.
 - [ ] GatherText da novi stringovi uđu u `.locres`. PO je već popunjen.
 

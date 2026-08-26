@@ -18,6 +18,8 @@ class LOOP9_API UAI_ChatWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UAI_ChatWidget(const FObjectInitializer& ObjectInitializer);
+
 	UFUNCTION(BlueprintCallable, Category = "AI Chat")
 	void SendMessageToAI(const FString& Message);
 

@@ -83,6 +83,19 @@ ALoop9Character::ALoop9Character()
 		}
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundBase> FootstepFinder(
+		TEXT("/Game/MyStuff/Sound/Footsteps/Footstep"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> Footstep2Finder(
+		TEXT("/Game/MyStuff/Sound/Footsteps/Footstep2"));
+	if (FootstepFinder.Succeeded())
+	{
+		FootstepSounds.Add(FootstepFinder.Object);
+	}
+	if (Footstep2Finder.Succeeded())
+	{
+		FootstepSounds.Add(Footstep2Finder.Object);
+	}
+
 	// configure the character comps
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::WorldSpaceRepresentation;
@@ -131,6 +144,20 @@ void ALoop9Character::BeginPlay()
 		if (PC->PlayerCameraManager)
 		{
 			PC->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, 0.6f, FLinearColor::Black, false, true);
+		}
+	}
+
+	if (FootstepSounds.Num() == 0)
+	{
+		if (USoundBase* FirstStep = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Footsteps/Footstep.Footstep")))
+		{
+			FootstepSounds.Add(FirstStep);
+		}
+		if (USoundBase* SecondStep = LoadObject<USoundBase>(
+			nullptr, TEXT("/Game/MyStuff/Sound/Footsteps/Footstep2.Footstep2")))
+		{
+			FootstepSounds.Add(SecondStep);
 		}
 	}
 }

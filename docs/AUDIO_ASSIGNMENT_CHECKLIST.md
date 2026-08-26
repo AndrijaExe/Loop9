@@ -57,19 +57,21 @@ Urađeno 26.08.2026.: terminal zvuči i skipuje kao ending WBP.
 
 ## Phone / Dragojlo (`BP_AI_Friend`)
 
-- [ ] **Initial Ring Sound** — auto-ring na BeginPlay (ako je uključen)
-- [ ] **Phone Interact Sound** — interakcija / pickup fallback
-- [ ] **Phone Answer Sound** — kad igrač “javi” telefon
+- [x] **Initial Ring Sound** — C++ default `Sound/Phone/PhoneRingingSound`
+  + `ATT_PhoneRinging` (26.08.2026.).
+- [x] **Phone Interact Sound** — C++ default `Sound/Phone/PhonePickup`.
+- [x] **Phone Answer Sound** — isti `PhonePickup` kad igrač javi telefon.
 
 ## AI chat UI (`AI_ChatWidget` / WBP chat)
 
-- [ ] **Typing Sound** — kucanje igrača
-- [ ] **AI Mumble Sound** — normalan odgovor
-- [ ] **AI Mumble Anomaly Sound** — nestabilan / anomaly odgovor
+- [ ] **Typing Sound** — kucanje igrača (nema posebnog asseta; ostaje prazan)
+- [x] **AI Mumble Sound** — C++ default `Sound/Phone/MumblingNormal` (26.08.2026.).
+- [x] **AI Mumble Anomaly Sound** — C++ default `Sound/Phone/MumblingCrazy`.
 
 ## Player (`BP_HorrorCharacter` / Loop9 character)
 
-- [ ] **Footstep Sounds** (niz) — hodanje po kancelariji
+- [x] **Footstep Sounds** (niz) — C++ default `Footstep` + `Footstep2`
+  (OwlStorm). BeginPlay dopuni niz ako ga BP ostavi praznim.
 - [ ] **Footstep Volume** — provera u igri
 - [x] **Flashlight Toggle Sound** (`Audio|Flashlight`) — klik lampe na `F`.
   Generisan `Sound/Flashlight/FlashlightToggle` (mono, 44.1 kHz, 0.11 s,
@@ -189,17 +191,20 @@ duplira; ostali ambient akteri se ne diraju.
 
 Svi OpenGameArt zvukovi uvezeni 21.08.2026. su **CC0**. Freesound door clipovi
 uvezeni 25.08.2026. uključuju **CC BY** (InspectorJ mora atribuciju).
+Ostali Freesound clipovi mapirani 26.08.2026. iz Andrijine download istorije.
 
 Urađeno 26.08.2026.:
 
-- [x] Credits ekran nabraja vrata, lift, telefon i originalne clipove
-  (OwlishMedia, LEGIT Audio, rubberduck, bretbernhoft, InspectorJ, Firefly).
-  Footsteps / phone ring / flicker / pursuer / menu ambient i dalje nemaju
-  dokumentovanog autora — dodati kad se nađe.
+- [x] Credits ekran nabraja vrata, lift, telefon, korake, ambient, pursuer
+  despawn i originalne clipove. Autori su iz Freesound download istorije,
+  ne iz nagađanja po imenu fajla.
 - [x] Credits **odvojeni od Help-a**: `CreditsWidget` + dugme na main meniju.
-  Help ostaje how-to. Steam Legal / About i dalje nosi CC BY tekst
+  Help ostaje how-to. Steam Legal / About mora da prati ovu tabelu
   (`Marketing/Steam/STORE_PAGE.md`).
 - [x] Help više nema SOUND CREDITS sekciju.
+- [x] `Sound/MainMenu/light-flicker` i `Sound/Pursuer/PursuerTensionLoop`
+  nisu u Freesound download istoriji; tretiraju se kao generisani
+  (Credits → ORIGINAL).
 
 | Asset | Izvor (URL) | Autor | Licenca | Šta je urađeno |
 |---|---|---|---|---|
@@ -211,6 +216,14 @@ Urađeno 26.08.2026.:
 | `Sound/Doors/DoorLocked` | https://freesound.org/people/BenjaminNelan/sounds/321087/ | BenjaminNelan | CC0 1.0 | copy into `DoorLocked.wav` |
 | `Sound/Doors/DoorBlocked` | https://freesound.org/people/alfonsseelen/sounds/475850/ | alfonsseelen | Freesound | trim 0.0–0.4 s into `DoorBlocked.wav` |
 | `Sound/Doors/DoorOpeningSound` | Adobe Firefly Sound Effects | Adobe Firefly | Firefly ToS | imported as-is |
+| `Sound/Footsteps/Footstep` | https://freesound.org/people/OwlStorm/sounds/151237/ | OwlStorm (Ashe Kirk / Owlish Media) | CC0 1.0 | Hard Female Footstep (3); duration match 0.580 s |
+| `Sound/Footsteps/Footstep2` | https://freesound.org/people/OwlStorm/sounds/151222/ | OwlStorm (Ashe Kirk / Owlish Media) | CC0 1.0 | Hard Female Footstep (4) |
+| `Sound/Phone/PhoneRingingSound` | https://freesound.org/people/AUDACITIER/sounds/629199/ | AUDACITIER | Freesound | Phone Ringing #2 |
+| `Sound/Phone/PhonePickup` | https://freesound.org/people/MootMcnoodles/sounds/444399/ | MootMcnoodles | CC0 1.0 | Phone Pick Up.wav |
+| `Sound/Phone/MumblingNormal` | https://freesound.org/people/so0rec/sounds/542590/ | so0rec | Freesound | Mumbling.wav; duration match 11.344 s |
+| `Sound/Phone/MumblingCrazy` | https://freesound.org/people/SilentStrikeZ/sounds/389642/ | SilentStrikeZ | Freesound | Human_Male_Crazy Mumbles_1.wav |
+| `Sound/Ambient/HorrorAmbience1` + `MainMenu/HorrorAmbientSound` | Freesound, ZHRØ, „Horror ambient.mp3“ (21.10.2020.) | ZHRØ | Freesound | jedan navedeni download; tačan sound ID nije potvrđen |
+| `Sound/Pursuer/PursuerDespawn` | https://freesound.org/people/CVLTIV8R/sounds/847621/ | CVLTIV8R | Freesound | Magic Spell - Whir, and Boom (7.23 s, isečeno na ~6.13 s) |
 
 Napomene:
 
