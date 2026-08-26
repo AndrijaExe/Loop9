@@ -13,6 +13,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMainMenuGameMode::AMainMenuGameMode()
 {
@@ -23,6 +24,13 @@ AMainMenuGameMode::AMainMenuGameMode()
 	
 	// Default player controller
 	PlayerControllerClass = APlayerController::StaticClass();
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> MenuLoopFinder(
+		TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound"));
+	if (MenuLoopFinder.Succeeded())
+	{
+		MainMenuLoopSound = MenuLoopFinder.Object;
+	}
 }
 
 void AMainMenuGameMode::BeginPlay()

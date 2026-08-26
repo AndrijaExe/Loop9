@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "Loop9Help"
 
-namespace
+namespace Loop9HelpStyle
 {
 	const FLinearColor HeadingBlue(0.50f, 0.80f, 1.00f, 1.00f);
 	const FLinearColor BodyGray(0.82f, 0.84f, 0.86f, 1.00f);
@@ -107,7 +107,7 @@ void UHelpWidget::BuildFallbackLayoutIfNeeded()
 	WidgetTree->RootWidget = Root;
 
 	UBorder* Backdrop = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Backdrop"));
-	Backdrop->SetBrushColor(ScreenFill);
+	Backdrop->SetBrushColor(Loop9HelpStyle::ScreenFill);
 	Backdrop->SetPadding(FMargin(72.0f, 48.0f));
 	if (UCanvasPanelSlot* BackdropSlot = Cast<UCanvasPanelSlot>(Root->AddChild(Backdrop)))
 	{
@@ -120,7 +120,7 @@ void UHelpWidget::BuildFallbackLayoutIfNeeded()
 
 	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("TitleText"));
 	TitleText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 34)));
-	TitleText->SetColorAndOpacity(FSlateColor(HeadingBlue));
+	TitleText->SetColorAndOpacity(FSlateColor(Loop9HelpStyle::HeadingBlue));
 	if (UVerticalBoxSlot* TitleSlot = Frame->AddChildToVerticalBox(TitleText))
 	{
 		TitleSlot->SetPadding(FMargin(0.0f, 0.0f, 0.0f, 24.0f));
@@ -218,7 +218,7 @@ void UHelpWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const F
 	UTextBlock* HeadingText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	HeadingText->SetText(Heading);
 	HeadingText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 20)));
-	HeadingText->SetColorAndOpacity(FSlateColor(HeadingBlue));
+	HeadingText->SetColorAndOpacity(FSlateColor(Loop9HelpStyle::HeadingBlue));
 	if (UVerticalBoxSlot* HeadingSlot = Parent->AddChildToVerticalBox(HeadingText))
 	{
 		HeadingSlot->SetPadding(FMargin(0.0f, 12.0f, 0.0f, 6.0f));
@@ -227,7 +227,7 @@ void UHelpWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const F
 	UTextBlock* BodyText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	BodyText->SetText(Body);
 	BodyText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 15)));
-	BodyText->SetColorAndOpacity(FSlateColor(BodyGray));
+	BodyText->SetColorAndOpacity(FSlateColor(Loop9HelpStyle::BodyGray));
 	BodyText->SetAutoWrapText(true);
 	if (UVerticalBoxSlot* BodySlot = Parent->AddChildToVerticalBox(BodyText))
 	{

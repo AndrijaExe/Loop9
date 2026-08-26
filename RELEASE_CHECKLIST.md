@@ -98,7 +98,7 @@ skeletal animacija i bez gameplay logike u Event Tracku.
 ### Ending balance targets
 
 Pragovi su podešeni za prvi prolaz od približno 9–17 odluka, bez znanja skrivenih
-ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
+ključnih reči. Potvrda prirodnih profila ostaje za kasnije (26.08.2026.).
 
 - [ ] **Paranoid Survivor:** 0–2 AI razgovora ili eksplicitno visok suspicion /
   nizak trust. Ovo je namerni ending za igrača koji ignoriše Dragojla.
@@ -145,10 +145,8 @@ ključnih reči. Pre finalnog builda potvrditi ove prirodne profile:
   dugme za gamepad/tastaturu, a telemetry razlikuje transport uspeh od HTTP 2xx.
 - [x] GatherText od **21.08.2026.** — tada su `de/fr/ru/sr` PO i `.locres`
   bili usklađeni, plus smoke svih pet jezika.
-- [ ] **Ponovo GatherText posle 25.08.** PO fajlovi su noviji od `.locres`
-  (`po` 09:31, `locres` 08:54 istog dana). Bez toga Help tekst, `SKIP` na
-  ending dugmetu i prevodi dodati 25.08. rade samo na engleskom, jer igra
-  čita `.locres`. Jedna komanda: `[docs/LOCALIZATION.md](docs/LOCALIZATION.md)`.
+- [x] **Ponovo GatherText 26.08.2026. uveče.** `HOW TO PLAY` / `CREDITS` i ostali
+  novi stringovi su u `.locres`.
 - [x] Item inspection smoke:
   otvaranje/zatvaranje, rotacija 15 s, bez ljubičastih artefakata, povratak inputa
   i pause menija.
@@ -195,12 +193,12 @@ Ostaje u editoru pre sledećeg Shipping builda:
 - [x] Uvezi četiri `Content/MyStuff/Sound/Doors/*.wav` (`DoorOpen`, `DoorClose`,
   `DoorLocked`, `DoorBlocked`). `.uasset` postoje od 25.08.2026.
 - [x] GatherText — urađen 25.08.2026.; `.locres` je u ovom commitu.
-- [ ] Proveri intenzitet lampe u BP karaktera; digni `Intensity` samo ako je
-  pretamno.
-- [ ] Obriši `AmbientSound_0` iz `FullOfficeMap` (samo taj, i samo ako je na
-  `SC_Music`). Nije bloker — kôd ga već utišava.
-- [ ] Opciono: slike u Help WBP-u; 2–3 `AnomalyMovePoint` po Move objektu
-  ako pomeraj deluje previše isti svaku petlju.
+- [x] Proveri intenzitet lampe u BP karaktera — u redu, ne menjati (26.08.2026.).
+- [x] Obriši `AmbientSound_0` iz `FullOfficeMap` — urađeno 26.08.2026. uveče
+  (svirao `HorrorAmbience1`).
+- [x] Help slike — ne radimo za sada (26.08.2026.).
+- [ ] Opciono: 2–3 `AnomalyMovePoint` po Move objektu ako pomeraj deluje
+  previše isti svaku petlju.
 
 Sledeća sesija (urađeno 26.08.2026.):
 
@@ -209,11 +207,11 @@ Sledeća sesija (urađeno 26.08.2026.):
 - [x] Credits odvojeni od Help-a: `CreditsWidget` + dugme na meniju
   (Play → How to Play → Settings → Archive → Credits → Quit). Help više
   ne nosi SOUND CREDITS. Freesound autori iz download istorije su u
-  Credits i `STORE_PAGE.md` Legal (26.08.). Ostaje da se isti tekst
-  upiše u Steamworks Legal / About i Publish-uje.
+  Credits i `STORE_PAGE.md` Legal (26.08.). Steamworks Legal / About
+  usklađen 26.08.2026.
 - [x] Main-menu dugme `HELP` preimenovano u **HOW TO PLAY**.
-- [ ] GatherText posle ovih stringova da `HOW TO PLAY` / `CREDITS` uđu u
-  `.locres` (PO je već popunjen za 5 jezika).
+- [x] GatherText posle ovih stringova da `HOW TO PLAY` / `CREDITS` uđu u
+  `.locres` (26.08.2026. uveče).
 
 
 ## 2. Steamworks — Store Presence
@@ -521,7 +519,7 @@ Brief:
   tool shelf, storage corner, corridor between lifts and desks.
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
 
-- [ ] Help slike (WBP dete od `HelpWidget`) — opciono, vidi §1.
+- [x] Help slike — ne radimo za sada (26.08.2026.).
 - [x] Replacement terminal: typewriter zvuk + SKIP (26.08.2026.).
   Phone pickup, ring, chat mumble i koraci imaju C++ default (26.08.).
   Prompt-complete i chat typing i dalje prazni; nisu launch bloker.
@@ -536,9 +534,9 @@ Brief:
    `Builds/Feature`; nova verzija npr. `PackageWindowsShipping.bat v1.0.1`).
    **`Builds/v1.0.0` se ne overwrite-uje.** Typewriter + vrata `.uasset` i
    GatherText su urađeni; bez zatvorenog editora cooker udara na MCP port.
-2. GatherText za HOW TO PLAY / CREDITS, zatim lokalni QA cooka (mix, vrata,
-   ending i terminal kucanje, jezici). Achievementi i AI chat samo iz Steam
-   Library-ja posle uploada.
+2. Lokalni QA Feature cooka (mix, vrata, ending i terminal kucanje, jezici,
+   How to Play / Credits, alt muzika, pursuer bed). Achievementi i AI chat
+   samo iz Steam Library-ja posle uploada.
 3. Achievement test po grupi + persist QA iz §3 + ending balance (šest profila).
 4. `UploadPlaytest.bat` → Steamworks Set Live na `playtest` (i `default` kad
    odlučiš). SteamCMD `setlive` ne može `default`.

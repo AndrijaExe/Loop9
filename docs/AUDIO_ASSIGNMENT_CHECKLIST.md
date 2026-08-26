@@ -136,10 +136,9 @@ igrač ne gleda u njega.
 - [x] **Moving Murmur Loop Sound** — `Sound/Phone/MumblingCrazy` +
   `ATT_PursuerFootstep` (C++ default; clip se ponavlja dok hoda)
 - [x] **Active Anomaly Loop Sound** — `Sound/Pursuer/185993__mmleys__dynamic-space`
-  (C++ default, 26.08.2026.). Fallback ostaje `PursuerTensionLoop`, pa
-  `HorrorAmbientSound`. Posle importa: **Looping = true**, Sound Class
-  **`SC_Music`**. Clip je 17 s; ako Looping ostane false, C++ ga ponovo
-  pušta na `OnAudioFinished`.
+  (C++ default, uvezen 26.08.2026. uveče). **Looping = true**, Sound Class
+  **`SC_SFX`** (ne `SC_Music`, da ne ide kroz isti slider koji C++ utišava
+  dok traje jurnjava). Fallback `PursuerTensionLoop` isto looping + `SC_SFX`.
 
 ## Audio anomalies (svaki `AudioAnomalyComponent` u mapi)
 
@@ -167,23 +166,22 @@ Zadnji red na ending ekranu se iskucava kao da ga Dragojlo piše, kroz isti
 ## Level music (`BP_Loop9GameMode > Audio`)
 
 Muziku na spratu pušta game mode kao 2D zvuk, a ne `AAmbientSound` u mapi.
-Postavljeni `AmbientSound_0` na `SC_Music` se pri startu utiša da se track ne
-duplira; ostali ambient akteri se ne diraju.
+`AmbientSound_0` (HorrorAmbience1) je obrisan 26.08.2026. uveče.
 
 - [x] **Level Music Sound** — `Sound/Ambient/HorrorAmbience1` (C++ default,
   ~21.7 s, `bLooping` = true na wave-u)
 - [x] **Level Music Alt Sound** — `Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm`
-  (C++ default, 26.08.2026., 224 s). Playlist: prvi clip jednom kroz,
-  pa ovaj, pa opet prvi. HorrorAmbience1 se ne ostavlja da loopuje zauvek
-  — tajmer seče na `Duration` i menja track. Posle importa: **Looping = false**,
-  Sound Class **`SC_Music`**.
+  uvezen 26.08.2026. uveče: **Looping = false**, Sound Class **`SC_Music`**.
+  Playlist: prvi clip jednom kroz, pa ovaj, pa opet prvi. HorrorAmbience1
+  se ne ostavlja da loopuje zauvek — tajmer seče na `Duration` i menja track.
 - [x] **Level Music Volume** = 0.35, množi se ambient sliderom
 - [ ] QA: muzika radi od ulaska u nivo, bez otvaranja settings menija. Ako ne
   radi, `AudioStatus` u konzoli ispisuje device / jačine / bed / ambient aktere.
 
 ## Main menu (`BP_MainMenuGameMode` ili MainMenu mapa)
 
-- [ ] **Main Menu Loop Sound** — looping ambient / muzika
+- [x] **Main Menu Loop Sound** — C++ default `Sound/MainMenu/HorrorAmbientSound`
+  (26.08.2026. uveče).
 
 ## Settings / mix (nije asset slot, ali QA)
 
@@ -207,8 +205,7 @@ Urađeno 26.08.2026.:
   despawn i originalne clipove. Autori su iz Freesound download istorije,
   ne iz nagađanja po imenu fajla.
 - [x] Credits **odvojeni od Help-a**: `CreditsWidget` + dugme na main meniju.
-  Help ostaje how-to. Steam Legal / About mora da prati ovu tabelu
-  (`Marketing/Steam/STORE_PAGE.md`).
+  Help ostaje how-to. Steamworks Legal / About usklađen 26.08.2026.
 - [x] Help više nema SOUND CREDITS sekciju.
 - [x] `Sound/MainMenu/light-flicker` i `Sound/Pursuer/PursuerTensionLoop`
   nisu u Freesound download istoriji; tretiraju se kao generisani

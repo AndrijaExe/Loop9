@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-08-25 16:15\n"
-"PO-Revision-Date: 2026-08-25 16:15\n"
+"POT-Creation-Date: 2026-08-26 20:39\n"
+"PO-Revision-Date: 2026-08-26 20:39\n"
 "Language-Team: \n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -371,81 +371,81 @@ msgid "Tip: Look for missing objects"
 msgstr "Совет: ищи пропавшие предметы"
 
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(149)
-#: Source/Loop9/AI_ChatWidget.cpp(149)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(179)
+#: Source/Loop9/AI_ChatWidget.cpp(179)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Драгойло: "
 
 #. Key:	ThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(150)
-#: Source/Loop9/AI_ChatWidget.cpp(150)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(180)
+#: Source/Loop9/AI_ChatWidget.cpp(180)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
 msgstr "Думает..."
 
 #. Key:	StillThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(182)
-#: Source/Loop9/AI_ChatWidget.cpp(182)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(212)
+#: Source/Loop9/AI_ChatWidget.cpp(212)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
 msgstr "Всё ещё думает..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(235)
-#: Source/Loop9/AI_ChatWidget.cpp(235)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(265)
+#: Source/Loop9/AI_ChatWidget.cpp(265)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Ты: "
 
+#. Key:	AnswerPhone
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1019)
+#: Source/Loop9/AI_Friend.cpp(1019)
+msgctxt "Loop9Interaction,AnswerPhone"
+msgid "Answer"
+msgstr "Ответить"
+
 #. Key:	ChatConnectionLost
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(507)
-#: Source/Loop9/AI_Friend.cpp(507)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(559)
+#: Source/Loop9/AI_Friend.cpp(559)
 msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...линия трещит и обрывается. (Нет соединения. Проверь интернет и попробуй снова.)"
 
 #. Key:	ChatRateLimitedRetry
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(517)
-#: Source/Loop9/AI_Friend.cpp(517)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(569)
+#: Source/Loop9/AI_Friend.cpp(569)
 msgctxt "Loop9Chat,ChatRateLimitedRetry"
 msgid "...the line is busy. Try again in {0}s."
 msgstr "...линия занята. Попробуй снова через {0} с."
 
 #. Key:	ChatServerError
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(523)
-#: Source/Loop9/AI_Friend.cpp(523)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(575)
+#: Source/Loop9/AI_Friend.cpp(575)
 msgctxt "Loop9Chat,ChatServerError"
 msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
 msgstr "...в трубке шипят помехи. На той стороне что-то не так. Попробуй ещё раз."
 
 #. Key:	ChatMessageTooLong
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(548)
-#: Source/Loop9/AI_Friend.cpp(548)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(600)
+#: Source/Loop9/AI_Friend.cpp(600)
 msgctxt "Loop9Chat,ChatMessageTooLong"
 msgid "...he cuts you off. Keep it shorter."
 msgstr "...он тебя перебивает. Короче."
 
 #. Key:	LowSignalReply
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(580)
-#: Source/Loop9/AI_Friend.cpp(580)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(632)
+#: Source/Loop9/AI_Friend.cpp(632)
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
 msgstr "Слабый сигнал. Попробуй позже."
 
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(916)
-#: Source/Loop9/AI_Friend.cpp(916)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(968)
+#: Source/Loop9/AI_Friend.cpp(968)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Слушай внимательно: если заметишь любую странность, заходи в освещённый лифт. Если аномалии нет, заходи в тёмный лифт. Первая петля чистая — не спеши и запомни, как всё выглядит в норме."
-
-#. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(967)
-#: Source/Loop9/AI_Friend.cpp(967)
-msgctxt "Loop9Interaction,AnswerPhone"
-msgid "Answer"
-msgstr "Ответить"
 
 #. Key:	PhoneRinging
 #. SourceLocation:	Source/Loop9/AI_Friend.h(99)
@@ -539,29 +539,29 @@ msgid "Every loop is a chance to escape"
 msgstr "Каждая петля — шанс сбежать"
 
 #. Key:	DoorBlocked
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(157)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(157)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(190)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(190)
 msgctxt "Loop9Interaction,DoorBlocked"
 msgid "Blocked by something behind"
 msgstr "Заблокировано с той стороны"
 
 #. Key:	DoorLocked
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(162)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(162)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(195)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(195)
 msgctxt "Loop9Interaction,DoorLocked"
 msgid "Locked"
 msgstr "Заперто"
 
 #. Key:	DoorClose
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(166)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(166)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(199)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(199)
 msgctxt "Loop9Interaction,DoorClose"
 msgid "Close"
 msgstr "Закрыть"
 
 #. Key:	DoorOpen
-#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(167)
-#: Source/Loop9/Interaction/DoorInteractable.cpp(167)
+#. SourceLocation:	Source/Loop9/Interaction/DoorInteractable.cpp(200)
+#: Source/Loop9/Interaction/DoorInteractable.cpp(200)
 msgctxt "Loop9Interaction,DoorOpen"
 msgid "Open"
 msgstr "Открыть"
@@ -595,8 +595,8 @@ msgid "Next floor"
 msgstr "Следующий этаж"
 
 #. Key:	TaskComplete
-#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
-#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(331)
+#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
+#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
 msgctxt "Loop9Ending,TaskComplete"
 msgid "TASK COMPLETE"
 msgstr "ЗАДАЧА ВЫПОЛНЕНА"
@@ -776,54 +776,166 @@ msgctxt "Loop9Endings,ParanoidSurvivorTitle"
 msgid "PARANOID SURVIVOR"
 msgstr "ПАРАНОИДАЛЬНЫЙ ВЫЖИВШИЙ"
 
-#. Key:	ColdBetrayalDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(103)
-#: Source/Loop9/UI/EndingWidget.cpp(103)
-msgctxt "Loop9Endings,ColdBetrayalDesc"
-msgid "You relied on him but never respected him. One calm lie was enough."
-msgstr "Ты полагался на него, но никогда его не уважал. Хватило одной спокойной лжи."
+#. Key:	CreditsDoorsHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(161)
+#: Source/Loop9/UI/CreditsWidget.cpp(161)
+msgctxt "Loop9Credits,CreditsDoorsHeading"
+msgid "DOORS"
+msgstr ""
 
-#. Key:	MergedMemoryDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(107)
-#: Source/Loop9/UI/EndingWidget.cpp(107)
-msgctxt "Loop9Endings,MergedMemoryDesc"
-msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
-msgstr "Твои воспоминания и его утечки переплелись. Ты больше не знаешь, кто что помнит."
+#. Key:	CreditsDoorsBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(162)
+#: Source/Loop9/UI/CreditsWidget.cpp(162)
+msgctxt "Loop9Credits,CreditsDoorsBody"
+msgid "\"Door, Front, Closing, A.wav\" by InspectorJ (www.jshaw.co.uk) of Freesound.org. Licensed under CC BY.\n\"Door Locked\" by BenjaminNelan of Freesound.org (CC0).\n\"car_door_slam_flat_block_overvecht.wav\" by alfonsseelen of Freesound.org.\nDoor opening generated with Adobe Firefly."
+msgstr ""
 
-#. Key:	TheReplacementDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(111)
-#: Source/Loop9/UI/EndingWidget.cpp(111)
-msgctxt "Loop9Endings,TheReplacementDesc"
-msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
-msgstr "Он не уничтожил тебя. Он выучил тебя. Теперь ты — голос на другом конце линии."
+#. Key:	CreditsElevatorHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(169)
+#: Source/Loop9/UI/CreditsWidget.cpp(169)
+msgctxt "Loop9Credits,CreditsElevatorHeading"
+msgid "ELEVATOR"
+msgstr ""
 
-#. Key:	ParanoidSurvivorDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(115)
-#: Source/Loop9/UI/EndingWidget.cpp(115)
-msgctxt "Loop9Endings,ParanoidSurvivorDesc"
-msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
-msgstr "Ты сбежал один, никому не доверяя. Может, это тебя спасло. А может, стоило тебе правды."
+#. Key:	CreditsElevatorBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(170)
+#: Source/Loop9/UI/CreditsWidget.cpp(170)
+msgctxt "Loop9Credits,CreditsElevatorBody"
+msgid "Button click: OwlishMedia, \"87 Clickety Clips\" (click70.wav), OpenGameArt, CC0.\nTravel hum: LEGIT Audio, \"The Shop\" fridge drone, OpenGameArt, CC0."
+msgstr ""
 
-#. Key:	EndingStatsFormat
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(120)
-#: Source/Loop9/UI/EndingWidget.cpp(120)
-msgctxt "Loop9Endings,EndingStatsFormat"
-msgid "Resets: {0} | AI interactions: {1}"
-msgstr "Сбросы: {0} | Разговоры с ИИ: {1}"
+#. Key:	CreditsPhoneHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(175)
+#: Source/Loop9/UI/CreditsWidget.cpp(175)
+msgctxt "Loop9Credits,CreditsPhoneHeading"
+msgid "PHONE"
+msgstr ""
+
+#. Key:	CreditsPhoneBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(176)
+#: Source/Loop9/UI/CreditsWidget.cpp(176)
+msgctxt "Loop9Credits,CreditsPhoneBody"
+msgid "Ring: \"Phone Ringing #2\" by AUDACITIER of Freesound.org.\nPickup: \"Phone Pick Up.wav\" by MootMcnoodles of Freesound.org (CC0).\nLine cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\nLine noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain.\nMumbling: \"Mumbling.wav\" by so0rec of Freesound.org.\nPursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org."
+msgstr ""
+
+#. Key:	CreditsFootstepsHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(185)
+#: Source/Loop9/UI/CreditsWidget.cpp(185)
+msgctxt "Loop9Credits,CreditsFootstepsHeading"
+msgid "FOOTSTEPS"
+msgstr ""
+
+#. Key:	CreditsFootstepsBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(186)
+#: Source/Loop9/UI/CreditsWidget.cpp(186)
+msgctxt "Loop9Credits,CreditsFootstepsBody"
+msgid "\"Hard Female Footstep (3)\" and \"Hard Female Footstep (4)\" by OwlStorm (Ashe Kirk / Owlish Media) of Freesound.org (CC0)."
+msgstr ""
+
+#. Key:	CreditsAmbientHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(191)
+#: Source/Loop9/UI/CreditsWidget.cpp(191)
+msgctxt "Loop9Credits,CreditsAmbientHeading"
+msgid "AMBIENT"
+msgstr ""
+
+#. Key:	CreditsAmbientBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(192)
+#: Source/Loop9/UI/CreditsWidget.cpp(192)
+msgctxt "Loop9Credits,CreditsAmbientBody"
+msgid "\"Horror ambient.mp3\" by ZHRØ of Freesound.org.\n\"Street Museum (Dark Ambient BGM)\" by ChristmasKrumble666 of Freesound.org."
+msgstr ""
+
+#. Key:	CreditsPursuerHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(197)
+#: Source/Loop9/UI/CreditsWidget.cpp(197)
+msgctxt "Loop9Credits,CreditsPursuerHeading"
+msgid "PURSUER"
+msgstr ""
+
+#. Key:	CreditsPursuerBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(198)
+#: Source/Loop9/UI/CreditsWidget.cpp(198)
+msgctxt "Loop9Credits,CreditsPursuerBody"
+msgid "Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\nDespawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."
+msgstr ""
+
+#. Key:	CreditsOriginalHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(203)
+#: Source/Loop9/UI/CreditsWidget.cpp(203)
+msgctxt "Loop9Credits,CreditsOriginalHeading"
+msgid "ORIGINAL"
+msgstr ""
+
+#. Key:	CreditsOriginalBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(204)
+#: Source/Loop9/UI/CreditsWidget.cpp(204)
+msgctxt "Loop9Credits,CreditsOriginalBody"
+msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
+msgstr ""
+
+#. Key:	CreditsTitle
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(37)
+#: Source/Loop9/UI/CreditsWidget.cpp(37)
+msgctxt "Loop9Credits,CreditsTitle"
+msgid "CREDITS"
+msgstr ""
+
+#. Key:	CreditsBack
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(87)
+#: Source/Loop9/UI/CreditsWidget.cpp(87)
+msgctxt "Loop9Credits,CreditsBack"
+msgid "BACK"
+msgstr ""
 
 #. Key:	EscapeTogetherDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(95)
-#: Source/Loop9/UI/EndingWidget.cpp(95)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(171)
+#: Source/Loop9/UI/EndingWidget.cpp(171)
 msgctxt "Loop9Endings,EscapeTogetherDesc"
 msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
 msgstr "Вы с Драгойло построили доверие, и ты не потерял себя. Вы сбежали из петли вместе."
 
 #. Key:	ObedientFoolDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(99)
-#: Source/Loop9/UI/EndingWidget.cpp(99)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(175)
+#: Source/Loop9/UI/EndingWidget.cpp(175)
 msgctxt "Loop9Endings,ObedientFoolDesc"
 msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
 msgstr "Ты доверял слепо и перестал решать сам. Не тот голос выбрал твою судьбу."
+
+#. Key:	ColdBetrayalDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(179)
+#: Source/Loop9/UI/EndingWidget.cpp(179)
+msgctxt "Loop9Endings,ColdBetrayalDesc"
+msgid "You relied on him but never respected him. One calm lie was enough."
+msgstr "Ты полагался на него, но никогда его не уважал. Хватило одной спокойной лжи."
+
+#. Key:	MergedMemoryDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(183)
+#: Source/Loop9/UI/EndingWidget.cpp(183)
+msgctxt "Loop9Endings,MergedMemoryDesc"
+msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
+msgstr "Твои воспоминания и его утечки переплелись. Ты больше не знаешь, кто что помнит."
+
+#. Key:	TheReplacementDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(187)
+#: Source/Loop9/UI/EndingWidget.cpp(187)
+msgctxt "Loop9Endings,TheReplacementDesc"
+msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
+msgstr "Он не уничтожил тебя. Он выучил тебя. Теперь ты — голос на другом конце линии."
+
+#. Key:	ParanoidSurvivorDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(191)
+#: Source/Loop9/UI/EndingWidget.cpp(191)
+msgctxt "Loop9Endings,ParanoidSurvivorDesc"
+msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
+msgstr "Ты сбежал один, никому не доверяя. Может, это тебя спасло. А может, стоило тебе правды."
+
+#. Key:	EndingStatsFormat
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(196)
+#: Source/Loop9/UI/EndingWidget.cpp(196)
+msgctxt "Loop9Endings,EndingStatsFormat"
+msgid "Resets: {0} | AI interactions: {1}"
+msgstr "Сбросы: {0} | Разговоры с ИИ: {1}"
 
 #. Key:	ContinueButtonLabel
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.h(57)
@@ -952,43 +1064,43 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(123)
-#: Source/Loop9/UI/MainMenuWidget.cpp(123)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(132)
+#: Source/Loop9/UI/MainMenuWidget.cpp(132)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "ИГРАТЬ"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(124)
-#: Source/Loop9/UI/MainMenuWidget.cpp(124)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(133)
+#: Source/Loop9/UI/MainMenuWidget.cpp(133)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "НАСТРОЙКИ"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(125)
-#: Source/Loop9/UI/MainMenuWidget.cpp(125)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(134)
+#: Source/Loop9/UI/MainMenuWidget.cpp(134)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "ВЫХОД"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(126)
-#: Source/Loop9/UI/MainMenuWidget.cpp(126)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
+#: Source/Loop9/UI/MainMenuWidget.cpp(135)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "АРХИВ"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
-#: Source/Loop9/UI/MainMenuWidget.cpp(135)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
+#: Source/Loop9/UI/MainMenuWidget.cpp(136)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "КАК ИГРАТЬ"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
-#: Source/Loop9/UI/MainMenuWidget.cpp(136)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(137)
+#: Source/Loop9/UI/MainMenuWidget.cpp(137)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "ТИТРЫ"
@@ -1015,78 +1127,78 @@ msgid "MAIN MENU"
 msgstr "ГЛАВНОЕ МЕНЮ"
 
 #. Key:	Line01
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(63)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(83)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(83)
 msgctxt "Loop9Terminal,Line01"
 msgid "Initializing interface..."
 msgstr "Инициализация интерфейса..."
 
 #. Key:	Line02
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(64)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(84)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(84)
 msgctxt "Loop9Terminal,Line02"
 msgid "Loading conversation model..."
 msgstr "Загрузка разговорной модели..."
 
 #. Key:	Line03
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(65)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(85)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(85)
 msgctxt "Loop9Terminal,Line03"
 msgid "Importing behavioral profile..."
 msgstr "Импорт поведенческого профиля..."
 
 #. Key:	Line04
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(66)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(86)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(86)
 msgctxt "Loop9Terminal,Line04"
 msgid "Importing subject language patterns..."
 msgstr "Импорт языковых паттернов субъекта..."
 
 #. Key:	Line05
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(67)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(87)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(87)
 msgctxt "Loop9Terminal,Line05"
 msgid "Loading response profile..."
 msgstr "Загрузка профиля ответов..."
 
 #. Key:	Line06
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(68)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(88)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(88)
 msgctxt "Loop9Terminal,Line06"
 msgid "Personality imprint complete."
 msgstr "Отпечаток личности завершён."
 
 #. Key:	Line07
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(69)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(69)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(89)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(89)
 msgctxt "Loop9Terminal,Line07"
 msgid "Source: Player"
 msgstr "Источник: Игрок"
 
 #. Key:	Line08
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(70)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(70)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(90)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(90)
 msgctxt "Loop9Terminal,Line08"
 msgid "Synchronization complete."
 msgstr "Синхронизация завершена."
 
 #. Key:	Line09
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(71)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(71)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(91)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(91)
 msgctxt "Loop9Terminal,Line09"
 msgid "User connected."
 msgstr "Пользователь подключён."
 
 #. Key:	Line10
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(72)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(72)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(92)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(92)
 msgctxt "Loop9Terminal,Line10"
 msgid "User: Hello?"
 msgstr "Пользователь: Алло?"
 
 #. Key:	Line11
-#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(73)
-#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(73)
+#. SourceLocation:	Source/Loop9/UI/ReplacementTerminalWidget.cpp(93)
+#: Source/Loop9/UI/ReplacementTerminalWidget.cpp(93)
 msgctxt "Loop9Terminal,Line11"
 msgid "User: Is someone there?"
 msgstr "Пользователь: Здесь кто-нибудь есть?"

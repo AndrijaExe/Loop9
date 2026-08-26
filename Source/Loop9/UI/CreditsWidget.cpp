@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "Loop9Credits"
 
-namespace
+namespace Loop9CreditsStyle
 {
 	const FLinearColor HeadingBlue(0.50f, 0.80f, 1.00f, 1.00f);
 	const FLinearColor BodyGray(0.82f, 0.84f, 0.86f, 1.00f);
@@ -105,7 +105,7 @@ void UCreditsWidget::BuildFallbackLayoutIfNeeded()
 	WidgetTree->RootWidget = Root;
 
 	UBorder* Backdrop = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Backdrop"));
-	Backdrop->SetBrushColor(ScreenFill);
+	Backdrop->SetBrushColor(Loop9CreditsStyle::ScreenFill);
 	Backdrop->SetPadding(FMargin(72.0f, 48.0f));
 	if (UCanvasPanelSlot* BackdropSlot = Cast<UCanvasPanelSlot>(Root->AddChild(Backdrop)))
 	{
@@ -118,7 +118,7 @@ void UCreditsWidget::BuildFallbackLayoutIfNeeded()
 
 	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("TitleText"));
 	TitleText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 34)));
-	TitleText->SetColorAndOpacity(FSlateColor(HeadingBlue));
+	TitleText->SetColorAndOpacity(FSlateColor(Loop9CreditsStyle::HeadingBlue));
 	if (UVerticalBoxSlot* TitleSlot = Frame->AddChildToVerticalBox(TitleText))
 	{
 		TitleSlot->SetPadding(FMargin(0.0f, 0.0f, 0.0f, 24.0f));
@@ -215,7 +215,7 @@ void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, cons
 	UTextBlock* HeadingText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	HeadingText->SetText(Heading);
 	HeadingText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Bold", 20)));
-	HeadingText->SetColorAndOpacity(FSlateColor(HeadingBlue));
+	HeadingText->SetColorAndOpacity(FSlateColor(Loop9CreditsStyle::HeadingBlue));
 	if (UVerticalBoxSlot* HeadingSlot = Parent->AddChildToVerticalBox(HeadingText))
 	{
 		HeadingSlot->SetPadding(FMargin(0.0f, 12.0f, 0.0f, 6.0f));
@@ -224,7 +224,7 @@ void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, cons
 	UTextBlock* BodyText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 	BodyText->SetText(Body);
 	BodyText->SetFont(FSlateFontInfo(FCoreStyle::GetDefaultFontStyle("Regular", 15)));
-	BodyText->SetColorAndOpacity(FSlateColor(BodyGray));
+	BodyText->SetColorAndOpacity(FSlateColor(Loop9CreditsStyle::BodyGray));
 	BodyText->SetAutoWrapText(true);
 	if (UVerticalBoxSlot* BodySlot = Parent->AddChildToVerticalBox(BodyText))
 	{

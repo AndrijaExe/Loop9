@@ -22,9 +22,9 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 - [x] **Credits odvojeni od Help-a.** `CreditsWidget` + dugme na meniju
   (Play → How to Play → Settings → Archive → Credits → Quit). Help više nema
   SOUND CREDITS. Freesound autori iz download istorije su u Credits i
-  `STORE_PAGE.md`. Steamworks Legal / About treba da se uskladi i Publish-uje.
+  `STORE_PAGE.md`. Steamworks Legal / About usklađen 26.08.2026.
 - [x] **Help dugme → How to Play.** `ApplyLocalizedTexts` piše **HOW TO PLAY**.
-- [ ] GatherText da novi stringovi uđu u `.locres`. PO je već popunjen.
+- [x] GatherText da novi stringovi uđu u `.locres`. Pokrenuto 26.08.2026. uveče.
 
 ---
 
@@ -41,19 +41,15 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 
 ## 2. Sitnice koje vredi proveriti u igri
 
-- [ ] **Intenzitet lampe.** C++ default je 2600 lm, cone 16°/34°, blago topla
-  boja. Namerno ne briše mrak; ako je pretamno digni `Intensity` na komponenti
-  `Flashlight` u BP-u karaktera.
+- [x] **Intenzitet lampe.** Potvrđeno 26.08.2026.: C++ default 2600 lm, cone
+  16°/34° je u redu, ne dirati.
 - [~] **Move destinacije.** Sva četiri placementa imaju po jednu destinaciju, pa
   je pomeraj isti u svakoj petlji. Ako želiš varijaciju, dodaj 2–3
   `AnomalyMovePoint` aktera po objektu — vidi [ANOMALIES.md](ANOMALIES.md).
-- [ ] **`AmbientSound_0` u `FullOfficeMap`.** Muziku na spratu sada pušta
-  `ALoop9GameMode` kao 2D zvuk, a ovaj akter se pri startu utiša namerno da se
-  `HorrorAmbience1` ne bi svirao dva puta. Kod ga gasi sam, ali mapa je jasnija
-  bez njega. Drugi `AmbientSound` akteri koji **nisu** na `SC_Music` se ne diraju.
-- [ ] **Slike u Help ekranu (opciono).** Napravi WBP dete od `HelpWidget`, bindaj
-  `VB_Sections` i postavi ga na **UI > Help Widget Class** na meniju. C++ i dalje
-  ubacuje tekst, ti dodaješ vizual oko njega.
+- [x] **`AmbientSound_0` u `FullOfficeMap`.** Obrisan 26.08.2026. (svirao je
+  `HorrorAmbience1` i duplirao C++ bed). Muziku sprata i dalje pušta
+  `ALoop9GameMode`.
+- [x] **Slike u Help ekranu.** Ne radimo za sada (26.08.2026.).
 
 ---
 

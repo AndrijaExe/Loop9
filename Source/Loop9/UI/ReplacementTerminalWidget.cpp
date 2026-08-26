@@ -325,17 +325,17 @@ void UReplacementTerminalWidget::RefreshContinueButtonLabel()
 
 void UReplacementTerminalWidget::SetContinueVisible(bool bVisible)
 {
-	const ESlateVisibility Visibility = bVisible
+	const ESlateVisibility ContinueVisibility = bVisible
 		? ESlateVisibility::Visible
 		: ESlateVisibility::Collapsed;
 
 	if (BT_Continue)
 	{
-		BT_Continue->SetVisibility(Visibility);
+		BT_Continue->SetVisibility(ContinueVisibility);
 	}
 	if (FallbackContinueButton)
 	{
-		FallbackContinueButton->SetVisibility(Visibility);
+		FallbackContinueButton->SetVisibility(ContinueVisibility);
 	}
 }
 
