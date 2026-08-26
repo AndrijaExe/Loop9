@@ -17,18 +17,27 @@ UPursuerAnomalyComponent::UPursuerAnomalyComponent()
 	AnomalyProbability = 0.4f;
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> TensionFinder(
-		TEXT("/Game/MyStuff/Sound/Pursuer/PursuerTensionLoop"));
+		TEXT("/Game/MyStuff/Sound/Pursuer/185993__mmleys__dynamic-space"));
 	if (TensionFinder.Succeeded())
 	{
 		ActiveAnomalyLoopSound = TensionFinder.Object;
 	}
 	else
 	{
-		static ConstructorHelpers::FObjectFinder<USoundBase> MenuAmbientFinder(
-			TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound"));
-		if (MenuAmbientFinder.Succeeded())
+		static ConstructorHelpers::FObjectFinder<USoundBase> TensionFallbackFinder(
+			TEXT("/Game/MyStuff/Sound/Pursuer/PursuerTensionLoop"));
+		if (TensionFallbackFinder.Succeeded())
 		{
-			ActiveAnomalyLoopSound = MenuAmbientFinder.Object;
+			ActiveAnomalyLoopSound = TensionFallbackFinder.Object;
+		}
+		else
+		{
+			static ConstructorHelpers::FObjectFinder<USoundBase> MenuAmbientFinder(
+				TEXT("/Game/MyStuff/Sound/MainMenu/HorrorAmbientSound"));
+			if (MenuAmbientFinder.Succeeded())
+			{
+				ActiveAnomalyLoopSound = MenuAmbientFinder.Object;
+			}
 		}
 	}
 }
@@ -149,6 +158,12 @@ void UPursuerAnomalyComponent::StartTensionMusic()
 	{
 		ActiveAnomalyLoopSound = LoadObject<USoundBase>(
 			nullptr,
+			TEXT("/Game/MyStuff/Sound/Pursuer/185993__mmleys__dynamic-space.185993__mmleys__dynamic-space"));
+	}
+	if (!ActiveAnomalyLoopSound)
+	{
+		ActiveAnomalyLoopSound = LoadObject<USoundBase>(
+			nullptr,
 			TEXT("/Game/MyStuff/Sound/Pursuer/PursuerTensionLoop.PursuerTensionLoop"));
 	}
 	if (!ActiveAnomalyLoopSound)
@@ -189,13 +204,27 @@ void UPursuerAnomalyComponent::StartTensionMusic()
 	if (ActiveAnomalyLoopAudioComponent)
 	{
 		ActiveAnomalyLoopAudioComponent->bAutoDestroy = false;
+		ActiveAnomalyLoopAudioComponent->OnAudioFinished.AddDynamic(
+			this, &UPursuerAnomalyComponent::HandleTensionMusicFinished);
 	}
+}
+
+void UPursuerAnomalyComponent::HandleTensionMusicFinished()
+{
+	if (!ActiveAnomalyLoopAudioComponent || !ActiveAnomalyLoopSound)
+	{
+		return;
+	}
+
+	ActiveAnomalyLoopAudioComponent->Play();
 }
 
 void UPursuerAnomalyComponent::StopTensionMusic()
 {
 	if (ActiveAnomalyLoopAudioComponent)
 	{
+		ActiveAnomalyLoopAudioComponent->OnAudioFinished.RemoveDynamic(
+			this, &UPursuerAnomalyComponent::HandleTensionMusicFinished);
 		ActiveAnomalyLoopAudioComponent->Stop();
 		ActiveAnomalyLoopAudioComponent->DestroyComponent();
 		ActiveAnomalyLoopAudioComponent = nullptr;

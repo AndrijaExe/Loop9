@@ -135,9 +135,11 @@ igrač ne gleda u njega.
 - [x] **Despawn Sound** — `Sound/Pursuer/PursuerDespawn` (C++ default)
 - [x] **Moving Murmur Loop Sound** — `Sound/Phone/MumblingCrazy` +
   `ATT_PursuerFootstep` (C++ default; clip se ponavlja dok hoda)
-- [x] **Active Anomaly Loop Sound** — `Sound/Pursuer/PursuerTensionLoop` ako je
-  uvezen, inače fallback `Sound/MainMenu/HorrorAmbientSound`. Posle importa
-  tension WAV-a stavi **Looping = true**.
+- [x] **Active Anomaly Loop Sound** — `Sound/Pursuer/185993__mmleys__dynamic-space`
+  (C++ default, 26.08.2026.). Fallback ostaje `PursuerTensionLoop`, pa
+  `HorrorAmbientSound`. Posle importa: **Looping = true**, Sound Class
+  **`SC_Music`**. Clip je 17 s; ako Looping ostane false, C++ ga ponovo
+  pušta na `OnAudioFinished`.
 
 ## Audio anomalies (svaki `AudioAnomalyComponent` u mapi)
 
@@ -168,7 +170,13 @@ Muziku na spratu pušta game mode kao 2D zvuk, a ne `AAmbientSound` u mapi.
 Postavljeni `AmbientSound_0` na `SC_Music` se pri startu utiša da se track ne
 duplira; ostali ambient akteri se ne diraju.
 
-- [x] **Level Music Sound** — `Sound/Ambient/HorrorAmbience1` (C++ default)
+- [x] **Level Music Sound** — `Sound/Ambient/HorrorAmbience1` (C++ default,
+  ~21.7 s, `bLooping` = true na wave-u)
+- [x] **Level Music Alt Sound** — `Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm`
+  (C++ default, 26.08.2026., 224 s). Playlist: prvi clip jednom kroz,
+  pa ovaj, pa opet prvi. HorrorAmbience1 se ne ostavlja da loopuje zauvek
+  — tajmer seče na `Duration` i menja track. Posle importa: **Looping = false**,
+  Sound Class **`SC_Music`**.
 - [x] **Level Music Volume** = 0.35, množi se ambient sliderom
 - [ ] QA: muzika radi od ulaska u nivo, bez otvaranja settings menija. Ako ne
   radi, `AudioStatus` u konzoli ispisuje device / jačine / bed / ambient aktere.
@@ -224,6 +232,8 @@ Urađeno 26.08.2026.:
 | `Sound/Phone/MumblingCrazy` | https://freesound.org/people/SilentStrikeZ/sounds/389642/ | SilentStrikeZ | Freesound | Human_Male_Crazy Mumbles_1.wav |
 | `Sound/Ambient/HorrorAmbience1` + `MainMenu/HorrorAmbientSound` | Freesound, ZHRØ, „Horror ambient.mp3“ (21.10.2020.) | ZHRØ | Freesound | jedan navedeni download; tačan sound ID nije potvrđen |
 | `Sound/Pursuer/PursuerDespawn` | https://freesound.org/people/CVLTIV8R/sounds/847621/ | CVLTIV8R | Freesound | Magic Spell - Whir, and Boom (7.23 s, isečeno na ~6.13 s) |
+| `Sound/Pursuer/185993__mmleys__dynamic-space` | https://freesound.org/people/mmleys/sounds/185993/ | mmleys | Freesound | pursuer tension bed, 17 s |
+| `Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm` | https://freesound.org/people/christmaskrumble666/sounds/726368/ | ChristmasKrumble666 | Freesound | alternate floor bed, 224 s |
 
 Napomene:
 

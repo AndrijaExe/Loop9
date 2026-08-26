@@ -190,17 +190,19 @@ void UCreditsWidget::RefreshSections()
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsAmbientHeading", "AMBIENT"),
 		LOCTEXT("CreditsAmbientBody",
-			"\"Horror ambient.mp3\" by ZHRØ of Freesound.org."));
+			"\"Horror ambient.mp3\" by ZHRØ of Freesound.org.\n"
+			"\"Street Museum (Dark Ambient BGM)\" by ChristmasKrumble666 of Freesound.org."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsPursuerHeading", "PURSUER"),
 		LOCTEXT("CreditsPursuerBody",
+			"Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\n"
 			"Despawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsOriginalHeading", "ORIGINAL"),
 		LOCTEXT("CreditsOriginalBody",
-			"Flashlight click, typewriter key, light flicker, and pursuer tension bed were generated for this game."));
+			"Flashlight click, typewriter key, and light flicker were generated for this game."));
 }
 
 void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)

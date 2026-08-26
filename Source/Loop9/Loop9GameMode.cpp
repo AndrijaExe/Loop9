@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Loop9.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 ALoop9GameMode::ALoop9GameMode()
@@ -20,6 +22,13 @@ ALoop9GameMode::ALoop9GameMode()
 	if (MusicFinder.Succeeded())
 	{
 		LevelMusicSound = MusicFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> AltMusicFinder(
+		TEXT("/Game/MyStuff/Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm"));
+	if (AltMusicFinder.Succeeded())
+	{
+		LevelMusicAltSound = AltMusicFinder.Object;
 	}
 }
 
@@ -50,23 +59,69 @@ float ALoop9GameMode::ResolveMusicVolume() const
 	return LevelMusicVolume * AmbientMultiplier;
 }
 
-void ALoop9GameMode::StartLevelMusic()
+USoundBase* ALoop9GameMode::ResolveCurrentLevelMusicTrack() const
 {
-	if (bLevelMusicSuppressed || !LevelMusicSound)
+	if (bPlayingLevelMusicAlt && LevelMusicAltSound)
+	{
+		return LevelMusicAltSound;
+	}
+	return LevelMusicSound;
+}
+
+float ALoop9GameMode::ResolveTrackDuration(USoundBase* Sound) const
+{
+	if (!Sound)
+	{
+		return 0.0f;
+	}
+
+	if (const USoundWave* Wave = Cast<USoundWave>(Sound))
+	{
+		if (Wave->Duration > 0.05f)
+		{
+			return Wave->Duration;
+		}
+	}
+
+	const float Duration = Sound->GetDuration();
+	return (Duration > 0.05f && Duration < 9000.0f) ? Duration : 0.0f;
+}
+
+void ALoop9GameMode::ClearLevelMusicAdvanceTimer()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(LevelMusicAdvanceTimerHandle);
+	}
+}
+
+void ALoop9GameMode::PlayCurrentLevelMusicTrack()
+{
+	if (bLevelMusicSuppressed)
 	{
 		return;
 	}
 
-	if (LevelMusicAudioComponent && LevelMusicAudioComponent->IsPlaying())
+	if (!LevelMusicAltSound)
+	{
+		LevelMusicAltSound = LoadObject<USoundBase>(
+			nullptr,
+			TEXT("/Game/MyStuff/Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm.726368__christmaskrumble666__street-museum-dark-ambient-bgm"));
+	}
+
+	USoundBase* Sound = ResolveCurrentLevelMusicTrack();
+	if (!Sound)
 	{
 		return;
 	}
+
+	ClearLevelMusicAdvanceTimer();
 
 	if (!LevelMusicAudioComponent)
 	{
 		LevelMusicAudioComponent = UGameplayStatics::SpawnSound2D(
 			this,
-			LevelMusicSound,
+			Sound,
 			ResolveMusicVolume(),
 			1.0f,
 			0.0f,
@@ -83,15 +138,65 @@ void ALoop9GameMode::StartLevelMusic()
 		LevelMusicAudioComponent->bAutoDestroy = false;
 		LevelMusicAudioComponent->OnAudioFinished.AddDynamic(
 			this, &ALoop9GameMode::HandleLevelMusicFinished);
+	}
+	else
+	{
+		LevelMusicAudioComponent->Stop();
+		LevelMusicAudioComponent->SetSound(Sound);
+		LevelMusicAudioComponent->SetVolumeMultiplier(ResolveMusicVolume());
+		LevelMusicAudioComponent->Play();
+	}
+
+	const float Duration = ResolveTrackDuration(Sound);
+	if (Duration > 0.05f)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().SetTimer(
+				LevelMusicAdvanceTimerHandle,
+				this,
+				&ALoop9GameMode::AdvanceLevelMusicPlaylist,
+				Duration,
+				false);
+		}
+	}
+}
+
+void ALoop9GameMode::AdvanceLevelMusicPlaylist()
+{
+	if (bLevelMusicSuppressed)
+	{
 		return;
 	}
 
-	LevelMusicAudioComponent->SetVolumeMultiplier(ResolveMusicVolume());
-	LevelMusicAudioComponent->Play();
+	if (LevelMusicAltSound)
+	{
+		bPlayingLevelMusicAlt = !bPlayingLevelMusicAlt;
+	}
+
+	PlayCurrentLevelMusicTrack();
+}
+
+void ALoop9GameMode::StartLevelMusic()
+{
+	if (bLevelMusicSuppressed || !LevelMusicSound)
+	{
+		return;
+	}
+
+	if (LevelMusicAudioComponent && LevelMusicAudioComponent->IsPlaying())
+	{
+		return;
+	}
+
+	PlayCurrentLevelMusicTrack();
 }
 
 void ALoop9GameMode::StopLevelMusic()
 {
+	ClearLevelMusicAdvanceTimer();
+	bPlayingLevelMusicAlt = false;
+
 	if (!LevelMusicAudioComponent)
 	{
 		return;
@@ -106,12 +211,22 @@ void ALoop9GameMode::StopLevelMusic()
 
 void ALoop9GameMode::HandleLevelMusicFinished()
 {
-	if (bLevelMusicSuppressed || !LevelMusicAudioComponent)
+	if (bLevelMusicSuppressed)
 	{
 		return;
 	}
 
-	LevelMusicAudioComponent->Play();
+	// Looping waves never arrive here. A non-looping alt clip does; the timer
+	// is also armed, so ignore a finished event if the timer still owns the swap.
+	if (UWorld* World = GetWorld())
+	{
+		if (World->GetTimerManager().IsTimerActive(LevelMusicAdvanceTimerHandle))
+		{
+			return;
+		}
+	}
+
+	AdvanceLevelMusicPlaylist();
 }
 
 bool ALoop9GameMode::IsLevelMusicPlaying() const
@@ -146,6 +261,7 @@ void ALoop9GameMode::SetMusicSuppressed(bool bSuppressed)
 
 	if (bSuppressed)
 	{
+		ClearLevelMusicAdvanceTimer();
 		if (LevelMusicAudioComponent)
 		{
 			LevelMusicAudioComponent->Stop();
@@ -153,5 +269,6 @@ void ALoop9GameMode::SetMusicSuppressed(bool bSuppressed)
 		return;
 	}
 
-	StartLevelMusic();
+	bPlayingLevelMusicAlt = false;
+	PlayCurrentLevelMusicTrack();
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "TimerManager.h"
 #include "Loop/LoopTypes.h"
 #include "UI/EndingWidget.h"
 #include "UI/ReplacementTerminalWidget.h"
@@ -46,6 +47,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Audio")
 	TObjectPtr<class USoundBase> LevelMusicSound;
 
+	/**
+	 * Second floor bed. When set, the shift plays Level Music Sound once
+	 * through, then this clip once through, then the first again. HorrorAmbience1
+	 * is authored looping, so the swap is driven by wave duration, not
+	 * OnAudioFinished.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Audio")
+	TObjectPtr<class USoundBase> LevelMusicAltSound;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Audio", meta = (ClampMin = "0.0"))
 	float LevelMusicVolume = 0.35f;
 
@@ -67,12 +77,16 @@ protected:
 private:
 	void StartLevelMusic();
 	void StopLevelMusic();
+	void PlayCurrentLevelMusicTrack();
+	void AdvanceLevelMusicPlaylist();
+	void ClearLevelMusicAdvanceTimer();
 	float ResolveMusicVolume() const;
+	float ResolveTrackDuration(class USoundBase* Sound) const;
+	class USoundBase* ResolveCurrentLevelMusicTrack() const;
 
 	/**
-	 * Restarts the bed when the wave turns out not to be flagged Looping. Cheaper
-	 * than requiring every music asset to be authored correctly, and the failure
-	 * it prevents is silence for the rest of the shift.
+	 * Non-looping waves land here at the end of the file. Looping waves
+	 * (HorrorAmbience1) never fire this, so the playlist timer is the authority.
 	 */
 	UFUNCTION()
 	void HandleLevelMusicFinished();
@@ -80,5 +94,8 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> LevelMusicAudioComponent = nullptr;
 
+	FTimerHandle LevelMusicAdvanceTimerHandle;
+
 	bool bLevelMusicSuppressed = false;
+	bool bPlayingLevelMusicAlt = false;
 };

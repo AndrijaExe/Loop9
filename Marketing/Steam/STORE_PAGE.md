@@ -332,10 +332,13 @@ Une connexion Internet est nécessaire pour les conversations avec l’IA.
   > Pursuer murmur: "Human_Male_Crazy Mumbles_1.wav" by SilentStrikeZ
   > of Freesound.org.
   > Ambient: "Horror ambient.mp3" by ZHRØ of Freesound.org.
+  > Alternate floor bed: "Street Museum (Dark Ambient BGM)" by
+  > ChristmasKrumble666 of Freesound.org.
+  > Pursuer tension: "dynamic space.wav" by mmleys of Freesound.org.
   > Pursuer despawn: "Magic Spell - Whir, and Boom" by CVLTIV8R
   > of Freesound.org.
-  > Light flicker, pursuer tension bed, flashlight click and typewriter
-  > key were generated for this game.
+  > Light flicker, flashlight click and typewriter key were generated
+  > for this game.
 
 ## Screenshots & capsule
 

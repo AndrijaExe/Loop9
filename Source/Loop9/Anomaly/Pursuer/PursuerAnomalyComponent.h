@@ -78,6 +78,9 @@ private:
 	void StartTensionMusic();
 	void StopTensionMusic();
 
+	UFUNCTION()
+	void HandleTensionMusicFinished();
+
 	bool TryGetSpawnTransformFromPoints(APawn* PlayerPawn, FTransform& OutTransform) const;
 	bool TryGetSpawnTransformFromRadius(APawn* PlayerPawn, FTransform& OutTransform) const;
 	bool ProjectToNavigation(const FVector& RawLocation, FVector& OutNavLocation) const;
