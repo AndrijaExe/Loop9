@@ -1,6 +1,6 @@
 # Anomalies
 
-Loop 9 has **nine** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly.
+Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly. `ACH_SPOT_ALL` still tracks the original nine floor-search types; `LoopNumber` counts for the elevator and for Dragojlo, but has no `ACH_SPOT_*`.
 
 ## Types
 
@@ -15,6 +15,7 @@ Loop 9 has **nine** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h
 | Pursuer | `PursuerAnomaly` | pursuer AI anomaly |
 | Scale | `ScaleAnomaly` | wrong-sized object |
 | PhantomMessage | `PhantomMessageAnomaly` | chat message the player never sent |
+| LoopNumber | `LoopNumberAnomaly` | loop counter flickers / turns into `?` |
 
 `MaterialSwapAnomalyComponent` currently reports type `Text` and is used for material/text visual variants.
 
@@ -53,7 +54,8 @@ Which anomalies fill those slots is a two-stage weighted draw in
 
 1. A type is drawn using `GetTypeSelectionWeight`. Hide and Text sit at `1.8`
    because they reward searching; Pursuer sits at `0.35` because it replaces the
-   search with a chase.
+   search with a chase; LoopNumber sits at `0.55` because the counter is already
+   in the player's face.
 2. A component inside that type is drawn using its own `SelectionWeight`.
    `MaterialSwapAnomalyComponent` ships at `2.0`, so it wins the Text pool it
    shares with the spawned-note anomaly.
@@ -73,6 +75,8 @@ refuses to apply.
 1. Put anomaly components on actors in `FullOfficeMap` (or Blueprint children).
    Door lock is an exception: `ADoorInteractable` / `BP_Door` already owns a native
    `DoorLockAnomaly` component, so office doors can lock without extra placement.
+   The loop counter is the same: `ALoopNumberSign` already owns a native
+   `LoopNumberAnomaly` component.
 2. Prefer reusable Actor Components + Interfaces over one-off Blueprint logic.
 3. Ensure components register with `UAnomalyManager` on begin play and unregister on end play.
 4. For MaterialSwap variants, keep texture/material references intentional; tracked MaterialSwap content is large.
@@ -126,6 +130,7 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyMove` | Force every Move anomaly |
 | `AnomalyDoor` | Force every DoorLock anomaly |
 | `AnomalyMaterial` | Force every MaterialSwap anomaly |
+| `AnomalyLoopNumber` | Force the loop-counter `?` glitch |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
 | `AudioStatus` | Report why the floor is silent: audio device, volumes, music bed, placed ambience |
@@ -135,10 +140,10 @@ These are **tilde console** commands in PIE / Standalone / Development. They are
 
 Filter notes:
 
-- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`).
+- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `LoopNumber`, `Counter`).
 - Class/actor partial filters require at least 3 characters.
 - Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 
 ## Achievements tied to anomalies
 
-Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all nine types across runs (persisted). Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).
+Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all nine original types across runs (persisted). `LoopNumber` is a tenth elevator-counted type without a Steam spot achievement. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).

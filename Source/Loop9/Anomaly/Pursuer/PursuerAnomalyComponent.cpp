@@ -10,6 +10,7 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 UPursuerAnomalyComponent::UPursuerAnomalyComponent()
@@ -112,7 +113,19 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 		*SpawnTransform.GetLocation().ToCompactString());
 
 	SpawnedPursuer->OnDestroyed.AddDynamic(this, &UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed);
-	StartTensionMusic();
+	if (TensionMusicDelaySeconds <= 0.0f)
+	{
+		StartTensionMusic();
+	}
+	else if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			TensionMusicDelayHandle,
+			this,
+			&UPursuerAnomalyComponent::StartTensionMusic,
+			TensionMusicDelaySeconds,
+			false);
+	}
 
 	return true;
 }
@@ -154,6 +167,12 @@ void UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed(AActor* DestroyedActor)
 
 void UPursuerAnomalyComponent::StartTensionMusic()
 {
+	ClearTensionMusicDelay();
+
+	if (!IsValid(SpawnedPursuer))
+	{
+		return;
+	}
 	if (!ActiveAnomalyLoopSound)
 	{
 		ActiveAnomalyLoopSound = LoadObject<USoundBase>(
@@ -219,8 +238,17 @@ void UPursuerAnomalyComponent::HandleTensionMusicFinished()
 	ActiveAnomalyLoopAudioComponent->Play();
 }
 
+void UPursuerAnomalyComponent::ClearTensionMusicDelay()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(TensionMusicDelayHandle);
+	}
+}
+
 void UPursuerAnomalyComponent::StopTensionMusic()
 {
+	ClearTensionMusicDelay();
 	if (ActiveAnomalyLoopAudioComponent)
 	{
 		ActiveAnomalyLoopAudioComponent->OnAudioFinished.RemoveDynamic(

@@ -20,6 +20,9 @@ class USpotLightComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateSprintMeterDelegate, float, Percentage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSprintStateChangedDelegate, bool, bSprinting);
+
 /**
  *  A basic first person character
  */
@@ -75,6 +78,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Input")
 	class UInputAction* FlashlightAction;
 
+	/**
+	 * Hold to sprint. Optional: when empty the character builds its own
+	 * action and binds Left Shift at runtime, same pattern as the flashlight.
+	 */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	class UInputAction* SprintAction;
+
 	/** Sound played on each toggle, e.g. a plastic switch click. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Audio|Flashlight")
 	TObjectPtr<USoundBase> FlashlightToggleSound;
@@ -114,12 +124,41 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Footsteps")
 	float FootstepPitchMax = 1.05f;
+
+	UPROPERTY(EditAnywhere, Category="Walk", meta = (ClampMin = "1.0", ClampMax = "2000.0", Units = "cm/s"))
+	float WalkSpeed = 300.0f;
+
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "0.01", ClampMax = "1.0", Units = "s"))
+	float SprintFixedTickTime = 0.03333f;
+
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "0.1", ClampMax = "30.0", Units = "s"))
+	float SprintTime = 3.0f;
+
+	UPROPERTY(EditAnywhere, Category="Sprint", meta = (ClampMin = "1.0", ClampMax = "2000.0", Units = "cm/s"))
+	float SprintSpeed = 600.0f;
+
+	UPROPERTY(EditAnywhere, Category="Recovery", meta = (ClampMin = "1.0", ClampMax = "2000.0", Units = "cm/s"))
+	float RecoveringWalkSpeed = 200.0f;
 	
 public:
 	ALoop9Character();
 
+	UPROPERTY()
+	FUpdateSprintMeterDelegate OnSprintMeterUpdated;
+
+	UPROPERTY()
+	FSprintStateChangedDelegate OnSprintStateChanged;
+
+	float GetSprintMeterPercent() const
+	{
+		return SprintTime > 0.0f ? FMath::Clamp(SprintMeter / SprintTime, 0.0f, 1.0f) : 0.0f;
+	}
+
+	bool IsSprintActive() const { return bSprinting && !bRecovering; }
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Called from Input Actions for movement input */
@@ -175,12 +214,25 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UInputAction> RuntimeFlashlightAction;
 
+	UPROPERTY(Transient)
+	TObjectPtr<class UInputAction> RuntimeSprintAction;
+
 	/** Returns the assigned action, creating the runtime stand-in on first use. */
 	UInputAction* ResolveFlashlightAction();
+	UInputAction* ResolveSprintAction();
 
 	float FootstepTimer = 0.0f;
+	float SprintMeter = 0.0f;
+	bool bSprinting = false;
+	bool bRecovering = false;
+	FTimerHandle SprintTimer;
 
 	void TryPlayFootstep(float DeltaSeconds);
+	void DoStartSprint();
+	void DoEndSprint();
+	void SprintFixedTick();
+	void EnsureSprintTimerRunning();
+	void StopSprintTimerIfIdle();
 
 	void RegisterGamepadFallbackContext();
 

@@ -8,7 +8,7 @@
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
-#include "HorrorCharacter.h"
+#include "Loop9Character.h"
 #include "HorrorUI.h"
 #include "AudioDevice.h"
 #include "Components/AudioComponent.h"
@@ -58,9 +58,9 @@ void ALoop9PlayerController::OnPossess(APawn* InPawn)
 
 		if (GameplayUI)
 		{
-			if (AHorrorCharacter* HorrorCharacter = Cast<AHorrorCharacter>(InPawn))
+			if (ALoop9Character* PossessedCharacter = Cast<ALoop9Character>(InPawn))
 			{
-				GameplayUI->SetupCharacter(HorrorCharacter);
+				GameplayUI->SetupCharacter(PossessedCharacter);
 			}
 
 			GameplayUI->SetCrosshairVisible(true);
@@ -236,6 +236,11 @@ void ALoop9PlayerController::AnomalyMaterial()
 	AnomalyForce(TEXT("MaterialSwap"));
 }
 
+void ALoop9PlayerController::AnomalyLoopNumber()
+{
+	AnomalyForce(TEXT("LoopNumber"));
+}
+
 void ALoop9PlayerController::AnomalyAuditMaterials()
 {
 #if !UE_BUILD_SHIPPING
@@ -264,9 +269,10 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyMove                         - force every move anomaly\n"
 		"  AnomalyDoor                         - force every door-lock anomaly\n"
 		"  AnomalyMaterial                     - force every material-swap anomaly\n"
+		"  AnomalyLoopNumber                   - force the loop-counter ? glitch\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, DoorLock, I01\n"
+		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, DoorLock, LoopNumber, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
 		"  AudioStatus                         - report why the floor is silent\n"

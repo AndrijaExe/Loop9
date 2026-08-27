@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **26.08.2026.**
+Poslednje ažuriranje: **28.08.2026.**
 Steam App ID: **4982260**
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -18,12 +18,13 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 nužno i na Steam playtestu. **`Builds/v1.0.0`** je trenutni fallback Shipping
 drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
-se kuva. SteamPipe contentroot ostaje **`Builds/v1.0.0/Windows`** dok se
-eksplicitno ne promeni. Stari `Builds/Alfa` i `Builds/Beta` više nisu cilj.
-Live playtest na Steamu je i dalje cook od **24.08.2026** (BuildID `24910264`)
-dok se novi v1.0.0 ne uploaduje — taj Steam build **ne sadrži** 25.08 posao
-(achievement unlock, muziku sprata, kucanje, door/typewriter uassete, novi
-`.locres`). Prethodni Alfa playtest je bio BuildID `24782464`.
+se kuva. SteamPipe contentroot je **`Builds/v1.0.1/Windows`**. **`Builds/v1.0.0`
+ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
+više nisu cilj. Live playtest na Steamu je bio cook od **24.08.2026**
+(BuildID `24910264`) dok se v1.0.1 ne uploaduje. Prethodni Alfa playtest je
+bio BuildID `24782464`.
+**Coming Soon store je javan od 27.08.2026.**:
+https://store.steampowered.com/app/4982260/Loop_9/
 
 ---
 
@@ -251,8 +252,8 @@ publish-ovane, ne samo sačuvane.
 - [x] Shortcut ICO i App Icon JPG imaju spremne minimalističke v2 varijante.
 - [x] Dodati opcioni Page Background `1438×810`.
 - [x] Gameplay trailer snimljen, montiran i uploadovan u Steamworks
-  (Store Presence → Trailers + Publish). Valve review traje od oko
-  **22.08.2026.** (četiri dana na 26.08.). Thumbnail je u
+  (Store Presence → Trailers + Publish). Valve store review je **odobren**;
+  Coming Soon stranica je javna od **27.08.2026.** Thumbnail je u
   `Marketing/Steam/StoreUpload/trailer_thumbnail_1920x1080.jpg`.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
@@ -384,17 +385,17 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 
 - [x] Proveriti da build ne sadrži:
   `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
-  Ranije provereno na starom `Builds/Alfa/Windows`; aktuelna provera ide na
-  `Builds/v1.0.0/Windows`.
-- [ ] Ponoviti tu proveru na sledećem `Builds/v1.0.0` cooku.
+  Ranije provereno na starom `Builds/Alfa/Windows`; **v1.0.1** (`28.08.2026`)
+  nema `steam_appid.txt` ni `.pdb`.
+- [x] Ponoviti tu proveru na sledećem versioned cooku (`v1.0.1`).
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  v1.0.0 je live na passwordovanom `playtest` (prethodni BuildID `24782464`
-  je bio Alfa). Zabeležiti BuildID svakog novog uploada.
+  v1.0.1 ide na passwordovani `playtest` (prethodni live BuildID `24910264`
+  je bio cook od 24.08). Zabeležiti BuildID svakog novog uploada.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
@@ -469,16 +470,16 @@ Polish smoke na **novom** `v1.0.0` Shipping cooku (Steam playtest od 24.08 ovo n
 ## 7. Valve review i Coming Soon
 
 - [x] Publishovati sve Store Presence promene (uključujući trailer).
-- [x] Store Page poslata na Valve review ~22.08.2026.; review je u toku
-  (četiri dana na 26.08.).
-- [ ] Poslati release-candidate build na Valve review.
+- [x] Store Page poslata na Valve review ~22.08.2026.; **odobrena**.
+  Javna Coming Soon stranica:
+  https://store.steampowered.com/app/4982260/Loop_9/ (`?beta=0`, 27.08.2026.).
+- [ ] Poslati release-candidate **build** na Valve review.
 - [ ] Ispraviti eventualne review primedbe i ponovo poslati.
-- [ ] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
-- [ ] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
-  ističe približno **14.08.2026**, ali to nije automatski release datum.
-  Ako Coming Soon stranica nije bila javna do 07.08.2026, najraniji datum je
-  najmanje **14 dana od njenog stvarnog objavljivanja** (najranije oko
-  **21.08.2026.** ako se objavi 07.08.), uz završen Valve review i QA.
+- [x] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
+  Objavljena **27.08.2026.** Najraniji release datum: **10.09.2026.**
+- [x] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
+  istekao je približno **14.08.2026.** To nije release datum; čeka se 14 dana
+  od Coming Soon + RC build review + QA.
 
 
 ## 8. Release day
@@ -541,5 +542,5 @@ Brief:
 4. `UploadPlaytest.bat` → Steamworks Set Live na `playtest` (i `default` kad
    odlučiš). SteamCMD `setlive` ne može `default`.
 5. Na tom Steam buildu: Cloud, offline, gamepad, polish smoke iz §6.
-6. Valve Store review je u toku (trailer poslat ~22.08.). Posle odobrenja:
-   Coming Soon najmanje 14 dana → release.
+6. Store je javan (Coming Soon od 27.08.). Najraniji release **10.09.2026.**
+   Sledeći Valve korak: RC **build** na review, ne store page.

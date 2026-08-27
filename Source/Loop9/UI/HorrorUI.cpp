@@ -2,44 +2,44 @@
 
 
 #include "HorrorUI.h"
-#include "HorrorCharacter.h"
+#include "Loop9Character.h"
 #include "Components/TextBlock.h"
 
 void UHorrorUI::NativeDestruct()
 {
-	if (BoundHorrorCharacter.IsValid())
+	if (BoundCharacter.IsValid())
 	{
-		BoundHorrorCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
-		BoundHorrorCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
-		BoundHorrorCharacter.Reset();
+		BoundCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
+		BoundCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
+		BoundCharacter.Reset();
 	}
 
 	Super::NativeDestruct();
 }
 
-void UHorrorUI::SetupCharacter(AHorrorCharacter* HorrorCharacter)
+void UHorrorUI::SetupCharacter(ALoop9Character* Character)
 {
-	if (!HorrorCharacter)
+	if (!Character)
 	{
 		return;
 	}
 
-	if (BoundHorrorCharacter.IsValid())
+	if (BoundCharacter.IsValid())
 	{
-		if (BoundHorrorCharacter.Get() == HorrorCharacter)
+		if (BoundCharacter.Get() == Character)
 		{
 			return;
 		}
 
-		BoundHorrorCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
-		BoundHorrorCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
+		BoundCharacter->OnSprintMeterUpdated.RemoveDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
+		BoundCharacter->OnSprintStateChanged.RemoveDynamic(this, &UHorrorUI::OnSprintStateChanged);
 	}
 
-	BoundHorrorCharacter = HorrorCharacter;
-	HorrorCharacter->OnSprintMeterUpdated.AddDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
-	HorrorCharacter->OnSprintStateChanged.AddDynamic(this, &UHorrorUI::OnSprintStateChanged);
-	OnSprintMeterUpdated(HorrorCharacter->GetSprintMeterPercent());
-	OnSprintStateChanged(HorrorCharacter->IsSprintActive());
+	BoundCharacter = Character;
+	Character->OnSprintMeterUpdated.AddDynamic(this, &UHorrorUI::OnSprintMeterUpdated);
+	Character->OnSprintStateChanged.AddDynamic(this, &UHorrorUI::OnSprintStateChanged);
+	OnSprintMeterUpdated(Character->GetSprintMeterPercent());
+	OnSprintStateChanged(Character->IsSprintActive());
 }
 
 void UHorrorUI::OnSprintMeterUpdated(float Percent)

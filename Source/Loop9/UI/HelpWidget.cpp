@@ -178,11 +178,10 @@ void UHelpWidget::RefreshSections()
 		LOCTEXT("HelpAnomalyHeading", "WHAT DOES NOT COUNT AS AN ANOMALY"),
 		LOCTEXT("HelpAnomalyBody",
 			"An anomaly is something the office would not do on its own, and the floor is full of things that look "
-			"wrong without being wrong. The loop number on your screen counts up every loop because that is what a "
-			"counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not "
-			"evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot "
-			"tell whether something belongs, the first loop already answered it: if it was there on loop one, it "
-			"belongs."));
+			"wrong without being wrong. The loop number counting up is just a counter doing its job. The office is "
+			"always this dark, and your own flashlight is not evidence. One elevator being lit and the other dark is "
+			"how the floor works. If you cannot tell whether something belongs, the first loop already answered it: "
+			"if it was there on loop one, it belongs."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("HelpElevatorHeading", "THE TWO ELEVATORS"),

@@ -57,7 +57,7 @@ public:
 	TObjectPtr<class USoundBase> LevelMusicAltSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Audio", meta = (ClampMin = "0.0"))
-	float LevelMusicVolume = 0.35f;
+	float LevelMusicVolume = 0.30f;
 
 	/** Live-apply the ambient slider to the music bed. */
 	void ApplyAmbientVolume(float AmbientVolume);

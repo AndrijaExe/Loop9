@@ -19,7 +19,7 @@ namespace
 
 	constexpr bool bDebugOnlyMoveAnomaly = false;
 
-	constexpr int32 AnomalyTypeCount = 9;
+	constexpr int32 AnomalyTypeCount = 10;
 
 	constexpr ELoopAnomalyType AnomalyTypeOrder[AnomalyTypeCount] =
 	{
@@ -31,7 +31,8 @@ namespace
 		ELoopAnomalyType::DoorLock,
 		ELoopAnomalyType::Pursuer,
 		ELoopAnomalyType::Scale,
-		ELoopAnomalyType::PhantomMessage
+		ELoopAnomalyType::PhantomMessage,
+		ELoopAnomalyType::LoopNumber
 	};
 
 	int32 GetTypeIndex(ELoopAnomalyType Type)
@@ -69,6 +70,11 @@ namespace
 		// removes the choice at the elevator, so it lands as a rare shock.
 		case ELoopAnomalyType::Pursuer:
 			return 0.35f;
+
+		// The loop counter sits on the wall in front of the player, so it is
+		// easier to call than a missing stapler. Keep it garnish.
+		case ELoopAnomalyType::LoopNumber:
+			return 0.55f;
 
 		default:
 			return 1.0f;
@@ -436,6 +442,13 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 			|| Filter.Equals(TEXT("Doors"), ESearchCase::IgnoreCase)
 			|| Filter.Equals(TEXT("DoorLock"), ESearchCase::IgnoreCase))
 		&& Component->GetAnomalyType() == ELoopAnomalyType::DoorLock)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("LoopNumber"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Counter"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("QuestionMark"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::LoopNumber)
 	{
 		return true;
 	}

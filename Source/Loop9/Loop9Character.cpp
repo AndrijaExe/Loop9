@@ -20,11 +20,13 @@
 #include "Interaction/InspectionStageActor.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Subsystems/LoopManagerSubsystem.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Sound/SoundBase.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 ALoop9Character::ALoop9Character()
@@ -106,6 +108,7 @@ ALoop9Character::ALoop9Character()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	bUseControllerRotationYaw = true;
 }
 
@@ -147,6 +150,14 @@ void ALoop9Character::BeginPlay()
 		}
 	}
 
+	SprintFixedTickTime = FMath::Max(0.01f, SprintFixedTickTime);
+	SprintTime = FMath::Max(0.1f, SprintTime);
+	SprintSpeed = FMath::Max(1.0f, SprintSpeed);
+	WalkSpeed = FMath::Max(1.0f, WalkSpeed);
+	RecoveringWalkSpeed = FMath::Max(1.0f, RecoveringWalkSpeed);
+	SprintMeter = SprintTime;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
 	if (FootstepSounds.Num() == 0)
 	{
 		if (USoundBase* FirstStep = LoadObject<USoundBase>(
@@ -158,6 +169,100 @@ void ALoop9Character::BeginPlay()
 			nullptr, TEXT("/Game/MyStuff/Sound/Footsteps/Footstep2.Footstep2")))
 		{
 			FootstepSounds.Add(SecondStep);
+		}
+	}
+}
+
+void ALoop9Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SprintTimer);
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void ALoop9Character::DoStartSprint()
+{
+	if (IsGameplayPresentationLocked())
+	{
+		return;
+	}
+
+	bSprinting = true;
+	EnsureSprintTimerRunning();
+
+	if (!bRecovering)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		OnSprintStateChanged.Broadcast(true);
+	}
+}
+
+void ALoop9Character::DoEndSprint()
+{
+	bSprinting = false;
+
+	if (!bRecovering)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		OnSprintStateChanged.Broadcast(false);
+	}
+
+	StopSprintTimerIfIdle();
+}
+
+void ALoop9Character::SprintFixedTick()
+{
+	if (bSprinting && !bRecovering && GetVelocity().Size2D() > WalkSpeed)
+	{
+		if (SprintMeter > 0.0f)
+		{
+			SprintMeter = FMath::Max(SprintMeter - SprintFixedTickTime, 0.0f);
+			if (SprintMeter <= 0.0f)
+			{
+				bRecovering = true;
+				GetCharacterMovement()->MaxWalkSpeed = RecoveringWalkSpeed;
+				OnSprintStateChanged.Broadcast(false);
+			}
+		}
+	}
+	else
+	{
+		SprintMeter = FMath::Min(SprintMeter + SprintFixedTickTime, SprintTime);
+		if (SprintMeter >= SprintTime)
+		{
+			bRecovering = false;
+			GetCharacterMovement()->MaxWalkSpeed = bSprinting ? SprintSpeed : WalkSpeed;
+			OnSprintStateChanged.Broadcast(bSprinting);
+		}
+	}
+
+	OnSprintMeterUpdated.Broadcast(GetSprintMeterPercent());
+	StopSprintTimerIfIdle();
+}
+
+void ALoop9Character::EnsureSprintTimerRunning()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (!World->GetTimerManager().IsTimerActive(SprintTimer))
+		{
+			World->GetTimerManager().SetTimer(
+				SprintTimer, this, &ALoop9Character::SprintFixedTick, SprintFixedTickTime, true);
+		}
+	}
+}
+
+void ALoop9Character::StopSprintTimerIfIdle()
+{
+	if (!Loop9RuntimePolicies::ShouldKeepSprintTimerActive(
+			bSprinting, bRecovering, SprintMeter, SprintTime))
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().ClearTimer(SprintTimer);
 		}
 	}
 }
@@ -245,6 +350,14 @@ void ALoop9Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 			EnhancedInputComponent->BindAction(
 				ResolvedFlashlightAction, ETriggerEvent::Started, this, &ALoop9Character::ToggleFlashlight);
 		}
+
+		if (UInputAction* ResolvedSprintAction = ResolveSprintAction())
+		{
+			EnhancedInputComponent->BindAction(
+				ResolvedSprintAction, ETriggerEvent::Started, this, &ALoop9Character::DoStartSprint);
+			EnhancedInputComponent->BindAction(
+				ResolvedSprintAction, ETriggerEvent::Completed, this, &ALoop9Character::DoEndSprint);
+		}
 	}
 	else
 	{
@@ -311,6 +424,17 @@ void ALoop9Character::AddGamepadFallbackMappings(UInputMappingContext* Context)
 		// Y on Xbox / Triangle on PlayStation.
 		Context->MapKey(ResolvedFlashlightAction, EKeys::Gamepad_FaceButton_Top);
 	}
+
+	if (UInputAction* ResolvedSprintAction = ResolveSprintAction())
+	{
+		if (!SprintAction)
+		{
+			Context->MapKey(ResolvedSprintAction, EKeys::LeftShift);
+			Context->MapKey(ResolvedSprintAction, EKeys::RightShift);
+		}
+
+		Context->MapKey(ResolvedSprintAction, EKeys::Gamepad_LeftThumbstick);
+	}
 }
 
 UInputAction* ALoop9Character::ResolveFlashlightAction()
@@ -327,6 +451,22 @@ UInputAction* ALoop9Character::ResolveFlashlightAction()
 	}
 
 	return RuntimeFlashlightAction;
+}
+
+UInputAction* ALoop9Character::ResolveSprintAction()
+{
+	if (SprintAction)
+	{
+		return SprintAction;
+	}
+
+	if (!RuntimeSprintAction)
+	{
+		RuntimeSprintAction = NewObject<UInputAction>(this, TEXT("IA_Sprint_Runtime"));
+		RuntimeSprintAction->ValueType = EInputActionValueType::Boolean;
+	}
+
+	return RuntimeSprintAction;
 }
 
 bool ALoop9Character::IsFlashlightOn() const

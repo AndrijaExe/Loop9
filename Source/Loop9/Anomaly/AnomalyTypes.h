@@ -15,6 +15,7 @@ enum class ELoopAnomalyType : uint8
 	Pursuer UMETA(DisplayName = "Pursuer"),
 	Scale UMETA(DisplayName = "Scale"),
 	PhantomMessage UMETA(DisplayName = "Phantom Message"),
+	LoopNumber UMETA(DisplayName = "Loop Number"),
 };
 
 inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
@@ -29,6 +30,7 @@ inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
 		ELoopAnomalyType::Pursuer,
 		ELoopAnomalyType::Scale,
 		ELoopAnomalyType::PhantomMessage,
+		ELoopAnomalyType::LoopNumber,
 	};
 }
 
@@ -45,6 +47,7 @@ inline FName GetLoopAnomalyTypeLabel(ELoopAnomalyType Type)
 	case ELoopAnomalyType::Pursuer: return TEXT("PursuerAnomaly");
 	case ELoopAnomalyType::Scale: return TEXT("ScaleAnomaly");
 	case ELoopAnomalyType::PhantomMessage: return TEXT("PhantomMessageAnomaly");
+	case ELoopAnomalyType::LoopNumber: return TEXT("LoopNumberAnomaly");
 	default: return TEXT("UnknownAnomaly");
 	}
 }

@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "LoopNumberSign.generated.h"
 
+class ULoopNumberAnomalyComponent;
+
 UCLASS()
 class LOOP9_API ALoopNumberSign : public AActor
 {
@@ -11,6 +13,10 @@ class LOOP9_API ALoopNumberSign : public AActor
 
 public:
 	ALoopNumberSign();
+
+	/** Flicker and ? glitch only while the LoopNumber anomaly is active. */
+	void SetAnomalyGlitchActive(bool bActive);
+	bool IsAnomalyGlitchActive() const { return bAnomalyGlitchActive; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -20,6 +26,9 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UTextRenderComponent* TextRender;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anomaly")
+	TObjectPtr<ULoopNumberAnomalyComponent> LoopNumberAnomaly;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign")
 	FString Prefix = TEXT("LOOP");
@@ -37,28 +46,28 @@ public:
 	int32 MaxLoopForFullIntensity = 10;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker")
-	bool bEnableFlicker = true;
+	bool bEnableFlicker = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float FlickerStrength = 0.20f;
+	float FlickerStrength = 0.45f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker", meta = (ClampMin = "0.1"))
 	float FlickerSpeed = 12.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float FlickerDropoutChancePerSecond = 0.08f;
+	float FlickerDropoutChancePerSecond = 0.22f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch")
-	bool bEnableGlitch = true;
+	bool bEnableGlitch = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch", meta = (ClampMin = "1"))
 	int32 GlitchEveryNLoops = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch", meta = (ClampMin = "0.1"))
-	float GlitchInterval = 3.0f;
+	float GlitchInterval = 1.4f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch", meta = (ClampMin = "0.05"))
-	float GlitchDuration = 0.25f;
+	float GlitchDuration = 0.55f;
 
 private:
 	float UpdateAccumulator = 0.0f;
@@ -68,9 +77,11 @@ private:
 	float GlitchAccumulator = 0.0f;
 	float GlitchElapsed = 0.0f;
 	bool bGlitchActive = false;
+	bool bAnomalyGlitchActive = false;
 	FTimerHandle IdleRefreshTimerHandle;
 
 	void RefreshLoopText();
-  void UpdateDynamicColor(int32 LoopValue);
+	void UpdateDynamicColor(int32 LoopValue);
 	FString BuildGlitchText(int32 LoopValue) const;
+	void ConfigurePresentationTick();
 };

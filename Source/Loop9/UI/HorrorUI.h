@@ -7,7 +7,7 @@
 #include "Interaction/InteractionPromptProvider.h"
 #include "HorrorUI.generated.h"
 
-class AHorrorCharacter;
+class ALoop9Character;
 class UTextBlock;
 
 /**
@@ -22,7 +22,7 @@ public:
 	virtual void NativeDestruct() override;
 
 	/** Sets up delegate listeners for the passed character */
-	void SetupCharacter(AHorrorCharacter* HorrorCharacter);
+	void SetupCharacter(ALoop9Character* Character);
 
 	/** Updates interaction prompt text/visibility */
 	void SetInteractionPrompt(const FText& PromptText, bool bVisible);
@@ -63,5 +63,5 @@ protected:
 	void BP_CrosshairVisibilityChanged(bool bVisible);
 
 private:
-	TWeakObjectPtr<AHorrorCharacter> BoundHorrorCharacter;
+	TWeakObjectPtr<ALoop9Character> BoundCharacter;
 };

@@ -99,6 +99,10 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyMaterial();
 
+	/** Force the loop-counter glitch anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyLoopNumber();
+
 	/** Report every material-swap placement that would be invisible if it fired. */
 	UFUNCTION(Exec)
 	void AnomalyAuditMaterials();

@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-08-26 20:39\n"
-"PO-Revision-Date: 2026-08-26 20:39\n"
+"POT-Creation-Date: 2026-08-27 20:39\n"
+"PO-Revision-Date: 2026-08-27 20:39\n"
 "Language-Team: \n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -990,47 +990,47 @@ msgstr "ЧТО НЕ СЧИТАЕТСЯ АНОМАЛИЕЙ"
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(179)
 #: Source/Loop9/UI/HelpWidget.cpp(179)
 msgctxt "Loop9Help,HelpAnomalyBody"
-msgid "An anomaly is something the office would not do on its own, and the floor is full of things that look wrong without being wrong. The loop number on your screen counts up every loop because that is what a counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot tell whether something belongs, the first loop already answered it: if it was there on loop one, it belongs."
-msgstr "Аномалия — это то, чего офис не сделал бы сам, а на этаже полно вещей, которые выглядят неправильно, но неправильными не являются. Номер петли на экране растёт с каждой петлёй, потому что счётчик именно это и делает; он никогда не бывает аномалией. Офис всегда настолько тёмный, и твой собственный фонарь — не улика. То, что Драгойло звонит тебе, — нормально. Как и то, что один лифт освещён, а другой тёмный. Если не можешь понять, на месте ли что-то, первая петля уже ответила: если оно было там в первой петле, значит, оно на месте."
+msgid "An anomaly is something the office would not do on its own, and the floor is full of things that look wrong without being wrong. The loop number counting up is just a counter doing its job. The office is always this dark, and your own flashlight is not evidence. One elevator being lit and the other dark is how the floor works. If you cannot tell whether something belongs, the first loop already answered it: if it was there on loop one, it belongs."
+msgstr "Аномалия — это то, чего офис не сделал бы сам, а на этаже полно вещей, которые выглядят неправильно, но неправильными не являются. Номер петли, который растёт, — просто счётчик за работой. Офис всегда настолько тёмный, и твой собственный фонарь — не улика. То, что один лифт освещён, а другой тёмный, — устройство этажа. Если не можешь понять, на месте ли что-то, первая петля уже ответила: если оно было там в первой петле, значит, оно на месте."
 
 #. Key:	HelpElevatorHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
-#: Source/Loop9/UI/HelpWidget.cpp(188)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(187)
+#: Source/Loop9/UI/HelpWidget.cpp(187)
 msgctxt "Loop9Help,HelpElevatorHeading"
 msgid "THE TWO ELEVATORS"
 msgstr "ДВА ЛИФТА"
 
 #. Key:	HelpElevatorBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(189)
-#: Source/Loop9/UI/HelpWidget.cpp(189)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
+#: Source/Loop9/UI/HelpWidget.cpp(188)
 msgctxt "Loop9Help,HelpElevatorBody"
 msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reach loop 9 to end your shift and find out which ending you get."
 msgstr "Это вся игра, так что прочти дважды. Если нашёл аномалию — садись в ОСВЕЩЁННЫЙ лифт. Если этаж чист — в ТЁМНЫЙ. Угадал — поднимаешься на петлю выше. Ошибся — возвращаешься к началу. Дойди до девятой петли, чтобы закончить смену и узнать, какую концовку ты получишь."
 
 #. Key:	HelpPhoneHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(195)
-#: Source/Loop9/UI/HelpWidget.cpp(195)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(194)
+#: Source/Loop9/UI/HelpWidget.cpp(194)
 msgctxt "Loop9Help,HelpPhoneHeading"
 msgid "THE PHONE"
 msgstr "ТЕЛЕФОН"
 
 #. Key:	HelpPhoneBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(196)
-#: Source/Loop9/UI/HelpWidget.cpp(196)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(195)
+#: Source/Loop9/UI/HelpWidget.cpp(195)
 msgctxt "Loop9Help,HelpPhoneBody"
 msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
 msgstr "Драгойло следит за зданием из другой комнаты и отвечает на звонки. Он может примерно сказать, где искать, и он — единственная компания, которая у вас здесь есть. Он ещё и человек, а не инструмент: то, как вы с ним говорите, меняет и то, сколько он вам скажет, и то, чем закончится смена. Он может быть уставшим, может ошибаться, а если обращаться с ним плохо — перестанет помогать. Решение у лифта всегда за вами."
 
 #. Key:	HelpControlsHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(203)
-#: Source/Loop9/UI/HelpWidget.cpp(203)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(202)
+#: Source/Loop9/UI/HelpWidget.cpp(202)
 msgctxt "Loop9Help,HelpControlsHeading"
 msgid "CONTROLS"
 msgstr "УПРАВЛЕНИЕ"
 
 #. Key:	HelpControlsBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(204)
-#: Source/Loop9/UI/HelpWidget.cpp(204)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(203)
+#: Source/Loop9/UI/HelpWidget.cpp(203)
 msgctxt "Loop9Help,HelpControlsBody"
 msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
 msgstr "W A S D — движение, мышь — обзор, Space — прыжок.\nE — взаимодействие: ответить на звонок, открыть дверь, взять предмет и осмотреть его.\nF — включить и выключить фонарик.\nEsc — пауза, а также положить предмет во время осмотра."

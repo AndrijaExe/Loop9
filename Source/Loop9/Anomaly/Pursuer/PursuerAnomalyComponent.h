@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Anomaly/AnomalyComponentBase.h"
+#include "TimerManager.h"
 #include "PursuerAnomalyComponent.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -51,7 +52,15 @@ public:
 	TObjectPtr<class USoundAttenuation> ActiveAnomalyLoopAttenuation = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio", meta = (ClampMin = "0.0"))
-	float ActiveAnomalyLoopVolume = 0.7f;
+	float ActiveAnomalyLoopVolume = 0.60f;
+
+	/**
+	 * Seconds after the pursuer exists before the tension bed replaces the
+	 * floor music. Immediate music tells the player to take the lit elevator
+	 * before they have looked around.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio", meta = (ClampMin = "0.0"))
+	float TensionMusicDelaySeconds = 3.5f;
 
 	/** 2D tension bed that replaces level ambience while the pursuer exists. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio")
@@ -75,11 +84,15 @@ private:
 	UFUNCTION()
 	void OnSpawnedPursuerDestroyed(AActor* DestroyedActor);
 
+	UFUNCTION()
 	void StartTensionMusic();
 	void StopTensionMusic();
+	void ClearTensionMusicDelay();
 
 	UFUNCTION()
 	void HandleTensionMusicFinished();
+
+	FTimerHandle TensionMusicDelayHandle;
 
 	bool TryGetSpawnTransformFromPoints(APawn* PlayerPawn, FTransform& OutTransform) const;
 	bool TryGetSpawnTransformFromRadius(APawn* PlayerPawn, FTransform& OutTransform) const;

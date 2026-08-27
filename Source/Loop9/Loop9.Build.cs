@@ -59,7 +59,8 @@ public class Loop9 : ModuleRules
 			"Loop9/AI/Services",
 			"Loop9/Subsystems",
 			"Loop9/Controllers",
-			"Loop9/UI"
+			"Loop9/UI",
+			"Loop9/Camera"
 		});
 	}
 }

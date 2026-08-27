@@ -174,7 +174,7 @@ Muziku na spratu pušta game mode kao 2D zvuk, a ne `AAmbientSound` u mapi.
   uvezen 26.08.2026. uveče: **Looping = false**, Sound Class **`SC_Music`**.
   Playlist: prvi clip jednom kroz, pa ovaj, pa opet prvi. HorrorAmbience1
   se ne ostavlja da loopuje zauvek — tajmer seče na `Duration` i menja track.
-- [x] **Level Music Volume** = 0.35, množi se ambient sliderom
+- [x] **Level Music Volume** = 0.30, množi se ambient sliderom
 - [ ] QA: muzika radi od ulaska u nivo, bez otvaranja settings menija. Ako ne
   radi, `AudioStatus` u konzoli ispisuje device / jačine / bed / ambient aktere.
 

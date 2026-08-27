@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-08-26 20:39\n"
-"PO-Revision-Date: 2026-08-26 20:39\n"
+"POT-Creation-Date: 2026-08-27 20:39\n"
+"PO-Revision-Date: 2026-08-27 20:39\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -990,47 +990,47 @@ msgstr "CE QUI NE COMPTE PAS COMME ANOMALIE"
 #. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(179)
 #: Source/Loop9/UI/HelpWidget.cpp(179)
 msgctxt "Loop9Help,HelpAnomalyBody"
-msgid "An anomaly is something the office would not do on its own, and the floor is full of things that look wrong without being wrong. The loop number on your screen counts up every loop because that is what a counter does; it is never the anomaly. The office is always this dark, and your own flashlight is not evidence. Dragojlo calling you is normal. So is one elevator being lit and the other dark. If you cannot tell whether something belongs, the first loop already answered it: if it was there on loop one, it belongs."
-msgstr "Une anomalie est quelque chose que le bureau ne ferait pas de lui-même, et l'étage est plein de choses qui semblent anormales sans l'être. Le numéro de boucle affiché à l'écran augmente à chaque boucle parce que c'est le rôle d'un compteur ; il n'est jamais l'anomalie. Le bureau est toujours aussi sombre, et ta propre lampe torche n'est pas une preuve. Que Dragojlo t'appelle est normal. Qu'un ascenseur soit éclairé et l'autre sombre l'est aussi. Si tu n'arrives pas à dire si quelque chose est à sa place, la première boucle a déjà répondu : si c'était là à la boucle un, c'est à sa place."
+msgid "An anomaly is something the office would not do on its own, and the floor is full of things that look wrong without being wrong. The loop number counting up is just a counter doing its job. The office is always this dark, and your own flashlight is not evidence. One elevator being lit and the other dark is how the floor works. If you cannot tell whether something belongs, the first loop already answered it: if it was there on loop one, it belongs."
+msgstr "Une anomalie est quelque chose que le bureau ne ferait pas de lui-même, et l'étage est plein de choses qui semblent anormales sans l'être. Le numéro de boucle qui monte n'est qu'un compteur qui fait son travail. Le bureau est toujours aussi sombre, et ta propre lampe torche n'est pas une preuve. Qu'un ascenseur soit allumé et l'autre sombre, c'est le fonctionnement de l'étage. Si tu n'arrives pas à dire si quelque chose est à sa place, la première boucle a déjà répondu : si c'était là à la boucle un, c'est à sa place."
 
 #. Key:	HelpElevatorHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
-#: Source/Loop9/UI/HelpWidget.cpp(188)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(187)
+#: Source/Loop9/UI/HelpWidget.cpp(187)
 msgctxt "Loop9Help,HelpElevatorHeading"
 msgid "THE TWO ELEVATORS"
 msgstr "LES DEUX ASCENSEURS"
 
 #. Key:	HelpElevatorBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(189)
-#: Source/Loop9/UI/HelpWidget.cpp(189)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(188)
+#: Source/Loop9/UI/HelpWidget.cpp(188)
 msgctxt "Loop9Help,HelpElevatorBody"
 msgid "This is the whole game, so read it twice. If you found an anomaly, take the LIT elevator. If the floor is clean, take the DARK elevator. Get it right and you move up one loop. Get it wrong and you go back to the beginning. Reach loop 9 to end your shift and find out which ending you get."
 msgstr "C'est tout le jeu, alors lis-le deux fois. Si tu as trouvé une anomalie, prends l'ascenseur ÉCLAIRÉ. Si l'étage est propre, prends l'ascenseur SOMBRE. Si tu as raison, tu montes d'une boucle. Si tu te trompes, tu repars du début. Atteins la boucle 9 pour terminer ton service et découvrir quelle fin tu obtiens."
 
 #. Key:	HelpPhoneHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(195)
-#: Source/Loop9/UI/HelpWidget.cpp(195)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(194)
+#: Source/Loop9/UI/HelpWidget.cpp(194)
 msgctxt "Loop9Help,HelpPhoneHeading"
 msgid "THE PHONE"
 msgstr "LE TÉLÉPHONE"
 
 #. Key:	HelpPhoneBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(196)
-#: Source/Loop9/UI/HelpWidget.cpp(196)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(195)
+#: Source/Loop9/UI/HelpWidget.cpp(195)
 msgctxt "Loop9Help,HelpPhoneBody"
 msgid "Dragojlo watches the building from another room and answers the phone. He can tell you roughly where to look, and he is the only company you have down here. He is also a person, not a tool: how you speak to him changes how much he tells you and how the shift ends. He can be tired, he can be wrong, and if you treat him badly he can stop being helpful. The decision at the elevator is always yours."
 msgstr "Dragojlo surveille l'immeuble depuis une autre pièce et répond au téléphone. Il peut vous dire à peu près où chercher, et c'est la seule compagnie que vous avez ici. C'est aussi une personne, pas un outil : la façon dont vous lui parlez change ce qu'il vous dit et la manière dont le quart se termine. Il peut être fatigué, il peut se tromper, et si vous le traitez mal il peut cesser de vous aider. La décision devant l'ascenseur reste toujours la vôtre."
 
 #. Key:	HelpControlsHeading
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(203)
-#: Source/Loop9/UI/HelpWidget.cpp(203)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(202)
+#: Source/Loop9/UI/HelpWidget.cpp(202)
 msgctxt "Loop9Help,HelpControlsHeading"
 msgid "CONTROLS"
 msgstr "COMMANDES"
 
 #. Key:	HelpControlsBody
-#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(204)
-#: Source/Loop9/UI/HelpWidget.cpp(204)
+#. SourceLocation:	Source/Loop9/UI/HelpWidget.cpp(203)
+#: Source/Loop9/UI/HelpWidget.cpp(203)
 msgctxt "Loop9Help,HelpControlsBody"
 msgid "W A S D to move, mouse to look, Space to jump.\nE to interact: answer the phone, open doors, pick an object up and examine it.\nF to switch your flashlight on and off.\nEsc to pause, and to put an object down while examining it."
 msgstr "W A S D pour se déplacer, souris pour regarder, Espace pour sauter.\nE pour interagir : répondre au téléphone, ouvrir les portes, prendre un objet et l'examiner.\nF pour allumer et éteindre la lampe torche.\nÉchap pour mettre en pause, et pour reposer un objet pendant l'examen."

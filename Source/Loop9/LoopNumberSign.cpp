@@ -1,4 +1,5 @@
 #include "LoopNumberSign.h"
+#include "Anomaly/LoopNumberAnomalyComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -7,8 +8,7 @@
 ALoopNumberSign::ALoopNumberSign()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
-	// Visual FX do not need full frame rate; text refresh is further gated by UpdateInterval.
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	PrimaryActorTick.TickInterval = 0.05f;
 
 	TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TextRender"));
@@ -19,27 +19,15 @@ ALoopNumberSign::ALoopNumberSign()
 	TextRender->SetWorldSize(60.0f);
 	TextRender->SetTextRenderColor(TextColor);
 	TextRender->SetText(FText::FromString(TEXT("LOOP 1")));
+
+	LoopNumberAnomaly = CreateDefaultSubobject<ULoopNumberAnomalyComponent>(TEXT("LoopNumberAnomaly"));
 }
 
 void ALoopNumberSign::BeginPlay()
 {
 	Super::BeginPlay();
 	TextRender->SetTextRenderColor(TextColor);
-
-	const bool bNeedsContinuousFx = bEnableFlicker || bEnableGlitch;
-	PrimaryActorTick.TickInterval = bNeedsContinuousFx ? 0.05f : FMath::Max(0.1f, UpdateInterval);
-	SetActorTickEnabled(bNeedsContinuousFx);
-
-	if (!bNeedsContinuousFx && GetWorld())
-	{
-		GetWorld()->GetTimerManager().SetTimer(
-			IdleRefreshTimerHandle,
-			this,
-			&ALoopNumberSign::RefreshLoopText,
-			FMath::Max(0.1f, UpdateInterval),
-			true);
-	}
-
+	ConfigurePresentationTick();
 	RefreshLoopText();
 }
 
@@ -53,66 +41,89 @@ void ALoopNumberSign::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void ALoopNumberSign::SetAnomalyGlitchActive(bool bActive)
+{
+	if (bAnomalyGlitchActive == bActive)
+	{
+		return;
+	}
+
+	bAnomalyGlitchActive = bActive;
+	if (!bAnomalyGlitchActive)
+	{
+		bGlitchActive = false;
+		bFlickerDropout = false;
+		GlitchAccumulator = 0.0f;
+		GlitchElapsed = 0.0f;
+	}
+
+	ConfigurePresentationTick();
+	RefreshLoopText();
+}
+
+void ALoopNumberSign::ConfigurePresentationTick()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(IdleRefreshTimerHandle);
+	}
+
+	const bool bNeedsContinuousFx = bAnomalyGlitchActive;
+	PrimaryActorTick.TickInterval = bNeedsContinuousFx ? 0.05f : FMath::Max(0.1f, UpdateInterval);
+	SetActorTickEnabled(bNeedsContinuousFx);
+
+	if (!bNeedsContinuousFx && GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			IdleRefreshTimerHandle,
+			this,
+			&ALoopNumberSign::RefreshLoopText,
+			FMath::Max(0.1f, UpdateInterval),
+			true);
+	}
+}
+
 void ALoopNumberSign::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	RunningTime += DeltaTime;
 
-	if (!GetGameInstance())
+	if (!bAnomalyGlitchActive)
 	{
 		return;
 	}
 
-	ULoopManagerSubsystem* LoopManager = GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>();
-	if (!LoopManager)
+	if (!bGlitchActive)
 	{
-		return;
-	}
-
-	const int32 CurrentLoopValue = LoopManager->CurrentLoop;
-
-	if (bEnableGlitch && GlitchEveryNLoops > 0 && CurrentLoopValue > 0 && (CurrentLoopValue % GlitchEveryNLoops == 0))
-	{
-		if (!bGlitchActive)
+		GlitchAccumulator += DeltaTime;
+		if (GlitchAccumulator >= GlitchInterval)
 		{
-			GlitchAccumulator += DeltaTime;
-			if (GlitchAccumulator >= GlitchInterval)
-			{
-				bGlitchActive = true;
-				GlitchElapsed = 0.0f;
-				GlitchAccumulator = 0.0f;
-			}
-		}
-		else
-		{
-			GlitchElapsed += DeltaTime;
-			if (GlitchElapsed >= GlitchDuration)
-			{
-				bGlitchActive = false;
-				GlitchElapsed = 0.0f;
-			}
+			bGlitchActive = true;
+			GlitchElapsed = 0.0f;
+			GlitchAccumulator = 0.0f;
 		}
 	}
 	else
 	{
-		bGlitchActive = false;
-		GlitchAccumulator = 0.0f;
+		GlitchElapsed += DeltaTime;
+		if (GlitchElapsed >= GlitchDuration)
+		{
+			bGlitchActive = false;
+			GlitchElapsed = 0.0f;
+		}
 	}
 
-	if (bEnableFlicker)
-	{
-		bFlickerDropout = FMath::FRand() < (FlickerDropoutChancePerSecond * DeltaTime);
-	}
-	else
-	{
-		bFlickerDropout = false;
-	}
+	bFlickerDropout = FMath::FRand() < (FlickerDropoutChancePerSecond * DeltaTime);
 
 	UpdateAccumulator += DeltaTime;
 	if (UpdateAccumulator >= UpdateInterval)
 	{
 		UpdateAccumulator = 0.0f;
 		RefreshLoopText();
+	}
+	else
+	{
+		UpdateDynamicColor(LastShownLoop);
 	}
 }
 
@@ -129,9 +140,9 @@ void ALoopNumberSign::RefreshLoopText()
 		return;
 	}
 
-  LastShownLoop = LoopManager->CurrentLoop;
+	LastShownLoop = LoopManager->CurrentLoop;
 
-	if (bGlitchActive)
+	if (bAnomalyGlitchActive && bGlitchActive)
 	{
 		TextRender->SetText(FText::FromString(BuildGlitchText(LastShownLoop)));
 	}
@@ -150,7 +161,7 @@ void ALoopNumberSign::UpdateDynamicColor(int32 LoopValue)
 	const FLinearColor Aggressive = FLinearColor(AggressiveTextColor);
 	FLinearColor Result = FMath::Lerp(Base, Aggressive, Progress);
 
-	if (bEnableFlicker)
+	if (bAnomalyGlitchActive)
 	{
 		const float FlickerWave = (FMath::Sin(RunningTime * FlickerSpeed) * 0.5f) + 0.5f;
 		const float FlickerMultiplier = 1.0f - (FlickerStrength * FlickerWave);
@@ -168,14 +179,16 @@ void ALoopNumberSign::UpdateDynamicColor(int32 LoopValue)
 
 FString ALoopNumberSign::BuildGlitchText(int32 LoopValue) const
 {
+	(void)LoopValue;
 	const int32 GlitchPattern = FMath::RandRange(0, 2);
 	if (GlitchPattern == 0)
 	{
-		return FString::Printf(TEXT("L00P ?"));
+		return FString::Printf(TEXT("%s ?"), *Prefix);
 	}
 	if (GlitchPattern == 1)
 	{
-		return FString::Printf(TEXT("%s ??"), *Prefix);
+		return TEXT("L00P ?");
 	}
-	return FString::Printf(TEXT("%s %d"), *Prefix, FMath::Max(0, LoopValue + FMath::RandRange(-1, 1)));
+	return FString::Printf(TEXT("%s ??"), *Prefix);
 }
+
