@@ -20,9 +20,9 @@ drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
 se kuva. SteamPipe contentroot je **`Builds/v1.0.1/Windows`**. **`Builds/v1.0.0`
 ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
-više nisu cilj. Live playtest na Steamu je bio cook od **24.08.2026**
-(BuildID `24910264`) dok se v1.0.1 ne uploaduje. Prethodni Alfa playtest je
-bio BuildID `24782464`.
+više nisu cilj. Live playtest na Steamu je **v1.0.1** (BuildID `24980937`,
+28.08.2026). Prethodni playtest cook od 24.08 je bio BuildID `24910264`.
+Prethodni Alfa playtest je bio BuildID `24782464`.
 **Coming Soon store je javan od 27.08.2026.**:
 https://store.steampowered.com/app/4982260/Loop_9/
 
@@ -394,8 +394,8 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  v1.0.1 ide na passwordovani `playtest` (prethodni live BuildID `24910264`
-  je bio cook od 24.08). Zabeležiti BuildID svakog novog uploada.
+  v1.0.1 je live na passwordovanom `playtest` (BuildID `24980937`, 28.08.2026).
+  Prethodni live BuildID `24910264` je bio cook od 24.08.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
