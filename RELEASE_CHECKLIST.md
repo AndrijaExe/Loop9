@@ -623,6 +623,26 @@ Brief:
   tool shelf, storage corner, corridor between lifts and desks.
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
 
+- [ ] **Steam Deck kompatibilnost.** Dodato 28.08.2026. kao post-release stavka.
+  Deck status (`Verified` / `Playable` / `Unsupported`) testira Valve, ne ti; ti
+  ga samo pošalješ na review iz Steamworks-a. Nije launch bloker, ali stoji
+  vidljivo na store stranici pa vredi.
+  - Realno najveći rizik za ovu igru je **čitljivost teksta**, ne performanse.
+    Deck je 7" ekran na 1280×800, a Loop 9 je tekstualna igra — terminal, chat,
+    ending ekrani, krediti. Fontovi dimenzionisani za 1080p+ tamo postaju
+    sitni. To je najčešći razlog za `Playable` umesto `Verified`.
+  - **Unos teksta.** Chat sa Dragojlom traži kucanje, a Deck to rešava Steam
+    floating keyboard-om. Već stoji kao stavka u §6 („Platforma, UI i
+    performanse"), i direktno je Verified kriterijum.
+  - **Grafika.** `DefaultEngine.ini` nosi Lumen, ray tracing i virtual textures
+    (`r.RayTracing=True`, `r.DynamicGlobalIlluminationMethod=1`). Deck APU to ne
+    nosi na 15 W. Treba Deck preset preko postojećeg `PreferredGraphicsQuality`
+    (0–3) u `Loop9GameSettingsSubsystem` — kuka već postoji, ne treba nova.
+  - **Cloud.** Deck vrti igru kroz Proton, pa `WinAppDataLocal` root pokazuje u
+    Proton prefiks. `gameinstall` je jedini root validan na svim platformama —
+    isti razlog zbog kog je predložen u §2 za Cloud problem. Ako se tamo pređe
+    na `gameinstall`, ovo je usput rešeno.
+
 - [x] Help slike — ne radimo za sada (26.08.2026.).
 - [x] Replacement terminal: typewriter zvuk + SKIP (26.08.2026.).
   Phone pickup, ring, chat mumble i koraci imaju C++ default (26.08.).
