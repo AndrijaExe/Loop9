@@ -3,6 +3,14 @@
 Poslednje ažuriranje: **28.08.2026.**
 Steam App ID: **4982260**
 
+> **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
+> odgovora su u
+> `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
+> nedostaju common redistributables, Cloud ne sinhronizuje, i nisu mogli da
+> verifikuju šest endinga. Prva dva su Steamworks konfiguracija bez rebuilda;
+> treće traži Development build na passworded grani. Uz to je Valve blokirao
+> prodaju u Kini — informacija, ne zadatak.
+
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
 `[Marketing/Steam/STORE_PAGE.md](Marketing/Steam/STORE_PAGE.md)`, a cinematic
@@ -220,6 +228,13 @@ Sledeća sesija (urađeno 26.08.2026.):
 - [x] App kreiran; App ID je `4982260`.
 - [x] Basic Info, platforma, jezici, žanrovi, features i launch option
   (`Loop9.exe`) popunjeni.
+- [ ] **Installation → Common Redistributables:** čekirati `DirectX End-User
+  Runtimes (June 2010)` i `Microsoft Visual C++ Redistributable 2022`, pa
+  Publish. Bez toga UE prereq installer iskače kao third-party launcher i Valve
+  obara build (`24910264`). Ne traži rebuild.
+- [ ] Passworded grana `valvereview` sa Development buildom
+  (`Tools/PackageWindowsDevelopment.bat`) da recenzent može do šest endinga.
+  Skinuti je posle odobrenja.
 - [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
 - [x] EN/SR store opis pripremljen.
 
@@ -228,12 +243,21 @@ Sledeća sesija (urađeno 26.08.2026.):
 
 - [x] Cena `$4.99` i Valve regional pricing poslati.
 - [x] Sačekati potvrdu pricing promena.
-- [x] Steam Cloud Auto-Cloud podešen za
+- [~] Steam Cloud Auto-Cloud podešen za
   `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
   Tu žive viđeni endinzi i uočene anomalije (`SeenEndings`, `SpottedAnomalies`).
-  Grafika i jezik su u `GameUserSettings.ini` i **ne** idu na Cloud.
-- [ ] Dodati `GameUserSettings.ini` samo ako želiš sync grafike i jezika između
-  računara; nije release bloker.
+  **Valve javlja 28.08. da sync ne radi i da Properties → General ne pokazuje
+  ništa.** Redosled provere je u
+  `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`
+  §2: prvo kvota (byte/file quota na `0` ubija Cloud iako kategorija stoji na
+  store strani), pa da li `Game.ini` stvarno postoji na toj putanji, pa polja
+  Root Path / Subdirectory / Pattern, pa Publish.
+- [ ] Dodati `GameUserSettings.ini` na Auto-Cloud. Više nije opciono: Valve
+  eksplicitno testira „save data doesn't sync between PCs", a grafika i jezik su
+  vidljiviji dokaz sinhronizacije od jednog reda u `Game.ini`.
+- [ ] **Cloud se verifikuje samo na Shipping buildu.** Development build drži
+  Saved pored `.exe` umesto u `%LOCALAPPDATA%`, pa debug grana iz §3 nije
+  merodavna i to treba reći recenzentu.
 - [x] Javni privacy policy postoji na backendu.
 - [x] `https://loop9-backend.onrender.com/privacy` vraća HTTP 200
   (ponovo provereno 07.08.2026.).

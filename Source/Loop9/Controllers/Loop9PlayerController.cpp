@@ -12,6 +12,7 @@
 #include "HorrorUI.h"
 #include "AudioDevice.h"
 #include "Components/AudioComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "EngineUtils.h"
 #include "Loop/LoopTypes.h"
@@ -134,6 +135,20 @@ namespace
 		}
 		return nullptr;
 	}
+
+	/**
+	 * Console output only reaches the log, which store reviewers running a
+	 * packaged build never see. Mirror the result on screen so a typed command
+	 * visibly either took effect or did not.
+	 */
+	void DebugScreenMessage(const FString& Message, bool bOk)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				INDEX_NONE, 6.0f, bOk ? FColor::Green : FColor::Red, Message);
+		}
+	}
 }
 #endif
 
@@ -158,6 +173,7 @@ void ALoop9PlayerController::AnomalyReset()
 	{
 		Manager->ResetAllAnomalies();
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyReset: all anomalies cleared"));
+		DebugScreenMessage(TEXT("AnomalyReset: all anomalies cleared"), true);
 	}
 #endif
 }
@@ -169,6 +185,10 @@ void ALoop9PlayerController::AnomalyForceAny()
 	{
 		const bool bOk = Manager->ForceActivateAnyAnomaly();
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyForceAny: %s"), bOk ? TEXT("ok") : TEXT("failed"));
+		DebugScreenMessage(
+			bOk ? TEXT("AnomalyForceAny: anomaly active on this floor")
+				: TEXT("AnomalyForceAny: no inactive anomaly left on this floor"),
+			bOk);
 	}
 #endif
 }
@@ -203,6 +223,10 @@ void ALoop9PlayerController::AnomalyForce(const FString& Args)
 	const bool bOk = Manager->ForceActivateByFilter(Filter, MaterialIndex);
 	UE_LOG(LogLoop9, Log, TEXT("AnomalyForce '%s' mat=%d -> %s"),
 		*Filter, MaterialIndex, bOk ? TEXT("ok") : TEXT("failed"));
+	DebugScreenMessage(
+		bOk ? FString::Printf(TEXT("AnomalyForce '%s': active on this floor. Take the LIT elevator."), *Filter)
+			: FString::Printf(TEXT("AnomalyForce '%s': no match on this floor, try another filter."), *Filter),
+		bOk);
 #endif
 }
 
@@ -401,6 +425,8 @@ void ALoop9PlayerController::EndingSetup(const FString& Args)
 	if (!ParseEndingTypeArg(Tokens[0], EndingType))
 	{
 		UE_LOG(LogLoop9, Warning, TEXT("EndingSetup: unknown ending '%s'"), *Tokens[0]);
+		DebugScreenMessage(
+			FString::Printf(TEXT("EndingSetup: unknown ending '%s'. Use 0-5."), *Tokens[0]), false);
 		EndingHelp();
 		return;
 	}
@@ -408,13 +434,25 @@ void ALoop9PlayerController::EndingSetup(const FString& Args)
 	if (ULoopManagerSubsystem* LoopManager = GetLoopManager(this))
 	{
 		const bool bOk = LoopManager->ApplyEndingTestSetup(EndingType);
-		UE_LOG(LogLoop9, Log, TEXT("EndingSetup %s -> %s. CurrentLoop=9. Press ADVANCE (no anomaly)."),
+		UE_LOG(LogLoop9, Log, TEXT("EndingSetup %s -> %s. CurrentLoop=9, floor clean, take the DARK elevator."),
 			*UEnum::GetValueAsString(EndingType),
 			bOk ? TEXT("ok") : TEXT("FAILED predicted mismatch"));
+		const FString EndingName = UEnum::GetDisplayValueAsText(EndingType).ToString();
+		DebugScreenMessage(
+			bOk ? FString::Printf(
+					  TEXT("Ending armed: %s. You are on loop 9 and the floor is clean.\n"
+						   "Take the DARK elevator to advance and trigger the ending."),
+					  *EndingName)
+				: FString::Printf(
+					  TEXT("EndingSetup %s: state applied but predicts a different ending."),
+					  *EndingName),
+			bOk);
 	}
 	else
 	{
 		UE_LOG(LogLoop9, Warning, TEXT("EndingSetup: LoopManagerSubsystem not available (start PIE first)"));
+		DebugScreenMessage(
+			TEXT("EndingSetup: start a run from the main menu first."), false);
 	}
 #endif
 }
@@ -431,6 +469,7 @@ void ALoop9PlayerController::EndingHelp()
 		"  EndingSetup MergedMemory    (or 4)\n"
 		"  EndingSetup TheReplacement  (or 5)\n"
 		"  EndingHelp\n"
-		"After setup: take elevator ADVANCE (anomalies cleared). Ending fires at loop 10."));
+		"After setup the floor is clean, so the DARK elevator is the correct one.\n"
+		"Take it to advance; the ending fires at loop 10."));
 #endif
 }
