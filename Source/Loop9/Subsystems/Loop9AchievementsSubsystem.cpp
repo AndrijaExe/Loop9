@@ -3,6 +3,7 @@
 #include "Anomaly/AnomalyTypes.h"
 #include "HAL/FileManager.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "OnlineSubsystem.h"
 #include "OnlineStats.h"
@@ -30,6 +31,35 @@ namespace
 	{
 		return FPaths::ConvertRelativePathToFull(
 			FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Config"), TEXT("Windows"), TEXT("Game.ini")));
+	}
+
+	void LoadCloudFile(FConfigFile& File)
+	{
+		const FString Ini = CloudGameIni();
+		if (IFileManager::Get().FileExists(*Ini))
+		{
+			File.Read(Ini);
+		}
+	}
+
+	bool SaveCloudFile(FConfigFile& File)
+	{
+		const FString Ini = CloudGameIni();
+		IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);
+		File.NoSave = false;
+		File.Dirty = true;
+
+		FString Text;
+		File.WriteToString(Text);
+		if (Text.TrimStartAndEnd().IsEmpty())
+		{
+			Text = FString::Printf(TEXT("[%s]\r\nCloudReady=1\r\n"), PersistSection);
+		}
+
+		// GConfig::SetString/Flush will not create a file that is not already in the
+		// cache. Find() also marks unknown inis NoSave. Write the Auto-Cloud file
+		// ourselves so Steam always sees Game.ini after first launch.
+		return FFileHelper::SaveStringToFile(Text, *Ini);
 	}
 
 	IOnlineAchievementsPtr GetAchievementsInterface()
@@ -326,9 +356,10 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 TArray<FString> ULoop9AchievementsSubsystem::LoadPersistedList(const TCHAR* Key) const
 {
 	FString Raw;
-	const FString Ini = CloudGameIni();
-	GConfig->GetString(PersistSection, Key, Raw, Ini);
-	if (Raw.IsEmpty() && !GGameIni.IsEmpty() && !FPaths::IsSamePath(GGameIni, Ini))
+	FConfigFile CloudFile;
+	LoadCloudFile(CloudFile);
+	CloudFile.GetString(PersistSection, Key, Raw);
+	if (Raw.IsEmpty() && !GGameIni.IsEmpty())
 	{
 		GConfig->GetString(PersistSection, Key, Raw, GGameIni);
 	}
@@ -341,30 +372,26 @@ TArray<FString> ULoop9AchievementsSubsystem::LoadPersistedList(const TCHAR* Key)
 void ULoop9AchievementsSubsystem::SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const
 {
 	const FString Joined = FString::Join(Values, TEXT(","));
-	const FString Ini = CloudGameIni();
-	GConfig->SetString(PersistSection, Key, *Joined, Ini);
-	if (!GGameIni.IsEmpty() && !FPaths::IsSamePath(GGameIni, Ini))
+	FConfigFile CloudFile;
+	LoadCloudFile(CloudFile);
+	CloudFile.SetString(PersistSection, Key, *Joined);
+	CloudFile.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
+	SaveCloudFile(CloudFile);
+	if (!GGameIni.IsEmpty())
 	{
 		GConfig->SetString(PersistSection, Key, *Joined, GGameIni);
 	}
-	EnsureCloudSaveFile();
 }
 
 void ULoop9AchievementsSubsystem::EnsureCloudSaveFile() const
 {
-	// Empty PendingUnlocks/SeenEndings writes used to skip creating Game.ini,
-	// so first launch left Auto-Cloud watching an empty folder.
-	// GGameIni in packaged Shipping points at the cooked/default ini, not
-	// %LOCALAPPDATA%/Loop9/Saved/Config/Windows/Game.ini that Auto-Cloud watches.
-	const FString Ini = CloudGameIni();
-	IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);
-	GConfig->SetString(PersistSection, TEXT("CloudReady"), TEXT("1"), Ini);
-	GConfig->Flush(false, Ini);
-	if (!GGameIni.IsEmpty() && !FPaths::IsSamePath(GGameIni, Ini))
-	{
-		GConfig->SetString(PersistSection, TEXT("CloudReady"), TEXT("1"), GGameIni);
-		GConfig->Flush(false, GGameIni);
-	}
+	// Empty PendingUnlocks/SeenEndings writes used to skip creating Game.ini.
+	// GConfig::SetString on a path that is not already cached is a no-op in UE 5.8,
+	// which is why CloudReady in the Shipping binary never produced the file.
+	FConfigFile CloudFile;
+	LoadCloudFile(CloudFile);
+	CloudFile.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
+	SaveCloudFile(CloudFile);
 }
 
 TArray<FString> ULoop9AchievementsSubsystem::MergeWithSteam(

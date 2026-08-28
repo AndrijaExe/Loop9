@@ -9,16 +9,15 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `24998396`, 28.08. uveče)** — Cloud path fix + lobby splash.
-Prethodni playtest večeras bio je `24997951` (flush na `GGameIni`, bez
-`Game.ini`). Debug na `valvereview` je **`24998416`** (`Builds/v1.0.2Dev`).
+**v1.0.2 (BuildID `24998396`)**. Debug na `valvereview` je **`24998416`**.
 
-**Ne šalji Cloud paragraf dok ne proveriš da `Game.ini` postoji posle Play
-iz Library.** Redistributables + endings mogu sad (`24998396` / `24998416`).
-Auto-Cloud pravilo je tačno. Novi Shipping piše u
-`%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`. Splash (in-game LOOP 9
-lobby) i nova exe ikonica **nisu** Valve stavke — ikonica čeka fajl od tebe.
-`default` i dalje mora ručni Set Live u Steamworks Builds.
+**Cloud i dalje nije OK na `24998396`.** Steamworks putanja je tačna
+(`GameUserSettings.ini` + `steam_autocloud.vdf` posle Play 28.08. 20:23).
+`Game.ini` **nema**. UE 5.8 `GConfig->SetString` na fajl koji nije u kešu je
+no-op (`Find()` vraća null ako fajl ne postoji). Sledeći Shipping cook piše
+`Game.ini` preko `FFileHelper`, ne preko GConfig. Redistributables + endings
+mogu sad. **Ne šalji Cloud paragraf dok `Game.ini` ne postoji posle Play.**
+Splash i nova exe ikonica nisu Valve stavke. `default` i dalje ručni Set Live.
 
 ---
 
@@ -67,16 +66,23 @@ Dokumentacija: <https://partner.steamgames.com/doc/features/common_redist>
 Shipping build piše u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. Posle
 Play iz Library tu stoje `GameUserSettings.ini` i `steam_autocloud.vdf`
 (accountid `375407870`) — Steam **jeste** gledao taj folder. `Game.ini`
-**nije postojao** ni posle 17:45 ni posle 19:39 (v1.0.2 Shipping).
+**nije postojao** ni posle 17:45, ni posle 19:39, **ni posle Play 20:23 na
+`24998396`**. Steamworks nije uzrok.
 
-Dva baga, redom:
+Tri baga, redom:
 
 1. `Initialize` zove `PersistPendingUnlocks()` odmah, ali prazan `SetString`
    za `PendingUnlocks`/`SeenEndings` **ne kreira fajl**. Recenzent koji uđe u
    kancelariju i izađe nema šta da sinhronizuje.
 2. Prvi `CloudReady=1` flush (u `24997951`) ide na Unrealov `GGameIni`, što u
-   packaged Shipping **nije** Auto-Cloud putanja. String `CloudReady` je u
-   `.exe`, fajl i dalje nije.
+   packaged Shipping **nije** Auto-Cloud putanja.
+3. `24998396` je flush-ovao pravu putanju, ali UE 5.8 `GConfig->SetString`
+   zove `Find()`: ako `Game.ini` **ne postoji**, vraća null i **ne radi
+   ništa**. Zato fajl i dalje nije nastao.
+
+Fix: `EnsureCloudSaveFile()` piše
+`%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini` preko `FFileHelper`,
+bez GConfig keša. To još **nije** u live cooku dok recook ne završi.
 
 `GameUserSettings.ini` namerno nije na Cloud-u (mašinski settings).
 

@@ -6,22 +6,24 @@ Steam App ID: **4982260**
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
 > odgovora su u
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (`Game.ini` path fix je
-> u **`24998396`** — još nije lokalno verifikovan posle Play iz Library), šest
-> endinga (Development na `valvereview`). Valve je blokirao prodaju u Kini —
-> informacija, ne zadatak.
+> redistributables (Steamworks, publish-ovano), Cloud (`Game.ini` **i dalje
+> nema** na `24998396` — GConfig ne kreira missing ini; FFileHelper fix u
+> kodu, čeka recook), šest endinga (Development na `valvereview`). Valve je
+> blokirao prodaju u Kini — informacija, ne zadatak.
 >
 > **Urađeno 28.08. uveče:** redistributables publish-ovani. Cloud **putanja**
-> potvrđena. Recook + SteamPipe: Shipping **`24998396`** live na `playtest`,
-> Development **`24998416`** live na `valvereview`. Splash je lobby LOOP 9 kadar.
+> potvrđena Play-om 20:23. Shipping **`24998396`** na `playtest`, Development
+> **`24998416`** na `valvereview`. Splash je lobby LOOP 9 kadar.
 >
 > **Ostalo:**
-> 1. Steamworks Builds: Set Live **`24998396`** na **default** (steamcmd to
->    ne sme). https://partner.steamgames.com/apps/builds/4982260
+> 1. Recook Shipping (FFileHelper `Game.ini`) + SteamPipe `playtest`. Dev
+>    grana ne treba za Cloud.
 > 2. Play iz Library → Exit. Mora `Game.ini`. Properties → General mora
->    veličina. Tek tad tiket §4 Cloud. **Ne tvrdi round-trip dok to ne vidiš.**
-> 3. Nova **exe ikonica** — čeka fajl od tebe; trenutna ostaje Shortcut v2.
-> 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
+>    veličina. Tek tad tiket §4 Cloud.
+> 3. Steamworks Builds: Set Live novi Shipping na **default** (steamcmd to
+>    ne sme).
+> 4. Nova **exe ikonica** — čeka fajl od tebe.
+> 5. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
