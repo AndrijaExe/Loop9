@@ -61,33 +61,21 @@ Ovo je najverovatnije takođe Steamworks konfiguracija, ne kod. Igra piše
 `ULoop9AchievementsSubsystem::Initialize` upiše `PendingUnlocks` red već pri
 prvom pokretanju, pa fajl postoji i pre nego što iko odigra ijedan ending.
 
-Stanje Cloud strane provereno 28.08.2026. Kvota i Auto-Cloud putanja **nisu**
-problem, vidi §2.2 i §2.3. Ostaje §2.1 kao glavni osumnjičeni.
+Cela Cloud strana provereno 28.08.2026. **Sve što se vidi u Steamworksu je
+ispravno** — kvota (§2.2), Auto-Cloud pravilo (§2.3) i Beta Testing čekboks
+(§2.1). Znači uzrok nije u konfiguraciji koja se vidi iz browsera, nego u tome
+**da li fajl uopšte postoji tamo gde pravilo gleda**. To je §2.5 i to je sada
+jedini pravi zadatak.
 
-### 2.1 „Enable cloud support for developers only" — skoro sigurno ovo
+### 2.1 „Enable cloud support for developers only" — provereno, nije bio čekiran
 
 Steamworks → App Admin → **Cloud**
 (`https://partner.steamgames.com/apps/cloud/4982260`) → sekcija **Beta Testing**.
 
-Steamov sopstveni opis tog čekboksa:
-
-> This will hide the icon from the client and will **disable auto-cloud
-> syncing**.
-
-To objašnjava sva tri simptoma iz tiketa odjednom: nema sync podataka u
-Properties → General, kategorija „Steam Cloud" i dalje stoji na store strani jer
-dolazi iz drugog flaga, i save se ne prenosi između mašina. **Odčekiraj ga**, pa
-Publish.
-
-Dok je čekiran, jedini način da se Auto-Cloud testira je Steam konzola
-(`steam://open/console`) komandom:
-
-```
-testappcloudpaths 4982260
-```
-
-Ta komanda ispiše koje fajlove pravilo stvarno hvata, pa je korisna i posle
-odčekiravanja kao provera da Pattern gađa `Game.ini`.
+Ovo je bio glavni osumnjičeni jer Steamov opis kaže da čekboks „will hide the
+icon from the client and will disable auto-cloud syncing", što bi objasnilo sva
+tri simptoma odjednom. **Provereno 28.08. — nije bio čekiran.** Skinuto sa
+liste.
 
 ### 2.2 Kvota — provereno, u redu
 
@@ -127,19 +115,45 @@ Sinhronizovati ga između jake mašine i laptopa je upravo ono na šta upozorava
 a `Game.ini` je ionako pravi save (`SeenEndings`, `SpottedAnomalies`) i postoji
 od prvog pokretanja, pa Properties → General ima šta da pokaže i bez toga.
 
-### 2.5 Proveri da putanja stvarno postoji na disku
+### 2.5 Da li fajl stvarno postoji tamo gde pravilo gleda — **glavni preostali sumnjivac**
 
-Pre nego što veruješ podešavanju, pokreni **Shipping** build i pogledaj da li
-postoji:
+Pošto su §2.1–2.3 čisti, ostaje ovo. Dva testa, oba na Windows mašini.
+
+**Test A — Steam konzola, najbrži i najuverljiviji.** Otvori `steam://open/console`
+i ukucaj:
+
+```
+testappcloudpaths 4982260
+```
+
+Komanda ispiše koje fajlove Auto-Cloud pravilo stvarno hvata. Ako vrati praznu
+listu, pravilo gađa prazno i to je odgovor. Ovo je jedini test koji direktno meri
+ono što Steam vidi, umesto da nagađamo.
+
+**Test B — Explorer.** Pokreni **Shipping** build iz Steam Library-ja, izađi, pa
+zalepi u Explorer adresnu liniju:
 
 ```
 %LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini
 ```
 
-Zalepi to u Explorer adresnu liniju. Ako fajla nema tu, Auto-Cloud pravilo gađa
-prazno i sve ostalo je nebitno — nađi gde je fajl stvarno završio (najverovatnije
-`...\steamapps\common\Loop 9\Loop9\Saved\Config\Windows\Game.ini`) i podesi
-pravilo na to.
+Ako fajla nema tu, nađi gde je stvarno završio. Najverovatnija alternativa je
+pored `.exe`:
+
+```
+...\steamapps\common\Loop 9\Loop9\Saved\Config\Windows\Game.ini
+```
+
+Ako je tamo, promeni Root u Auto-Cloud pravilu sa `WinAppDataLocal` na
+**`gameinstall`** (App Install Directory) i ostavi isti Subdirectory i Pattern.
+Bonus: `gameinstall` je jedini Root koji je validan na svim platformama, pa
+usput rešava i cross-platform priču ako ikad izađeš na Linux.
+
+Zašto je ovo realno: UE preusmerava `Saved` u `%LOCALAPPDATA%` samo kad se build
+smatra „installed". Za Shipping cook to jeste tako po pravilu, ali zavisi od
+verzije engine-a i od toga kako je cook napravljen, i **nije provereno na ovom
+konkretnom v1.0.1 buildu**. Dok se ne potvrdi, tretiraj to kao pretpostavku, ne
+kao činjenicu.
 
 Zašto je ovo realan rizik: UE u Shipping buildu Saved folder preusmerava u
 `%LOCALAPPDATA%`, ali u Development buildu ga ostavlja pored `.exe`. Znači

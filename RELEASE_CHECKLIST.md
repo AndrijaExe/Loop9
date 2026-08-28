@@ -11,12 +11,15 @@ Steam App ID: **4982260**
 > treće traži Development build na passworded grani. Uz to je Valve blokirao
 > prodaju u Kini — informacija, ne zadatak.
 >
-> **Urađeno 28.08.:** redistributables čekirani i publish-ovani; Cloud
-> developers-only sređen i publish-ovan.
+> **Urađeno 28.08.:** redistributables čekirani i publish-ovani; cela Cloud
+> strana pregledana i sve što se vidi iz Steamworksa je ispravno
+> (developers-only **nije** bio čekiran, kvota i Auto-Cloud pravilo su tačni).
 >
-> **Ostalo, sve traži Windows mašinu sa UE:**
-> 1. Pokrenuti Shipping build i potvrditi da postoji
->    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
+> **Ostalo, sve traži Windows mašinu:**
+> 1. Naći zašto Cloud ne sinhronizuje. Pustiti `testappcloudpaths 4982260` u
+>    Steam konzoli i potvrditi da postoji
+>    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`. Ako je fajl pored
+>    `.exe`, prebaciti Root na `gameinstall`.
 > 2. `git pull` + rebuild (da uđu on-screen poruke debug komandi), pa
 >    `Tools\PackageWindowsDevelopment.bat Debug`.
 > 3. Napraviti passworded granu `valvereview`, privremeno prebaciti
@@ -267,12 +270,16 @@ Sledeća sesija (urađeno 26.08.2026.):
   **Valve javlja 28.08. da sync ne radi i da Properties → General ne pokazuje
   ništa.** Kvota (`10485760` B / `10` fajlova) i Auto-Cloud pravilo su
   provereni 28.08. i ispravni su; preview razrešava tačnu putanju.
-- [~] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
-  sređeno i publish-ovano **28.08.2026.** Po Steamovom opisu taj čekboks gasi
-  Auto-Cloud i sakriva ikonicu, što pokriva sva tri simptoma iz Valveovog
-  tiketa. Detalji u
+- [x] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
+  provereno 28.08. — **nije bilo čekirano**, pa nije uzrok. Bio je glavni
+  osumnjičeni jer taj čekboks gasi Auto-Cloud i sakriva ikonicu.
+- [ ] **Ostaje jedini sumnjivac: da li `Game.ini` postoji tamo gde pravilo
+  gleda.** Sve što se vidi iz Steamworksa je ispravno, pa se uzrok mora tražiti
+  na disku. Na Windowsu pustiti `testappcloudpaths 4982260` u Steam konzoli
+  (`steam://open/console`) — ispisuje koje fajlove pravilo stvarno hvata. Ako je
+  lista prazna, prebaciti Root sa `WinAppDataLocal` na `gameinstall`. Detalji u
   `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`
-  §2.1. Ostaje da se stvarno sync-ovanje potvrdi na Shipping buildu.
+  §2.5.
 - [x] Odlučeno da `GameUserSettings.ini` **ne** ide na Auto-Cloud. Steamov
   best-practice traži da se izbegne machine-specific config, a taj fajl je
   rezolucija i quality scalability. `Game.ini` je pravi save i postoji od prvog
