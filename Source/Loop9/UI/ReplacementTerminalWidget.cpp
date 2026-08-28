@@ -8,6 +8,17 @@
 #include "Sound/SoundBase.h"
 #include "UObject/ConstructorHelpers.h"
 
+namespace
+{
+	void AlignReplacementContinueButton(UWidget* ContinueButton)
+	{
+		FLoop9WidgetClickBinder::AlignToCanvasBottomRight(
+			ContinueButton,
+			FVector2D(64.0f, 80.0f),
+			FVector2D(520.0f, 72.0f));
+	}
+}
+
 UReplacementTerminalWidget::UReplacementTerminalWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -25,6 +36,7 @@ void UReplacementTerminalWidget::NativeConstruct()
 	StopAllAnimations();
 	SetRenderOpacity(1.0f);
 	BindContinueButton();
+	AlignReplacementContinueButton(BT_Continue);
 }
 
 void UReplacementTerminalWidget::NativeDestruct()
@@ -296,6 +308,7 @@ void UReplacementTerminalWidget::BindContinueButton()
 		FLoop9WidgetClickBinder::BindClicked(
 			BT_Continue, this, GET_FUNCTION_NAME_CHECKED(UReplacementTerminalWidget, HandleContinueClicked));
 		BT_Continue->SetVisibility(ESlateVisibility::Visible);
+		AlignReplacementContinueButton(BT_Continue);
 	}
 
 	if (FallbackContinueButton)

@@ -2,6 +2,7 @@
 
 #include "Loop9GameMode.h"
 #include "Controllers/Loop9PlayerController.h"
+#include "Subsystems/AnomalyManager.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 
 #include "Components/AudioComponent.h"
@@ -36,6 +37,20 @@ void ALoop9GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	StartLevelMusic();
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this]()
+		{
+			if (UGameInstance* GameInstance = GetGameInstance())
+			{
+				if (UAnomalyManager* Manager = GameInstance->GetSubsystem<UAnomalyManager>())
+				{
+					Manager->EnsureScaleAnomalyPlacement(GetWorld());
+				}
+			}
+		}));
+	}
 }
 
 void ALoop9GameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)

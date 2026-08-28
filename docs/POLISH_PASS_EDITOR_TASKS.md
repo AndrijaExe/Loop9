@@ -63,17 +63,10 @@ slotove, pa preuzima šta god zatekne.
   `WBP_MainMenu`. **Ne treba dirati kôd:** `SynthesizeButtonBefore` u
   `MainMenuWidget.cpp` kopira padding, anchors, alignment i size sa template
   slota, pa se sintetizovano `CREDITS` dugme samo poravna po novom rasporedu.
-- [ ] **Ending ekrani: `Return to Main Menu` pomeriti udesno.** Sada je
-  praktično na sredini. Treba u **dva** widgeta, inače će biti nedosledno:
-  `EndingWidget` i `ReplacementTerminalWidget` (oba nose isti
-  `ContinueButtonLabel`).
-  - Kvaka: `ExpandContinueButtonHitArea()` forsira dugme na **520×72 px**. Sa
-    tolikom širinom desno poravnanje brzo udari u ivicu ekrana, pa ili računaj
-    sa tim, ili smanji `MinWidth`/`MinHeight` konstante u
-    `EndingWidget.cpp` i `ReplacementTerminalWidget.cpp`.
-  - Ne edituj C++ fallback layout (`BuildFallbackLayoutIfNeeded`) — on centrira
-    dugme i koristi se samo kad WBP nema povezane widgete. Ako vidiš centrirano
-    dugme posle izmene, znači da je binding pukao, a ne da layout nije primenjen.
+- [x] **Ending ekrani: `Return to Main Menu` pomereno udesno.** C++
+  `AlignToCanvasBottomRight` na `BT_Continue` (svih šest `WBP_Ending_*` plus
+  `WBP_ReplacementTerminal`). Anchor donji-desni, padding 64×80, veličina
+  ostaje 520×72. Fallback layout (kad WBP binding pukne) i dalje centrira.
 
 ---
 

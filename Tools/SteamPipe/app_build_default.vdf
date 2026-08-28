@@ -1,15 +1,15 @@
 "appbuild"
 {
 	"appid" "4982260"
-	"desc" "Loop 9 v1.0.2 Windows"
+	"desc" "Loop 9 v1.0.2 Windows (set live on default in Steamworks Builds; steamcmd cannot SetLive default)"
 	"buildoutput" "D:/UE Course/Loop 9 AI/Builds/SteamPipeOutput"
 	"contentroot" "D:/UE Course/Loop 9 AI/Builds/v1.0.2/Windows"
-	"setlive" "playtest"
+	"setlive" ""
 	"preview" "0"
 	"local" ""
 
 	"depots"
 	{
-		"4982261" "depot_build_4982261.vdf"
+		"4982261" "depot_build_v102.vdf"
 	}
 }

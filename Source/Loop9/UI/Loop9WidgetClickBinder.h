@@ -21,4 +21,11 @@ struct FLoop9WidgetClickBinder
 
 	/** Resolves a real focusable child for raw buttons and composite WBP_Button widgets. */
 	static UWidget* ResolveFocusableWidget(UWidget* Widget);
+
+	/**
+	 * Pins Widget to the bottom-right of its nearest CanvasPanel ancestor.
+	 * Reparents if it currently lives in a centered stack. Size is applied on
+	 * the canvas slot so 520x72 continue buttons do not sit in the middle.
+	 */
+	static bool AlignToCanvasBottomRight(UWidget* Widget, FVector2D PaddingFromCorner, FVector2D Size);
 };

@@ -5,6 +5,8 @@
 #include "Anomaly/AnomalyComponentBase.h"
 #include "AnomalyManager.generated.h"
 
+class UWorld;
+
 UCLASS()
 class LOOP9_API UAnomalyManager : public UGameInstanceSubsystem
 {
@@ -66,6 +68,9 @@ public:
 	FString GetCurrentLoopAnomalyZone() const { return CurrentLoopAnomalyZone; }
 	/** Category of the affected object; the AI never receives the actor name. */
 	FString GetCurrentLoopAnomalyObjectKind() const { return CurrentLoopAnomalyObjectKind; }
+
+	/** If the map still has no Scale component, attach one to the office printer. */
+	void EnsureScaleAnomalyPlacement(UWorld* World);
 
 private:
 	UPROPERTY()

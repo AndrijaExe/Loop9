@@ -401,6 +401,10 @@ void UEndingWidget::ExpandContinueButtonHitArea()
 
 	ExpandHitArea(BT_Continue, MinWidth, MinHeight);
 	ExpandHitArea(FallbackContinueButton, MinWidth, MinHeight);
+	FLoop9WidgetClickBinder::AlignToCanvasBottomRight(
+		BT_Continue,
+		FVector2D(64.0f, 80.0f),
+		FVector2D(MinWidth, MinHeight));
 
 	if (UUserWidget* ButtonWidget = Cast<UUserWidget>(BT_Continue))
 	{

@@ -87,6 +87,10 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyPursuer();
 
+	/** Force every Hide anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyHide();
+
 	/** Force every Move anomaly. Editor / non-Shipping only. */
 	UFUNCTION(Exec)
 	void AnomalyMove();
@@ -98,6 +102,18 @@ public:
 	/** Force every MaterialSwap anomaly. Editor / non-Shipping only. */
 	UFUNCTION(Exec)
 	void AnomalyMaterial();
+
+	/** Force every Text anomaly (material swaps and spawned notes). Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyText();
+
+	/** Force every Scale anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyScale();
+
+	/** Force every PhantomMessage anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyPhantom();
 
 	/** Force the loop-counter glitch anomaly. Editor / non-Shipping only. */
 	UFUNCTION(Exec)

@@ -3,8 +3,11 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/Widget.h"
+#include "Widgets/Layout/Anchors.h"
 #include "UObject/UnrealType.h"
 
 namespace Loop9ClickBinderPrivate
@@ -204,4 +207,50 @@ UWidget* FLoop9WidgetClickBinder::ResolveFocusableWidget(UWidget* Widget)
 	}
 
 	return Widget;
+}
+
+bool FLoop9WidgetClickBinder::AlignToCanvasBottomRight(
+	UWidget* Widget,
+	FVector2D PaddingFromCorner,
+	FVector2D Size)
+{
+	if (!Widget)
+	{
+		return false;
+	}
+
+	UCanvasPanel* Canvas = nullptr;
+	for (UWidget* Walk = Widget->GetParent(); Walk; Walk = Walk->GetParent())
+	{
+		if (UCanvasPanel* Found = Cast<UCanvasPanel>(Walk))
+		{
+			Canvas = Found;
+			break;
+		}
+	}
+
+	if (!Canvas)
+	{
+		return false;
+	}
+
+	if (Widget->GetParent() != Canvas)
+	{
+		Widget->RemoveFromParent();
+		Canvas->AddChild(Widget);
+	}
+
+	UCanvasPanelSlot* Slot = Cast<UCanvasPanelSlot>(Widget->Slot);
+	if (!Slot)
+	{
+		return false;
+	}
+
+	Slot->SetAnchors(FAnchors(1.0f, 1.0f));
+	Slot->SetAlignment(FVector2D(1.0f, 1.0f));
+	Slot->SetAutoSize(false);
+	Slot->SetSize(Size);
+	Slot->SetPosition(FVector2D(-PaddingFromCorner.X, -PaddingFromCorner.Y));
+	Slot->SetZOrder(50);
+	return true;
 }

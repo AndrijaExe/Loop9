@@ -245,6 +245,11 @@ void ALoop9PlayerController::AnomalyPursuer()
 	AnomalyForce(TEXT("Pursuer"));
 }
 
+void ALoop9PlayerController::AnomalyHide()
+{
+	AnomalyForce(TEXT("Hide"));
+}
+
 void ALoop9PlayerController::AnomalyMove()
 {
 	AnomalyForce(TEXT("Move"));
@@ -258,6 +263,21 @@ void ALoop9PlayerController::AnomalyDoor()
 void ALoop9PlayerController::AnomalyMaterial()
 {
 	AnomalyForce(TEXT("MaterialSwap"));
+}
+
+void ALoop9PlayerController::AnomalyText()
+{
+	AnomalyForce(TEXT("Text"));
+}
+
+void ALoop9PlayerController::AnomalyScale()
+{
+	AnomalyForce(TEXT("Scale"));
+}
+
+void ALoop9PlayerController::AnomalyPhantom()
+{
+	AnomalyForce(TEXT("Phantom"));
 }
 
 void ALoop9PlayerController::AnomalyLoopNumber()
@@ -290,13 +310,17 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyFlicker                      - force every light-flicker anomaly\n"
 		"  AnomalyPhone                        - force every phone / audio anomaly\n"
 		"  AnomalyPursuer                      - force the pursuer\n"
+		"  AnomalyHide                         - force every hide anomaly\n"
 		"  AnomalyMove                         - force every move anomaly\n"
 		"  AnomalyDoor                         - force every door-lock anomaly\n"
 		"  AnomalyMaterial                     - force every material-swap anomaly\n"
+		"  AnomalyText                         - force every text anomaly (swaps + notes)\n"
+		"  AnomalyScale                        - force every scale anomaly\n"
+		"  AnomalyPhantom                      - force every phantom chat message\n"
 		"  AnomalyLoopNumber                   - force the loop-counter ? glitch\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, DoorLock, LoopNumber, I01\n"
+		"    filter examples: Hide, Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, Scale, Phantom, DoorLock, LoopNumber, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
 		"  AudioStatus                         - report why the floor is silent\n"

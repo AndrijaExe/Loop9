@@ -8,10 +8,17 @@ tako što recenzentu damo Development build i uputstvo.
 (§3), pa odgovor na tiket (§4). Bez §3 recenzent ne može do endinga jer su sve
 debug komande isečene iz Shipping builda.
 
-Oboreni build `24910264` je cook od 24.08. U međuvremenu je live playtest
-**v1.0.1 (BuildID `24980937`, 28.08.)**, pa se za ponovni review markira taj, a
-ne stari. Debug build iz §3 treba kuvati iz istog source-a kao v1.0.1 da se
-recenzent ne bi sudario sa razlikama koje ne postoje u retail buildu.
+Oboreni build `24910264` je cook od 24.08. Live playtest je
+**v1.0.2 (BuildID `24997951`, 28.08.)**. Debug na `valvereview` je
+**`24997996`** (`Builds/v1.0.2Dev`).
+
+**Ne markiraj `24997951` za Cloud i ne šalji Cloud paragraf dok ne stigne
+sledeći Shipping cook.** Redistributables + endings mogu sad (`24997951` /
+`24997996`). Auto-Cloud pravilo je tačno, ali taj Shipping i dalje ne pravi
+`Game.ini` na putanji koju Steam gleda. Fix je u izvornom kodu (28.08.
+uveče): piše u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`, ne u
+Unrealov `GGameIni`. Splash (in-game LOOP 9 lobby) i nova exe ikonica
+**nisu** Valve stavke — ikonica čeka fajl od tebe.
 
 ---
 
@@ -56,16 +63,32 @@ Dokumentacija: <https://partner.steamgames.com/doc/features/common_redist>
 
 > No sync data appears in the "General" tab of the Steam title Properties menu
 
-Ovo je najverovatnije takođe Steamworks konfiguracija, ne kod. Igra piše
-`SeenEndings` i `SpottedAnomalies` u `Game.ini` preko `GConfig` i to radi —
-`ULoop9AchievementsSubsystem::Initialize` upiše `PendingUnlocks` red već pri
-prvom pokretanju, pa fajl postoji i pre nego što iko odigra ijedan ending.
+**Uzrok je kod, ne Steamworks.** Putanja i Auto-Cloud pravilo su tačni.
+Shipping build piše u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. Posle
+Play iz Library tu stoje `GameUserSettings.ini` i `steam_autocloud.vdf`
+(accountid `375407870`) — Steam **jeste** gledao taj folder. `Game.ini`
+**nije postojao** ni posle 17:45 ni posle 19:39 (v1.0.2 Shipping).
 
-Cela Cloud strana provereno 28.08.2026. **Sve što se vidi u Steamworksu je
-ispravno** — kvota (§2.2), Auto-Cloud pravilo (§2.3) i Beta Testing čekboks
-(§2.1). Znači uzrok nije u konfiguraciji koja se vidi iz browsera, nego u tome
-**da li fajl uopšte postoji tamo gde pravilo gleda**. To je §2.5 i to je sada
-jedini pravi zadatak.
+Dva baga, redom:
+
+1. `Initialize` zove `PersistPendingUnlocks()` odmah, ali prazan `SetString`
+   za `PendingUnlocks`/`SeenEndings` **ne kreira fajl**. Recenzent koji uđe u
+   kancelariju i izađe nema šta da sinhronizuje.
+2. Prvi `CloudReady=1` flush (u `24997951`) ide na Unrealov `GGameIni`, što u
+   packaged Shipping **nije** Auto-Cloud putanja. String `CloudReady` je u
+   `.exe`, fajl i dalje nije.
+
+`GameUserSettings.ini` namerno nije na Cloud-u (mašinski settings).
+
+Fix u izvornom kodu (još nije u live cooku): `EnsureCloudSaveFile()` i persist
+liste pišu u
+`FPaths::ProjectSavedDir()/Config/Windows/Game.ini` (= Auto-Cloud folder),
+prave direktorijum ako treba, i flush-uju taj fajl. Editor i dalje dobija
+`GGameIni` kao fallback.
+
+Dok sledeći Shipping cook to ne unese, Properties → General ostaje prazan.
+**Ne tvrdi Valveu round-trip na dve mašine.** `default` i dalje mora ručno
+Set Live u Steamworks Builds — steamcmd ne sme da postavi default granu.
 
 ### 2.1 „Enable cloud support for developers only" — provereno, nije bio čekiran
 
@@ -111,68 +134,33 @@ kaže:
 > Avoid machine specific configurations such as video quality.
 
 `GameUserSettings.ini` je tačno to — rezolucija, fullscreen i quality scalability.
-Sinhronizovati ga između jake mašine i laptopa je upravo ono na šta upozoravaju,
-a `Game.ini` je ionako pravi save (`SeenEndings`, `SpottedAnomalies`) i postoji
-od prvog pokretanja, pa Properties → General ima šta da pokaže i bez toga.
+Sinhronizovati ga između jake mašine i laptopa je upravo ono na šta upozoravaju.
+Ne dodavaj ga na Auto-Cloud da se „prođe" review.
 
-### 2.5 Da li fajl stvarno postoji tamo gde pravilo gleda — **glavni preostali sumnjivac**
+### 2.5 Test A/B — putanja OK, fajl još nije
 
-Pošto su §2.1–2.3 čisti, ostaje ovo. Dva testa, oba na Windows mašini.
+Putanja je tačna. Shipping iz Steam Library-ja piše u
+`%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. `steam_autocloud.vdf` postoji.
+`Game.ini` **nije** nastao na `24997951`. Fajl nije pored `.exe`. Root ostaje
+`WinAppDataLocal`. Ne prebacuj na `gameinstall`.
 
-**Test A — Steam konzola, najbrži i najuverljiviji.** Otvori `steam://open/console`
-i ukucaj:
+Opcioni sanity check u Steam konzoli posle sledećeg cooka:
+`testappcloudpaths 4982260` — treba da vidi `Game.ini` kad fajl postoji.
 
-```
-testappcloudpaths 4982260
-```
+UE Development cook piše Saved pored `.exe`, Shipping u `%LOCALAPPDATA%`.
+Zato debug grana **nije** Cloud test. Cloud se verifikuje na `default` /
+`playtest` Shipping.
 
-Komanda ispiše koje fajlove Auto-Cloud pravilo stvarno hvata. Ako vrati praznu
-listu, pravilo gađa prazno i to je odgovor. Ovo je jedini test koji direktno meri
-ono što Steam vidi, umesto da nagađamo.
+### 2.6 Provera pre nego što javiš Valveu
 
-**Test B — Explorer.** Pokreni **Shipping** build iz Steam Library-ja, izađi, pa
-zalepi u Explorer adresnu liniju:
-
-```
-%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini
-```
-
-Ako fajla nema tu, nađi gde je stvarno završio. Najverovatnija alternativa je
-pored `.exe`:
-
-```
-...\steamapps\common\Loop 9\Loop9\Saved\Config\Windows\Game.ini
-```
-
-Ako je tamo, promeni Root u Auto-Cloud pravilu sa `WinAppDataLocal` na
-**`gameinstall`** (App Install Directory) i ostavi isti Subdirectory i Pattern.
-Bonus: `gameinstall` je jedini Root koji je validan na svim platformama, pa
-usput rešava i cross-platform priču ako ikad izađeš na Linux.
-
-Zašto je ovo realno: UE preusmerava `Saved` u `%LOCALAPPDATA%` samo kad se build
-smatra „installed". Za Shipping cook to jeste tako po pravilu, ali zavisi od
-verzije engine-a i od toga kako je cook napravljen, i **nije provereno na ovom
-konkretnom v1.0.1 buildu**. Dok se ne potvrdi, tretiraj to kao pretpostavku, ne
-kao činjenicu.
-
-Zašto je ovo realan rizik: UE u Shipping buildu Saved folder preusmerava u
-`%LOCALAPPDATA%`, ali u Development buildu ga ostavlja pored `.exe`. Znači
-**Development build iz §3 neće pisati na istu putanju kao Shipping.** Ako
-recenzent testira Cloud na debug grani, past će opet. Zato debug build ide na
-posebnu granu, a Cloud se verifikuje na `default` Shipping grani.
-
-### 2.6 Publish
-
-Cloud izmene ne postaju žive dok se ne publish-uju. Isti *Publish* korak kao u
-§1. Ovo je drugi najčešći uzrok: podešeno je, ali samo u draft konfiguraciji.
-
-### 2.5 Provera pre nego što javiš Valveu
-
-1. Odigraj jedan ending na mašini A, izađi iz igre **i iz Steama** (da sync ode).
-2. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da
+1. Recook Shipping (Cloud path fix + novi splash). Upload, Set Live na
+   `playtest`, pa ručno **default**.
+2. Play iz Library, Exit. Mora da postoji
+   `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
+3. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da
    piše veličina cloud podataka.
-3. Na mašini B (ili posle brisanja lokalnog `Game.ini`) pokreni igru i otvori
-   Archive. Ending mora da bude tu.
+4. Tek tad zalepi §4. Ako Properties i dalje kaže 0, **nemoj** slati Cloud
+   paragraf koji tvrdi round-trip.
 
 ---
 
@@ -193,11 +181,10 @@ Tools\PackageWindowsDevelopment.bat Debug
 pa upload na **posebnu granu sa lozinkom**, ne na `default`:
 
 1. Steamworks → App Admin → **Builds** → *Branches* → napravi granu
-   `valvereview` sa lozinkom.
-2. U `Tools/SteamPipe/app_build_4982260.vdf` privremeno prebaci `contentroot` na
-   `D:/UE Course/Loop 9 AI/Builds/Debug/Windows`, uploaduj, pa **vrati nazad** na
-   `Builds/v1.0.1/Windows` (isto i u `depot_build_4982261.vdf` ako ga diraš).
-3. Set Live grane `valvereview` na taj build.
+   `valvereview` sa lozinkom. **Lozinku ne commit-uj.**
+2. Upload Development cook-a preko `Tools/SteamPipe/UploadValvereview.bat`
+   (`app_build_valvereview.vdf`). Playtest VDF ostaje na `v1.0.2`.
+3. Set Live grane `valvereview` na taj build (VDF već ima `setlive valvereview`).
 
 Development build ostaje na toj grani. `default` i dalje nosi Shipping.
 
@@ -209,6 +196,11 @@ Dokumentacija o granama:
 ## 4. Tekst odgovora na tiket
 
 Zalepi ovo u Steamworks Support tiket. Popuni lozinku grane.
+
+**Cloud paragraf šalji tek posle sledećeg Shipping cooka**, Play + Exit, i
+tek kad Properties → General pokaže veličinu. Ako slikaš `24997951`, Cloud
+će opet pasti. Nemoj ubacivati rečenicu o two-machine round-trip dok to
+stvarno ne uradiš.
 
 ---
 
@@ -223,14 +215,19 @@ understand should not be involved.
 
 **2. Steam Cloud**
 
-Our Auto-Cloud configuration and cloud quota have been corrected and published,
-and we have verified a round trip on two machines: playing on PC A and then
-launching on PC B restores progress, and the Cloud entry now shows in the game's
-Properties → General tab.
+Auto-Cloud is configured for `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`
+(root `WinAppDataLocal`, non-recursive, Windows only). Quota is 10 MB / 10
+files. We do not sync `GameUserSettings.ini` (machine-specific video settings).
 
-Please verify Cloud on the **default** branch. Our debug build (below) is a
-Development configuration, which writes its save data next to the executable
-instead of to `%LOCALAPPDATA%`, so it is not representative for Cloud testing.
+The previous Shipping build never created that `Game.ini`: empty persist writes
+skipped the file, and a later flush targeted Unreal's default Game.ini instead of
+the Auto-Cloud path. The Shipping build now marked for review writes
+`CloudReady=1` (and persist keys) to the Auto-Cloud path on first launch.
+
+Please verify Cloud on the **default** branch after a Play + Exit. Our debug
+build (below) is a Development configuration, which writes its save data next to
+the executable instead of to `%LOCALAPPDATA%`, so it is not representative for
+Cloud testing.
 
 **3. Six endings**
 
@@ -279,8 +276,14 @@ The same console forces each anomaly type on the current floor, for example:
 AnomalyPursuer
 AnomalyFlicker
 AnomalyPhone
+AnomalyHide
+AnomalyMove
 AnomalyDoor
 AnomalyMaterial
+AnomalyText
+AnomalyScale
+AnomalyPhantom
+AnomalyLoopNumber
 AnomalyList        lists what is currently active
 AnomalyReset       clears the floor again
 AnomalyHelp        full command list
@@ -297,5 +300,5 @@ Please let us know if you need anything else and we will turn it around quickly.
 
 - Skini `valvereview` granu ili joj promeni lozinku. Development build ne sme da
   ostane dostupan.
-- Vrati `contentroot` u `app_build_4982260.vdf` na `Builds/v1.0.1/Windows` ako
+- Vrati `contentroot` u `app_build_4982260.vdf` na `Builds/v1.0.2/Windows` ako
   već nije.

@@ -89,7 +89,14 @@ refuses to apply.
    single `AnomalyLocation` is ignored while it is zero: a world-space zero is the
    world origin, and shipping that default is what teleports objects onto a floor
    that does not exist.
-7. Fill `AnomalyZone` and `AnomalyObjectKind` (details panel, **Anomaly > AI Context**).
+7. **Scale** is implemented (`UScaleAnomalyComponent`) but was never placed on an
+   actor in `FullOfficeMap` — the umap only has the class in its name table.
+   At world begin play, if no Scale component registered, `UAnomalyManager`
+   attaches one to `SM_ComputerPrinter_A01_N1` (Zoran / "ništa u mašini"),
+   1.4×, zone `the copy alcove`. Prefer adding the component in the editor so
+   this fallback is not needed; the runtime attach skips when a map placement
+   exists.
+8. Fill `AnomalyZone` and `AnomalyObjectKind` (details panel, **Anomaly > AI Context**).
    See [AI context tagging](#ai-context-tagging).
 
 ## AI context tagging
@@ -127,9 +134,13 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyFlicker` | Force every light-flicker anomaly |
 | `AnomalyPhone` | Force every phone / audio anomaly |
 | `AnomalyPursuer` | Force the pursuer |
+| `AnomalyHide` | Force every Hide anomaly |
 | `AnomalyMove` | Force every Move anomaly |
 | `AnomalyDoor` | Force every DoorLock anomaly |
 | `AnomalyMaterial` | Force every MaterialSwap anomaly |
+| `AnomalyText` | Force every Text anomaly (swaps + spawned notes) |
+| `AnomalyScale` | Force every Scale anomaly |
+| `AnomalyPhantom` | Force every PhantomMessage anomaly |
 | `AnomalyLoopNumber` | Force the loop-counter `?` glitch |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
@@ -140,7 +151,7 @@ These are **tilde console** commands in PIE / Standalone / Development. They are
 
 Filter notes:
 
-- Type labels match exactly (case-insensitive), plus short names (`Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `LoopNumber`, `Counter`).
+- Type labels match exactly (case-insensitive), plus short names (`Hide`, `Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `Scale`, `Phantom`, `LoopNumber`, `Counter`).
 - Class/actor partial filters require at least 3 characters.
 - Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 

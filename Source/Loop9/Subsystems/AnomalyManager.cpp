@@ -3,9 +3,12 @@
 #include "Loop9.h"
 #include "Anomaly/AnomalyTypes.h"
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
+#include "Anomaly/ScaleAnomalyComponent.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 #include "Algo/Sort.h"
 #include "Containers/Set.h"
+#include "EngineUtils.h"
+#include "Engine/World.h"
 #include "GameFramework/Actor.h"
 
 namespace
@@ -233,6 +236,71 @@ void UAnomalyManager::CleanupInvalidComponents()
 	});
 }
 
+void UAnomalyManager::EnsureScaleAnomalyPlacement(UWorld* World)
+{
+	if (!World)
+	{
+		return;
+	}
+
+	CleanupInvalidComponents();
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		if (const UAnomalyComponentBase* Component = ComponentPtr.Get())
+		{
+			if (Component->GetAnomalyType() == ELoopAnomalyType::Scale)
+			{
+				return;
+			}
+		}
+	}
+
+	AActor* Host = nullptr;
+	AActor* Fallback = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!Actor)
+		{
+			continue;
+		}
+
+		const FString Label = Actor->GetActorNameOrLabel();
+		if (Label.Contains(TEXT("SM_ComputerPrinter_A01_N1")))
+		{
+			Host = Actor;
+			break;
+		}
+		if (!Fallback && Label.Contains(TEXT("ComputerPrinter")))
+		{
+			Fallback = Actor;
+		}
+	}
+
+	if (!Host)
+	{
+		Host = Fallback;
+	}
+
+	if (!Host)
+	{
+		UE_LOG(LogLoop9, Warning,
+			TEXT("AnomalyManager: ScaleAnomaly is not in the map and no ComputerPrinter host was found in '%s'"),
+			*World->GetMapName());
+		return;
+	}
+
+	UScaleAnomalyComponent* Scale = NewObject<UScaleAnomalyComponent>(Host, TEXT("ScaleAnomaly"));
+	Scale->AnomalyZone = TEXT("the copy alcove");
+	Scale->AnomalyObjectKind = TEXT("a printer");
+	Scale->ScaleMultiplier = 1.4f;
+	Host->AddInstanceComponent(Scale);
+	Scale->RegisterComponent();
+
+	UE_LOG(LogLoop9, Log, TEXT("AnomalyManager: attached ScaleAnomaly to '%s' (map had none)"),
+		*Host->GetActorNameOrLabel());
+}
+
 void UAnomalyManager::RegisterAnomalyComponent(UAnomalyComponentBase* Component)
 {
 	if (!Component || RegisteredComponents.Contains(Component))
@@ -449,6 +517,24 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 			|| Filter.Equals(TEXT("Counter"), ESearchCase::IgnoreCase)
 			|| Filter.Equals(TEXT("QuestionMark"), ESearchCase::IgnoreCase))
 		&& Component->GetAnomalyType() == ELoopAnomalyType::LoopNumber)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Phantom"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("PhantomMessage"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("PhantomMsg"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::PhantomMessage)
+	{
+		return true;
+	}
+	if (Filter.Equals(TEXT("Scale"), ESearchCase::IgnoreCase)
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Scale)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Hide"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Hidden"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Hide)
 	{
 		return true;
 	}

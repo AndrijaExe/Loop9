@@ -70,6 +70,7 @@ private:
 	void RecordSpottedAnomalies(const FString& AnomalyKey);
 	TArray<FString> LoadPersistedList(const TCHAR* Key) const;
 	void SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const;
+	void EnsureCloudSaveFile() const;
 
 	/**
 	 * The persisted list plus whatever Steam already holds, written back when the

@@ -1,12 +1,11 @@
 @echo off
 setlocal
-rem Upload Builds\v1.0.2\Windows to SteamPipe and set live on playtest.
-rem Confirm depot 4982261 in Steamworks before the first run.
-rem Create passworded branch "playtest" first or this will fail at SetLive.
+rem Upload Builds\v1.0.2Dev\Windows to SteamPipe and set live on valvereview.
+rem Playtest VDFs stay pointed at v1.0.2 Shipping. Do not use this for default/playtest.
 
 set "STEAMCMD=D:\steamcmd\steamcmd.exe"
-set "VDF=%~dp0app_build_4982260.vdf"
-set "CONTENT=D:\UE Course\Loop 9 AI\Builds\v1.0.2\Windows"
+set "VDF=%~dp0app_build_valvereview.vdf"
+set "CONTENT=D:\UE Course\Loop 9 AI\Builds\v1.0.2Dev\Windows"
 
 if not exist "%STEAMCMD%" (
 	echo Missing SteamCMD: %STEAMCMD%
@@ -30,7 +29,7 @@ if "%STEAM_USER%"=="" (
 )
 
 echo.
-echo Logging in as %STEAM_USER% and uploading depot 4982261 to branch playtest.
+echo Logging in as %STEAM_USER% and uploading depot 4982261 to branch valvereview.
 echo Steam Guard / password prompts appear in this window.
 echo.
 

@@ -874,6 +874,13 @@ msgctxt "Loop9Credits,CreditsOriginalBody"
 msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
 msgstr ""
 
+#. Key:	CreditsEngineHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(211)
+#: Source/Loop9/UI/CreditsWidget.cpp(211)
+msgctxt "Loop9Credits,CreditsEngineHeading"
+msgid "ENGINE"
+msgstr "ENGINE"
+
 #. Key:	CreditsTitle
 #. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(37)
 #: Source/Loop9/UI/CreditsWidget.cpp(37)
