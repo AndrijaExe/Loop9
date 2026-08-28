@@ -326,16 +326,31 @@ Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
   ICO: 256, 128, 64, 48, 32, 16 px). To je ikonica koju vidiš u taskbaru, u
   Alt-Tabu i na shortcut-u paketovane igre. Postojeći „Shortcut ICO v2" iz
   `Marketing/` je dobar izvor. Mora da postoji **pre** cooka.
+  Ovo je ikonica **Loop 9**, ne studija — SMENA wordmark je šest slova i u
+  kvadratu 32×32 px se ne čita, a u taskbaru treba da stoji igra.
 - [ ] **Splash pri pokretanju.** `Content/Splash/Splash.bmp` za igru
   (`EdSplash.bmp` za editor, opciono). Bez toga se vidi Epicov default.
 - [ ] Napomena: ako ikonicu Unreal Engine-a vidiš dok si **u editoru**, to je
   normalno i ne može se promeniti — to je `UnrealEditor.exe`, ne tvoja igra.
   Proveri na paketovanom buildu pre nego što se juriš za bugom.
-- [ ] **Boot logo sekvenca** (studio žig pre menija). Odluka i plan; prvo treba
-  ime studija, jer je Developer / Publisher u `STORE_PAGE.md` još uvek
-  „Andrija Stanišić (ili ime studija ako ga registruješ)". Preporuka je UMG
-  animacija u postojećem terminal / typewriter jeziku igre, 2–3 sekunde,
-  skip na bilo koji input, ne startup `.mp4`.
+- [x] **Ime studija i wordmark.** SMENA („smena“ = radna smena), izabran
+  28.08.2026. Žig je outline-ovan u SVG putanje pa ne zavisi od fonta; svi
+  fajlovi i objašnjenje su u
+  `[Marketing/Branding/](Marketing/Branding/README.md)`.
+- [ ] **Provera kolizije imena — pre nego što ime ode na store stranicu.**
+  Steam publisher pretraga, osnovna trademark pretraga (EUIPO + USPTO), domen i
+  social handle. Ime pod kojim nastupaš i pravno lice su dve različite stvari,
+  ne treba registrovana firma, ali ne sme biti sudara.
+- [ ] Kad kolizija prođe: `Marketing/Steam/STORE_PAGE.md` i Steamworks
+  Developer / Publisher polje sa „Andrija Stanišić (ili ime studija ako ga
+  registruješ)" na finalno ime. Sada je pravi momenat — stranica je javna par
+  dana i nema recenzija ni followera vezanih za staro ime.
+- [ ] **Boot logo sekvenca** (studio žig pre menija). Sad je odblokirana, ime
+  postoji. Preporuka je UMG animacija u postojećem terminal / typewriter jeziku
+  igre, 2–3 sekunde, skip na bilo koji input, ne startup `.mp4`. Konkretno:
+  kursor kucka, `SMENA` se iskuca, kursor ostane da blinka, fade. Scanline
+  tretman (varijanta 06 u `wordmark-explorations.png`) je dobar kao *prelaz*,
+  ne kao završni kadar.
 - [ ] **Ne dodavati Unreal Engine logo u boot sekvencu.** Po Epicu, prikaz UE
   logotipa traži posebnu dozvolu preko branding zahteva; AAA igre koje ga
   prikazuju imaju custom licencu. EULA zahteva samo tekst u kreditima.
