@@ -311,6 +311,36 @@ publish-ovane, ne samo sačuvane.
 - [ ] Creator Homepage može posle Coming Soon stranice; nije release bloker.
 
 
+### Branding u igri — ikonice, splash i boot sekvenca
+
+Steamworks grafika je gotova, ali **sam build još nosi Unreal Engine identitet.**
+Projekat uopšte nema `Build/` folder, pa se paketovana igra kuva sa default
+Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
+
+- [ ] **Ikonica `.exe`-a.** Napraviti `Build/Windows/Application.ico` (multi-size
+  ICO: 256, 128, 64, 48, 32, 16 px). To je ikonica koju vidiš u taskbaru, u
+  Alt-Tabu i na shortcut-u paketovane igre. Postojeći „Shortcut ICO v2" iz
+  `Marketing/` je dobar izvor. Mora da postoji **pre** cooka.
+- [ ] **Splash pri pokretanju.** `Content/Splash/Splash.bmp` za igru
+  (`EdSplash.bmp` za editor, opciono). Bez toga se vidi Epicov default.
+- [ ] Napomena: ako ikonicu Unreal Engine-a vidiš dok si **u editoru**, to je
+  normalno i ne može se promeniti — to je `UnrealEditor.exe`, ne tvoja igra.
+  Proveri na paketovanom buildu pre nego što se juriš za bugom.
+- [ ] **Boot logo sekvenca** (studio žig pre menija). Odluka i plan; prvo treba
+  ime studija, jer je Developer / Publisher u `STORE_PAGE.md` još uvek
+  „Andrija Stanišić (ili ime studija ako ga registruješ)". Preporuka je UMG
+  animacija u postojećem terminal / typewriter jeziku igre, 2–3 sekunde,
+  skip na bilo koji input, ne startup `.mp4`.
+- [ ] **Ne dodavati Unreal Engine logo u boot sekvencu.** Po Epicu, prikaz UE
+  logotipa traži posebnu dozvolu preko branding zahteva; AAA igre koje ga
+  prikazuju imaju custom licencu. EULA zahteva samo tekst u kreditima.
+- [x] **UE atribucija u kreditima (obavezna po EULA).** Dodata `ENGINE` sekcija
+  u `CreditsWidget` 28.08.2026. sa tačnom formulacijom koju Epic traži.
+  Namerno nije lokalizovana da prevod ne bi izmenio pravni tekst.
+- [ ] GatherText posle ovoga da `ENGINE` naslov uđe u `.locres` (telo sekcije je
+  `FText::FromString` i ne gather-uje se, što je namerno).
+
+
 ## 3. Steam achievements
 
 Dva spremišta, od 25.08.2026. spojena pri čitanju. Nijedno **nije** namerno

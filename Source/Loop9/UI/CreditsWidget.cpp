@@ -203,6 +203,16 @@ void UCreditsWidget::RefreshSections()
 		LOCTEXT("CreditsOriginalHeading", "ORIGINAL"),
 		LOCTEXT("CreditsOriginalBody",
 			"Flashlight click, typewriter key, and light flicker were generated for this game."));
+
+	// The Unreal Engine EULA requires this notice verbatim once a product ships
+	// with credits. Deliberately not localized: a translated legal notice would
+	// no longer be the wording Epic asks for.
+	AddSection(VB_Sections,
+		LOCTEXT("CreditsEngineHeading", "ENGINE"),
+		FText::FromString(TEXT(
+			"Loop 9 uses Unreal\u00AE Engine. Unreal\u00AE is a trademark or registered trademark "
+			"of Epic Games, Inc. in the United States of America and elsewhere.\n"
+			"Unreal\u00AE Engine, Copyright 1998 \u2013 2026, Epic Games, Inc. All rights reserved.")));
 }
 
 void UCreditsWidget::AddSection(UVerticalBox* Parent, const FText& Heading, const FText& Body)
