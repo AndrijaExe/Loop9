@@ -53,6 +53,30 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 
 ---
 
+## 2b. Raspored dugmadi (28.08.2026.)
+
+Oba zadatka su **WBP layout u editoru**, ne C++. Kôd samo klonira postojeće
+slotove, pa preuzima šta god zatekne.
+
+- [ ] **Main menu: podići vertikalni stack dugmadi.** Trenutno sedi previše
+  nisko. Pomeri sam `VerticalBox` (ili njegov `CanvasPanelSlot`) u
+  `WBP_MainMenu`. **Ne treba dirati kôd:** `SynthesizeButtonBefore` u
+  `MainMenuWidget.cpp` kopira padding, anchors, alignment i size sa template
+  slota, pa se sintetizovano `CREDITS` dugme samo poravna po novom rasporedu.
+- [ ] **Ending ekrani: `Return to Main Menu` pomeriti udesno.** Sada je
+  praktično na sredini. Treba u **dva** widgeta, inače će biti nedosledno:
+  `EndingWidget` i `ReplacementTerminalWidget` (oba nose isti
+  `ContinueButtonLabel`).
+  - Kvaka: `ExpandContinueButtonHitArea()` forsira dugme na **520×72 px**. Sa
+    tolikom širinom desno poravnanje brzo udari u ivicu ekrana, pa ili računaj
+    sa tim, ili smanji `MinWidth`/`MinHeight` konstante u
+    `EndingWidget.cpp` i `ReplacementTerminalWidget.cpp`.
+  - Ne edituj C++ fallback layout (`BuildFallbackLayoutIfNeeded`) — on centrira
+    dugme i koristi se samo kad WBP nema povezane widgete. Ako vidiš centrirano
+    dugme posle izmene, znači da je binding pukao, a ne da layout nije primenjen.
+
+---
+
 ## 3. QA prolaz posle svega
 
 - [ ] Odigraj 10 petlji i zabeleži koliko ih je imalo anomaliju. Očekivano ~8/10,

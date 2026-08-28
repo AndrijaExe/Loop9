@@ -241,6 +241,11 @@ Sledeća sesija (urađeno 26.08.2026.):
 - [x] Main-menu dugme `HELP` preimenovano u **HOW TO PLAY**.
 - [x] GatherText posle ovih stringova da `HOW TO PLAY` / `CREDITS` uđu u
   `.locres` (26.08.2026. uveče).
+- [ ] **Raspored dugmadi (28.08.):** podići vertikalni stack u main menuju i
+  pomeriti `Return to Main Menu` udesno na ending ekranima — sada je praktično
+  na sredini, i treba u **oba** widgeta (`EndingWidget` i
+  `ReplacementTerminalWidget`). Oba su WBP layout, ne C++; detalji i zamke u
+  `[docs/POLISH_PASS_EDITOR_TASKS.md](docs/POLISH_PASS_EDITOR_TASKS.md)` §2b.
 
 
 ## 2. Steamworks — Store Presence
