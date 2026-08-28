@@ -247,14 +247,17 @@ Sledeća sesija (urađeno 26.08.2026.):
   `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
   Tu žive viđeni endinzi i uočene anomalije (`SeenEndings`, `SpottedAnomalies`).
   **Valve javlja 28.08. da sync ne radi i da Properties → General ne pokazuje
-  ništa.** Redosled provere je u
+  ništa.** Kvota (`10485760` B / `10` fajlova) i Auto-Cloud pravilo su
+  provereni 28.08. i ispravni su; preview razrešava tačnu putanju.
+- [ ] **Odčekirati „Enable cloud support for developers only"** (Cloud →
+  Beta Testing) i Publish. Po Steamovom opisu taj čekboks gasi Auto-Cloud i
+  sakriva ikonicu, što pokriva sva tri simptoma iz Valveovog tiketa. Detalji u
   `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`
-  §2: prvo kvota (byte/file quota na `0` ubija Cloud iako kategorija stoji na
-  store strani), pa da li `Game.ini` stvarno postoji na toj putanji, pa polja
-  Root Path / Subdirectory / Pattern, pa Publish.
-- [ ] Dodati `GameUserSettings.ini` na Auto-Cloud. Više nije opciono: Valve
-  eksplicitno testira „save data doesn't sync between PCs", a grafika i jezik su
-  vidljiviji dokaz sinhronizacije od jednog reda u `Game.ini`.
+  §2.1.
+- [x] Odlučeno da `GameUserSettings.ini` **ne** ide na Auto-Cloud. Steamov
+  best-practice traži da se izbegne machine-specific config, a taj fajl je
+  rezolucija i quality scalability. `Game.ini` je pravi save i postoji od prvog
+  pokretanja, pa Properties → General ima šta da pokaže i bez njega.
 - [ ] **Cloud se verifikuje samo na Shipping buildu.** Development build drži
   Saved pored `.exe` umesto u `%LOCALAPPDATA%`, pa debug grana iz §3 nije
   merodavna i to treba reći recenzentu.

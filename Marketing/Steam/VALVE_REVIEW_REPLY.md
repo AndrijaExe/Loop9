@@ -61,19 +61,73 @@ Ovo je najverovatnije takođe Steamworks konfiguracija, ne kod. Igra piše
 `ULoop9AchievementsSubsystem::Initialize` upiše `PendingUnlocks` red već pri
 prvom pokretanju, pa fajl postoji i pre nego što iko odigra ijedan ending.
 
-Prođi ove četiri stavke **tim redom**. Prva koja ne štima je uzrok.
+Stanje Cloud strane provereno 28.08.2026. Kvota i Auto-Cloud putanja **nisu**
+problem, vidi §2.2 i §2.3. Ostaje §2.1 kao glavni osumnjičeni.
 
-### 2.1 Proveri kvotu — najčešći uzrok baš ovog simptoma
+### 2.1 „Enable cloud support for developers only" — skoro sigurno ovo
 
 Steamworks → App Admin → **Cloud**
-(`https://partner.steamgames.com/apps/cloud/4982260`)
+(`https://partner.steamgames.com/apps/cloud/4982260`) → sekcija **Beta Testing**.
 
-Ako su **Byte quota** ili **Number of files** ostali na `0`, Steam Cloud je
-mrtav bez obzira na Auto-Cloud pravila, a kategorija „Steam Cloud" i dalje stoji
-na store strani. To se poklapa sa „syncing appears to be enabled" + „no sync
-data". Postavi nešto komotno, npr. `1048576` bajtova i `20` fajlova.
+Steamov sopstveni opis tog čekboksa:
 
-### 2.2 Proveri da putanja stvarno postoji na disku
+> This will hide the icon from the client and will **disable auto-cloud
+> syncing**.
+
+To objašnjava sva tri simptoma iz tiketa odjednom: nema sync podataka u
+Properties → General, kategorija „Steam Cloud" i dalje stoji na store strani jer
+dolazi iz drugog flaga, i save se ne prenosi između mašina. **Odčekiraj ga**, pa
+Publish.
+
+Dok je čekiran, jedini način da se Auto-Cloud testira je Steam konzola
+(`steam://open/console`) komandom:
+
+```
+testappcloudpaths 4982260
+```
+
+Ta komanda ispiše koje fajlove pravilo stvarno hvata, pa je korisna i posle
+odčekiravanja kao provera da Pattern gađa `Game.ini`.
+
+### 2.2 Kvota — provereno, u redu
+
+`Byte quota per user` = `10485760` (10.49 MB), `Number of files allowed per user`
+= `10`. Oba su iznad nule, što znači da Cloud nije mrtav zbog kvote. Ne diraj.
+
+Jedina zamerka je da je `10` fajlova tesno ako se ikad doda još Auto-Cloud
+pravila; za sada je dovoljno jer se sinhronizuje jedan fajl.
+
+### 2.3 Auto-Cloud polja — provereno, u redu
+
+Postojeće pravilo je tačno:
+
+| Polje | Vrednost |
+|---|---|
+| Root | `WinAppDataLocal` |
+| Subdirectory | `Loop9/Saved/Config/Windows/` |
+| Pattern | `Game.ini` |
+| OS | `Windows` |
+| Recursive | No |
+
+Steamworks preview to razrešava u
+`%USERPROFILE%/AppData/Local/Loop9/Saved/Config/Windows/`, što je tačno mesto
+gde UE Shipping build piše. `OS = Windows` umesto `[All OSes]` je u redu jer je
+igra samo za Windows; Root Overrides ne trebaju.
+
+### 2.4 Ne dodavati `GameUserSettings.ini`
+
+Ranije je ovde stajao predlog da se doda i to pravilo, radi vidljivijeg dokaza
+sinhronizacije. **Povučeno.** Steamov best-practice na istoj strani izričito
+kaže:
+
+> Avoid machine specific configurations such as video quality.
+
+`GameUserSettings.ini` je tačno to — rezolucija, fullscreen i quality scalability.
+Sinhronizovati ga između jake mašine i laptopa je upravo ono na šta upozoravaju,
+a `Game.ini` je ionako pravi save (`SeenEndings`, `SpottedAnomalies`) i postoji
+od prvog pokretanja, pa Properties → General ima šta da pokaže i bez toga.
+
+### 2.5 Proveri da putanja stvarno postoji na disku
 
 Pre nego što veruješ podešavanju, pokreni **Shipping** build i pogledaj da li
 postoji:
@@ -93,26 +147,7 @@ Zašto je ovo realan rizik: UE u Shipping buildu Saved folder preusmerava u
 recenzent testira Cloud na debug grani, past će opet. Zato debug build ide na
 posebnu granu, a Cloud se verifikuje na `default` Shipping grani.
 
-### 2.3 Proveri Auto-Cloud polja
-
-Na istoj Cloud strani, pod *Auto-Cloud*, tri polja su odvojena i lako se
-pobrkaju. Treba:
-
-| Polje | Vrednost |
-|---|---|
-| Root Path | `WinAppDataLocal` |
-| Subdirectory | `Loop9/Saved/Config/Windows` |
-| Pattern | `Game.ini` |
-
-Česta greška je nabijanje cele putanje u *Subdirectory* i ostavljanje `*` u
-*Pattern*. Ako nisi siguran gde fajl završava, dodaj i drugo pravilo sa Root
-Path `gameinstall` i istim subdirectory-jem — pokriva oba slučaja i ne smeta.
-
-Dodaj i drugo pravilo za `GameUserSettings.ini` (isti subdirectory). Nije bilo u
-planu, ali recenzent eksplicitno testira „save data doesn't sync between PCs", a
-grafika i jezik su vidljiviji dokaz sinhronizacije od jednog reda u `Game.ini`.
-
-### 2.4 Publish
+### 2.6 Publish
 
 Cloud izmene ne postaju žive dok se ne publish-uju. Isti *Publish* korak kao u
 §1. Ovo je drugi najčešći uzrok: podešeno je, ali samo u draft konfiguraciji.
