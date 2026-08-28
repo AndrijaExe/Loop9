@@ -9,15 +9,15 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `24998396`)**. Debug na `valvereview` je **`24998416`**.
+**v1.0.2 (BuildID `24998658`)** — FFileHelper `Game.ini`. Prethodni
+`24998396` i dalje nije pravio fajl. Debug na `valvereview` je
+**`24998416`**.
 
-**Cloud i dalje nije OK na `24998396`.** Steamworks putanja je tačna
-(`GameUserSettings.ini` + `steam_autocloud.vdf` posle Play 28.08. 20:23).
-`Game.ini` **nema**. UE 5.8 `GConfig->SetString` na fajl koji nije u kešu je
-no-op (`Find()` vraća null ako fajl ne postoji). Sledeći Shipping cook piše
-`Game.ini` preko `FFileHelper`, ne preko GConfig. Redistributables + endings
-mogu sad. **Ne šalji Cloud paragraf dok `Game.ini` ne postoji posle Play.**
-Splash i nova exe ikonica nisu Valve stavke. `default` i dalje ručni Set Live.
+**Cloud paragraf šalji tek posle Play na `24998658`.** `24998396` je
+proveren 20:23: `GameUserSettings.ini` + `steam_autocloud.vdf` postoje,
+`Game.ini` **nema** jer GConfig ne kreira missing ini. Redistributables +
+endings mogu sad. Splash i nova exe ikonica nisu Valve stavke. `default`
+i dalje ručni Set Live.
 
 ---
 
@@ -82,19 +82,12 @@ Tri baga, redom:
 
 Fix: `EnsureCloudSaveFile()` piše
 `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini` preko `FFileHelper`,
-bez GConfig keša. To još **nije** u live cooku dok recook ne završi.
+bez GConfig keša. To je u **`24998658`** na `playtest`.
 
 `GameUserSettings.ini` namerno nije na Cloud-u (mašinski settings).
 
-Fix u izvornom kodu (još nije u live cooku): `EnsureCloudSaveFile()` i persist
-liste pišu u
-`FPaths::ProjectSavedDir()/Config/Windows/Game.ini` (= Auto-Cloud folder),
-prave direktorijum ako treba, i flush-uju taj fajl. Editor i dalje dobija
-`GGameIni` kao fallback.
-
-Dok sledeći Shipping cook to ne unese, Properties → General ostaje prazan.
-**Ne tvrdi Valveu round-trip na dve mašine.** `default` i dalje mora ručno
-Set Live u Steamworks Builds — steamcmd ne sme da postavi default granu.
+`default` i dalje mora ručno Set Live u Steamworks Builds — steamcmd ne sme
+da postavi default granu.
 
 ### 2.1 „Enable cloud support for developers only" — provereno, nije bio čekiran
 
@@ -160,7 +153,7 @@ Zato debug grana **nije** Cloud test. Cloud se verifikuje na `default` /
 
 ### 2.6 Provera pre nego što javiš Valveu
 
-1. Shipping **`24998396`** je na `playtest`. Set Live ručno na **default**.
+1. Shipping **`24998658`** je na `playtest`. Set Live ručno na **default**.
 2. Play iz Library, Exit. Mora da postoji
    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
 3. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da
