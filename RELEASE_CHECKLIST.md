@@ -6,27 +6,22 @@ Steam App ID: **4982260**
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
 > odgovora su u
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (`Game.ini` se još **ne**
-> pravi na Auto-Cloud putanji — kod fix čeka sledeći cook), šest endinga
-> (Development na `valvereview`). Valve je blokirao prodaju u Kini —
+> redistributables (Steamworks, publish-ovano), Cloud (`Game.ini` path fix je
+> u **`24998396`** — još nije lokalno verifikovan posle Play iz Library), šest
+> endinga (Development na `valvereview`). Valve je blokirao prodaju u Kini —
 > informacija, ne zadatak.
 >
 > **Urađeno 28.08. uveče:** redistributables publish-ovani. Cloud **putanja**
-> potvrđena (`GameUserSettings.ini` + `steam_autocloud.vdf`). Ending dugme
-> desno je u **v1.0.2** Shipping, playtest **`24997951`**. Development na
-> `valvereview` **`24997996`**. GatherText 28.08. uzeo `ENGINE`. Splash
-> izvor zamenjen (in-game LOOP 9 lobby, ne main-menu).
+> potvrđena. Recook + SteamPipe: Shipping **`24998396`** live na `playtest`,
+> Development **`24998416`** live na `valvereview`. Splash je lobby LOOP 9 kadar.
 >
 > **Ostalo:**
-> 1. Recook Shipping (+ Dev ako treba) — Cloud piše u
->    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`, novi splash.
->    `24997951` **nema** taj Cloud fix (flush-uje `GGameIni`).
-> 2. Steamworks Builds: Set Live novi Shipping na **default** (steamcmd to
+> 1. Steamworks Builds: Set Live **`24998396`** na **default** (steamcmd to
 >    ne sme). https://partner.steamgames.com/apps/builds/4982260
-> 3. Play iz Library → Exit. Mora `Game.ini`. Properties → General mora
+> 2. Play iz Library → Exit. Mora `Game.ini`. Properties → General mora
 >    veličina. Tek tad tiket §4 Cloud. **Ne tvrdi round-trip dok to ne vidiš.**
-> 4. Nova **exe ikonica** — čeka fajl od tebe; trenutna ostaje Shortcut v2.
-> 5. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
+> 3. Nova **exe ikonica** — čeka fajl od tebe; trenutna ostaje Shortcut v2.
+> 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -45,9 +40,9 @@ drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
 se kuva. SteamPipe contentroot je **`Builds/v1.0.2/Windows`**. **`Builds/v1.0.0`
 ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
-više nisu cilj. Live playtest na Steamu je **v1.0.2** (BuildID `24997951`,
+više nisu cilj. Live playtest na Steamu je **v1.0.2** (BuildID `24998396`,
 28.08.2026). `default` još treba ručni Set Live tog BuildID-a. Prethodni
-playtest je bio v1.0.1 `24980937`; Valve-oboreni cook je `24910264`.
+playtest večeras bio je `24997951`; Valve-oboreni cook je `24910264`.
 **Coming Soon store je javan od 27.08.2026.**:
 https://store.steampowered.com/app/4982260/Loop_9/
 
@@ -255,8 +250,8 @@ Sledeća sesija (urađeno 26.08.2026.):
   publish-ovani **28.08.2026.** Bez toga UE prereq installer iskače kao
   third-party launcher i Valve obara build (`24910264`). Nije tražilo rebuild.
   Potvrda stiže tek kad Valve ponovi review.
-- [x] Passworded grana `valvereview` sa Development buildom **`24997996`**
-  (28.08.2026., `UploadValvereview.bat`). Playtest VDF sad gleda
+- [x] Passworded grana `valvereview` sa Development buildom **`24998416`**
+  (28.08.2026. uveče, `UploadValvereview.bat`). Playtest VDF gleda
   `Builds/v1.0.2/Windows`. Skinuti granu posle odobrenja. Lozinka **nije** u
   gitu — ide samo u tiket.
 - [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
@@ -270,12 +265,11 @@ Sledeća sesija (urađeno 26.08.2026.):
 - [~] Steam Cloud Auto-Cloud podešen za
   `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
   **Putanja OK** (`GameUserSettings.ini` + `steam_autocloud.vdf` posle Play
-  iz Library). **`Game.ini` i dalje ne postoji** na live `24997951`: prazan
-  persist ne kreira fajl, a `CloudReady` flush ide na `GGameIni` (cooked
-  default), ne na Auto-Cloud folder. Fix u izvornom kodu (28.08. uveče)
-  piše u `ProjectSavedDir()/Config/Windows/Game.ini`. **Sledeći cook.**
-  `default` još nije Set Live (steamcmd to ne sme). **Ne šalji Valveu
-  round-trip dok Properties → General ne pokaže veličinu.**
+  iz Library). **`Game.ini` nije postojao** na `24997951` (flush na `GGameIni`).
+  Fix u **`24998396`**: piše u `ProjectSavedDir()/Config/Windows/Game.ini`.
+  **Još nije verifikovan** posle Play iz Library. `default` još nije Set Live
+  (steamcmd to ne sme). **Ne šalji Valveu round-trip dok Properties → General
+  ne pokaže veličinu.**
 - [x] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
   provereno 28.08. — **nije bilo čekirano**, pa nije uzrok.
 - [x] Putanja potvrđena: `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. Fajl
@@ -325,9 +319,9 @@ Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
   `Content/Splash/Splash.bmp` je sad in-game LOOP 9 lobby kadar
   (`Marketing/Steam/ClientAssets/loop9_splash_ingame_16x9.jpg`), 1920×1080
   24-bit BMP, center-crop na 16:9. **Nije** main-menu art. Stari splash je
-  `loop9_splash_mainmenu_16x9.bmp` u ClientAssets. Ući će u **sledeći cook**;
-  `24997951` još ima main-menu splash. `Splash.uasset` reimport na otvoren
-  editor. Izvor JPG je 1024×682 — ako budeš imao native 1920×1080, zameni.
+  `loop9_splash_mainmenu_16x9.bmp` u ClientAssets. U **`24998396`**.
+  `Splash.uasset` reimport na otvoren editor. Izvor JPG je 1024×682 — ako
+  budeš imao native 1920×1080, zameni.
 - [ ] Napomena: ako ikonicu Unreal Engine-a vidiš dok si **u editoru**, to je
   normalno i ne može se promeniti — to je `UnrealEditor.exe`, ne tvoja igra.
   Proveri na paketovanom buildu pre nego što se juriš za bugom.
@@ -485,7 +479,7 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
   `Tools/PackageWindowsShipping.bat` bez argumenta kuva u `Builds/Feature`.
   `PackageWindowsShipping.bat v1.0.2` kuva u `Builds/v1.0.2`. **`Builds/v1.0.0`
   se ne dira** dok se eksplicitno ne zatraži. Steam playtest je **v1.0.2**
-  (BuildID `24997951`). Development review cook ide u `Builds/v1.0.2Dev` preko
+  (BuildID `24998396`). Development review cook ide u `Builds/v1.0.2Dev` preko
   `PackageWindowsDevelopment.bat`.
 
 - [x] Proveriti da build ne sadrži:
@@ -499,8 +493,8 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  v1.0.2 je live na passwordovanom `playtest` (BuildID `24997951`, 28.08.2026).
-  Prethodni live BuildID `24980937` je bio v1.0.1.
+  v1.0.2 je live na passwordovanom `playtest` (BuildID `24998396`, 28.08.2026).
+  Prethodni večerašnji playtest bio je `24997951`.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
@@ -656,11 +650,12 @@ Brief:
 
 ## Trenutni kritični put
 
-Valve je oborio `24910264`. Playtest je **v1.0.2 (`24997951`)**. Debug je na
-`valvereview` kao **`24997996`**. `Builds/v1.0.0` fallback nije diran.
+Valve je oborio `24910264`. Playtest je **v1.0.2 (`24998396`)**. Debug je na
+`valvereview` kao **`24998416`**. `Builds/v1.0.0` fallback nije diran.
 
-1. Steamworks: Set Live `24997951` na **default**.
-2. Restart Steam, Properties → General — Cloud veličina.
-3. Tiket §4: redistributables + endings + Cloud. Markirati **`24997951`**.
+1. Steamworks: Set Live `24998396` na **default**.
+2. Restart Steam, Play + Exit, Properties → General — Cloud veličina.
+3. Tiket §4: redistributables + endings; Cloud tek kad `Game.ini` postoji.
+   Markirati **`24998396`**, ne `24997951` / `24910264`.
 4. Store: SMENA u Developer/Publisher.
 5. QA: Cloud round-trip, ending dugme desno, achievement toast.

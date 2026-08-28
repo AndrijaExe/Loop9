@@ -9,16 +9,16 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `24997951`, 28.08.)**. Debug na `valvereview` je
-**`24997996`** (`Builds/v1.0.2Dev`).
+**v1.0.2 (BuildID `24998396`, 28.08. uveče)** — Cloud path fix + lobby splash.
+Prethodni playtest večeras bio je `24997951` (flush na `GGameIni`, bez
+`Game.ini`). Debug na `valvereview` je **`24998416`** (`Builds/v1.0.2Dev`).
 
-**Ne markiraj `24997951` za Cloud i ne šalji Cloud paragraf dok ne stigne
-sledeći Shipping cook.** Redistributables + endings mogu sad (`24997951` /
-`24997996`). Auto-Cloud pravilo je tačno, ali taj Shipping i dalje ne pravi
-`Game.ini` na putanji koju Steam gleda. Fix je u izvornom kodu (28.08.
-uveče): piše u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`, ne u
-Unrealov `GGameIni`. Splash (in-game LOOP 9 lobby) i nova exe ikonica
-**nisu** Valve stavke — ikonica čeka fajl od tebe.
+**Ne šalji Cloud paragraf dok ne proveriš da `Game.ini` postoji posle Play
+iz Library.** Redistributables + endings mogu sad (`24998396` / `24998416`).
+Auto-Cloud pravilo je tačno. Novi Shipping piše u
+`%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`. Splash (in-game LOOP 9
+lobby) i nova exe ikonica **nisu** Valve stavke — ikonica čeka fajl od tebe.
+`default` i dalje mora ručni Set Live u Steamworks Builds.
 
 ---
 
@@ -141,10 +141,11 @@ Ne dodavaj ga na Auto-Cloud da se „prođe" review.
 
 Putanja je tačna. Shipping iz Steam Library-ja piše u
 `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. `steam_autocloud.vdf` postoji.
-`Game.ini` **nije** nastao na `24997951`. Fajl nije pored `.exe`. Root ostaje
-`WinAppDataLocal`. Ne prebacuj na `gameinstall`.
+`Game.ini` **nije** nastao na `24997951`. Live cook za proveru je
+**`24998396`**. Fajl nije pored `.exe`. Root ostaje `WinAppDataLocal`. Ne
+prebacuj na `gameinstall`.
 
-Opcioni sanity check u Steam konzoli posle sledećeg cooka:
+Opcioni sanity check u Steam konzoli posle Play + Exit:
 `testappcloudpaths 4982260` — treba da vidi `Game.ini` kad fajl postoji.
 
 UE Development cook piše Saved pored `.exe`, Shipping u `%LOCALAPPDATA%`.
@@ -153,8 +154,7 @@ Zato debug grana **nije** Cloud test. Cloud se verifikuje na `default` /
 
 ### 2.6 Provera pre nego što javiš Valveu
 
-1. Recook Shipping (Cloud path fix + novi splash). Upload, Set Live na
-   `playtest`, pa ručno **default**.
+1. Shipping **`24998396`** je na `playtest`. Set Live ručno na **default**.
 2. Play iz Library, Exit. Mora da postoji
    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
 3. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da
@@ -197,10 +197,10 @@ Dokumentacija o granama:
 
 Zalepi ovo u Steamworks Support tiket. Popuni lozinku grane.
 
-**Cloud paragraf šalji tek posle sledećeg Shipping cooka**, Play + Exit, i
-tek kad Properties → General pokaže veličinu. Ako slikaš `24997951`, Cloud
-će opet pasti. Nemoj ubacivati rečenicu o two-machine round-trip dok to
-stvarno ne uradiš.
+**Cloud paragraf šalji tek posle Play + Exit na `24998396`**, i tek kad
+Properties → General pokaže veličinu. Ako slikaš stari `24997951`, Cloud
+će pasti. Nemoj ubacivati rečenicu o two-machine round-trip dok to stvarno
+ne uradiš.
 
 ---
 
