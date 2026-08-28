@@ -10,6 +10,23 @@ Steam App ID: **4982260**
 > verifikuju šest endinga. Prva dva su Steamworks konfiguracija bez rebuilda;
 > treće traži Development build na passworded grani. Uz to je Valve blokirao
 > prodaju u Kini — informacija, ne zadatak.
+>
+> **Urađeno 28.08.:** redistributables čekirani i publish-ovani; Cloud
+> developers-only sređen i publish-ovan.
+>
+> **Ostalo, sve traži Windows mašinu sa UE:**
+> 1. Pokrenuti Shipping build i potvrditi da postoji
+>    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
+> 2. `git pull` + rebuild (da uđu on-screen poruke debug komandi), pa
+>    `Tools\PackageWindowsDevelopment.bat Debug`.
+> 3. Napraviti passworded granu `valvereview`, privremeno prebaciti
+>    `contentroot` na `Builds/Debug/Windows`, uploadovati, vratiti na
+>    `Builds/v1.0.1/Windows`, Set Live na tu granu.
+> 4. Odgovoriti na tiket tekstom iz `VALVE_REVIEW_REPLY.md` §4 i markirati
+>    **v1.0.1 (`24980937`)** za review, ne stari oboreni build.
+>
+> Shipping ne treba ponovo kuvati: sve izmene od 28.08. su pod
+> `#if !UE_BUILD_SHIPPING`, pa je v1.0.1 funkcionalno nepromenjen.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -228,10 +245,11 @@ Sledeća sesija (urađeno 26.08.2026.):
 - [x] App kreiran; App ID je `4982260`.
 - [x] Basic Info, platforma, jezici, žanrovi, features i launch option
   (`Loop9.exe`) popunjeni.
-- [ ] **Installation → Common Redistributables:** čekirati `DirectX End-User
-  Runtimes (June 2010)` i `Microsoft Visual C++ Redistributable 2022`, pa
-  Publish. Bez toga UE prereq installer iskače kao third-party launcher i Valve
-  obara build (`24910264`). Ne traži rebuild.
+- [~] **Installation → Common Redistributables:** `DirectX End-User Runtimes
+  (June 2010)` i `Microsoft Visual C++ Redistributable 2022` čekirani i
+  publish-ovani **28.08.2026.** Bez toga UE prereq installer iskače kao
+  third-party launcher i Valve obara build (`24910264`). Nije tražilo rebuild.
+  Potvrda stiže tek kad Valve ponovi review.
 - [ ] Passworded grana `valvereview` sa Development buildom
   (`Tools/PackageWindowsDevelopment.bat`) da recenzent može do šest endinga.
   Skinuti je posle odobrenja.
@@ -249,11 +267,12 @@ Sledeća sesija (urađeno 26.08.2026.):
   **Valve javlja 28.08. da sync ne radi i da Properties → General ne pokazuje
   ništa.** Kvota (`10485760` B / `10` fajlova) i Auto-Cloud pravilo su
   provereni 28.08. i ispravni su; preview razrešava tačnu putanju.
-- [ ] **Odčekirati „Enable cloud support for developers only"** (Cloud →
-  Beta Testing) i Publish. Po Steamovom opisu taj čekboks gasi Auto-Cloud i
-  sakriva ikonicu, što pokriva sva tri simptoma iz Valveovog tiketa. Detalji u
+- [~] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
+  sređeno i publish-ovano **28.08.2026.** Po Steamovom opisu taj čekboks gasi
+  Auto-Cloud i sakriva ikonicu, što pokriva sva tri simptoma iz Valveovog
+  tiketa. Detalji u
   `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`
-  §2.1.
+  §2.1. Ostaje da se stvarno sync-ovanje potvrdi na Shipping buildu.
 - [x] Odlučeno da `GameUserSettings.ini` **ne** ide na Auto-Cloud. Steamov
   best-practice traži da se izbegne machine-specific config, a taj fajl je
   rezolucija i quality scalability. `Game.ini` je pravi save i postoji od prvog
