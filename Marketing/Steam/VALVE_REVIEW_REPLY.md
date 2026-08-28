@@ -8,6 +8,11 @@ tako što recenzentu damo Development build i uputstvo.
 (§3), pa odgovor na tiket (§4). Bez §3 recenzent ne može do endinga jer su sve
 debug komande isečene iz Shipping builda.
 
+Oboreni build `24910264` je cook od 24.08. U međuvremenu je live playtest
+**v1.0.1 (BuildID `24980937`, 28.08.)**, pa se za ponovni review markira taj, a
+ne stari. Debug build iz §3 treba kuvati iz istog source-a kao v1.0.1 da se
+recenzent ne bi sudario sa razlikama koje ne postoje u retail buildu.
+
 ---
 
 ## 0. Kina — nema akcije
@@ -142,7 +147,7 @@ pa upload na **posebnu granu sa lozinkom**, ne na `default`:
    `valvereview` sa lozinkom.
 2. U `Tools/SteamPipe/app_build_4982260.vdf` privremeno prebaci `contentroot` na
    `D:/UE Course/Loop 9 AI/Builds/Debug/Windows`, uploaduj, pa **vrati nazad** na
-   `Builds/v1.0.0/Windows`.
+   `Builds/v1.0.1/Windows` (isto i u `depot_build_4982261.vdf` ako ga diraš).
 3. Set Live grane `valvereview` na taj build.
 
 Development build ostaje na toj grani. `default` i dalje nosi Shipping.
@@ -243,5 +248,5 @@ Please let us know if you need anything else and we will turn it around quickly.
 
 - Skini `valvereview` granu ili joj promeni lozinku. Development build ne sme da
   ostane dostupan.
-- Vrati `contentroot` u `app_build_4982260.vdf` na `Builds/v1.0.0/Windows` ako
+- Vrati `contentroot` u `app_build_4982260.vdf` na `Builds/v1.0.1/Windows` ako
   već nije.
