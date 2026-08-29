@@ -6,17 +6,16 @@ Steam App ID: **4982260**
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
 > odgovora su u
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (`24998658` Play 22:33
-> **nije** napravio `Game.ini`; novi cook **`25008390`** piše direktno u
-> `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini` i ponovo posle 2s /
-> exit), šest endinga (`valvereview` **`24998416`**). Valve je blokirao
-> prodaju u Kini — informacija, ne zadatak.
+> redistributables (Steamworks, publish-ovano), Cloud (**Auto-Cloud briše**
+> `Game.ini` jer je remote prazan; seed 12:40 nestao na Play 12:43. Novi
+> cook **`25008533`** koristi Steam Remote Storage `FileWrite`), šest
+> endinga (`valvereview` **`24998416`**).
 >
 > **Ostalo:**
-> 1. Restart Steam, Play iz Library na `playtest` **`25008390`**. Mora
->    `Game.ini`. Properties → General mora veličina. Tek tad tiket §4 Cloud.
-> 2. Steamworks Builds: Set Live **`25008390`** na **default** (steamcmd to
->    ne sme). https://partner.steamgames.com/apps/builds/4982260
+> 1. Restart Steam, Play na `playtest` **`25008533`**, Exit. Properties →
+>    General mora Cloud veličina. Provera i
+>    https://store.steampowered.com/account/remotestorage
+> 2. Steamworks Builds: Set Live **`25008533`** na **default**.
 > 3. Nova **exe ikonica** — čeka fajl od tebe.
 > 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
 

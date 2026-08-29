@@ -40,4 +40,10 @@ struct FLoop9SteamUtils
 	 * into their own record rather than treating it as the whole truth.
 	 */
 	static TArray<FName> UnlockedAchievements(const TArray<FName>& Candidates);
+
+	/**
+	 * Writes a small blob into Steam Remote Storage so Properties → General
+	 * shows Cloud usage even if Auto-Cloud misses the AppData file.
+	 */
+	static bool WriteCloudFile(const FString& Filename, const FString& Contents);
 };

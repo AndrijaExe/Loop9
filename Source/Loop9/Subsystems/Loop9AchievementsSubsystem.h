@@ -57,6 +57,8 @@ public:
 	/** Steamworks API name for spotting a given anomaly type label (e.g. "PursuerAnomaly"). */
 	static FName SpotAchievementId(const FString& AnomalyTypeLabel);
 
+	void EnsureCloudSaveFile() const;
+
 private:
 	void QueryAchievementsCache();
 	void FlushPendingUnlocks();
@@ -70,7 +72,6 @@ private:
 	void RecordSpottedAnomalies(const FString& AnomalyKey);
 	TArray<FString> LoadPersistedList(const TCHAR* Key) const;
 	void SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const;
-	void EnsureCloudSaveFile() const;
 	bool HandleCloudSaveRetry(float DeltaSeconds);
 	void HandleEnginePreExit();
 

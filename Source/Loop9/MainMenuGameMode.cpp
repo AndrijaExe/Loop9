@@ -6,10 +6,14 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameHelpers.h"
 #include "Subsystems/LoopManagerSubsystem.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 #include "UI/Loop9WidgetClickBinder.h"
 #include "Camera/CameraActor.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Components/SceneComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
@@ -37,6 +41,26 @@ void AMainMenuGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickEnabled(true);
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULoop9AchievementsSubsystem* Achievements = GI->GetSubsystem<ULoop9AchievementsSubsystem>())
+		{
+			Achievements->EnsureCloudSaveFile();
+		}
+	}
+
+	if (!GGameUserSettingsIni.IsEmpty())
+	{
+		const FString CloudIni = FPaths::Combine(FPaths::GetPath(GGameUserSettingsIni), TEXT("Game.ini"));
+		if (!FPaths::FileExists(CloudIni))
+		{
+			FFileHelper::SaveStringToFile(
+				TEXT("[/Script/Loop9.Loop9AchievementsSubsystem]\r\nCloudReady=1\r\n"),
+				*CloudIni,
+				FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+		}
+	}
 
 	// Get player controller
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);

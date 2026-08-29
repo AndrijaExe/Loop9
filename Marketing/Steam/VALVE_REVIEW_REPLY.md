@@ -9,14 +9,15 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `25008390`)**. `24998658` je pokrenut 28.08. 22:33 —
-`GameUserSettings.ini` postoji, `Game.ini` **nema**. Debug na `valvereview`
-je **`24998416`**.
+**v1.0.2 (BuildID `25008533`)** — Steam Remote Storage `FileWrite`.
 
-**Cloud paragraf šalji tek posle Play na `25008390`.** Novi Shipping piše
-`Game.ini` ručno u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\` (ne GConfig),
-pa ponovo posle 2s i na exit, jer Auto-Cloud na startu može da obriše prazan
-fajl. Redistributables + endings mogu sad. `default` i dalje ručni Set Live.
+**Uzrok nestanka `Game.ini`:** Auto-Cloud. Seed u AppData (12:40) Steam je
+obrisao na Play 12:43 jer je remote prazan (nema ni `userdata/.../4982260/`).
+Zato nijedan lokalni upis nije preživeo Exit. Novi build piše u Steam Cloud
+API. Redistributables + endings mogu sad. `default` ručni Set Live.
+
+**Cloud paragraf šalji tek kad Properties → General pokaže veličinu posle
+Play na `25008533`.**
 
 ---
 

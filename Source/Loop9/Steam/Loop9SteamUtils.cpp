@@ -115,3 +115,21 @@ TArray<FName> FLoop9SteamUtils::UnlockedAchievements(const TArray<FName>& Candid
 
 	return Unlocked;
 }
+
+bool FLoop9SteamUtils::WriteCloudFile(const FString& Filename, const FString& Contents)
+{
+#if LOOP9_WITH_STEAM
+	if (Filename.IsEmpty() || SteamRemoteStorage() == nullptr)
+	{
+		return false;
+	}
+
+	const FTCHARToUTF8 Utf8(*Contents);
+	return SteamRemoteStorage()->FileWrite(
+		TCHAR_TO_UTF8(*Filename),
+		Utf8.Get(),
+		Utf8.Length());
+#else
+	return false;
+#endif
+}

@@ -74,10 +74,12 @@ namespace
 
 		const FString Ini = CloudGameIni();
 		IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);
-		return FFileHelper::SaveStringToFile(
+		const bool bSaved = FFileHelper::SaveStringToFile(
 			Text,
 			*Ini,
 			FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+		FLoop9SteamUtils::WriteCloudFile(TEXT("Game.ini"), Text);
+		return bSaved;
 	}
 
 	IOnlineAchievementsPtr GetAchievementsInterface()
