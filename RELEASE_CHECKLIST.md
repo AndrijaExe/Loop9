@@ -6,16 +6,15 @@ Steam App ID: **4982260**
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
 > odgovora su u
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (**Auto-Cloud briše**
-> `Game.ini` jer je remote prazan; seed 12:40 nestao na Play 12:43. Novi
-> cook **`25008533`** koristi Steam Remote Storage `FileWrite`), šest
-> endinga (`valvereview` **`24998416`**).
+> redistributables (Steamworks, publish-ovano), Cloud (**108 bytes** u
+> Properties → General na **`25008533`**, 29.08. 12:52), šest endinga
+> (`valvereview` **`24998416`**).
 >
 > **Ostalo:**
-> 1. Restart Steam, Play na `playtest` **`25008533`**, Exit. Properties →
->    General mora Cloud veličina. Provera i
->    https://store.steampowered.com/account/remotestorage
-> 2. Steamworks Builds: Set Live **`25008533`** na **default**.
+> 1. Steamworks Builds: Set Live **`25008533`** na **default**.
+>    https://partner.steamgames.com/apps/builds/4982260
+> 2. Tiket §4: redistributables + Cloud + endings. Lozinka `valvereview`.
+>    Ne tvrdi two-machine round-trip.
 > 3. Nova **exe ikonica** — čeka fajl od tebe.
 > 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
 
@@ -258,14 +257,11 @@ Sledeća sesija (urađeno 26.08.2026.):
 
 - [x] Cena `$4.99` i Valve regional pricing poslati.
 - [x] Sačekati potvrdu pricing promena.
-- [~] Steam Cloud Auto-Cloud podešen za
-  `WinAppDataLocal/Loop9/Saved/Config/Windows/Game.ini`.
-  **Putanja OK** (`GameUserSettings.ini` + `steam_autocloud.vdf` posle Play
-  iz Library). **`Game.ini` nije postojao** na `24997951` (flush na `GGameIni`).
-  Fix u **`24998396`**: piše u `ProjectSavedDir()/Config/Windows/Game.ini`.
-  **Još nije verifikovan** posle Play iz Library. `default` još nije Set Live
-  (steamcmd to ne sme). **Ne šalji Valveu round-trip dok Properties → General
-  ne pokaže veličinu.**
+- [x] Steam Cloud: Properties → General pokazuje **108 bytes** na
+  **`25008533`** (29.08. 12:52). Fajl je Steam Remote Storage
+  `userdata\...\4982260\remote\Game.ini`. Auto-Cloud i dalje briše AppData
+  `Game.ini`; Valveova zamerka je bila Properties, to je zatvoreno.
+  `default` još nije Set Live. Two-machine round-trip nije rađen.
 - [x] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
   provereno 28.08. — **nije bilo čekirano**, pa nije uzrok.
 - [x] Putanja potvrđena: `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. Fajl

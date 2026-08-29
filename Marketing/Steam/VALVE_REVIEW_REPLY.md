@@ -9,15 +9,14 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `25008533`)** — Steam Remote Storage `FileWrite`.
+**v1.0.2 (BuildID `25008533`)**. Debug `valvereview` je **`24998416`**.
 
-**Uzrok nestanka `Game.ini`:** Auto-Cloud. Seed u AppData (12:40) Steam je
-obrisao na Play 12:43 jer je remote prazan (nema ni `userdata/.../4982260/`).
-Zato nijedan lokalni upis nije preživeo Exit. Novi build piše u Steam Cloud
-API. Redistributables + endings mogu sad. `default` ručni Set Live.
-
-**Cloud paragraf šalji tek kad Properties → General pokaže veličinu posle
-Play na `25008533`.**
+**Cloud je OK na ovoj mašini (29.08. 12:52).** Properties → General:
+**108 bytes stored.** Fajl je
+`userdata\375407870\4982260\remote\Game.ini` (`CloudReady=1`). Auto-Cloud
+i dalje briše AppData kopiju; Valve gleda Properties, to je sada tu.
+Redistributables + endings + Cloud mogu u tiket. `default` ručni Set Live.
+Ne tvrdi two-machine round-trip dok to ne uradiš.
 
 ---
 
@@ -153,13 +152,9 @@ Zato debug grana **nije** Cloud test. Cloud se verifikuje na `default` /
 
 ### 2.6 Provera pre nego što javiš Valveu
 
-1. Shipping **`25008390`** je na `playtest`. Set Live ručno na **default**.
-2. Play iz Library, Exit. Mora da postoji
-   `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
-3. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da
-   piše veličina cloud podataka.
-4. Tek tad zalepi §4. Ako Properties i dalje kaže 0, **nemoj** slati Cloud
-   paragraf koji tvrdi round-trip.
+1. Shipping **`25008533`** je na `playtest`. Cloud na ovoj mašini: **108
+   bytes** u Properties → General (29.08. 12:52). Set Live ručno na **default**.
+2. Two-machine round-trip ostaje opcioni. Ne piši ga u tiket dok ga ne uradiš.
 
 ---
 
@@ -196,10 +191,9 @@ Dokumentacija o granama:
 
 Zalepi ovo u Steamworks Support tiket. Popuni lozinku grane.
 
-**Cloud paragraf šalji tek posle Play + Exit na `24998396`**, i tek kad
-Properties → General pokaže veličinu. Ako slikaš stari `24997951`, Cloud
-će pasti. Nemoj ubacivati rečenicu o two-machine round-trip dok to stvarno
-ne uradiš.
+**Cloud paragraf:** Properties na ovoj mašini pokazuje 108 bytes na
+`25008533`. Two-machine round-trip **nemoj** da tvrdiš. Markirati
+**`25008533`**, ne starije BuildID-ove.
 
 ---
 
@@ -214,19 +208,13 @@ understand should not be involved.
 
 **2. Steam Cloud**
 
-Auto-Cloud is configured for `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`
-(root `WinAppDataLocal`, non-recursive, Windows only). Quota is 10 MB / 10
-files. We do not sync `GameUserSettings.ini` (machine-specific video settings).
+The Shipping build now writes a small progress file through the Steam Cloud
+API on first launch. After Play + Exit, the game's Properties → General tab
+shows Cloud usage (108 bytes in our test: `CloudReady=1` plus persist keys).
+We do not sync `GameUserSettings.ini` (machine-specific video settings).
 
-The previous Shipping build never created that `Game.ini`: empty persist writes
-skipped the file, and a later flush targeted Unreal's default Game.ini instead of
-the Auto-Cloud path. The Shipping build now marked for review writes
-`CloudReady=1` (and persist keys) to the Auto-Cloud path on first launch.
-
-Please verify Cloud on the **default** branch after a Play + Exit. Our debug
-build (below) is a Development configuration, which writes its save data next to
-the executable instead of to `%LOCALAPPDATA%`, so it is not representative for
-Cloud testing.
+Please verify Cloud on the **default** branch. Our debug build (below) is a
+Development configuration and is not representative for Cloud testing.
 
 **3. Six endings**
 
