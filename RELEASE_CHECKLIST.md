@@ -8,7 +8,7 @@ Steam App ID: **4982260**
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
 > redistributables (Steamworks, publish-ovano), Cloud (**108 bytes** u
 > Properties → General na **`25008533`**, 29.08. 12:52), šest endinga
-> (`valvereview` **`24998416`**).
+> (`valvereview` **`25008639`**).
 >
 > **Ostalo:**
 > 1. Steamworks Builds: Set Live **`25008533`** na **default**.
@@ -245,9 +245,9 @@ Sledeća sesija (urađeno 26.08.2026.):
   publish-ovani **28.08.2026.** Bez toga UE prereq installer iskače kao
   third-party launcher i Valve obara build (`24910264`). Nije tražilo rebuild.
   Potvrda stiže tek kad Valve ponovi review.
-- [x] Passworded grana `valvereview` sa Development buildom **`24998416`**
-  (28.08.2026. uveče, `UploadValvereview.bat`). Playtest VDF gleda
-  `Builds/v1.0.2/Windows`. Skinuti granu posle odobrenja. Lozinka **nije** u
+- [x] Passworded grana `valvereview` sa Development buildom **`25008639`**
+  (29.08.2026., `UploadValvereview.bat`, setlive valvereview). Playtest je
+  Shipping **`25008533`**. Skinuti granu posle odobrenja. Lozinka **nije** u
   gitu — ide samo u tiket.
 - [x] Content Survey popunjen sa runtime AI i AI-assisted marketing disclosure.
 - [x] EN/SR store opis pripremljen.
@@ -642,12 +642,11 @@ Brief:
 
 ## Trenutni kritični put
 
-Valve je oborio `24910264`. Playtest je **v1.0.2 (`24998396`)**. Debug je na
-`valvereview` kao **`24998416`**. `Builds/v1.0.0` fallback nije diran.
+Valve je oborio `24910264`. Playtest je **v1.0.2 (`25008533`)**. Debug je na
+`valvereview` kao **`25008639`**. `Builds/v1.0.0` fallback nije diran.
 
-1. Steamworks: Set Live `24998396` na **default**.
-2. Restart Steam, Play + Exit, Properties → General — Cloud veličina.
-3. Tiket §4: redistributables + endings; Cloud tek kad `Game.ini` postoji.
-   Markirati **`24998396`**, ne `24997951` / `24910264`.
+1. Steamworks: Set Live `25008533` na **default**.
+2. Tiket §4: redistributables + Cloud (108 bytes) + endings. Lozinka
+   `valvereview`. Markirati **`25008533`**. Ne tvrdi two-machine round-trip.
 4. Store: SMENA u Developer/Publisher.
 5. QA: Cloud round-trip, ending dugme desno, achievement toast.

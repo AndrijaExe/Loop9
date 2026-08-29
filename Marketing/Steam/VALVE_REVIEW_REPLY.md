@@ -9,7 +9,7 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `25008533`)**. Debug `valvereview` je **`24998416`**.
+**v1.0.2 (BuildID `25008533`)**. Debug `valvereview` je **`25008639`**.
 
 **Cloud je OK na ovoj mašini (29.08. 12:52).** Properties → General:
 **108 bytes stored.** Fajl je
