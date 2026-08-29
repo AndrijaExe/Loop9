@@ -9,15 +9,14 @@ tako što recenzentu damo Development build i uputstvo.
 debug komande isečene iz Shipping builda.
 
 Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `24998658`)** — FFileHelper `Game.ini`. Prethodni
-`24998396` i dalje nije pravio fajl. Debug na `valvereview` je
-**`24998416`**.
+**v1.0.2 (BuildID `25008390`)**. `24998658` je pokrenut 28.08. 22:33 —
+`GameUserSettings.ini` postoji, `Game.ini` **nema**. Debug na `valvereview`
+je **`24998416`**.
 
-**Cloud paragraf šalji tek posle Play na `24998658`.** `24998396` je
-proveren 20:23: `GameUserSettings.ini` + `steam_autocloud.vdf` postoje,
-`Game.ini` **nema** jer GConfig ne kreira missing ini. Redistributables +
-endings mogu sad. Splash i nova exe ikonica nisu Valve stavke. `default`
-i dalje ručni Set Live.
+**Cloud paragraf šalji tek posle Play na `25008390`.** Novi Shipping piše
+`Game.ini` ručno u `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\` (ne GConfig),
+pa ponovo posle 2s i na exit, jer Auto-Cloud na startu može da obriše prazan
+fajl. Redistributables + endings mogu sad. `default` i dalje ručni Set Live.
 
 ---
 
@@ -82,7 +81,7 @@ Tri baga, redom:
 
 Fix: `EnsureCloudSaveFile()` piše
 `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini` preko `FFileHelper`,
-bez GConfig keša. To je u **`24998658`** na `playtest`.
+bez GConfig keša. To je u **`25008390`** na `playtest`.
 
 `GameUserSettings.ini` namerno nije na Cloud-u (mašinski settings).
 
@@ -153,7 +152,7 @@ Zato debug grana **nije** Cloud test. Cloud se verifikuje na `default` /
 
 ### 2.6 Provera pre nego što javiš Valveu
 
-1. Shipping **`24998658`** je na `playtest`. Set Live ručno na **default**.
+1. Shipping **`25008390`** je na `playtest`. Set Live ručno na **default**.
 2. Play iz Library, Exit. Mora da postoji
    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`.
 3. Steam → Library → Loop 9 → desni klik → Properties → **General**. Mora da

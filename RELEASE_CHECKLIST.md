@@ -6,16 +6,16 @@ Steam App ID: **4982260**
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
 > odgovora su u
 > `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (`24998396` Play 20:23
-> **nije** napravio `Game.ini`; FFileHelper cook je **`24998658`** na
-> `playtest` — još nije verifikovan), šest endinga (`valvereview`
-> **`24998416`**). Valve je blokirao prodaju u Kini — informacija, ne zadatak.
+> redistributables (Steamworks, publish-ovano), Cloud (`24998658` Play 22:33
+> **nije** napravio `Game.ini`; novi cook **`25008390`** piše direktno u
+> `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini` i ponovo posle 2s /
+> exit), šest endinga (`valvereview` **`24998416`**). Valve je blokirao
+> prodaju u Kini — informacija, ne zadatak.
 >
 > **Ostalo:**
-> 1. Restart Steam, Play iz Library na `playtest`. Mora
->    `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\Game.ini`. Properties →
->    General mora veličina. Tek tad tiket §4 Cloud.
-> 2. Steamworks Builds: Set Live **`24998658`** na **default** (steamcmd to
+> 1. Restart Steam, Play iz Library na `playtest` **`25008390`**. Mora
+>    `Game.ini`. Properties → General mora veličina. Tek tad tiket §4 Cloud.
+> 2. Steamworks Builds: Set Live **`25008390`** na **default** (steamcmd to
 >    ne sme). https://partner.steamgames.com/apps/builds/4982260
 > 3. Nova **exe ikonica** — čeka fajl od tebe.
 > 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.

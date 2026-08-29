@@ -71,6 +71,8 @@ private:
 	TArray<FString> LoadPersistedList(const TCHAR* Key) const;
 	void SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const;
 	void EnsureCloudSaveFile() const;
+	bool HandleCloudSaveRetry(float DeltaSeconds);
+	void HandleEnginePreExit();
 
 	/**
 	 * The persisted list plus whatever Steam already holds, written back when the
@@ -89,6 +91,8 @@ private:
 	TSet<FName> InFlightUnlocks;
 	TSet<FName> UnlockedThisSession;
 	FTSTicker::FDelegateHandle PendingRetryTickerHandle;
+	FTSTicker::FDelegateHandle CloudRetryTickerHandle;
+	FDelegateHandle EnginePreExitHandle;
 
 	// Per-run tracking (reset on run restart / finish)
 	int32 CorrectDecisionStreak = 0;

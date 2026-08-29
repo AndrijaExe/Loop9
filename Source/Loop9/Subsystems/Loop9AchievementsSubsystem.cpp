@@ -2,7 +2,9 @@
 
 #include "Anomaly/AnomalyTypes.h"
 #include "HAL/FileManager.h"
+#include "HAL/PlatformProcess.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Misc/CoreDelegates.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "OnlineSubsystem.h"
@@ -26,11 +28,16 @@ namespace
 	const TCHAR* SpottedAnomaliesKey = TEXT("SpottedAnomalies");
 	const TCHAR* PendingUnlocksKey = TEXT("PendingUnlocks");
 
-	/** Steam Auto-Cloud watches %LOCALAPPDATA%/Loop9/Saved/Config/Windows/Game.ini — not GGameIni. */
+	/** Exact Steam Auto-Cloud path: WinAppDataLocal / Loop9/Saved/Config/Windows/Game.ini */
 	FString CloudGameIni()
 	{
-		return FPaths::ConvertRelativePathToFull(
-			FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Config"), TEXT("Windows"), TEXT("Game.ini")));
+		return FPaths::ConvertRelativePathToFull(FPaths::Combine(
+			FPlatformProcess::UserSettingsDir(),
+			TEXT("Loop9"),
+			TEXT("Saved"),
+			TEXT("Config"),
+			TEXT("Windows"),
+			TEXT("Game.ini")));
 	}
 
 	void LoadCloudFile(FConfigFile& File)
@@ -44,22 +51,33 @@ namespace
 
 	bool SaveCloudFile(FConfigFile& File)
 	{
+		File.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
+
+		FString Seen;
+		FString Spotted;
+		FString Pending;
+		File.GetString(PersistSection, SeenEndingsKey, Seen);
+		File.GetString(PersistSection, SpottedAnomaliesKey, Spotted);
+		File.GetString(PersistSection, PendingUnlocksKey, Pending);
+
+		// Do not use FConfigFile::Write / WriteToString / GConfig. Those skip or
+		// no-op missing inis. Steam Auto-Cloud only needs this file on disk.
+		const FString Text = FString::Printf(
+			TEXT("[%s]\r\nCloudReady=1\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n"),
+			PersistSection,
+			SeenEndingsKey,
+			*Seen,
+			SpottedAnomaliesKey,
+			*Spotted,
+			PendingUnlocksKey,
+			*Pending);
+
 		const FString Ini = CloudGameIni();
 		IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);
-		File.NoSave = false;
-		File.Dirty = true;
-
-		FString Text;
-		File.WriteToString(Text);
-		if (Text.TrimStartAndEnd().IsEmpty())
-		{
-			Text = FString::Printf(TEXT("[%s]\r\nCloudReady=1\r\n"), PersistSection);
-		}
-
-		// GConfig::SetString/Flush will not create a file that is not already in the
-		// cache. Find() also marks unknown inis NoSave. Write the Auto-Cloud file
-		// ourselves so Steam always sees Game.ini after first launch.
-		return FFileHelper::SaveStringToFile(Text, *Ini);
+		return FFileHelper::SaveStringToFile(
+			Text,
+			*Ini,
+			FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 	}
 
 	IOnlineAchievementsPtr GetAchievementsInterface()
@@ -143,6 +161,20 @@ void ULoop9AchievementsSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 	PersistPendingUnlocks();
 	EnsureCloudSaveFile();
 
+	// Steam Auto-Cloud can wipe a brand-new Game.ini during launch sync if the
+	// remote side is still empty. Rewrite after that pass, and again on exit.
+	if (!CloudRetryTickerHandle.IsValid())
+	{
+		CloudRetryTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateUObject(this, &ULoop9AchievementsSubsystem::HandleCloudSaveRetry),
+			2.0f);
+	}
+	if (!EnginePreExitHandle.IsValid())
+	{
+		EnginePreExitHandle = FCoreDelegates::OnEnginePreExit.AddUObject(
+			this, &ULoop9AchievementsSubsystem::HandleEnginePreExit);
+	}
+
 	QueryAchievementsCache();
 }
 
@@ -153,8 +185,19 @@ void ULoop9AchievementsSubsystem::Deinitialize()
 		FTSTicker::GetCoreTicker().RemoveTicker(PendingRetryTickerHandle);
 		PendingRetryTickerHandle.Reset();
 	}
+	if (CloudRetryTickerHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(CloudRetryTickerHandle);
+		CloudRetryTickerHandle.Reset();
+	}
+	if (EnginePreExitHandle.IsValid())
+	{
+		FCoreDelegates::OnEnginePreExit.Remove(EnginePreExitHandle);
+		EnginePreExitHandle.Reset();
+	}
 
 	PersistPendingUnlocks();
+	EnsureCloudSaveFile();
 	PendingUnlocks.Reset();
 	InFlightUnlocks.Reset();
 	Super::Deinitialize();
@@ -385,13 +428,22 @@ void ULoop9AchievementsSubsystem::SavePersistedList(const TCHAR* Key, const TArr
 
 void ULoop9AchievementsSubsystem::EnsureCloudSaveFile() const
 {
-	// Empty PendingUnlocks/SeenEndings writes used to skip creating Game.ini.
-	// GConfig::SetString on a path that is not already cached is a no-op in UE 5.8,
-	// which is why CloudReady in the Shipping binary never produced the file.
 	FConfigFile CloudFile;
 	LoadCloudFile(CloudFile);
 	CloudFile.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
 	SaveCloudFile(CloudFile);
+}
+
+bool ULoop9AchievementsSubsystem::HandleCloudSaveRetry(float)
+{
+	CloudRetryTickerHandle.Reset();
+	EnsureCloudSaveFile();
+	return false;
+}
+
+void ULoop9AchievementsSubsystem::HandleEnginePreExit()
+{
+	EnsureCloudSaveFile();
 }
 
 TArray<FString> ULoop9AchievementsSubsystem::MergeWithSteam(
