@@ -617,6 +617,16 @@ Brief:
   with potted plants, filing cabinets, meeting room, back room with the radio,
   tool shelf, storage corner, corridor between lifts and desks.
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
+- [ ] **Ručni prolaz AI konteksta (Andrija).** Tagovi stoje, ali nisu
+  provereni predmet po predmet u sceni. U editoru obići svaku anomaly
+  komponentu na `FullOfficeMap` (Details → **Anomaly > AI Context**) i
+  potvrditi da `AnomalyZone` / `AnomalyObjectKind` odgovaraju onome što
+  igrač vidi. Zona = orijentir na spratu, kind = kategorija predmeta (ne
+  ime aktera), engleski, <48 znaka, ne odaje anomaliju. Phantom bez zone.
+  Pursuer sme ostati prazan. Pravila:
+  `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
+  Veći anomaly beatovi (blackout / slam na trigger box) **ne radimo za
+  sada**.
 
 - [ ] **Steam Deck kompatibilnost.** Dodato 28.08.2026. kao post-release stavka.
   Deck status (`Verified` / `Playable` / `Unsupported`) testira Valve, ne ti; ti
@@ -661,5 +671,7 @@ Valve je oborio `24910264`. Playtest je **v1.0.2 (`25008533`)**. Debug je na
    nova ikonica, SMENA krediti i ending scoring.
 4. QA tog cooka: splash, ikonica, `EndingSetup` 1:1, pa Cold / Obedient /
    Merged / Replacement.
-5. `UploadPlaytest.bat` + Cloud / achievement / offline smoke. Najraniji
+5. Ručni prolaz: svaki tagged predmet — `AnomalyZone` / `AnomalyObjectKind`
+   sedi sa onim što se vidi. §9.
+6. `UploadPlaytest.bat` + Cloud / achievement / offline smoke. Najraniji
    release **10.09.2026.**
