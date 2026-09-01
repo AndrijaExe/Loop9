@@ -69,6 +69,12 @@ public:
 	/** Category of the affected object; the AI never receives the actor name. */
 	FString GetCurrentLoopAnomalyObjectKind() const { return CurrentLoopAnomalyObjectKind; }
 
+	/**
+	 * One authored zone from an inactive, non-Pursuer/non-Phantom component that
+	 * differs from every active zone. Empty when no safe decoy exists.
+	 */
+	FString SelectDecoyZone() const;
+
 	/** If the map still has no Scale component, attach one to the office printer. */
 	void EnsureScaleAnomalyPlacement(UWorld* World);
 

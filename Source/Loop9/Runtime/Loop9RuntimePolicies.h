@@ -137,6 +137,52 @@ namespace Loop9RuntimePolicies
 		return Chosen;
 	}
 
+	/**
+	 * Picks one authored decoy place from inactive components. The zone must
+	 * differ from every currently active zone so a planted wrong hint still
+	 * points at a real part of the map the player can walk to.
+	 */
+	inline FString SelectDecoyZone(
+		const TArray<FString>& InactiveAuthoredZones,
+		const TArray<FString>& ActiveZones)
+	{
+		TArray<FString> Candidates;
+		for (const FString& Zone : InactiveAuthoredZones)
+		{
+			const FString Trimmed = Zone.TrimStartAndEnd();
+			if (Trimmed.IsEmpty())
+			{
+				continue;
+			}
+
+			bool bConflictsWithActive = false;
+			for (const FString& Active : ActiveZones)
+			{
+				if (Active.Equals(Trimmed, ESearchCase::IgnoreCase))
+				{
+					bConflictsWithActive = true;
+					break;
+				}
+			}
+
+			if (!bConflictsWithActive && !Candidates.ContainsByPredicate([&Trimmed](const FString& Existing)
+			{
+				return Existing.Equals(Trimmed, ESearchCase::IgnoreCase);
+			}))
+			{
+				Candidates.Add(Trimmed);
+			}
+		}
+
+		if (Candidates.Num() == 0)
+		{
+			return FString();
+		}
+
+		Candidates.Sort();
+		return Candidates[0];
+	}
+
 	inline TArray<ELoopEndingType> AllEndingTypes()
 	{
 		return {

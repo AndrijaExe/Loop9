@@ -142,6 +142,76 @@ bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, 
 	return true;
 }
 
+FString ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode Mode)
+{
+	switch (Mode)
+	{
+	case EDragojloAdviceMode::Withhold: return TEXT("withhold");
+	case EDragojloAdviceMode::AccurateHint: return TEXT("accurate_hint");
+	case EDragojloAdviceMode::MisdirectLocation: return TEXT("misdirect_location");
+	case EDragojloAdviceMode::WrongLift: return TEXT("wrong_lift");
+	case EDragojloAdviceMode::AccurateLift: return TEXT("accurate_lift");
+	default: return TEXT("none");
+	}
+}
+
+EDragojloAdviceMode ULoop9BackendChatService::AdviceModeFromWire(const FString& Wire)
+{
+	if (Wire.Equals(TEXT("withhold"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::Withhold;
+	if (Wire.Equals(TEXT("accurate_hint"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::AccurateHint;
+	if (Wire.Equals(TEXT("misdirect_location"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::MisdirectLocation;
+	if (Wire.Equals(TEXT("wrong_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::WrongLift;
+	if (Wire.Equals(TEXT("accurate_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::AccurateLift;
+	return EDragojloAdviceMode::None;
+}
+
+FString ULoop9BackendChatService::LiftAdviceToWire(EDragojloLiftAdvice Advice)
+{
+	switch (Advice)
+	{
+	case EDragojloLiftAdvice::Lit: return TEXT("lit");
+	case EDragojloLiftAdvice::Dark: return TEXT("dark");
+	default: return TEXT("none");
+	}
+}
+
+EDragojloLiftAdvice ULoop9BackendChatService::LiftAdviceFromWire(const FString& Wire)
+{
+	if (Wire.Equals(TEXT("lit"), ESearchCase::IgnoreCase)) return EDragojloLiftAdvice::Lit;
+	if (Wire.Equals(TEXT("dark"), ESearchCase::IgnoreCase)) return EDragojloLiftAdvice::Dark;
+	return EDragojloLiftAdvice::None;
+}
+
+bool ULoop9BackendChatService::TryParseAdviceObject(const TSharedPtr<FJsonObject>& JsonResponse, FLoop9ChatResponse& OutResponse)
+{
+	if (!JsonResponse.IsValid())
+	{
+		return false;
+	}
+
+	const TSharedPtr<FJsonObject>* AdviceObject = nullptr;
+	if (!JsonResponse->TryGetObjectField(TEXT("advice"), AdviceObject) || !AdviceObject || !AdviceObject->IsValid())
+	{
+		return false;
+	}
+
+	FString ModeWire;
+	if ((*AdviceObject)->TryGetStringField(TEXT("mode"), ModeWire))
+	{
+		OutResponse.AdviceMode = AdviceModeFromWire(ModeWire);
+	}
+
+	FString LiftWire;
+	if ((*AdviceObject)->TryGetStringField(TEXT("lift"), LiftWire))
+	{
+		OutResponse.LiftAdvice = LiftAdviceFromWire(LiftWire);
+	}
+
+	(*AdviceObject)->TryGetStringField(TEXT("suggested_zone"), OutResponse.SuggestedZone);
+	(*AdviceObject)->TryGetStringField(TEXT("commitment_id"), OutResponse.CommitmentId);
+	return OutResponse.AdviceMode != EDragojloAdviceMode::None;
+}
+
 void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& Context, FOnLoop9ChatResponseReceived OnComplete)
 {
 	FLoop9ChatResponse Result;
@@ -208,6 +278,25 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		}
 		JsonObject->SetObjectField(TEXT("anomaly_detail"), DetailObject);
 	}
+
+	if (!Context.DecoyZone.IsEmpty())
+	{
+		JsonObject->SetStringField(TEXT("decoy_zone"), Context.DecoyZone);
+	}
+
+	TSharedPtr<FJsonObject> AdviceStateObject = MakeShareable(new FJsonObject());
+	AdviceStateObject->SetBoolField(TEXT("location_misdirection_used"), Context.AdviceState.bLocationMisdirectionUsed);
+	AdviceStateObject->SetBoolField(TEXT("contradiction_exposed"), Context.AdviceState.bContradictionExposed);
+	AdviceStateObject->SetBoolField(TEXT("pending_decision_surrender"), Context.AdviceState.bPendingDecisionSurrender);
+	AdviceStateObject->SetBoolField(TEXT("wrong_lift_used"), Context.AdviceState.bWrongLiftUsed);
+	AdviceStateObject->SetBoolField(TEXT("followed_last_lift_advice"), Context.AdviceState.bFollowedLastLiftAdvice);
+	AdviceStateObject->SetStringField(TEXT("last_advice_mode"), AdviceModeToWire(Context.AdviceState.LastAdviceMode));
+	AdviceStateObject->SetStringField(TEXT("last_lift_advice"), LiftAdviceToWire(Context.AdviceState.LastLiftAdvice));
+	if (!Context.AdviceState.LastSuggestedZone.IsEmpty())
+	{
+		AdviceStateObject->SetStringField(TEXT("last_suggested_zone"), Context.AdviceState.LastSuggestedZone);
+	}
+	JsonObject->SetObjectField(TEXT("advice_state"), AdviceStateObject);
 
 	TSharedPtr<FJsonObject> StateObject = MakeShareable(new FJsonObject());
 	StateObject->SetNumberField(TEXT("kindness"), KindnessDiscrete);
@@ -313,6 +402,8 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 			Complete(ChatResult);
 			return;
 		}
+
+		TryParseAdviceObject(JsonResponse, ChatResult);
 
 		ChatResult.bSuccess = true;
 		ChatResult.Reply = CleanReply;

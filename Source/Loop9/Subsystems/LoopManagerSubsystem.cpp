@@ -186,6 +186,14 @@ bool ULoopManagerSubsystem::CommitElevatorDecision(
 
 	RegisterLoopDecision(Decision.bWasCorrect, Decision.bAnomaliesExisted, Decision.ButtonType);
 
+	if (DragojloCommitment.LastLiftAdvice != EDragojloLiftAdvice::None)
+	{
+		const bool bChoseLit = Decision.ButtonType == EButtonType::Reset;
+		const bool bAdviceWasLit = DragojloCommitment.LastLiftAdvice == EDragojloLiftAdvice::Lit;
+		DragojloCommitment.bFollowedLastLiftAdvice = (bChoseLit == bAdviceWasLit);
+		DragojloCommitment.bPendingDecisionSurrender = false;
+	}
+
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{
 		FString AnomalyKey = TEXT("none");
@@ -398,6 +406,57 @@ void ULoopManagerSubsystem::ApplyAIDiagnosedDependencyDelta(int32 Delta)
 	}
 }
 
+void ULoopManagerSubsystem::RecordDragojloAdvice(
+	EDragojloAdviceMode Mode,
+	EDragojloLiftAdvice LiftAdvice,
+	const FString& SuggestedZone,
+	const FString& CommitmentId,
+	int32 SuspicionDelta,
+	int32 DependencyDelta)
+{
+	if (Mode != EDragojloAdviceMode::None)
+	{
+		DragojloCommitment.LastAdviceMode = Mode;
+	}
+
+	if (LiftAdvice != EDragojloLiftAdvice::None)
+	{
+		DragojloCommitment.LastLiftAdvice = LiftAdvice;
+	}
+
+	if (!SuggestedZone.IsEmpty())
+	{
+		DragojloCommitment.LastSuggestedZone = SuggestedZone;
+	}
+
+	if (!CommitmentId.IsEmpty())
+	{
+		DragojloCommitment.LastCommitmentId = CommitmentId;
+	}
+
+	if (Mode == EDragojloAdviceMode::MisdirectLocation)
+	{
+		DragojloCommitment.bLocationMisdirectionUsed = true;
+	}
+
+	if (Mode == EDragojloAdviceMode::WrongLift)
+	{
+		DragojloCommitment.bWrongLiftUsed = true;
+	}
+
+	// Accusation after a planted wrong location is the readable contradiction beat.
+	if (DragojloCommitment.bLocationMisdirectionUsed && SuspicionDelta > 0)
+	{
+		DragojloCommitment.bContradictionExposed = true;
+	}
+
+	// Surrendering the decision while still withheld arms the late wrong-lift path.
+	if (Mode == EDragojloAdviceMode::Withhold && DependencyDelta > 0)
+	{
+		DragojloCommitment.bPendingDecisionSurrender = true;
+	}
+}
+
 void ULoopManagerSubsystem::ResetRunState()
 {
 	CurrentLoop = 1;
@@ -408,6 +467,7 @@ void ULoopManagerSubsystem::ResetRunState()
 	ActiveElevatorDecisionId = 0;
 	bElevatorTransitionActive = false;
 	bDeferredEndingPresentation = false;
+	DragojloCommitment.Reset();
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{

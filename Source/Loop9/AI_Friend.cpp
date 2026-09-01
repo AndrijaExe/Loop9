@@ -733,6 +733,12 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 		RequestContext.AnomalyKey = AnomalyManager->GetCurrentLoopAnomalyKey();
 		RequestContext.AnomalyZone = AnomalyManager->GetCurrentLoopAnomalyZone();
 		RequestContext.AnomalyObjectKind = AnomalyManager->GetCurrentLoopAnomalyObjectKind();
+		RequestContext.DecoyZone = AnomalyManager->SelectDecoyZone();
+	}
+
+	if (LoopManager)
+	{
+		RequestContext.AdviceState = LoopManager->GetDragojloCommitmentState();
 	}
 
 	const bool bUsedSessionToken = !SessionToken.IsEmpty();
@@ -778,6 +784,13 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 					LoopMgr->ApplyAIDiagnosedKindnessDelta(ChatResponse.KindnessDelta);
 					LoopMgr->ApplyAIDiagnosedSuspicionDelta(ChatResponse.SuspicionDelta);
 					LoopMgr->ApplyAIDiagnosedDependencyDelta(ChatResponse.DependencyDelta);
+					LoopMgr->RecordDragojloAdvice(
+						ChatResponse.AdviceMode,
+						ChatResponse.LiftAdvice,
+						ChatResponse.SuggestedZone,
+						ChatResponse.CommitmentId,
+						ChatResponse.SuspicionDelta,
+						ChatResponse.DependencyDelta);
 					// Count successful validated replies only (achievements / telemetry).
 					LoopMgr->RegisterAIInteraction(
 						ChatResponse.KindnessDelta,

@@ -1,10 +1,12 @@
 # Lore
 
-Poslednje ažuriranje: **24.08.2026.**
+Poslednje ažuriranje: **01.09.2026.**
 
-**Status: predlog, ništa od ovoga nije implementirano.** Ovo je dokument o priči,
-ne o kodu. Jedina stvar iz njega koja traži nov kod je dnevnik smene iz §4;
-sve ostalo ulazi kroz sisteme koji već rade.
+**Status: kanon iz §1–3 i Dragojlov cilj iz §5 ostaju radna osnova.**
+Papiri iz §4 nisu napisani ni zaključani; Andrija ih osmišljava kasnije.
+Prompt se za sada ne širi teom (devet duša, zamena, „ne veruj mu“) —
+Dragojlo ostaje umoran kolega. AI modeli se ne menjaju: luna 1–3,
+terra 4+.
 
 Tekst koji ide u igru piše se **na engleskom**, jer je to izvorni jezik za
 lokalizaciju. Ovaj dokument je na srpskom jer se o priči tako lakše priča.
@@ -83,56 +85,100 @@ priča o njoj kao da je juče bila tu. Uz to, Replacement ending već prikazuje
 monitor sa `NEW OPERATOR CONNECTED`. Razbijeni monitor i monitor koji prijavljuje
 novog operatera su isti monitor.
 
-## 4. Devet zapisa, jedan po petlji
+## 4. Papiri na spratu (kako priča stiže do igrača)
 
-Devet poruka, po jedna u svakoj petlji, svaka **glasom jednog od devet**, u redu
-iz tabele. Do devete petlje igrač je čuo sve.
+Priča se ne spawnuje. **Nekoliko inspect papira već leži na spratu od
+prve petlje**, na fiksnim stolovima / fascijama / pored telefona. Igrač ih
+uzme kao svaki drugi predmet i pročita. Otkriće je što nije obišao taj sto,
+ne što se papir pojavio.
 
-Eskalacija ide u tri koraka: solidarnost, pa sumnja u Dragojla, pa otkriće.
+How to Play to neće naučiti. Niko ga ne čita do kraja, i ne mora: Help već
+kaže da prva petlja meri šta pripada, i da „ako je bilo na loop 1, pripada“.
+Papiri moraju da budu na tom čistom spratu. Ko ih vidi tad, kasnije zna da
+isti karbon nije anomalija. Ko ih ne vidi tad, vidi isti mesh na istom mestu
+kao ostali kancelarijski nered.
 
-| Petlja | Glas | Tekst (izvorni, engleski) |
+### Radna ideja — nije zaključano
+
+- Nekoliko listova, isti vizuelni jezik: žuti karbon / manila fasikla, 2003
+  kancelarija. Ne lete, ne trepere, nemaju emissive.
+- Inspect je **dokument**, ne crna soba sa rotacijom mesha. Levo slika
+  papira, desno čitljiv transkript. Kao dokumenti u Rise of the Tomb
+  Raider. Ostali predmeti (hefter, lampa) ostaju stari inspect.
+- Tekst je `FText` (pet jezika). Eskalacija: solidarnost → sumnja →
+  stolica. Prvi papir **nije** „Don't trust him“.
+- Nijedan papir ne pominje liftove ni koji taster da se pritisne.
+- **Nema `AnomalyComponent`.** Ne registruju se kod `UAnomalyManager`.
+- **Ne spawnuju se** posle loop 1. Nov list koji nije bio na baznoj liniji
+  **jeste** Text anomalija, i tada je osvetljeni lift tačan.
+
+Text / Phantom anomalije i dalje smeju da vrište (*You won't escape*, glas
+Jasne). To su anomalije. Ovi karbon listovi su nameštaj.
+
+### Zašto spawn kvari odluku
+
+Papir koji se „nekad pojavi“ izgleda tačno kao Text anomalija. Igrač na
+čistom spratu pročita „Don't trust him“, uzme osvetljeni lift, resetuje se
+— i u pravu je da ga je igra prevarila. Zato se listovi ne pojavljuju.
+Stoje.
+
+Ako u playtestu i dalje mešaju karbon sa Text anomalijom: isti listovi
+u **kabini lifta**, van sprata koji se pretražuje. Ne How to Play.
+
+### Vizuelni smer za inspect — za kasnije
+
+Sadašnji inspect (`AInspectionStageActor`) vrti mesh u crnom. Za papire
+to ne radi — 8pt na teksturi se ne čita, a `DisplayName` nema UI.
+
+Mogući raspored, samo kad su `DocumentTitle` + `DocumentBody` popunjeni:
+
+| Strana | Šta |
+|---|---|
+| Levo (~45 %) | Slika papira. Jedan deljeni karbon-okvir za prvi drop; kasnije može poseban sken (log centrale, inventar ključeva). Blagi nagib, bez puzzle rotacije. |
+| Desno (~55 %) | Naslov, jedan red meta (ime / „2nd floor · carbon“), pa telo. Postojeći UI font, ne novi serif. |
+
+Isti izlaz kao inspect (Esc / E / B). Igra pauzirana. Gamepad: desni
+štap ne mora ništa. How to Play se ne širi. Ostali inspectables
+diraju se.
+
+### Tekstovi
+
+Pune tekstove i konačan broj papira piše Andrija kad dođe do toga.
+Ispod su samo teze za diskusiju, nisu kanon. Čist sprat ne menja tekst.
+
+| # | Glas | Teza |
 |---|---|---|
-| 1 | Milena | *We all want out of here. Nine of us have tried.* |
-| 2 | Rade | *Learn the room before you trust it. I did not.* |
-| 3 | Vera | *When the light goes, we are closer. That is not a threat.* |
-| 4 | Đorđe | *He is on the line every night. Ask who else he talks to.* |
-| 5 | Slavica | *Do not trust everything you hear or see in here.* |
-| 6 | Bogdan | *He has been here longer than this building has had keys.* |
-| 7 | Nenad | *If something follows you, it is one of us. Let it.* |
-| 8 | Zoran | *He is not counting loops. He is counting us.* |
-| 9 | Jasna | *The chair needs one person. He does not care which.* |
+| 1 | Milena | Nine of us have tried. |
+| 2 | Rade | Learn the room before you trust the labels. |
+| 3 | Vera | When the light goes we are closer. That is not a threat. |
+| 4 | Đorđe | He is on the line every night. Ask who else he talks to. |
+| 5 | Slavica | Do not trust everything you hear or see in here. |
+| 6 | Bogdan | He has been here longer than this building has had keys. |
+| 7 | Nenad | If something follows you, it is one of us. Let it. |
+| 8 | Zoran | He is not counting the nights. He is counting us. |
+| 9 | Jasna | The chair needs one person. He does not care which. |
 
-### Zašto ovo NE sme da bude anomalija
+### Mogući tehnički obim — tek posle odluke
 
-Ovo je najvažnije pravilo u dokumentu. Papir čiji se tekst menja izgleda
-**tačno** kao Text anomalija. Ako je zapis anomalija, igrač u čistoj petlji
-pročita nov tekst, uzme osvetljeni lift, izgubi napredak — i biće u pravu što
-misli da ga je igra prevarila.
+1. Na `UInspectableComponent` (ili tankoj document komponenti):
+   `DocumentTitle`, `DocumentBody`, opciono `DocumentMeta` i
+   `PaperImage`. Ako je body prazan, ostaje stari black-room inspect.
+2. Novi WBP: levo papir, desno transkript. Pause, isti close. Font kao
+   ostatak UI. GatherText, pet jezika.
+3. Mesh + komponenta na izabranim mestima u `FullOfficeMap`. Bez
+   anomaly komponente.
+4. Ne dirati `UTextSpawnAnomalyComponent`. Anomalija ostaje anomalija.
 
-Pravila koja to sprečavaju:
-
-1. Zapis je **dnevnik smene**, isti predmet, na istom mestu, u **svakoj** petlji,
-   uključujući čiste. Uveden je u prvoj petlji kao deo bazne linije.
-2. Zato što je uvek tu i uvek drugačiji, „drugačiji“ **jeste** njegova bazna
-   linija. Igrač to nauči u prvoj petlji, kao i sve ostalo.
-3. Ne sme biti `AnomalyComponent` ni na jednom nivou, i ne sme se registrovati
-   kod `UAnomalyManager`.
-4. Nijedan zapis ne sme da pominje liftove ni da kaže igraču šta da pritisne.
-   Zapisi su o Dragojlu i o njima devet, nikad o mehanici.
-
-Alternativa ako se ovo ipak pokaže zbunjujuće u testiranju: prebaci dnevnik
-**u lift**, van sprata koji se pretražuje. Tada fizički ne može da se pomeša
-sa anomalijom.
-
-### Šta traži nov kod
-
-`UTextSpawnAnomalyComponent` ima jedan autorovan string po postavljenom akteru
-(default `"You won't escape"`) i ne varira po petlji. Dnevniku treba niz od
-devet `FText` indeksiran trenutnom petljom iz `ULoopManagerSubsystem`. Mali
-posao, ali nije nula, i mora da bude **nova komponenta** — ne izmena anomalije,
-zbog pravila 3.
+Broj listova i da li je bolji jedan dnevnik ostaju otvoreni. Pravilo koje
+ne sme da se prekrši: promena ili novi papir tokom petlje čita se kao
+Text anomalija.
 
 ## 5. Dragojlo
+
+Dragojlo ostaje umoran kolega na telefonu. Commitment sistem (pogrešna lokacija
+jednom, pogrešan lift tek kasno i retko) živi samo u trenutnom runu i ne menja
+kanon iz §1–3: on i dalje može da laže, ali ne sme da izmisli prostor koji mapa
+nema, i loop 1 nikad ne laže.
 
 **Njegov cilj je da izađe, a za to mu treba neko da sedne u tu stolicu.**
 
@@ -145,11 +191,10 @@ To objašnjava i zašto je devet ljudi nestalo a on je i dalje tu: nijedan nije
 bio upotrebljiv kao zamena. Godinu dana peca.
 
 Ta verzija motiva je bolja od „hoće da te zarobi“ jer mu daje razlog da ti
-**stvarno pomaže**. A on stvarno pomaže — C++ nikad ne šalje lažni kontekst
-anomalije, obmana je dozvoljena samo kad je `Dependency ≥ 0.62` **i** diskretna
-`Kindness == -1` (`PromptFactory.php:81`). Dakle laže samo onog ko je grub, i to
-retko. Negativac koji govori istinu jer mu je istina u interesu je bolji
-negativac od onog koji laže bez razloga.
+**stvarno pomaže**. Većinu vremena kontekst anomalije je tačan. Kontrolisana
+obmana (jedna pogrešna lokacija, najviše jedan pogrešan lift) ide iza
+`AI_COMMITMENT_ENABLED` i samo duž zaključane zavisne putanje — ne sme da učini
+Escape Together nedostižnim.
 
 ### Ne otkrivati ga prerano
 
@@ -190,7 +235,7 @@ Sve osim prvog reda već postoji i traži samo pisanje teksta.
 
 | Sadržaj | Sistem | Fajl |
 |---|---|---|
-| Devet zapisa po petlji | **nov**, dnevnik smene | vidi §4 |
+| Inspect papiri (karbon, od loop 1) | **nov**, document WBP (levo slika, desno tekst) | vidi §4 |
 | Imena, precrtana imena, spisak zaposlenih | `UMaterialSwapAnomalyComponent` + `UInspectableComponent` | postavlja se u mapi |
 | Poruke u telefonu „koje nisi poslao“ | `UPhantomMessageAnomalyComponent` | `PhantomMessageAnomalyComponent.cpp:12` — zameniti 4 defaulta glasom Jasne |
 | Tekst koji se pojavi u prostoru | `UTextSpawnAnomalyComponent` | default `"You won't escape"` → glas njih devet |
@@ -209,6 +254,5 @@ jezika. Pravila: [LOCALIZATION.md](LOCALIZATION.md).
   pregleda, pre nego što se pojavi u Replacement kraju?
 - Da li `TotalResets` treba da uđe u izbor kraja, sad kad promašaj u priči znači
   da si nekog od njih devet propustio da vidiš?
-- Zapisi u čistim petljama: da li kaže nešto drugo kad se niko nije probio?
-  („Nobody could reach you tonight.“) Rizik je da to postane implicitni signal
-  da je sprat čist, što bi ubilo odluku pred liftom.
+- Zapisi u čistim petljama: **ne.** Isti tekst na istom listu. Poseban red
+  za čist sprat bi rekao koji lift da uzmeš.

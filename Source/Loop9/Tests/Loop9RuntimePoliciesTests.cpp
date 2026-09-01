@@ -1,6 +1,9 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Misc/AutomationTest.h"
+#include "AI/Services/Loop9BackendChatService.h"
+#include "Dom/JsonObject.h"
+#include "Loop/LoopTypes.h"
 #include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 
@@ -212,6 +215,77 @@ bool FLoop9AnomalyDetailSelectionTest::RunTest(const FString&)
 	});
 	TestTrue(TEXT("A placeless anomaly still counts"), Placeless.IsSet());
 	TestTrue(TEXT("A placeless anomaly names no zone"), Placeless.Zone.IsEmpty());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9DecoyZoneSelectionTest,
+	"Loop9.Runtime.Anomaly.DecoyZoneSelection",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9DecoyZoneSelectionTest::RunTest(const FString&)
+{
+	TestTrue(
+		TEXT("No inactive zones yields empty decoy"),
+		Loop9RuntimePolicies::SelectDecoyZone({}, { TEXT("the archive room") }).IsEmpty());
+
+	TestEqual(
+		TEXT("Decoy skips zones that match an active place"),
+		Loop9RuntimePolicies::SelectDecoyZone(
+			{ TEXT("the archive room"), TEXT("the north corridor") },
+			{ TEXT("the archive room") }),
+		FString(TEXT("the north corridor")));
+
+	TestEqual(
+		TEXT("Decoy choice is deterministic by sorted unique zones"),
+		Loop9RuntimePolicies::SelectDecoyZone(
+			{ TEXT("the west wing"), TEXT("the north corridor"), TEXT("the north corridor") },
+			{ TEXT("the archive room") }),
+		FString(TEXT("the north corridor")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9AdviceWireParsingTest,
+	"Loop9.Runtime.AI.AdviceWireParsing",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9AdviceWireParsingTest::RunTest(const FString&)
+{
+	TestEqual(
+		TEXT("Misdirect wire round-trips"),
+		ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode::MisdirectLocation),
+		FString(TEXT("misdirect_location")));
+	TestEqual(
+		TEXT("Wrong lift wire round-trips"),
+		AsInt(ULoop9BackendChatService::AdviceModeFromWire(TEXT("wrong_lift"))),
+		AsInt(EDragojloAdviceMode::WrongLift));
+	TestEqual(
+		TEXT("Dark lift wire round-trips"),
+		AsInt(ULoop9BackendChatService::LiftAdviceFromWire(TEXT("dark"))),
+		AsInt(EDragojloLiftAdvice::Dark));
+
+	TSharedPtr<FJsonObject> Root = MakeShareable(new FJsonObject());
+	TSharedPtr<FJsonObject> Advice = MakeShareable(new FJsonObject());
+	Advice->SetStringField(TEXT("mode"), TEXT("misdirect_location"));
+	Advice->SetStringField(TEXT("lift"), TEXT("none"));
+	Advice->SetStringField(TEXT("suggested_zone"), TEXT("the north corridor"));
+	Advice->SetStringField(TEXT("commitment_id"), TEXT("abc123"));
+	Root->SetObjectField(TEXT("advice"), Advice);
+
+	FLoop9ChatResponse Parsed;
+	TestTrue(TEXT("Optional advice object parses"), ULoop9BackendChatService::TryParseAdviceObject(Root, Parsed));
+	TestEqual(TEXT("Parsed mode"), AsInt(Parsed.AdviceMode), AsInt(EDragojloAdviceMode::MisdirectLocation));
+	TestEqual(TEXT("Parsed zone"), Parsed.SuggestedZone, FString(TEXT("the north corridor")));
+	TestEqual(TEXT("Parsed commitment id"), Parsed.CommitmentId, FString(TEXT("abc123")));
+
+	FDragojloCommitmentState State;
+	State.bLocationMisdirectionUsed = true;
+	State.Reset();
+	TestFalse(TEXT("Commitment reset clears misdirection"), State.bLocationMisdirectionUsed);
+	TestEqual(TEXT("Commitment reset clears mode"), AsInt(State.LastAdviceMode), AsInt(EDragojloAdviceMode::None));
 
 	return true;
 }

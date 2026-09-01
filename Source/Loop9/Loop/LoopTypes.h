@@ -47,6 +47,80 @@ enum class ERunEventTone : uint8
 	Suspicious UMETA(DisplayName = "Suspicious")
 };
 
+/**
+ * Server-authored advice modes for Dragojlo's per-run commitment system.
+ * Wire names match backend AdviceDirective::mode().
+ */
+UENUM(BlueprintType)
+enum class EDragojloAdviceMode : uint8
+{
+	None UMETA(DisplayName = "None"),
+	Withhold UMETA(DisplayName = "Withhold"),
+	AccurateHint UMETA(DisplayName = "Accurate Hint"),
+	MisdirectLocation UMETA(DisplayName = "Misdirect Location"),
+	WrongLift UMETA(DisplayName = "Wrong Lift"),
+	AccurateLift UMETA(DisplayName = "Accurate Lift")
+};
+
+/** Structured lift recommendation, never parsed from natural-language reply text. */
+UENUM(BlueprintType)
+enum class EDragojloLiftAdvice : uint8
+{
+	None UMETA(DisplayName = "None"),
+	Lit UMETA(DisplayName = "Lit"),
+	Dark UMETA(DisplayName = "Dark")
+};
+
+/**
+ * Per-run memory of what Dragojlo committed to. Cleared on ResetRunState only —
+ * not saved, not Clouded, and never stores raw chat text.
+ */
+USTRUCT(BlueprintType)
+struct FDragojloCommitmentState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	EDragojloAdviceMode LastAdviceMode = EDragojloAdviceMode::None;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	EDragojloLiftAdvice LastLiftAdvice = EDragojloLiftAdvice::None;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	FString LastSuggestedZone;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	FString LastCommitmentId;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bLocationMisdirectionUsed = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bContradictionExposed = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bPendingDecisionSurrender = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bWrongLiftUsed = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bFollowedLastLiftAdvice = false;
+
+	void Reset()
+	{
+		LastAdviceMode = EDragojloAdviceMode::None;
+		LastLiftAdvice = EDragojloLiftAdvice::None;
+		LastSuggestedZone.Empty();
+		LastCommitmentId.Empty();
+		bLocationMisdirectionUsed = false;
+		bContradictionExposed = false;
+		bPendingDecisionSurrender = false;
+		bWrongLiftUsed = false;
+		bFollowedLastLiftAdvice = false;
+	}
+};
+
 /** In-memory beat for the post-run timeline. Cleared on each new shift. */
 USTRUCT(BlueprintType)
 struct FRunEvent

@@ -89,6 +89,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void ApplyAIDiagnosedDependencyDelta(int32 Delta);
 
+	/**
+	 * Records the structured advice metadata from a validated AI reply and
+	 * updates commitment flags from the diagnosed deltas. Does not store chat text.
+	 */
+	void RecordDragojloAdvice(
+		EDragojloAdviceMode Mode,
+		EDragojloLiftAdvice LiftAdvice,
+		const FString& SuggestedZone,
+		const FString& CommitmentId,
+		int32 SuspicionDelta,
+		int32 DependencyDelta);
+
+	const FDragojloCommitmentState& GetDragojloCommitmentState() const { return DragojloCommitment; }
+
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterLoopDecision(bool bWasCorrect, bool bAnomalyExisted, EButtonType ButtonType);
 
@@ -163,4 +177,6 @@ private:
 	int32 ActiveElevatorDecisionId = 0;
 	bool bElevatorTransitionActive = false;
 	bool bDeferredEndingPresentation = false;
+
+	FDragojloCommitmentState DragojloCommitment;
 };

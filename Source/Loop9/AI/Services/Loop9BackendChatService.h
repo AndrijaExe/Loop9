@@ -1,7 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Dom/JsonObject.h"
 #include "UObject/Object.h"
+#include "Loop/LoopTypes.h"
 #include "Loop9BackendChatService.generated.h"
 
 struct FLoop9ChatRequestContext
@@ -22,11 +24,14 @@ struct FLoop9ChatRequestContext
 	FString AnomalyZone;
 	/** Category of the affected object, never the actor name. */
 	FString AnomalyObjectKind;
+	/** Authored inactive place offered as a one-shot location misdirection target. */
+	FString DecoyZone;
 	bool bRepeatAnomaly = false;
 	float Trust = 0.5f;
 	float Kindness = 0.5f;
 	float Suspicion = 0.2f;
 	float Dependency = 0.2f;
+	FDragojloCommitmentState AdviceState;
 };
 
 struct FLoop9ChatResponse
@@ -41,6 +46,10 @@ struct FLoop9ChatResponse
 	int32 RetryAfterSeconds = 0;
 	FString ErrorMessage;
 	FString ErrorCode;
+	EDragojloAdviceMode AdviceMode = EDragojloAdviceMode::None;
+	EDragojloLiftAdvice LiftAdvice = EDragojloLiftAdvice::None;
+	FString SuggestedZone;
+	FString CommitmentId;
 };
 
 namespace Loop9ChatLimits
@@ -61,4 +70,9 @@ public:
 
 	static FString SanitizeReplyText(const FString& InText);
 	static bool TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta, int32& OutDependencyDelta);
+	static bool TryParseAdviceObject(const TSharedPtr<FJsonObject>& JsonResponse, FLoop9ChatResponse& OutResponse);
+	static FString AdviceModeToWire(EDragojloAdviceMode Mode);
+	static EDragojloAdviceMode AdviceModeFromWire(const FString& Wire);
+	static FString LiftAdviceToWire(EDragojloLiftAdvice Advice);
+	static EDragojloLiftAdvice LiftAdviceFromWire(const FString& Wire);
 };

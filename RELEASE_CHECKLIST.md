@@ -11,8 +11,8 @@ Steam App ID: **4982260**
 > (`valvereview` **`25008639`**).
 >
 > **Ostalo:**
-> 1. Steamworks Builds: Set Live **`25008533`** na **default**.
->    https://partner.steamgames.com/apps/builds/4982260
+> 1. Steamworks Builds: **`25008533` je već live na defaultu**. Sledeći
+>    kandidat ide live tek posle QA.
 > 2. Tiket §4: redistributables + Cloud + endings. Lozinka `valvereview`.
 >    Ne tvrdi two-machine round-trip.
 > 3. Sledeći cook: nova exe ikonica (lift+ruka), mali splash 720×480, ending
@@ -37,9 +37,9 @@ drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
 se kuva. SteamPipe contentroot je **`Builds/v1.0.2/Windows`**. **`Builds/v1.0.0`
 ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
-više nisu cilj. Live playtest na Steamu je **v1.0.2** (BuildID `24998396`,
-28.08.2026). `default` još treba ručni Set Live tog BuildID-a. Prethodni
-playtest večeras bio je `24997951`; Valve-oboreni cook je `24910264`.
+više nisu cilj. Live/default Shipping build je **v1.0.2** (BuildID
+`25008533`, 29.08.2026). Development reviewer build je `25008639` na
+`valvereview`; Valve-oboreni cook je `24910264`.
 **Coming Soon store je javan od 27.08.2026.**:
 https://store.steampowered.com/app/4982260/Loop_9/
 
@@ -267,7 +267,7 @@ Sledeća sesija (urađeno 26.08.2026.):
   **`25008533`** (29.08. 12:52). Fajl je Steam Remote Storage
   `userdata\...\4982260\remote\Game.ini`. Auto-Cloud i dalje briše AppData
   `Game.ini`; Valveova zamerka je bila Properties, to je zatvoreno.
-  `default` još nije Set Live. Two-machine round-trip nije rađen.
+  `25008533` je live na defaultu. Two-machine round-trip nije rađen.
 - [x] **„Enable cloud support for developers only"** (Cloud → Beta Testing)
   provereno 28.08. — **nije bilo čekirano**, pa nije uzrok.
 - [x] Putanja potvrđena: `%LOCALAPPDATA%\Loop9\Saved\Config\Windows\`. Fajl
@@ -475,24 +475,26 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 
 - [~] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
   `Tools/PackageWindowsShipping.bat` bez argumenta kuva u `Builds/Feature`.
-  `PackageWindowsShipping.bat v1.0.2` kuva u `Builds/v1.0.2`. **`Builds/v1.0.0`
-  se ne dira** dok se eksplicitno ne zatraži. Steam playtest je **v1.0.2**
-  (BuildID `24998396`). Development review cook ide u `Builds/v1.0.2Dev` preko
-  `PackageWindowsDevelopment.bat`.
+  Sledeći kandidat: `PackageWindowsShipping.bat v1.0.3` →
+  `Builds/v1.0.3`. **`Builds/v1.0.0` se ne dira** dok se eksplicitno ne
+  zatraži. Trenutni live/default build je **v1.0.2** (BuildID `25008533`).
+  Development review cook je `25008639` na `valvereview`.
 
 - [x] Proveriti da build ne sadrži:
   `steam_appid.txt`, pravi API ključ, game token, editor/debug sadržaj ili logove.
   Ranije provereno na starom `Builds/Alfa/Windows`; **v1.0.2** (`28.08.2026`)
   nema `steam_appid.txt` ni `.pdb`.
-- [x] Ponoviti tu proveru na sledećem versioned cooku (`v1.0.2`).
+- [x] Ponovljeno na v1.0.2.
+- [ ] Ponoviti proveru tajni / `.pdb` / `steam_appid.txt` na sledećem
+  versioned cooku (`v1.0.3`).
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  v1.0.2 je live na passwordovanom `playtest` (BuildID `24998396`, 28.08.2026).
-  Prethodni večerašnji playtest bio je `24997951`.
+  v1.0.2 / BuildID `25008533` je live; Development `25008639` je na
+  passwordovanom `valvereview`.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
@@ -518,7 +520,9 @@ dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
   (C++ već briše `ClockAnomaly` iz `SpottedAnomalies` pri startu.)
 
-Polish smoke na **v1.0.1** Shipping cooku (BuildID `24980937`):
+Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
+(`24980937`). **Ponoviti i čekirati na sledećem Shipping kandidatu
+(v1.0.3)**; stari BuildID nije QA cilj:
 
 - [ ] ~8/10 petlji ima anomaliju; loop 1 čist; Hide/Material češći, Pursuer ređi.
 - [ ] Nijedna aktivna anomalija nije nevidljiva (`AnomalyList` u konzoli).
@@ -529,6 +533,17 @@ Polish smoke na **v1.0.1** Shipping cooku (BuildID `24980937`):
 - [ ] Ending kuca, SKIP dopuni tekst, zatim Return to Main Menu.
 - [ ] sr/de/fr/ru: chat („Razmišlja…“), predugačka poruka, prompt u liftu,
   `TASK COMPLETE`, Help, SKIP.
+
+### Dragojlo commitment (posle v1.0.3 / Valve QA)
+
+- [ ] Backend deploy sa `AI_COMMITMENT_ENABLED=false` (safe default).
+- [ ] Staging/live voice probe: accurate → misdirect → accusation → surrender →
+  wrong-lift (`tools/dragojlo-voice-probe.php`, luna+terra, SR/EN/DE/FR/RU).
+- [ ] Ručni QA: neutralan run bez laži; dependent run sa jednom pogrešnom
+  lokacijom; Obedient kandidat sa najviše jednim pogrešnim liftom.
+- [ ] Šest ending profila i dalje dostižni; Escape Together nije blokiran.
+- [ ] Tek posle toga kratko uključiti flag i pratiti `ai.fallback`, format greške
+  i raspodelu endinga.
 
 
 ### Steam i online
@@ -570,8 +585,8 @@ Polish smoke na **v1.0.1** Shipping cooku (BuildID `24980937`):
 - [x] Store Page poslata na Valve review ~22.08.2026.; **odobrena**.
   Javna Coming Soon stranica:
   https://store.steampowered.com/app/4982260/Loop_9/ (`?beta=0`, 27.08.2026.).
-- [x] Poslati release-candidate **build** na Valve review. (v1.0.1 +
-  `valvereview` Development build, 01.09.2026.)
+- [x] Poslati release-candidate **build** na Valve review. Shipping
+  v1.0.2 `25008533` + `valvereview` Development `25008639`, 01.09.2026.
 - [ ] Ispraviti eventualne review primedbe i ponovo poslati. Čeka se Valve.
 - [x] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
   Objavljena **27.08.2026.** Najraniji release datum: **10.09.2026.**
@@ -628,6 +643,11 @@ Brief:
   Veći anomaly beatovi (blackout / slam na trigger box) **ne radimo za
   sada**.
 
+- [ ] **Lore u igri — inspect papiri.** Nije Valve / 10.09 bloker, i
+  **ne sada.** Andrija piše tekstove kad dođe do toga. Smisao ostaje:
+  listovi stoje od loop 1, document inspect (levo papir, desno tekst),
+  bez `AnomalyComponent`. Vidi `[docs/LORE.md](docs/LORE.md)` §4.
+
 - [ ] **Steam Deck kompatibilnost.** Dodato 28.08.2026. kao post-release stavka.
   Deck status (`Verified` / `Playable` / `Unsupported`) testira Valve, ne ti; ti
   ga samo pošalješ na review iz Steamworks-a. Nije launch bloker, ali stoji
@@ -659,19 +679,22 @@ Brief:
 
 ## Trenutni kritični put
 
-Valve je oborio `24910264`. Playtest je **v1.0.2 (`25008533`)**. Debug je na
-`valvereview` kao **`25008639`**. `Builds/v1.0.0` fallback nije diran.
+Valve je oborio `24910264`. Shipping v1.0.2 **`25008533` je live na
+defaultu**. Debug je na `valvereview` kao **`25008639`**.
+`Builds/v1.0.0` fallback nije diran.
 
-1. Steamworks: Set Live `25008533` na **default**.
-2. Tiket §4: redistributables + Cloud (108 bytes) + endings. Lozinka
+1. Tiket §4: redistributables + Cloud (108 bytes) + endings. Lozinka
    `valvereview`. Markirati **`25008533`**. Ne tvrdi two-machine round-trip.
-3. Sledeći cook (nova folder, npr. `v1.0.3`): kopirati
+2. Sledeći cook (nov folder `v1.0.3`): kopirati
    `loop9_shortcut.ico` → `Build/Windows/Application.ico`, reimport
    `Splash.uasset`, GatherText `STUDIO`. U cook ulaze mala splash 720×480,
    nova ikonica, SMENA krediti i ending scoring.
-4. QA tog cooka: splash, ikonica, `EndingSetup` 1:1, pa Cold / Obedient /
+3. QA tog cooka: splash, ikonica, `EndingSetup` 1:1, pa Cold / Obedient /
    Merged / Replacement.
-5. Ručni prolaz: svaki tagged predmet — `AnomalyZone` / `AnomalyObjectKind`
+4. Ručni prolaz: svaki tagged predmet — `AnomalyZone` / `AnomalyObjectKind`
    sedi sa onim što se vidi. §9.
+5. Backend `f6d97aa` je deployovan 01.09.; na Steam buildu proveriti da
+   poruka bez nalaza ne dobija lift, a prijavljen nalaz dobija verdikt.
 6. `UploadPlaytest.bat` + Cloud / achievement / offline smoke. Najraniji
    release **10.09.2026.**
+7. Posle Valve: lore papiri u mapi (`docs/LORE.md` §4). Nije ovaj cook.

@@ -395,6 +395,43 @@ void UAnomalyManager::ComputeActiveAnomalySnapshot(
 	OutContext = FString::Printf(TEXT("Active anomaly types: %s"), *FString::Join(UniqueLabels, TEXT(", ")));
 }
 
+FString UAnomalyManager::SelectDecoyZone() const
+{
+	TArray<FString> ActiveZones;
+	TArray<FString> InactiveAuthoredZones;
+
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		const UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (!Component)
+		{
+			continue;
+		}
+
+		const FString Zone = Component->AnomalyZone.TrimStartAndEnd();
+		if (Zone.IsEmpty())
+		{
+			continue;
+		}
+
+		if (Component->bIsAnomalyActive)
+		{
+			ActiveZones.AddUnique(Zone);
+			continue;
+		}
+
+		const ELoopAnomalyType Type = Component->GetAnomalyType();
+		if (Type == ELoopAnomalyType::Pursuer || Type == ELoopAnomalyType::PhantomMessage)
+		{
+			continue;
+		}
+
+		InactiveAuthoredZones.Add(Zone);
+	}
+
+	return Loop9RuntimePolicies::SelectDecoyZone(InactiveAuthoredZones, ActiveZones);
+}
+
 bool UAnomalyManager::ForceActivateAnyAnomaly()
 {
 	CleanupInvalidComponents();

@@ -108,3 +108,20 @@ Helper: `ALoop9Character::IsGameplayPresentationLocked()`.
 ## Player-facing tutorial line
 
 Initial phone rule (localized) uses lit/dark elevator wording and states that the first loop is clean. Backend prompts mirror the same vocabulary.
+
+## Dragojlo commitment (per-run)
+
+Structured advice memory lives in `ULoopManagerSubsystem` as
+`FDragojloCommitmentState`. It tracks the last server `advice` mode / lift /
+zone, whether a location lie was used, whether the player later accused him
+(`SUSPICION=1`), whether they surrendered a decision on a withheld reply, and
+whether a wrong lift was already spent. Cleared only in `ResetRunState` — not
+saved, not Clouded, not stored on the backend.
+
+`UAnomalyManager::SelectDecoyZone()` picks one authored inactive zone that
+differs from every active zone. Pursuer and Phantom placements are never decoy
+sources. The client sends `decoy_zone` + `advice_state` with each chat request;
+the optional response `advice` object updates commitment without parsing reply
+text. Elevator commit compares the pressed button to `LastLiftAdvice`.
+
+Feature flag on the backend: `AI_COMMITMENT_ENABLED` (default false).

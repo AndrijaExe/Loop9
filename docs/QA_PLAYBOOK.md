@@ -88,3 +88,14 @@ AnomalyHelp
 8. Watch backend logs for auth/chat 5xx and quota errors.
 9. Confirm `/readyz`, moderation, Redis and both configured AI providers are
    healthy before promoting the depot.
+
+## Commitment path (flag on only)
+
+Keep `AI_COMMITMENT_ENABLED=false` for release cook until Valve/Steam QA is
+closed. When enabling on staging:
+
+1. Neutral run without lies — accurate hints, Escape Together still reachable.
+2. Dependent run that receives one wrong location (authored decoy), then
+   accusation (`SUSPICION=1`).
+3. Full Obedient candidate: after contradiction + surrender, at most one dark
+   lift on an active anomaly; verify ending distribution still covers all six.

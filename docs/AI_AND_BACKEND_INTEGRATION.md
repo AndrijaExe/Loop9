@@ -42,11 +42,14 @@ Details:
    - relationship / stability fields
    - anomaly_context / anomaly_key / repeat_anomaly
    - anomaly_detail (zone + object kind), only when authored on the component
+   - decoy_zone (one authored inactive place, when available)
+   - advice_state (structured per-run commitment flags; never raw chat)
    - discrete kindness/suspicion state used by the backend
 6. Client HTTP timeout: **65 seconds**
 7. Backend AI cascade deadline: **45 seconds** (client timeout is intentionally larger)
 8. Reply text is shown; `[STATE]KINDNESS` / `SUSPICION` / `DEPENDENCY` is parsed and applied to relationship stats
-9. Thinking indicator is cleared; input re-enabled
+9. Optional response `advice` (`mode`, `lift`, `suggested_zone`, `commitment_id`) updates `FDragojloCommitmentState` when present
+10. Thinking indicator is cleared; input re-enabled
 
 Correlation:
 
