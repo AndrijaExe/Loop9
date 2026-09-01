@@ -536,14 +536,13 @@ Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
 
 ### Dragojlo commitment (posle v1.0.3 / Valve QA)
 
-- [ ] Backend deploy sa `AI_COMMITMENT_ENABLED=false` (safe default).
+- [x] Backend deploy sa `AI_COMMITMENT_ENABLED=true`.
 - [ ] Staging/live voice probe: accurate → misdirect → accusation → surrender →
   wrong-lift (`tools/dragojlo-voice-probe.php`, luna+terra, SR/EN/DE/FR/RU).
 - [ ] Ručni QA: neutralan run bez laži; dependent run sa jednom pogrešnom
   lokacijom; Obedient kandidat sa najviše jednim pogrešnim liftom.
 - [ ] Šest ending profila i dalje dostižni; Escape Together nije blokiran.
-- [ ] Tek posle toga kratko uključiti flag i pratiti `ai.fallback`, format greške
-  i raspodelu endinga.
+- [ ] Pratiti `ai.fallback`, format greške i raspodelu endinga posle uključivanja.
 
 
 ### Steam i online
