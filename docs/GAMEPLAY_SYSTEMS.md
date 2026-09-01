@@ -70,16 +70,21 @@ Updates come from:
 
 Evaluator: `FLoopEndingEvaluator` in `Loop/LoopEndingEvaluator.cpp`.
 
-Relationship endings require at least **3** AI interactions. Otherwise the evaluator returns `ParanoidSurvivor`.
+Relationship endings require at least **3** AI interactions. Otherwise the evaluator
+returns `ParanoidSurvivor` (player who ignored Dragojlo).
 
-Priority sketch (first matching branch wins after the interaction gate):
+After that gate it **scores all six endings** and picks the nearest profile.
+There is no waterfall fallback to Paranoid. Signatures:
 
-1. **The Replacement** — high trust/kindness/cooperation/dependency, lower AI stability, ≥11 AI chats
-2. **Merged Memory** — humane/cooperative but unstable AI, ≥9 advances, ≥6 AI chats
-3. **Cold Betrayal** — trusts / follows while treating him poorly
-4. **Obedient Fool** — high AI-diagnosed dependency, low suspicion
-5. **Escape Together** — cooperative, warm, not overly dependent, stable AI
-6. **Paranoid Survivor** — low interaction, high suspicion, low trust, or fallback
+1. **Escape Together** — first-run good ending: several chats, kind, not clingy, stable AI
+2. **Cold Betrayal** — followed him but treated him poorly (low kindness, still trusted)
+3. **Obedient Fool** — asked him to decide often (high dependency, not cruel)
+4. **Merged Memory** — stayed humane while the run got messy (low AI stability)
+5. **The Replacement** — long clingy run, high dependency, AI already unstable
+6. **Paranoid Survivor** — high suspicion / low trust after talking, or the <3-chat gate
+
+`EndingSetup` fixtures in `LoopManagerSubsystem` still map 1:1 onto these.
+Automation: `Loop9.Runtime.Endings.EvaluatorProfiles`.
 
 Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequence → fade → widget → main menu). Replacement ending may show a terminal widget path.
 

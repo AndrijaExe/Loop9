@@ -306,7 +306,7 @@ Une connexion Internet est nécessaire pour les conversations avec l’IA.
 ## Ostala polja
 
 - **Genre:** Adventure, Indie
-- **Developer / Publisher:** Andrija Stanišić (ili ime studija ako ga registruješ)
+- **Developer / Publisher:** SMENA
 - **Languages:** English, Serbian, German, French and Russian (interface/text).
   Full audio and subtitles: n/a — igra nema voice-over.
 - **Mature content survey:** horor teme, uznemirujuća atmosfera, povremeno

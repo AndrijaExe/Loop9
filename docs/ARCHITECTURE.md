@@ -35,7 +35,7 @@ flowchart TB
 | Current loop, game finished, elevator decision IDs | `ULoopManagerSubsystem` | Game Instance |
 | Active anomaly registration / selection | `UAnomalyManager` | Game Instance |
 | Trust / kindness / suspicion / dependency / AI stability | `URelationshipSubsystem` | Game Instance |
-| Ending evaluation + sequence/widget presentation | `ULoopEndingPresenterSubsystem` | Uses `FLoopEndingEvaluator` |
+| Ending evaluation + sequence/widget presentation | `ULoopEndingPresenterSubsystem` | `FLoopEndingEvaluator` scores all six after a `< 3` chat Paranoid gate |
 | Steam achievements | `ULoop9AchievementsSubsystem` | No-op without Steam |
 | Steam session token for chat | `ULoop9BackendAuthSubsystem` | Ticket → `/api/auth/steam` |
 | Chat HTTP | `ULoop9BackendChatService` | Static-safe response handling |

@@ -158,6 +158,12 @@ void UCreditsWidget::RefreshSections()
 	VB_Sections->ClearChildren();
 
 	AddSection(VB_Sections,
+		LOCTEXT("CreditsStudioHeading", "STUDIO"),
+		LOCTEXT("CreditsStudioBody",
+			"A SMENA game.\n"
+			"Created by Andrija Stanišić."));
+
+	AddSection(VB_Sections,
 		LOCTEXT("CreditsDoorsHeading", "DOORS"),
 		LOCTEXT("CreditsDoorsBody",
 			"\"Door, Front, Closing, A.wav\" by InspectorJ (www.jshaw.co.uk) of Freesound.org. Licensed under CC BY.\n"

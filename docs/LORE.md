@@ -137,9 +137,9 @@ zbog pravila 3.
 **Njegov cilj je da izađe, a za to mu treba neko da sedne u tu stolicu.**
 
 To nije nova ideja, to je opis The Replacement kraja koji već postoji u kodu:
-`Trust ≥ 0.58`, `Kindness ≥ 0.60`, `Cooperation ≥ 0.65`, `Dependency ≥ 0.62`,
-stabilnost pala, najmanje 11 razgovora — i tekst kraja kaže da postaješ glas na
-drugoj strani linije. Igra već ima njegovu pobedu implementiranu.
+dugačak clingy run (visok trust/kindness/dependency, nestabilan AI, 9+
+razgovora). Tekst kraja kaže da postaješ glas na drugoj strani linije.
+Igra već ima njegovu pobedu implementiranu.
 
 To objašnjava i zašto je devet ljudi nestalo a on je i dalje tu: nijedan nije
 bio upotrebljiv kao zamena. Godinu dana peca.
@@ -164,16 +164,18 @@ stiže iz zapisa i iz anomalija, nikad iz njegovog tona. Tekst prompta se
 
 ## 6. Kako se šest krajeva čita kroz ovu priču
 
-Uslovi su iz `FLoopEndingEvaluator::Evaluate`, nisu izmišljeni.
+Uslovi su iz `FLoopEndingEvaluator::Evaluate` (scoring od 01.09.2026.),
+nisu izmišljeni. `< 3` razgovora i dalje tvrdo daje Paranoid Survivor;
+inače se bira najbliži profil, ne prva AND kapija.
 
 | Kraj | Mehanički uslov (skraćeno) | Šta znači u priči |
 |---|---|---|
-| **The Replacement** | Trust, Kindness, Cooperation visoki, **Dependency ≥ 0.62**, ≥11 razgovora | Bio si mu topao *i* zavisan. Uspeo je. Ti si nova stolica, on izlazi. |
-| **Escape Together** | isto, ali **Dependency < 0.53** i stabilnost ≥ 0.70 | Bio si dobar prema njemu ali ga nikad nisi trebao. Nema šta da iskoristi. Izlazite oba. |
-| **Obedient Fool** | Dependency ≥ 0.53, Suspicion ≤ 0.38, ≥8 razgovora | Pustio si pogrešan glas da odluči umesto tebe. |
-| **Cold Betrayal** | Trust ≥ 0.58, **Kindness ≤ 0.40** | Verovao si mu a bio grub. Slagao te je, i po pravilima je smeo. |
-| **Merged Memory** | Kindness i Cooperation visoki, `TotalAdvances ≥ 9`, stabilnost pala | Postao si deseti. Ti i on ste se izmešali. |
-| **Paranoid Survivor** | < 3 razgovora, ili Suspicion ≥ 0.52, ili Trust ≤ 0.42 | Nikad nisi podigao slušalicu. Nije imao gde da te uhvati. |
+| **The Replacement** | 9+ razgovora, visok dep, topao odnos, nestabilan AI | Bio si mu topao *i* zavisan. Uspeo je. Ti si nova stolica, on izlazi. |
+| **Escape Together** | 4–7 razgovora, pristojan, niska zavisnost, stabilan AI | Bio si dobar prema njemu ali ga nikad nisi trebao. Nema šta da iskoristi. Izlazite oba. |
+| **Obedient Fool** | Često `DEPENDENCY=1`, 6+ razgovora, nije grub | Pustio si pogrešan glas da odluči umesto tebe. |
+| **Cold Betrayal** | Prati ga, ali nizak kindness (~dve grube poruke) | Verovao si mu a bio grub. Slagao te je, i po pravilima je smeo. |
+| **Merged Memory** | Ostao ljubazan, run je neredan (niska AI stability) | Postao si deseti. Ti i on ste se izmešali. |
+| **Paranoid Survivor** | < 3 razgovora, ili visok suspicion / nizak trust | Nikad nisi podigao slušalicu. Nije imao gde da te uhvati. |
 
 Teza igre ispada iz razlike između prva dva reda: **dobrota bez zavisnosti je
 jedino što ga pobeđuje.** Isti topao odnos, jedina razlika je da li si ga

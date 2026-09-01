@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **28.08.2026.**
+Poslednje ažuriranje: **01.09.2026.**
 Steam App ID: **4982260**
 
 > **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
@@ -15,8 +15,10 @@ Steam App ID: **4982260**
 >    https://partner.steamgames.com/apps/builds/4982260
 > 2. Tiket §4: redistributables + Cloud + endings. Lozinka `valvereview`.
 >    Ne tvrdi two-machine round-trip.
-> 3. Nova **exe ikonica** — čeka fajl od tebe.
-> 4. Store: SMENA Developer/Publisher. Main-menu VerticalBox i dalje nisko.
+> 3. Sledeći cook: nova exe ikonica (lift+ruka), mali splash 720×480, ending
+>    scoring, SMENA krediti.
+> 4. Store: SMENA Developer/Publisher (urađeno). Main-menu VerticalBox i dalje
+>    nisko.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -113,24 +115,28 @@ skeletal animacija i bez gameplay logike u Event Tracku.
 
 ### Ending balance targets
 
-Pragovi su podešeni za prvi prolaz od približno 9–17 odluka, bez znanja skrivenih
-ključnih reči. Potvrda prirodnih profila ostaje za kasnije (26.08.2026.).
+Pragovi su scoring od 01.09.2026., podešeni za prvi prolaz od približno 9–17
+odluka, bez znanja skrivenih ključnih reči. Kod i fixture testovi su u `main`;
+prirodni runovi u igri još nisu potvrđeni.
 
-- [ ] **Paranoid Survivor:** 0–2 AI razgovora ili eksplicitno visok suspicion /
-  nizak trust. Ovo je namerni ending za igrača koji ignoriše Dragojla.
-- [ ] **Escape Together:** oko 4–7 normalnih razgovora, većina tačnih odluka,
-  osnovna pristojnost i bez preterane zavisnosti; očekivani pozitivan first-run.
-- [ ] **Cold Betrayal:** najmanje 5 razgovora, solidna saradnja, ali približno dve
-  jasno neprijatne/uvredljive poruke.
-- [ ] **Obedient Fool:** najmanje 8 razgovora i oko 5 predaja odluke
-  (`DEPENDENCY=1` od AI-ja), uz nizak suspicion.
-- [ ] **Merged Memory:** najmanje 6 razgovora, kindness/cooperation ostaju
-  pozitivni, ali duži run sa dovoljno grešaka spusti AI stability na oko 0.72.
-- [ ] **The Replacement:** redak, ali realno dostižan profil: najmanje 11
-  razgovora, visoki kindness/cooperation/dependency i duži nestabilan run sa
-  AI stability oko 0.70 ili niže.
-- [ ] QA: napraviti po jedan kontrolisan run za svih šest profila i proveriti da
-  evaluator ne vraća `Paranoid Survivor` kao slučajni fallback za pozitivan run.
+- [x] **Paranoid Survivor:** 0–2 AI razgovora ili visok suspicion / nizak trust.
+  Namerni ending za igrača koji ignoriše Dragojla. Kod: tvrda kapija `< 3`
+  chatova, inače scoring.
+- [x] **Escape Together:** 4–7 razgovora, pristojnost, niska zavisnost, stabilan
+  AI. First-run good ending. Scoring, ne AND kapija 0.62/0.60/0.70.
+- [x] **Cold Betrayal:** ≥4 razgovora, prati ga, ali ~dve uvredljive poruke
+  (nizak kindness). Više ne traži kindness ≤ 0.40 kao tvrdu kapiju.
+- [x] **Obedient Fool:** često predaje odluku (`DEPENDENCY=1`). Dep prag ~0.44
+  umesto 0.53; 6+ chatova umesto 8.
+- [x] **Merged Memory:** ostao je ljubazan, run je neredan (stability ~0.74 ili
+  niže). Više ne traži ≤ 0.72 i ≥9 advances kao AND.
+- [x] **The Replacement:** dugačak clingy run, visok dep, nestabilan AI, 9+
+  chatova. Retko, ali dostižno bez 11 chatova i dep 0.62.
+- [x] Evaluator od 01.09.2026. **skoruje svih šest** i bira najbliži profil.
+  Nema waterfall fallback na Paranoid. Testovi:
+  `Loop9.Runtime.Endings.EvaluatorProfiles` (setup fixturei + near-miss runovi).
+- [ ] QA u igri: po jedan prirodan run za Cold / Obedient / Merged / Replacement
+  na novom cooku. `EndingSetup` i dalje 1:1.
 - [ ] QA dependency: na bilo kom jeziku, predaja odluke Dragojlu diže
   `[STATE]DEPENDENCY=1` i gura ka Obedient Fool; samostalna odluka spušta.
 
@@ -287,7 +293,9 @@ publish-ovane, ne samo sačuvane.
   (`1920×1080` ili više); preporuka je 8 kadrova.
 - [x] Finalizovati 4 Library asseta:
   `600×900`, `920×430`, `3840×1240` hero bez teksta i transparentni logo.
-- [x] Shortcut ICO i App Icon JPG imaju spremne minimalističke v2 varijante.
+- [x] Shortcut ICO i App Icon JPG spremni u `Marketing/Steam/ClientAssets/`
+  (lift + ruka, 01.09.2026.). Ako Steam klijent još pokazuje staru ikonicu,
+  uploadovati `loop9_shortcut.ico` i `loop9_app_icon_184.jpg` u Steamworks.
 - [x] Dodati opcioni Page Background `1438×810`.
 - [x] Gameplay trailer snimljen, montiran i uploadovan u Steamworks
   (Store Presence → Trailers + Publish). Valve store review je **odobren**;
@@ -298,22 +306,19 @@ publish-ovane, ne samo sačuvane.
 
 ### Branding u igri — ikonice, splash i boot sekvenca
 
-Steamworks grafika je gotova, ali **sam build još nosi Unreal Engine identitet.**
-Projekat uopšte nema `Build/` folder, pa se paketovana igra kuva sa default
-Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
+Steamworks store grafika je gotova. Ikonica i splash su u repou od 01.09.
+(`Build/Windows/Application.ico` iz `loop9_shortcut.ico` — `Build/` nije u
+gitu; `Content/Splash/Splash.bmp` jeste). Uđu tek u **sledeći cook**.
+Stari `v1.0.0` / `v1.0.1` i dalje nose Epic identitet.
 
-- [ ] **Ikonica `.exe`-a (nova, čeka fajl).** Trenutna
-  `Build/Windows/Application.ico` je Shortcut ICO v2
-  (`Marketing/Steam/ClientAssets/loop9_shortcut_minimal_v2.ico`). Želiš
-  **drugu** ikonicu — pošalji `.ico` (ili PNG master) kad je imaš; do tada
-  ne cook-uj samo zbog ikone. `.gitignore` već prati `Application.ico`.
-- [x] **Splash pri pokretanju — izvor zamenjen 28.08. uveče.**
-  `Content/Splash/Splash.bmp` je sad in-game LOOP 9 lobby kadar
-  (`Marketing/Steam/ClientAssets/loop9_splash_ingame_16x9.jpg`), 1920×1080
-  24-bit BMP, center-crop na 16:9. **Nije** main-menu art. Stari splash je
-  `loop9_splash_mainmenu_16x9.bmp` u ClientAssets. U **`24998396`**.
-  `Splash.uasset` reimport na otvoren editor. Izvor JPG je 1024×682 — ako
-  budeš imao native 1920×1080, zameni.
+- [x] **Ikonica `.exe`-a.** Master i ICO od 01.09.2026. (lift, ruka, crveno 9)
+  su u `Marketing/Steam/ClientAssets/`. `Build/` nije u gitu — pre cooka
+  kopirati `loop9_shortcut.ico` → `Build/Windows/Application.ico`.
+- [x] **Splash pri pokretanju.** `Content/Splash/Splash.bmp` od 01.09.2026.
+  Mali prozor **720×480** (ne 1920×1080 fullscreen). Otvoren lift, crveno 9,
+  monstera, LOOP 9 + SMENA u donjem desnom. Izvor:
+  `Marketing/Branding/loop9_splash_source.png`. `Splash.uasset` reimport u
+  editoru pre cooka. `EdSplash.bmp` nije stavljen.
 - [ ] Napomena: ako ikonicu Unreal Engine-a vidiš dok si **u editoru**, to je
   normalno i ne može se promeniti — to je `UnrealEditor.exe`, ne tvoja igra.
   Proveri na paketovanom buildu pre nego što se juriš za bugom.
@@ -330,10 +335,10 @@ Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
   igračke, najbliži živi konflikt. Nema EUTM „SMENA“ u Class 9/41. Možeš
   staviti SMENA u Developer/Publisher; `smena.` Class 28 nije hard block za
   studio ime uz naslov Loop 9, ali nije nula. Ne uzimaj `smena.studio` domen.
-- [ ] Kad kolizija prođe: `Marketing/Steam/STORE_PAGE.md` i Steamworks
-  Developer / Publisher polje sa „Andrija Stanišić (ili ime studija ako ga
-  registruješ)" na finalno ime. Sada je pravi momenat — stranica je javna par
-  dana i nema recenzija ni followera vezanih za staro ime.
+- [x] **Developer / Publisher = SMENA.** Steamworks polja postavio Andrija
+  01.09.2026. `STORE_PAGE.md` usklađen. `DefaultGame.ini` `CompanyName=SMENA`.
+  Krediti: nova `STUDIO` sekcija („A SMENA game / Created by Andrija
+  Stanišić"). GatherText za `STUDIO` još treba.
 - [ ] **Boot logo sekvenca** (studio žig pre menija). Sad je odblokirana, ime
   postoji. Preporuka je UMG animacija u postojećem terminal / typewriter jeziku
   igre, 2–3 sekunde, skip na bilo koji input, ne startup `.mp4`. Konkretno:
@@ -348,6 +353,7 @@ Epic ikonicom i default splash-om. Ovo su editorski / fajl zadaci na Windowsu.
   Namerno nije lokalizovana da prevod ne bi izmenio pravni tekst.
 - [x] GatherText 28.08.2026. — `ENGINE` naslov je u `.locres`. Telo sekcije je
   `FText::FromString` i namerno se ne gather-uje.
+- [ ] GatherText za novu `STUDIO` sekciju da uđe u `.locres`.
 
 
 ## 3. Steam achievements
@@ -564,8 +570,9 @@ Polish smoke na **v1.0.1** Shipping cooku (BuildID `24980937`):
 - [x] Store Page poslata na Valve review ~22.08.2026.; **odobrena**.
   Javna Coming Soon stranica:
   https://store.steampowered.com/app/4982260/Loop_9/ (`?beta=0`, 27.08.2026.).
-- [ ] Poslati release-candidate **build** na Valve review.
-- [ ] Ispraviti eventualne review primedbe i ponovo poslati.
+- [x] Poslati release-candidate **build** na Valve review. (v1.0.1 +
+  `valvereview` Development build, 01.09.2026.)
+- [ ] Ispraviti eventualne review primedbe i ponovo poslati. Čeka se Valve.
 - [x] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
   Objavljena **27.08.2026.** Najraniji release datum: **10.09.2026.**
 - [x] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
@@ -648,5 +655,11 @@ Valve je oborio `24910264`. Playtest je **v1.0.2 (`25008533`)**. Debug je na
 1. Steamworks: Set Live `25008533` na **default**.
 2. Tiket §4: redistributables + Cloud (108 bytes) + endings. Lozinka
    `valvereview`. Markirati **`25008533`**. Ne tvrdi two-machine round-trip.
-4. Store: SMENA u Developer/Publisher.
-5. QA: Cloud round-trip, ending dugme desno, achievement toast.
+3. Sledeći cook (nova folder, npr. `v1.0.3`): kopirati
+   `loop9_shortcut.ico` → `Build/Windows/Application.ico`, reimport
+   `Splash.uasset`, GatherText `STUDIO`. U cook ulaze mala splash 720×480,
+   nova ikonica, SMENA krediti i ending scoring.
+4. QA tog cooka: splash, ikonica, `EndingSetup` 1:1, pa Cold / Obedient /
+   Merged / Replacement.
+5. `UploadPlaytest.bat` + Cloud / achievement / offline smoke. Najraniji
+   release **10.09.2026.**

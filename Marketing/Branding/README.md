@@ -6,7 +6,9 @@ koja se ne završava, pa ime nosi temu, a ne dekoraciju.
 **Wordmark studija i ikonica igre nisu ista stvar.** Ovo ovde ide na boot splash,
 u kredite i na store/social materijale. `Build/Windows/Application.ico` je ikonica
 **Loop 9**, ne studija — šest slova u kvadratu 32×32 px se ne može pročitati, a u
-taskbaru treba da stoji igra. Za nju je izvor „Shortcut ICO v2“.
+taskbaru treba da stoji igra. Izvor od 01.09.2026: gornji-srednji kadar sa
+Jul 24 ikonica-grida (lift, ruka, crveno 9). Set je u
+`Marketing/Steam/ClientAssets/`.
 
 ## Fajlovi
 
@@ -19,6 +21,8 @@ taskbaru treba da stoji igra. Za nju je izvor „Shortcut ICO v2“.
 | `png/smena-wordmark-*.png` | Transparentni PNG, širine 256–2048. Ista dva varijanta boje. |
 | `wordmark-proof.png` | Kontrolni list izabrane varijante: mala veličina, jedna boja, boot okvir. |
 | `wordmark-explorations.png` | Šest smerova od kojih je izabran 02. Čuva se kao zapis odluke. |
+| `loop9_splash_source.png` | Izvor engine splash-a: otvoren lift, 9, monstera, LOOP 9 + SMENA. U igri: `Content/Splash/Splash.bmp` (720×480). |
+| `logo-options/` | Odbačeni SMENA predlozi od 01.09.2026. Primarni ostaje `smena-wordmark.svg`. |
 
 ## Slova su putanje, ne tekst
 
@@ -43,12 +47,12 @@ python3 build_wordmark.py     # traži fonttools
 
 Tracking je `0.40em` (`TRACKING_EM`), to je jedini broj koji menja karakter žiga.
 
-## Još nije rešeno
+## Status
 
-Pre nego što ime ode na store stranicu, mora provera kolizije: Steam publisher
-pretraga, osnovna trademark pretraga (EUIPO + USPTO), domen i social handle. Ime
-pod kojim nastupaš i pravno lice su dve različite stvari — ne treba registrovana
-firma da bi se zvao SMENA, ali treba da nema sudara.
-
-Kad prođe, `Marketing/Steam/STORE_PAGE.md` i Steamworks Developer / Publisher
-polje idu sa „Andrija Stanišić (ili ime studija…)“ na finalno ime.
+Store tekst i Steamworks Developer / Publisher su **SMENA** od 01.09.2026.
+Kolizija proverena isti dan (Steam 0 pogodaka, USPTO žigovi mrtvi). Krediti
+imaju sekciju STUDIO („A SMENA game / Created by Andrija Stanišić").
+Engine splash je mali `Content/Splash/Splash.bmp` (720×480, LOOP 9).
+Primarni žig ostaje `smena-wordmark.svg`. Boot UMG (`SMENA_`) još nije urađen.
+`Build/` je u `.gitignore` — `Application.ico` se kopira iz
+`Marketing/Steam/ClientAssets/loop9_shortcut.ico` pre cooka.

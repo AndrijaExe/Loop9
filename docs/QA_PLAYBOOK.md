@@ -20,7 +20,10 @@ Release status remains authoritative in [`../RELEASE_CHECKLIST.md`](../RELEASE_C
 - [ ] Chat thinking indicator appears and clears.
 - [ ] Long chat wait upgrades to “Still thinking...”.
 - [ ] Relationship stats move with kind / hostile / dependent messages.
-- [ ] Each of the six endings is reachable under its evaluator conditions.
+- [ ] Each of the six endings is reachable. `EndingSetup` fixtures still map
+  1:1. After `< 3` chats (hard Paranoid), the evaluator scores all six
+  profiles — do one natural Cold / Obedient / Merged / Replacement run, not
+  only Escape and Paranoid.
 - [ ] Ending sequence missing still shows widget and returns to menu.
 - [ ] Elevator soft-lock never occurs (door timeouts force progress).
 - [ ] Elevator button cannot start a transition while the player is outside the
