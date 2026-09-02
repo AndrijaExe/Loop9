@@ -19,6 +19,7 @@
 #include "Interaction/InspectableComponent.h"
 #include "Interaction/InspectionStageActor.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 #include "Kismet/GameplayStatics.h"
@@ -483,6 +484,17 @@ void ALoop9Character::ToggleFlashlight()
 
 	const bool bTurningOn = !Flashlight->IsVisible();
 	Flashlight->SetVisibility(bTurningOn);
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (ULoop9ObservationJournalSubsystem* Journal =
+			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			Journal->RecordEvent(
+				bTurningOn
+					? ELoop9ObservationEventType::FlashlightOn
+					: ELoop9ObservationEventType::FlashlightOff);
+		}
+	}
 
 	if (FlashlightToggleSound)
 	{

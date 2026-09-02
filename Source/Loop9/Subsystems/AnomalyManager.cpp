@@ -5,6 +5,7 @@
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
 #include "Anomaly/ScaleAnomalyComponent.h"
 #include "Runtime/Loop9RuntimePolicies.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Algo/Sort.h"
 #include "Containers/Set.h"
 #include "EngineUtils.h"
@@ -399,6 +400,9 @@ FString UAnomalyManager::SelectDecoyZone() const
 {
 	TArray<FString> ActiveZones;
 	TArray<FString> InactiveAuthoredZones;
+	const ULoop9ObservationJournalSubsystem* Journal = GetGameInstance()
+		? GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>()
+		: nullptr;
 
 	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
 	{
@@ -426,7 +430,13 @@ FString UAnomalyManager::SelectDecoyZone() const
 			continue;
 		}
 
-		InactiveAuthoredZones.Add(Zone);
+		const FName ZoneId = Loop9RuntimePolicies::NormalizeObservationZoneId(Zone);
+		if (Journal
+			&& Journal->IsZoneRegistered(ZoneId)
+			&& !Journal->IsPlayerInsideZone(ZoneId))
+		{
+			InactiveAuthoredZones.Add(Zone);
+		}
 	}
 
 	return Loop9RuntimePolicies::SelectDecoyZone(InactiveAuthoredZones, ActiveZones);

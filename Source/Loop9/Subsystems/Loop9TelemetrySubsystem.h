@@ -7,8 +7,9 @@
 
 /**
  * Fire-and-forget end-of-run telemetry (POST /api/telemetry/run).
- * Anonymous balancing data only: which ending, how many resets, how many AI
- * messages. Failures are silent - telemetry must never affect gameplay.
+ * Anonymous balancing data only: ending/reset/message counts plus aggregate
+ * commitment outcomes. No chat, coordinates, route, or zone names.
+ * Failures are silent - telemetry must never affect gameplay.
  *
  * Configured from AI_Friend::BeginPlay with the chat endpoint and legacy
  * token; the session token (Steam auth) is picked up automatically when
@@ -27,13 +28,22 @@ public:
 	void ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken);
 
 	/** Sends the end-of-run ping. Safe to call when unconfigured (no-op). */
-	void SendRunFinished(ELoopEndingType EndingType, int32 TotalResets, int32 TotalAIInteractions);
+	void SendRunFinished(
+		ELoopEndingType EndingType,
+		int32 TotalResets,
+		int32 TotalAIInteractions,
+		const FDragojloCommitmentState& Commitment);
 
 	/** Steamworks-independent ending id used by the backend ("escape_together"...). */
 	static FString EndingTelemetryId(ELoopEndingType EndingType);
 
 private:
-	void DispatchRunFinished(ELoopEndingType EndingType, int32 TotalResets, int32 TotalAIInteractions, const FString& SessionToken);
+	void DispatchRunFinished(
+		ELoopEndingType EndingType,
+		int32 TotalResets,
+		int32 TotalAIInteractions,
+		const FDragojloCommitmentState& Commitment,
+		const FString& SessionToken);
 	void ClearPendingTelemetryAuth();
 	void OnTelemetryAuthReady();
 	void OnTelemetryAuthFailed(const FString& Reason);
@@ -44,6 +54,7 @@ private:
 	ELoopEndingType PendingEndingType = ELoopEndingType::EscapeTogether;
 	int32 PendingTotalResets = 0;
 	int32 PendingTotalAIInteractions = 0;
+	FDragojloCommitmentState PendingCommitment;
 	FDelegateHandle AuthReadyHandle;
 	FDelegateHandle AuthFailedHandle;
 };

@@ -1,8 +1,11 @@
 #include "Interaction/DoorInteractable.h"
 
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
+
 #include "Anomaly/DoorLockStateAnomalyComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "UObject/ConstructorHelpers.h"
@@ -146,6 +149,16 @@ bool ADoorInteractable::Interact()
 	{
 		PlayDoorSound(ResolveDeniedSound());
 		StartRattle();
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (ULoop9ObservationJournalSubsystem* Journal =
+				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+			{
+				Journal->RecordEvent(
+					ELoop9ObservationEventType::DoorDenied,
+					FName(TEXT("generic_door")));
+			}
+		}
 		return false;
 	}
 
@@ -155,6 +168,18 @@ bool ADoorInteractable::Interact()
 	SetActorTickEnabled(true);
 
 	PlayDoorSound(bIsOpen ? ResolveOpenSound() : ResolveCloseSound());
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (ULoop9ObservationJournalSubsystem* Journal =
+			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			Journal->RecordEvent(
+				bIsOpen
+					? ELoop9ObservationEventType::DoorOpened
+					: ELoop9ObservationEventType::DoorClosed,
+				FName(TEXT("generic_door")));
+		}
+	}
 	return true;
 }
 

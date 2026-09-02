@@ -14,6 +14,9 @@ class LOOP9_API ULoopManagerSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Loop")
 	int32 CurrentLoop = 1;
 
@@ -160,6 +163,7 @@ private:
 	void FindTeleportPoints();
 	void PruneStaleTeleportCaches();
 	void NotifyAIFriendsLoopChanged();
+	void HandleObservationZoneEntered(FName ZoneId);
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<class ATeleportPoint>> EntryPoints;
@@ -179,4 +183,6 @@ private:
 	bool bDeferredEndingPresentation = false;
 
 	FDragojloCommitmentState DragojloCommitment;
+	FName ActiveDragojloDecoyZoneId;
+	double DragojloDecoyTrackingStartedAt = 0.0;
 };

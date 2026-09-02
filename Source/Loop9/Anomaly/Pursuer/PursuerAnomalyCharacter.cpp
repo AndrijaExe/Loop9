@@ -5,12 +5,14 @@
 #include "NiagaraSystem.h"
 #include "Anomaly/Pursuer/PursuerAnomalyAIController.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "NiagaraComponent.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
@@ -77,7 +79,7 @@ void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
 	LifetimeElapsed += DeltaSeconds;
 	if (MaxLifetime > 0.0f && LifetimeElapsed >= MaxLifetime)
 	{
-		CatchAndDespawn();
+		CatchAndDespawn(false);
 		return;
 	}
 
@@ -87,7 +89,7 @@ void APursuerAnomalyCharacter::Tick(float DeltaSeconds)
 		const float DistSquared = FVector::DistSquared(GetActorLocation(), PlayerPawn->GetActorLocation());
 		if (DistSquared <= FMath::Square(CatchDistance))
 		{
-			CatchAndDespawn();
+			CatchAndDespawn(true);
 			return;
 		}
 	}
@@ -246,6 +248,19 @@ void APursuerAnomalyCharacter::ApplyObservationFreeze(bool bObservedNow)
 	}
 
 	bWasObservedByPlayer = bObservedNow;
+	if (bObservedNow)
+	{
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (ULoop9ObservationJournalSubsystem* Journal =
+				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+			{
+				Journal->RecordEvent(
+					ELoop9ObservationEventType::PursuerObserved,
+					FName(TEXT("generic_pursuer")));
+			}
+		}
+	}
 
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
@@ -253,7 +268,7 @@ void APursuerAnomalyCharacter::ApplyObservationFreeze(bool bObservedNow)
 	}
 }
 
-void APursuerAnomalyCharacter::CatchAndDespawn()
+void APursuerAnomalyCharacter::CatchAndDespawn(bool bCaughtPlayer)
 {
 	if (bHasCaughtPlayer)
 	{
@@ -261,6 +276,19 @@ void APursuerAnomalyCharacter::CatchAndDespawn()
 	}
 
 	bHasCaughtPlayer = true;
+	if (bCaughtPlayer)
+	{
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (ULoop9ObservationJournalSubsystem* Journal =
+				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+			{
+				Journal->RecordEvent(
+					ELoop9ObservationEventType::PursuerCaught,
+					FName(TEXT("generic_pursuer")));
+			}
+		}
+	}
 
 	if (MovingMurmurAudioComponent)
 	{

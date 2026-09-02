@@ -183,6 +183,50 @@ namespace Loop9RuntimePolicies
 		return Candidates[0];
 	}
 
+	/** Converts an authored English zone label into the stable volume id used in-map. */
+	inline FName NormalizeObservationZoneId(const FString& ZoneLabel)
+	{
+		FString Normalized = ZoneLabel.TrimStartAndEnd().ToLower();
+		if (Normalized.StartsWith(TEXT("the ")))
+		{
+			Normalized.RightChopInline(4);
+		}
+
+		FString Slug;
+		bool bPreviousUnderscore = false;
+		for (const TCHAR Character : Normalized)
+		{
+			const bool bAlphaNumeric = FChar::IsAlnum(Character);
+			if (bAlphaNumeric)
+			{
+				Slug.AppendChar(Character);
+				bPreviousUnderscore = false;
+			}
+			else if (!bPreviousUnderscore && !Slug.IsEmpty())
+			{
+				Slug.AppendChar(TEXT('_'));
+				bPreviousUnderscore = true;
+			}
+		}
+
+		while (Slug.EndsWith(TEXT("_")))
+		{
+			Slug.LeftChopInline(1);
+		}
+
+		return Slug.IsEmpty() ? NAME_None : FName(*Slug);
+	}
+
+	inline bool ShouldRecordDragojloDecoyVisit(
+		FName ActiveTargetZone,
+		FName EnteredZone,
+		bool bAlreadyVisited)
+	{
+		return !bAlreadyVisited
+			&& !ActiveTargetZone.IsNone()
+			&& ActiveTargetZone == EnteredZone;
+	}
+
 	inline TArray<ELoopEndingType> AllEndingTypes()
 	{
 		return {

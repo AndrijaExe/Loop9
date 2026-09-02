@@ -63,7 +63,11 @@ FString ULoop9TelemetrySubsystem::EndingTelemetryId(ELoopEndingType EndingType)
 	}
 }
 
-void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32 TotalResets, int32 TotalAIInteractions)
+void ULoop9TelemetrySubsystem::SendRunFinished(
+	ELoopEndingType EndingType,
+	int32 TotalResets,
+	int32 TotalAIInteractions,
+	const FDragojloCommitmentState& Commitment)
 {
 	const FString EndingId = EndingTelemetryId(EndingType);
 	if (TelemetryEndpoint.IsEmpty())
@@ -90,7 +94,7 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 
 	if (!SessionToken.IsEmpty())
 	{
-		DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, SessionToken);
+		DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment, SessionToken);
 		return;
 	}
 
@@ -101,6 +105,7 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 		PendingEndingType = EndingType;
 		PendingTotalResets = TotalResets;
 		PendingTotalAIInteractions = TotalAIInteractions;
+		PendingCommitment = Commitment;
 		AuthReadyHandle = Auth->OnSessionReady.AddUObject(this, &ULoop9TelemetrySubsystem::OnTelemetryAuthReady);
 		AuthFailedHandle = Auth->OnSessionFailed.AddUObject(this, &ULoop9TelemetrySubsystem::OnTelemetryAuthFailed);
 
@@ -117,13 +122,14 @@ void ULoop9TelemetrySubsystem::SendRunFinished(ELoopEndingType EndingType, int32
 		return;
 	}
 
-	DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, FString());
+	DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment, FString());
 }
 
 void ULoop9TelemetrySubsystem::DispatchRunFinished(
 	ELoopEndingType EndingType,
 	int32 TotalResets,
 	int32 TotalAIInteractions,
+	const FDragojloCommitmentState& Commitment,
 	const FString& SessionToken)
 {
 	const FString EndingId = EndingTelemetryId(EndingType);
@@ -147,6 +153,17 @@ void ULoop9TelemetrySubsystem::DispatchRunFinished(
 	JsonObject->SetNumberField(TEXT("resets"), FMath::Max(0, TotalResets));
 	JsonObject->SetNumberField(TEXT("ai_messages"), FMath::Max(0, TotalAIInteractions));
 	JsonObject->SetStringField(TEXT("build"), FApp::GetBuildVersion());
+	JsonObject->SetBoolField(TEXT("location_misdirection_used"), Commitment.bLocationMisdirectionUsed);
+	JsonObject->SetBoolField(TEXT("visited_suggested_decoy"), Commitment.bVisitedSuggestedDecoy);
+	JsonObject->SetBoolField(TEXT("contradiction_exposed"), Commitment.bContradictionExposed);
+	JsonObject->SetNumberField(TEXT("lift_advice_count"), FMath::Max(0, Commitment.LiftAdviceCount));
+	JsonObject->SetNumberField(TEXT("followed_lift_advice_count"), FMath::Max(0, Commitment.FollowedLiftAdviceCount));
+	JsonObject->SetNumberField(TEXT("wrong_lift_advice_count"), FMath::Max(0, Commitment.WrongLiftAdviceCount));
+	JsonObject->SetNumberField(TEXT("followed_wrong_lift_advice_count"), FMath::Max(0, Commitment.FollowedWrongLiftAdviceCount));
+	if (Commitment.DecoyVisitSeconds >= 0.0f)
+	{
+		JsonObject->SetNumberField(TEXT("decoy_visit_seconds"), Commitment.DecoyVisitSeconds);
+	}
 
 	FString Body;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Body);
@@ -203,6 +220,7 @@ void ULoop9TelemetrySubsystem::OnTelemetryAuthReady()
 	const ELoopEndingType EndingType = PendingEndingType;
 	const int32 TotalResets = PendingTotalResets;
 	const int32 TotalAIInteractions = PendingTotalAIInteractions;
+	const FDragojloCommitmentState Commitment = PendingCommitment;
 	ClearPendingTelemetryAuth();
 
 	if (UGameInstance* GI = GetGameInstance())
@@ -212,7 +230,7 @@ void ULoop9TelemetrySubsystem::OnTelemetryAuthReady()
 			const FString SessionToken = Auth->GetSessionToken();
 			if (!SessionToken.IsEmpty())
 			{
-				DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, SessionToken);
+				DispatchRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment, SessionToken);
 				return;
 			}
 		}

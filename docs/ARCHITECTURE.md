@@ -11,6 +11,8 @@ flowchart TB
   UI[UMG Widgets] --> Controllers[Player Controllers]
   Controllers --> Character[Loop9Character / HorrorCharacter]
   Character --> Interact[Interactables]
+  Interact --> Journal[ULoop9ObservationJournalSubsystem]
+  Journal --> AIFriend
   Interact --> LoopMgr[ULoopManagerSubsystem]
   LoopMgr --> Anomaly[UAnomalyManager]
   LoopMgr --> Rel[URelationshipSubsystem]
@@ -39,6 +41,7 @@ flowchart TB
 | Steam achievements | `ULoop9AchievementsSubsystem` | No-op without Steam |
 | Steam session token for chat | `ULoop9BackendAuthSubsystem` | Ticket → `/api/auth/steam` |
 | Chat HTTP | `ULoop9BackendChatService` | Static-safe response handling |
+| Bounded observation context + zone registry | `ULoop9ObservationJournalSubsystem` | Advisory Game Instance state; never gameplay authority |
 | Elevator doors / fade / teleport timing / travel audio | `ALoopElevatorTransitionDirector` | World actor |
 | Ending Level Sequences | `ALoop9GameMode::EndingSequences` | Soft refs; presenter plays them |
 | Settings persistence | `ULoop9GameSettingsSubsystem` | `Game.ini` / user settings |
@@ -87,3 +90,6 @@ Documented in detail: [AI_AND_BACKEND_INTEGRATION.md](AI_AND_BACKEND_INTEGRATION
 - Presentation locks (`IsGameplayPresentationLocked`) must block move, look, jump, sprint, interact, and pause.
 - Idle actors should not tick; doors and transitions enable tick only while moving.
 - Never put loop mutation, teleport, achievements, or input restore solely in a Sequencer Event Track.
+- Observation snapshots are write-only gameplay context for chat. No gameplay
+  decision, relationship, achievement, ending, telemetry, anomaly spawn, or
+  advice policy may depend on journal contents.

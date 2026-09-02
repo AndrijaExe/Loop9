@@ -16,6 +16,7 @@
 #include "Sound/SoundAttenuation.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Internationalization/Culture.h"
 #include "Misc/Guid.h"
@@ -739,6 +740,18 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 	if (LoopManager)
 	{
 		RequestContext.AdviceState = LoopManager->GetDragojloCommitmentState();
+	}
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (const ULoop9ObservationJournalSubsystem* Journal =
+			GI->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			const FLoop9ObservationSnapshot Snapshot = Journal->GetSnapshot();
+			if (!Snapshot.IsEmpty())
+			{
+				RequestContext.ObservationSnapshot = Snapshot;
+			}
+		}
 	}
 
 	const bool bUsedSessionToken = !SessionToken.IsEmpty();

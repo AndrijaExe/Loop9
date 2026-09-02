@@ -4,8 +4,11 @@
 #include "AI/Services/Loop9BackendChatService.h"
 #include "Dom/JsonObject.h"
 #include "Loop/LoopTypes.h"
+#include "Runtime/Loop9ObservationJournal.h"
 #include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 namespace
 {
@@ -243,6 +246,26 @@ bool FLoop9DecoyZoneSelectionTest::RunTest(const FString&)
 			{ TEXT("the west wing"), TEXT("the north corridor"), TEXT("the north corridor") },
 			{ TEXT("the archive room") }),
 		FString(TEXT("the north corridor")));
+	TestEqual(
+		TEXT("Authored labels normalize to stable volume ids"),
+		Loop9RuntimePolicies::NormalizeObservationZoneId(TEXT("The North Corridor")),
+		FName(TEXT("north_corridor")));
+	TestFalse(
+		TEXT("Entering a zone before advice records nothing"),
+		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
+			NAME_None, FName(TEXT("north_corridor")), false));
+	TestFalse(
+		TEXT("Entering another zone records nothing"),
+		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
+			FName(TEXT("north_corridor")), FName(TEXT("meeting_room")), false));
+	TestTrue(
+		TEXT("Entering the target after advice records the visit"),
+		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
+			FName(TEXT("north_corridor")), FName(TEXT("north_corridor")), false));
+	TestFalse(
+		TEXT("A decoy visit records only once"),
+		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
+			FName(TEXT("north_corridor")), FName(TEXT("north_corridor")), true));
 
 	return true;
 }
@@ -258,6 +281,10 @@ bool FLoop9AdviceWireParsingTest::RunTest(const FString&)
 		TEXT("Misdirect wire round-trips"),
 		ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode::MisdirectLocation),
 		FString(TEXT("misdirect_location")));
+	TestEqual(
+		TEXT("Confrontation wire round-trips"),
+		AsInt(ULoop9BackendChatService::AdviceModeFromWire(TEXT("confrontation"))),
+		AsInt(EDragojloAdviceMode::Confrontation));
 	TestEqual(
 		TEXT("Wrong lift wire round-trips"),
 		AsInt(ULoop9BackendChatService::AdviceModeFromWire(TEXT("wrong_lift"))),
@@ -283,8 +310,12 @@ bool FLoop9AdviceWireParsingTest::RunTest(const FString&)
 
 	FDragojloCommitmentState State;
 	State.bLocationMisdirectionUsed = true;
+	State.bVisitedSuggestedDecoy = true;
+	State.FollowedWrongLiftAdviceCount = 1;
 	State.Reset();
 	TestFalse(TEXT("Commitment reset clears misdirection"), State.bLocationMisdirectionUsed);
+	TestFalse(TEXT("Commitment reset clears decoy visit"), State.bVisitedSuggestedDecoy);
+	TestEqual(TEXT("Commitment reset clears follow count"), State.FollowedWrongLiftAdviceCount, 0);
 	TestEqual(TEXT("Commitment reset clears mode"), AsInt(State.LastAdviceMode), AsInt(EDragojloAdviceMode::None));
 
 	return true;
@@ -364,6 +395,164 @@ bool FLoop9RunEventCardCopyTest::RunTest(const FString&)
 	TestEqual(TEXT("BuildAll keeps event order"), Cards.Num(), 3);
 	TestEqual(TEXT("BuildAll first card is the call"), AsInt(Cards[0].Type), AsInt(ERunEventType::Call));
 	TestEqual(TEXT("BuildAll last card is the ending"), AsInt(Cards[2].Type), AsInt(ERunEventType::Ending));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9ObservationJournalBoundsTest,
+	"Loop9.Runtime.ObservationJournal.BoundsAndCoalescing",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9ObservationJournalBoundsTest::RunTest(const FString&)
+{
+	FLoop9ObservationJournalCore Journal;
+	Journal.BeginFloor(3, 100.0);
+
+	for (int32 Index = 0; Index < 300; ++Index)
+	{
+		Journal.Record(
+			ELoop9ObservationEventType::ObjectInspected,
+			FName(TEXT("archive")),
+			FName(TEXT("ledger")),
+			101.0 + Index);
+	}
+	TestEqual(TEXT("Identical observations coalesce"), Journal.GetInternalEvents().Num(), 1);
+	TestEqual(TEXT("Coalesced count saturates"), Journal.GetInternalEvents()[0].Count, MAX_uint8);
+	TestEqual(TEXT("Coalesced event keeps latest second"), Journal.GetInternalEvents()[0].AtSecond, 300);
+
+	Journal.BeginFloor(4, 500.0);
+	for (int32 Index = 0; Index < 16; ++Index)
+	{
+		Journal.Record(
+			ELoop9ObservationEventType::FlashlightOn,
+			NAME_None,
+			FName(*FString::Printf(TEXT("switch_%02d"), Index)),
+			501.0 + Index);
+	}
+	Journal.RecordAIInteraction(550.0);
+	TestEqual(TEXT("Internal journal stays hard capped"), Journal.GetInternalEvents().Num(), 16);
+	TestTrue(TEXT("Higher-priority phone response survives eviction"),
+		Journal.GetInternalEvents().ContainsByPredicate([](const FLoop9ObservationEvent& Event)
+		{
+			return Event.Type == ELoop9ObservationEventType::CallCompleted;
+		}));
+	TestFalse(TEXT("Oldest low-priority event is evicted"),
+		Journal.GetInternalEvents().ContainsByPredicate([](const FLoop9ObservationEvent& Event)
+		{
+			return Event.SubjectId == FName(TEXT("switch_00"));
+		}));
+	const FLoop9ObservationSnapshot Projection = Journal.BuildSnapshot(560.0);
+	TestEqual(TEXT("Outgoing projection stays capped"),
+		Projection.Events.Num(),
+		FLoop9ObservationJournalCore::MaxProjectedEvents);
+	TestEqual(TEXT("Projection orders higher priority first"),
+		AsInt(Projection.Events[0].Type),
+		AsInt(ELoop9ObservationEventType::CallCompleted));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9ObservationJournalResetTest,
+	"Loop9.Runtime.ObservationJournal.ResetsAndVisitedZones",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9ObservationJournalResetTest::RunTest(const FString&)
+{
+	FLoop9ObservationJournalCore Journal;
+	Journal.BeginFloor(1, 10.0);
+	for (int32 Index = 0; Index < 10; ++Index)
+	{
+		Journal.Record(
+			ELoop9ObservationEventType::ZoneEntered,
+			FName(*FString::Printf(TEXT("zone_%02d"), Index)),
+			NAME_None,
+			11.0 + Index);
+	}
+	FLoop9ObservationSnapshot Snapshot = Journal.BuildSnapshot(25.9);
+	TestEqual(TEXT("Visited zones stay capped"), Snapshot.VisitedZones.Num(), 8);
+	TestEqual(TEXT("Most recently entered zone is current"), Snapshot.CurrentZone, FName(TEXT("zone_09")));
+	TestEqual(TEXT("Floor seconds are integral and bounded"), Snapshot.SecondsOnFloor, 15);
+
+	Journal.BeginFloor(2, 30.0);
+	Snapshot = Journal.BuildSnapshot(31.0);
+	TestTrue(TEXT("Floor reset clears events"), Snapshot.Events.IsEmpty());
+	TestTrue(TEXT("Floor reset clears visited zones"), Snapshot.VisitedZones.IsEmpty());
+	TestTrue(TEXT("Floor reset clears current zone"), Snapshot.CurrentZone.IsNone());
+	TestEqual(TEXT("Floor reset preserves fixed run summary"), Snapshot.RunSummary.FloorsStarted, 2);
+
+	Journal.RecordAIInteraction(32.0);
+	Journal.RecordElevatorDecision(FName(TEXT("dark")), true, 33.0);
+	Journal.ResetRun();
+	Snapshot = Journal.BuildSnapshot(40.0);
+	TestTrue(TEXT("Run reset clears the full snapshot"), Snapshot.IsEmpty());
+	TestEqual(TEXT("Run reset clears AI count"), Snapshot.RunSummary.AIInteractions, 0);
+	TestEqual(TEXT("Run reset clears decision count"), Snapshot.RunSummary.ElevatorDecisions, 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9ObservationJournalProjectionTest,
+	"Loop9.Runtime.ObservationJournal.DeterministicSanitizedBudget",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9ObservationJournalProjectionTest::RunTest(const FString&)
+{
+	TestEqual(TEXT("Authored ids normalize safely"),
+		FLoop9ObservationJournalCore::SanitizeIdentifier(
+			FName(TEXT(" North Hall / Actor.Secret:42 "))),
+		FName(TEXT("north_hall_actorsecret42")));
+	TestEqual(TEXT("Empty unsafe ids use explicit generic fallback"),
+		FLoop9ObservationJournalCore::SanitizeIdentifier(
+			FName(TEXT("!!!")),
+			FName(TEXT("generic_object"))),
+		FName(TEXT("generic_object")));
+	TestEqual(TEXT("Denied doors use the backend wire contract"),
+		FLoop9ObservationJournalCore::EventTypeToWire(
+			ELoop9ObservationEventType::DoorDenied),
+		FString(TEXT("door_denied")));
+	TestEqual(TEXT("A verified pursuer catch uses the backend wire contract"),
+		FLoop9ObservationJournalCore::EventTypeToWire(
+			ELoop9ObservationEventType::PursuerCaught),
+		FString(TEXT("pursuer_caught")));
+
+	FLoop9ObservationJournalCore Journal;
+	Journal.BeginFloor(5, 1000.0);
+	for (int32 Index = 0; Index < 16; ++Index)
+	{
+		Journal.Record(
+			Index % 2 == 0
+				? ELoop9ObservationEventType::ObjectInspected
+				: ELoop9ObservationEventType::DoorOpened,
+			FName(*FString::Printf(TEXT("long_authored_zone_%02d"), Index)),
+			FName(*FString::Printf(TEXT("long_authored_subject_%02d"), Index)),
+			1001.0 + Index);
+	}
+	Journal.RecordAIInteraction(1018.0);
+	const FLoop9ObservationSnapshot Snapshot = Journal.BuildSnapshot(1030.0);
+	const FString First = ULoop9BackendChatService::SerializeObservationSnapshot(Snapshot);
+	const FString Second = ULoop9BackendChatService::SerializeObservationSnapshot(Snapshot);
+	TestEqual(TEXT("Projection serialization is deterministic"), First, Second);
+	const FTCHARToUTF8 Utf8(*First);
+	TestTrue(TEXT("Snapshot respects 1024-byte UTF-8 budget"), Utf8.Length() <= 1024);
+	TestFalse(TEXT("Snapshot contains no actor-name punctuation"), First.Contains(TEXT("/")));
+	TestFalse(TEXT("Snapshot contains no relationship floats"), First.Contains(TEXT("dependency")));
+	TestTrue(TEXT("Snapshot keeps fixed run summary"), First.Contains(TEXT("\"run_summary\"")));
+	TestTrue(TEXT("Snapshot uses the backend call event contract"),
+		First.Contains(TEXT("\"type\":\"call_completed\"")));
+	TestTrue(TEXT("Snapshot sends event age rather than internal floor timestamp"),
+		First.Contains(TEXT("\"age_seconds\":")));
+	TestFalse(TEXT("Snapshot never exposes the internal floor timestamp"),
+		First.Contains(TEXT("\"at_second\":")));
+
+	TSharedPtr<FJsonObject> Parsed;
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(First);
+	TestTrue(TEXT("Budgeted snapshot remains valid JSON"),
+		FJsonSerializer::Deserialize(Reader, Parsed) && Parsed.IsValid());
+	const TArray<TSharedPtr<FJsonValue>>* Events = nullptr;
+	TestTrue(TEXT("Budgeted snapshot keeps an events array"),
+		Parsed.IsValid() && Parsed->TryGetArrayField(TEXT("events"), Events));
+	TestTrue(TEXT("Budget trimming never exceeds projection cap"),
+		Events && Events->Num() <= FLoop9ObservationJournalCore::MaxProjectedEvents);
 	return true;
 }
 

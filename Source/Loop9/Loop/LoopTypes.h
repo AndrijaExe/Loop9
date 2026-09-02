@@ -58,6 +58,7 @@ enum class EDragojloAdviceMode : uint8
 	Withhold UMETA(DisplayName = "Withhold"),
 	AccurateHint UMETA(DisplayName = "Accurate Hint"),
 	MisdirectLocation UMETA(DisplayName = "Misdirect Location"),
+	Confrontation UMETA(DisplayName = "Confrontation"),
 	WrongLift UMETA(DisplayName = "Wrong Lift"),
 	AccurateLift UMETA(DisplayName = "Accurate Lift")
 };
@@ -107,6 +108,28 @@ struct FDragojloCommitmentState
 	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
 	bool bFollowedLastLiftAdvice = false;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bVisitedSuggestedDecoy = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bConfrontationResponseUsed = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	int32 LiftAdviceCount = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	int32 FollowedLiftAdviceCount = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	int32 WrongLiftAdviceCount = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	int32 FollowedWrongLiftAdviceCount = 0;
+
+	/** Seconds from the planted location hint to entering its authored zone; -1 when unvisited. */
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	float DecoyVisitSeconds = -1.0f;
+
 	void Reset()
 	{
 		LastAdviceMode = EDragojloAdviceMode::None;
@@ -118,6 +141,13 @@ struct FDragojloCommitmentState
 		bPendingDecisionSurrender = false;
 		bWrongLiftUsed = false;
 		bFollowedLastLiftAdvice = false;
+		bVisitedSuggestedDecoy = false;
+		bConfrontationResponseUsed = false;
+		LiftAdviceCount = 0;
+		FollowedLiftAdviceCount = 0;
+		WrongLiftAdviceCount = 0;
+		FollowedWrongLiftAdviceCount = 0;
+		DecoyVisitSeconds = -1.0f;
 	}
 };
 

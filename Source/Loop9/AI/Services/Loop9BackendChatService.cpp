@@ -149,6 +149,7 @@ FString ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode Mode)
 	case EDragojloAdviceMode::Withhold: return TEXT("withhold");
 	case EDragojloAdviceMode::AccurateHint: return TEXT("accurate_hint");
 	case EDragojloAdviceMode::MisdirectLocation: return TEXT("misdirect_location");
+	case EDragojloAdviceMode::Confrontation: return TEXT("confrontation");
 	case EDragojloAdviceMode::WrongLift: return TEXT("wrong_lift");
 	case EDragojloAdviceMode::AccurateLift: return TEXT("accurate_lift");
 	default: return TEXT("none");
@@ -160,6 +161,7 @@ EDragojloAdviceMode ULoop9BackendChatService::AdviceModeFromWire(const FString& 
 	if (Wire.Equals(TEXT("withhold"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::Withhold;
 	if (Wire.Equals(TEXT("accurate_hint"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::AccurateHint;
 	if (Wire.Equals(TEXT("misdirect_location"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::MisdirectLocation;
+	if (Wire.Equals(TEXT("confrontation"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::Confrontation;
 	if (Wire.Equals(TEXT("wrong_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::WrongLift;
 	if (Wire.Equals(TEXT("accurate_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::AccurateLift;
 	return EDragojloAdviceMode::None;
@@ -210,6 +212,88 @@ bool ULoop9BackendChatService::TryParseAdviceObject(const TSharedPtr<FJsonObject
 	(*AdviceObject)->TryGetStringField(TEXT("suggested_zone"), OutResponse.SuggestedZone);
 	(*AdviceObject)->TryGetStringField(TEXT("commitment_id"), OutResponse.CommitmentId);
 	return OutResponse.AdviceMode != EDragojloAdviceMode::None;
+}
+
+FString ULoop9BackendChatService::SerializeObservationSnapshot(
+	const FLoop9ObservationSnapshot& Snapshot,
+	int32 MaxUtf8Bytes)
+{
+	const int32 SafeBudget = FMath::Max(1, MaxUtf8Bytes);
+	int32 EventCount = FMath::Min(
+		Snapshot.Events.Num(),
+		FLoop9ObservationJournalCore::MaxProjectedEvents);
+
+	for (; EventCount >= 0; --EventCount)
+	{
+		TSharedPtr<FJsonObject> Root = MakeShareable(new FJsonObject());
+		Root->SetStringField(
+			TEXT("current_zone"),
+			FLoop9ObservationJournalCore::SanitizeIdentifier(Snapshot.CurrentZone).ToString());
+		Root->SetNumberField(TEXT("seconds_on_floor"), Snapshot.SecondsOnFloor);
+
+		TArray<TSharedPtr<FJsonValue>> EventValues;
+		for (int32 Index = 0; Index < EventCount; ++Index)
+		{
+			const FLoop9ObservationEvent& Event = Snapshot.Events[Index];
+			TSharedPtr<FJsonObject> EventObject = MakeShareable(new FJsonObject());
+			EventObject->SetStringField(
+				TEXT("type"),
+				FLoop9ObservationJournalCore::EventTypeToWire(Event.Type));
+			const FName SafeZone =
+				FLoop9ObservationJournalCore::SanitizeIdentifier(Event.ZoneId);
+			const FName SafeSubject =
+				FLoop9ObservationJournalCore::SanitizeIdentifier(Event.SubjectId);
+			if (!SafeZone.IsNone())
+			{
+				EventObject->SetStringField(TEXT("zone"), SafeZone.ToString());
+			}
+			if (!SafeSubject.IsNone())
+			{
+				EventObject->SetStringField(TEXT("subject"), SafeSubject.ToString());
+			}
+			EventObject->SetNumberField(TEXT("count"), Event.Count);
+			EventObject->SetNumberField(
+				TEXT("age_seconds"),
+				FMath::Max(0, static_cast<int32>(Snapshot.SecondsOnFloor)
+					- static_cast<int32>(Event.AtSecond)));
+			EventValues.Add(MakeShareable(new FJsonValueObject(EventObject)));
+		}
+		Root->SetArrayField(TEXT("events"), EventValues);
+
+		TArray<TSharedPtr<FJsonValue>> VisitedZoneValues;
+		const int32 VisitedZoneCount = FMath::Min(
+			Snapshot.VisitedZones.Num(),
+			FLoop9ObservationJournalCore::MaxVisitedZones);
+		for (int32 Index = 0; Index < VisitedZoneCount; ++Index)
+		{
+			const FName SafeZone =
+				FLoop9ObservationJournalCore::SanitizeIdentifier(Snapshot.VisitedZones[Index]);
+			if (!SafeZone.IsNone())
+			{
+				VisitedZoneValues.Add(MakeShareable(new FJsonValueString(SafeZone.ToString())));
+			}
+		}
+		Root->SetArrayField(TEXT("visited_zones"), VisitedZoneValues);
+
+		TSharedPtr<FJsonObject> SummaryObject = MakeShareable(new FJsonObject());
+		SummaryObject->SetNumberField(TEXT("floors_started"), Snapshot.RunSummary.FloorsStarted);
+		SummaryObject->SetNumberField(TEXT("ai_interactions"), Snapshot.RunSummary.AIInteractions);
+		SummaryObject->SetNumberField(TEXT("elevator_decisions"), Snapshot.RunSummary.ElevatorDecisions);
+		SummaryObject->SetNumberField(TEXT("correct_decisions"), Snapshot.RunSummary.CorrectDecisions);
+		Root->SetObjectField(TEXT("run_summary"), SummaryObject);
+
+		FString Output;
+		TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Output);
+		FJsonSerializer::Serialize(Root.ToSharedRef(), Writer);
+		const FTCHARToUTF8 Utf8(*Output);
+		if (Utf8.Length() <= SafeBudget)
+		{
+			return Output;
+		}
+	}
+
+	return FString();
 }
 
 void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& Context, FOnLoop9ChatResponseReceived OnComplete)
@@ -290,6 +374,8 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	AdviceStateObject->SetBoolField(TEXT("pending_decision_surrender"), Context.AdviceState.bPendingDecisionSurrender);
 	AdviceStateObject->SetBoolField(TEXT("wrong_lift_used"), Context.AdviceState.bWrongLiftUsed);
 	AdviceStateObject->SetBoolField(TEXT("followed_last_lift_advice"), Context.AdviceState.bFollowedLastLiftAdvice);
+	AdviceStateObject->SetBoolField(TEXT("visited_suggested_decoy"), Context.AdviceState.bVisitedSuggestedDecoy);
+	AdviceStateObject->SetBoolField(TEXT("confrontation_response_used"), Context.AdviceState.bConfrontationResponseUsed);
 	AdviceStateObject->SetStringField(TEXT("last_advice_mode"), AdviceModeToWire(Context.AdviceState.LastAdviceMode));
 	AdviceStateObject->SetStringField(TEXT("last_lift_advice"), LiftAdviceToWire(Context.AdviceState.LastLiftAdvice));
 	if (!Context.AdviceState.LastSuggestedZone.IsEmpty())
@@ -297,6 +383,21 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		AdviceStateObject->SetStringField(TEXT("last_suggested_zone"), Context.AdviceState.LastSuggestedZone);
 	}
 	JsonObject->SetObjectField(TEXT("advice_state"), AdviceStateObject);
+
+	if (Context.ObservationSnapshot.IsSet())
+	{
+		const FString SnapshotJson = SerializeObservationSnapshot(
+			Context.ObservationSnapshot.GetValue());
+		TSharedPtr<FJsonObject> SnapshotObject;
+		const TSharedRef<TJsonReader<>> SnapshotReader =
+			TJsonReaderFactory<>::Create(SnapshotJson);
+		if (!SnapshotJson.IsEmpty()
+			&& FJsonSerializer::Deserialize(SnapshotReader, SnapshotObject)
+			&& SnapshotObject.IsValid())
+		{
+			JsonObject->SetObjectField(TEXT("observation_snapshot"), SnapshotObject);
+		}
+	}
 
 	TSharedPtr<FJsonObject> StateObject = MakeShareable(new FJsonObject());
 	StateObject->SetNumberField(TEXT("kindness"), KindnessDiscrete);

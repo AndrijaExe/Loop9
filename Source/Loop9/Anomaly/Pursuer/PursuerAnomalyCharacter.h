@@ -77,7 +77,7 @@ private:
 	APawn* ResolvePlayerPawn();
 	APlayerController* ResolvePlayerController();
 	void UpdateChase();
-	void CatchAndDespawn();
+	void CatchAndDespawn(bool bCaughtPlayer);
 	bool ComputeIsObservedByPlayer(APawn* PlayerPawn, APlayerController* PlayerController) const;
 	void ApplyObservationFreeze(bool bObservedNow);
 	void UpdateMovingAudio();

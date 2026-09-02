@@ -122,6 +122,24 @@ the player to the right part of the floor without naming the item they must find
 7. Untagged components are skipped rather than blocking a tagged one on the same
    floor, so the level can be tagged a few anomalies at a time.
 
+### Observation zone volumes
+
+Location misdirection is measurable only for authored map zones. Place one
+`ALoop9ObservationZoneVolume` per coarse `AnomalyZone` area, not per anomaly
+object.
+`ZoneId` is the normalized label (`the north corridor` → `north_corridor`).
+The volume is a passive overlap sensor registered with
+`ULoop9ObservationJournalSubsystem`: it never changes anomaly state and never
+calls `ULoopManagerSubsystem` directly.
+
+Only inactive authored zones with a matching volume can become `decoy_zone`;
+the zone the player is currently standing in is also excluded. This prevents
+the AI from naming a nonexistent, unmeasurable, or already-checked place. The
+registry query avoids scanning world actors.
+Entering the zone counts only after a validated `misdirect_location` response;
+entering it earlier has no effect. Missing volumes safely disable location
+deception for that zone and leave truthful guidance available.
+
 ## Debug console commands (non-Shipping)
 
 Bound on `ALoop9PlayerController` and compiled out of Shipping:

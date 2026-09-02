@@ -33,6 +33,13 @@ public:
 	FText DisplayName;
 
 	/**
+	 * Optional sanitized subject id sent to the observation journal. Actor names
+	 * and DisplayName are never used; empty falls back to generic_object.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inspection|Observation")
+	FName ObservationId = NAME_None;
+
+	/**
 	 * Prompt shown when the player looks at the owner. Used when the owner
 	 * does not implement ILoop9Interactable itself — just add this component
 	 * to any actor and it becomes inspectable with this prompt.

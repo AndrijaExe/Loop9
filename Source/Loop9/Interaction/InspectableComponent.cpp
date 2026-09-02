@@ -1,11 +1,13 @@
 #include "Interaction/InspectableComponent.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Interaction/InspectionStageActor.h"
 #include "Loop9.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 
 UInspectableComponent::UInspectableComponent()
 {
@@ -114,6 +116,16 @@ bool UInspectableComponent::StartInspection(APlayerController* InteractingContro
 
 	UE_LOG(LogLoop9, Log, TEXT("Inspection started for '%s'"), *GetNameSafe(GetOwner()));
 	OnInspectionStarted.Broadcast();
+	if (UGameInstance* GameInstance = GetWorld()->GetGameInstance())
+	{
+		if (ULoop9ObservationJournalSubsystem* Journal =
+			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			Journal->RecordEvent(
+				ELoop9ObservationEventType::ObjectInspected,
+				ObservationId.IsNone() ? FName(TEXT("generic_object")) : ObservationId);
+		}
+	}
 	return true;
 }
 

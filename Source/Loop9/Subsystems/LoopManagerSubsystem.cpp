@@ -2,9 +2,11 @@
 
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 #include "Loop/LoopEndingEvaluator.h"
+#include "Runtime/Loop9RuntimePolicies.h"
 #include "TeleportPoint.h"
 #include "AI_Friend.h"
 #include "AI_ChatWidget.h"
@@ -76,6 +78,27 @@ namespace
 		PlayerCharacter->SetActorRotation(TeleportRotation);
 		PlayerController->SetControlRotation(TeleportRotation);
 	}
+}
+
+void ULoopManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	Collection.InitializeDependency<ULoop9ObservationJournalSubsystem>();
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->OnZoneEntered.AddUObject(this, &ULoopManagerSubsystem::HandleObservationZoneEntered);
+	}
+}
+
+void ULoopManagerSubsystem::Deinitialize()
+{
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->OnZoneEntered.RemoveAll(this);
+	}
+	Super::Deinitialize();
 }
 
 URelationshipSubsystem* ULoopManagerSubsystem::GetRelationship() const
@@ -185,13 +208,29 @@ bool ULoopManagerSubsystem::CommitElevatorDecision(
 	}
 
 	RegisterLoopDecision(Decision.bWasCorrect, Decision.bAnomaliesExisted, Decision.ButtonType);
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->RecordElevatorDecision(
+			Decision.ButtonType == EButtonType::Reset ? FName(TEXT("lit")) : FName(TEXT("dark")),
+			Decision.bWasCorrect);
+	}
 
 	if (DragojloCommitment.LastLiftAdvice != EDragojloLiftAdvice::None)
 	{
 		const bool bChoseLit = Decision.ButtonType == EButtonType::Reset;
 		const bool bAdviceWasLit = DragojloCommitment.LastLiftAdvice == EDragojloLiftAdvice::Lit;
 		DragojloCommitment.bFollowedLastLiftAdvice = (bChoseLit == bAdviceWasLit);
+		if (DragojloCommitment.bFollowedLastLiftAdvice)
+		{
+			++DragojloCommitment.FollowedLiftAdviceCount;
+			if (DragojloCommitment.LastAdviceMode == EDragojloAdviceMode::WrongLift)
+			{
+				++DragojloCommitment.FollowedWrongLiftAdviceCount;
+			}
+		}
 		DragojloCommitment.bPendingDecisionSurrender = false;
+		DragojloCommitment.LastLiftAdvice = EDragojloLiftAdvice::None;
 	}
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
@@ -370,6 +409,12 @@ void ULoopManagerSubsystem::ResetLoopInternal(bool bTeleportPlayer)
 
 void ULoopManagerSubsystem::RegisterAIInteraction(int32 KindnessDelta, int32 SuspicionDelta, int32 DependencyDelta)
 {
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->RecordAIInteraction();
+	}
+
 	if (URelationshipSubsystem* Relationship = GetRelationship())
 	{
 		Relationship->RegisterAIInteraction();
@@ -414,20 +459,10 @@ void ULoopManagerSubsystem::RecordDragojloAdvice(
 	int32 SuspicionDelta,
 	int32 DependencyDelta)
 {
-	if (Mode != EDragojloAdviceMode::None)
-	{
-		DragojloCommitment.LastAdviceMode = Mode;
-	}
-
-	if (LiftAdvice != EDragojloLiftAdvice::None)
-	{
-		DragojloCommitment.LastLiftAdvice = LiftAdvice;
-	}
-
-	if (!SuggestedZone.IsEmpty())
-	{
-		DragojloCommitment.LastSuggestedZone = SuggestedZone;
-	}
+	DragojloCommitment.LastAdviceMode = Mode;
+	DragojloCommitment.LastLiftAdvice = LiftAdvice;
+	DragojloCommitment.LastSuggestedZone = SuggestedZone;
+	DragojloCommitment.bFollowedLastLiftAdvice = false;
 
 	if (!CommitmentId.IsEmpty())
 	{
@@ -437,11 +472,26 @@ void ULoopManagerSubsystem::RecordDragojloAdvice(
 	if (Mode == EDragojloAdviceMode::MisdirectLocation)
 	{
 		DragojloCommitment.bLocationMisdirectionUsed = true;
+		DragojloCommitment.bVisitedSuggestedDecoy = false;
+		DragojloCommitment.DecoyVisitSeconds = -1.0f;
+		ActiveDragojloDecoyZoneId = Loop9RuntimePolicies::NormalizeObservationZoneId(SuggestedZone);
+		DragojloDecoyTrackingStartedAt = FPlatformTime::Seconds();
+	}
+
+	if (Mode == EDragojloAdviceMode::Confrontation)
+	{
+		DragojloCommitment.bConfrontationResponseUsed = true;
 	}
 
 	if (Mode == EDragojloAdviceMode::WrongLift)
 	{
 		DragojloCommitment.bWrongLiftUsed = true;
+		++DragojloCommitment.WrongLiftAdviceCount;
+	}
+
+	if (LiftAdvice != EDragojloLiftAdvice::None)
+	{
+		++DragojloCommitment.LiftAdviceCount;
 	}
 
 	// Accusation after a planted wrong location is the readable contradiction beat.
@@ -457,6 +507,25 @@ void ULoopManagerSubsystem::RecordDragojloAdvice(
 	}
 }
 
+void ULoopManagerSubsystem::HandleObservationZoneEntered(FName ZoneId)
+{
+	if (!Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
+		ActiveDragojloDecoyZoneId,
+		ZoneId,
+		DragojloCommitment.bVisitedSuggestedDecoy))
+	{
+		return;
+	}
+
+	DragojloCommitment.bVisitedSuggestedDecoy = true;
+	DragojloCommitment.DecoyVisitSeconds = static_cast<float>(
+		FMath::Max(0.0, FPlatformTime::Seconds() - DragojloDecoyTrackingStartedAt));
+	ActiveDragojloDecoyZoneId = NAME_None;
+
+	UE_LOG(LogTemp, Log, TEXT("Dragojlo decoy zone visited after %.2fs."),
+		DragojloCommitment.DecoyVisitSeconds);
+}
+
 void ULoopManagerSubsystem::ResetRunState()
 {
 	CurrentLoop = 1;
@@ -468,6 +537,13 @@ void ULoopManagerSubsystem::ResetRunState()
 	bElevatorTransitionActive = false;
 	bDeferredEndingPresentation = false;
 	DragojloCommitment.Reset();
+	ActiveDragojloDecoyZoneId = NAME_None;
+	DragojloDecoyTrackingStartedAt = 0.0;
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->ResetRun();
+	}
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{
@@ -797,6 +873,12 @@ void ULoopManagerSubsystem::TeleportPlayerToExit()
 
 void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 {
+	if (ULoop9ObservationJournalSubsystem* Journal =
+		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+	{
+		Journal->BeginFloor(CurrentLoop);
+	}
+
 	UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance());
 	if (!AnomalyManager)
 	{

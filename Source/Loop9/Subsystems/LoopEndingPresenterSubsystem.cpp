@@ -112,7 +112,11 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 
 	if (ULoop9TelemetrySubsystem* Telemetry = GetGameInstance()->GetSubsystem<ULoop9TelemetrySubsystem>())
 	{
-		Telemetry->SendRunFinished(EndingType, TotalResets, TotalAIInteractions);
+		const ULoopManagerSubsystem* LoopManager = GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>();
+		const FDragojloCommitmentState Commitment = LoopManager
+			? LoopManager->GetDragojloCommitmentState()
+			: FDragojloCommitmentState();
+		Telemetry->SendRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment);
 	}
 
 	PendingEndingType = EndingType;

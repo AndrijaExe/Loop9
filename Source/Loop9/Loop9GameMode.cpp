@@ -4,6 +4,8 @@
 #include "Controllers/Loop9PlayerController.h"
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "Subsystems/Loop9ObservationJournalSubsystem.h"
+#include "Subsystems/LoopManagerSubsystem.h"
 
 #include "Components/AudioComponent.h"
 #include "Engine/GameInstance.h"
@@ -37,6 +39,17 @@ void ALoop9GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	StartLevelMusic();
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		const ULoopManagerSubsystem* LoopManager =
+			GameInstance->GetSubsystem<ULoopManagerSubsystem>();
+		if (ULoop9ObservationJournalSubsystem* Journal =
+			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			Journal->BeginFloor(LoopManager ? LoopManager->CurrentLoop : 1);
+		}
+	}
 
 	if (UWorld* World = GetWorld())
 	{

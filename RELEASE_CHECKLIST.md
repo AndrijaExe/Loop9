@@ -537,10 +537,56 @@ Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
 ### Dragojlo commitment (posle v1.0.3 / Valve QA)
 
 - [x] Backend deploy sa `AI_COMMITMENT_ENABLED=true`.
+- [ ] **Editor migration — observation zone volume-i:** ako mapa pokazuje
+  eksperimentalni/missing `DragojloZoneVolume`, zapiši njegov `ZoneId` i box
+  bounds, ukloni ga, zatim iz Place Actors dodaj `Loop9ObservationZoneVolume`
+  na isto mesto. Stara klasa nije editor-adopted i nema kompatibilni runtime
+  alias.
+- [ ] U glavnom gameplay map-u dodaj po jedan `Loop9ObservationZoneVolume` za
+  svaku grubu zonu koja se koristi u
+  `AnomalyZone` (cilj je 5–6 zona, ne po jedan volume za svaki predmet).
+- [ ] Svakom volume-u postavi `ZoneId`: ukloni početno `the`, prebaci na mala
+  slova i razmake zameni `_`. Primeri: `the meeting room` → `meeting_room`,
+  `the north corridor` → `north_corridor`, `the copy alcove` → `copy_alcove`.
+- [ ] Raširi box tako da pouzdano registruje ulazak igrača u zonu, ali da se ne
+  preklapa sa liftom ili susednom zonom. Volume je samo pasivni senzor; ne
+  dodavati Blueprint logiku i ne povezivati ga sa anomaly aktivacijom.
+- [ ] Prođi sve `AnomalyComponent` instance: svaki ne-prazan `AnomalyZone` koji
+  sme da bude decoy mora imati odgovarajući `Loop9ObservationZoneVolume`.
+  Phantom ostaje bez zone; Pursuer se ne koristi kao lokacijski decoy.
+- [ ] Na važnim `InspectableComponent` instancama upiši kratki stabilni
+  `ObservationId` (`ledger`, `family_photo`); prazno namerno šalje samo
+  `generic_object`. Ne koristiti actor/asset imena.
+- [ ] Sačuvaj mapu i Standalone proveri: ulazak pre saveta se ne računa; posle
+  `misdirect_location` ulazak u baš sugerisanu zonu loguje
+  `Dragojlo decoy zone visited`. Bez odgovarajućeg volume-a backend bezbedno
+  pada na truthful savet umesto nemerljive lokacijske obmane.
+- [ ] Standalone journal QA: uđi/izađi iz dve zone, pregledaj predmet, uspešno
+  otvori/zatvori i probaj zaključana vrata, upali/ugasi lampu, pogledaj
+  Pursuer-a i dopusti mu da stigne igrača; tek uspešan AI
+  odgovor dodaje `call_completed`, a neuspešan odgovor ne. Sledeći sprat nema
+  stare floor događaje, dok `run_summary` zadržava brojeve poziva/odluka.
+- [ ] Odmah na prvom čistom spratu proveri da `floors_started=1` i da
+  `seconds_on_floor` kreće približno od nule, a ne od vremena rada procesa.
+- [ ] Proxy/backend log potvrđuje da je `observation_snapshot` ≤1024 UTF-8
+  bajta, ima najviše 8 events/8 visited_zones i nema chat, koordinate, actor
+  names, anomaly keys, commitment IDs ni relationship floatove.
+- [ ] Na Render Environment eksplicitno dodaj/vidljivo potvrdi:
+  `AI_COMMITMENT_ENABLED=true`, `AI_COMMITMENT_LOCATION_ENABLED=true` i
+  `AI_COMMITMENT_WRONG_LIFT_ENABLED=true`. Posle journal smoke testa postavi
+  i `AI_OBSERVATION_CONTEXT_ENABLED=true`; njegovim vraćanjem na `false`
+  gasi se samo AI naracija observacija, bez gašenja lokalnog bounded journala.
+  Za brzo gašenje pogrešnog lifta promeni samo wrong-lift flag na `false`.
 - [ ] Staging/live voice probe: accurate → misdirect → accusation → surrender →
   wrong-lift (`tools/dragojlo-voice-probe.php`, luna+terra, SR/EN/DE/FR/RU).
 - [ ] Ručni QA: neutralan run bez laži; dependent run sa jednom pogrešnom
   lokacijom; Obedient kandidat sa najviše jednim pogrešnim liftom.
+- [ ] Posle razotkrivene kontradikcije sledeći uspešan odgovor je jednom
+  defanzivan (`advice.mode=confrontation`), ne priznaje namernu laž i ne daje
+  novi lift/lokaciju; naredni odgovori se vraćaju na normalan policy.
+- [ ] Ending telemetry log sadrži commitment agregate: offered/visited decoy,
+  vreme do posete, exposed contradiction, lift advice/follow count i posebno
+  da li je pogrešan lift poslušan. Nema koordinata ni chat teksta.
 - [ ] Šest ending profila i dalje dostižni; Escape Together nije blokiran.
 - [ ] Pratiti `ai.fallback`, format greške i raspodelu endinga posle uključivanja.
 

@@ -119,9 +119,32 @@ whether a wrong lift was already spent. Cleared only in `ResetRunState` — not
 saved, not Clouded, not stored on the backend.
 
 `UAnomalyManager::SelectDecoyZone()` picks one authored inactive zone that
-differs from every active zone. Pursuer and Phantom placements are never decoy
-sources. The client sends `decoy_zone` + `advice_state` with each chat request;
-the optional response `advice` object updates commitment without parsing reply
+differs from every active zone and has a matching passive
+`ALoop9ObservationZoneVolume`. Pursuer and Phantom placements are never decoy
+sources. The subsystem registry supplies these checks without world actor scans.
+The client sends `decoy_zone` + `advice_state` with each chat request; the
+optional response `advice` object updates commitment without parsing reply
 text. Elevator commit compares the pressed button to `LastLiftAdvice`.
 
-Feature flag on the backend: `AI_COMMITMENT_ENABLED` (default false).
+Entering the suggested volume after `misdirect_location` records a one-shot
+visit and elapsed seconds. A later `SUSPICION=1` unlocks one defensive
+`confrontation` response. Ending telemetry sends aggregate advice/visit/follow
+counts only—never chat, coordinates, paths, or zone names.
+
+## Bounded observation journal
+
+`ULoop9ObservationJournalSubsystem` owns an advisory per-floor journal. Zone
+volumes, successful inspections and door actions, flashlight toggles, verified
+pursuer sightings/catches, and validated phone responses emit structured
+events. Committed lift results update only fixed run counters because the floor
+event buffer resets immediately afterward. Floor history resets with
+`GenerateAnomalyForNextLoop`; the fixed run summary survives floors and resets
+in `ResetRunState`.
+
+The journal is one-way context for `AAI_Friend` chat requests. Gameplay systems
+must never read it to judge the lift, mutate relationships, grant achievements,
+choose endings, emit telemetry, spawn anomalies, or select `AdvicePolicy`.
+
+Backend switches: `AI_COMMITMENT_ENABLED` (master),
+`AI_COMMITMENT_LOCATION_ENABLED`, `AI_COMMITMENT_WRONG_LIFT_ENABLED`, and
+`AI_OBSERVATION_CONTEXT_ENABLED` for observation narration only.
