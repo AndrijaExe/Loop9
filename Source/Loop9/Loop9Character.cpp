@@ -489,10 +489,7 @@ void ALoop9Character::ToggleFlashlight()
 		if (ULoop9ObservationJournalSubsystem* Journal =
 			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 		{
-			Journal->RecordEvent(
-				bTurningOn
-					? ELoop9ObservationEventType::FlashlightOn
-					: ELoop9ObservationEventType::FlashlightOff);
+			Journal->RecordFlashlightState(bTurningOn);
 		}
 	}
 

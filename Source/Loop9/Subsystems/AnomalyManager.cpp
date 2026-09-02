@@ -4,6 +4,7 @@
 #include "Anomaly/AnomalyTypes.h"
 #include "Anomaly/MaterialSwapAnomalyComponent.h"
 #include "Anomaly/ScaleAnomalyComponent.h"
+#include "Runtime/Loop9ObservationIds.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Algo/Sort.h"
@@ -430,7 +431,7 @@ FString UAnomalyManager::SelectDecoyZone() const
 			continue;
 		}
 
-		const FName ZoneId = Loop9RuntimePolicies::NormalizeObservationZoneId(Zone);
+		const FName ZoneId = Loop9ObservationIds::Canonicalize(Zone);
 		if (Journal
 			&& Journal->IsZoneRegistered(ZoneId)
 			&& !Journal->IsPlayerInsideZone(ZoneId))

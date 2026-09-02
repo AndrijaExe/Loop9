@@ -21,10 +21,13 @@ class LOOP9_API ULoop9ObservationJournalSubsystem : public UGameInstanceSubsyste
 public:
 	void BeginFloor(int32 FloorIndex);
 	void ResetRun();
-	void RecordEvent(
-		ELoop9ObservationEventType Type,
-		FName SubjectId = NAME_None,
-		FName ZoneOverride = NAME_None);
+	void RecordObjectInspected(FName SubjectId = NAME_None);
+	void RecordDoorOpened(FName SubjectId = NAME_None);
+	void RecordDoorClosed(FName SubjectId = NAME_None);
+	void RecordDoorDenied(FName SubjectId = NAME_None);
+	void RecordFlashlightState(bool bEnabled);
+	void RecordPursuerObserved();
+	void RecordPursuerCaught();
 	void RecordAIInteraction();
 	void RecordElevatorDecision(FName ChoiceId, bool bWasCorrect);
 	FLoop9ObservationSnapshot GetSnapshot() const;
@@ -45,9 +48,14 @@ private:
 		FName ZoneId = NAME_None;
 	};
 
+	void RecordEvent(
+		ELoop9ObservationEventType Type,
+		FName SubjectId = NAME_None,
+		FName ZoneOverride = NAME_None);
 	FName FindZoneId(const ALoop9ObservationZoneVolume* Volume) const;
-	void RefreshCurrentZone();
+	void RefreshCurrentZone(bool bRememberVisit = true);
 	void PruneZoneRegistry();
+	void ReconcileOccupiedVolumes();
 
 	FLoop9ObservationJournalCore Journal;
 	TArray<FRegisteredZone> RegisteredZones;

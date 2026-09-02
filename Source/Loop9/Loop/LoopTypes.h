@@ -129,26 +129,6 @@ struct FDragojloCommitmentState
 	/** Seconds from the planted location hint to entering its authored zone; -1 when unvisited. */
 	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
 	float DecoyVisitSeconds = -1.0f;
-
-	void Reset()
-	{
-		LastAdviceMode = EDragojloAdviceMode::None;
-		LastLiftAdvice = EDragojloLiftAdvice::None;
-		LastSuggestedZone.Empty();
-		LastCommitmentId.Empty();
-		bLocationMisdirectionUsed = false;
-		bContradictionExposed = false;
-		bPendingDecisionSurrender = false;
-		bWrongLiftUsed = false;
-		bFollowedLastLiftAdvice = false;
-		bVisitedSuggestedDecoy = false;
-		bConfrontationResponseUsed = false;
-		LiftAdviceCount = 0;
-		FollowedLiftAdviceCount = 0;
-		WrongLiftAdviceCount = 0;
-		FollowedWrongLiftAdviceCount = 0;
-		DecoyVisitSeconds = -1.0f;
-	}
 };
 
 /** In-memory beat for the post-run timeline. Cleared on each new shift. */

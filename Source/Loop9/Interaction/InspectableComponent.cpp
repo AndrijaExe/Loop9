@@ -121,9 +121,7 @@ bool UInspectableComponent::StartInspection(APlayerController* InteractingContro
 		if (ULoop9ObservationJournalSubsystem* Journal =
 			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 		{
-			Journal->RecordEvent(
-				ELoop9ObservationEventType::ObjectInspected,
-				ObservationId.IsNone() ? FName(TEXT("generic_object")) : ObservationId);
+			Journal->RecordObjectInspected(ObservationId);
 		}
 	}
 	return true;

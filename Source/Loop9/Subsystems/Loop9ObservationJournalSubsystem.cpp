@@ -1,18 +1,74 @@
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
 
 #include "HAL/PlatformTime.h"
+#include "GameFramework/Pawn.h"
 #include "Interaction/Loop9ObservationZoneVolume.h"
+#include "Kismet/GameplayStatics.h"
 
 void ULoop9ObservationJournalSubsystem::BeginFloor(int32 FloorIndex)
 {
+	PruneZoneRegistry();
 	Journal.BeginFloor(FloorIndex, FPlatformTime::Seconds());
-	OccupiedVolumes.Reset();
+	// Physical overlap can span a floor rollover (notably during the elevator
+	// cinematic). Restore the current zone without inventing a new entered event.
+	ReconcileOccupiedVolumes();
+	RefreshCurrentZone(false);
 }
 
 void ULoop9ObservationJournalSubsystem::ResetRun()
 {
 	Journal.ResetRun();
 	OccupiedVolumes.Reset();
+}
+
+void ULoop9ObservationJournalSubsystem::RecordObjectInspected(FName SubjectId)
+{
+	RecordEvent(
+		ELoop9ObservationEventType::ObjectInspected,
+		SubjectId.IsNone() ? FName(TEXT("generic_object")) : SubjectId);
+}
+
+void ULoop9ObservationJournalSubsystem::RecordDoorOpened(FName SubjectId)
+{
+	RecordEvent(
+		ELoop9ObservationEventType::DoorOpened,
+		SubjectId.IsNone() ? FName(TEXT("generic_door")) : SubjectId);
+}
+
+void ULoop9ObservationJournalSubsystem::RecordDoorClosed(FName SubjectId)
+{
+	RecordEvent(
+		ELoop9ObservationEventType::DoorClosed,
+		SubjectId.IsNone() ? FName(TEXT("generic_door")) : SubjectId);
+}
+
+void ULoop9ObservationJournalSubsystem::RecordDoorDenied(FName SubjectId)
+{
+	RecordEvent(
+		ELoop9ObservationEventType::DoorDenied,
+		SubjectId.IsNone() ? FName(TEXT("generic_door")) : SubjectId);
+}
+
+void ULoop9ObservationJournalSubsystem::RecordFlashlightState(bool bEnabled)
+{
+	RecordEvent(
+		bEnabled
+			? ELoop9ObservationEventType::FlashlightOn
+			: ELoop9ObservationEventType::FlashlightOff);
+}
+
+void ULoop9ObservationJournalSubsystem::RecordPursuerObserved()
+{
+	RecordEvent(
+		ELoop9ObservationEventType::PursuerObserved,
+		FName(TEXT("generic_pursuer")));
+}
+
+void ULoop9ObservationJournalSubsystem::RecordPursuerCaught()
+{
+	RecordEvent(
+		ELoop9ObservationEventType::PursuerCaught,
+		FName(TEXT("generic_pursuer")));
 }
 
 void ULoop9ObservationJournalSubsystem::RecordEvent(
@@ -48,7 +104,7 @@ void ULoop9ObservationJournalSubsystem::RegisterZoneVolume(
 		return;
 	}
 
-	const FName SafeZoneId = FLoop9ObservationJournalCore::SanitizeIdentifier(ZoneId);
+	const FName SafeZoneId = Loop9ObservationIds::Canonicalize(ZoneId);
 	if (SafeZoneId.IsNone())
 	{
 		return;
@@ -128,7 +184,7 @@ void ULoop9ObservationJournalSubsystem::NotifyPlayerExitedZone(ALoop9Observation
 
 bool ULoop9ObservationJournalSubsystem::IsZoneRegistered(FName ZoneId) const
 {
-	const FName SafeZoneId = FLoop9ObservationJournalCore::SanitizeIdentifier(ZoneId);
+	const FName SafeZoneId = Loop9ObservationIds::Canonicalize(ZoneId);
 	for (const FRegisteredZone& Registered : RegisteredZones)
 	{
 		if (Registered.Volume.IsValid() && Registered.ZoneId == SafeZoneId)
@@ -141,7 +197,7 @@ bool ULoop9ObservationJournalSubsystem::IsZoneRegistered(FName ZoneId) const
 
 bool ULoop9ObservationJournalSubsystem::IsPlayerInsideZone(FName ZoneId) const
 {
-	const FName SafeZoneId = FLoop9ObservationJournalCore::SanitizeIdentifier(ZoneId);
+	const FName SafeZoneId = Loop9ObservationIds::Canonicalize(ZoneId);
 	for (const TWeakObjectPtr<ALoop9ObservationZoneVolume>& Occupied : OccupiedVolumes)
 	{
 		if (Occupied.IsValid() && FindZoneId(Occupied.Get()) == SafeZoneId)
@@ -165,7 +221,7 @@ FName ULoop9ObservationJournalSubsystem::FindZoneId(
 	return NAME_None;
 }
 
-void ULoop9ObservationJournalSubsystem::RefreshCurrentZone()
+void ULoop9ObservationJournalSubsystem::RefreshCurrentZone(bool bRememberVisit)
 {
 	OccupiedVolumes.RemoveAll([](const TWeakObjectPtr<ALoop9ObservationZoneVolume>& Volume)
 	{
@@ -178,7 +234,15 @@ void ULoop9ObservationJournalSubsystem::RefreshCurrentZone()
 		return;
 	}
 
-	Journal.SetCurrentZone(FindZoneId(OccupiedVolumes.Last().Get()));
+	const FName ZoneId = FindZoneId(OccupiedVolumes.Last().Get());
+	if (bRememberVisit)
+	{
+		Journal.SetCurrentZone(ZoneId);
+	}
+	else
+	{
+		Journal.RestoreCurrentZone(ZoneId);
+	}
 }
 
 void ULoop9ObservationJournalSubsystem::PruneZoneRegistry()
@@ -191,4 +255,29 @@ void ULoop9ObservationJournalSubsystem::PruneZoneRegistry()
 	{
 		return !Volume.IsValid();
 	});
+}
+
+void ULoop9ObservationJournalSubsystem::ReconcileOccupiedVolumes()
+{
+	const APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	OccupiedVolumes.RemoveAll([PlayerPawn](const TWeakObjectPtr<ALoop9ObservationZoneVolume>& Volume)
+	{
+		return !Volume.IsValid() || !Volume->IsOverlappingActor(PlayerPawn);
+	});
+
+	for (const FRegisteredZone& Registered : RegisteredZones)
+	{
+		ALoop9ObservationZoneVolume* Volume = Registered.Volume.Get();
+		if (Volume
+			&& Volume->IsOverlappingActor(PlayerPawn)
+			&& !OccupiedVolumes.Contains(Volume))
+		{
+			OccupiedVolumes.Add(Volume);
+		}
+	}
 }

@@ -6,7 +6,6 @@
 #include "Subsystems/RelationshipSubsystem.h"
 #include "Subsystems/LoopEndingPresenterSubsystem.h"
 #include "Loop/LoopEndingEvaluator.h"
-#include "Runtime/Loop9RuntimePolicies.h"
 #include "TeleportPoint.h"
 #include "AI_Friend.h"
 #include "AI_ChatWidget.h"
@@ -216,22 +215,7 @@ bool ULoopManagerSubsystem::CommitElevatorDecision(
 			Decision.bWasCorrect);
 	}
 
-	if (DragojloCommitment.LastLiftAdvice != EDragojloLiftAdvice::None)
-	{
-		const bool bChoseLit = Decision.ButtonType == EButtonType::Reset;
-		const bool bAdviceWasLit = DragojloCommitment.LastLiftAdvice == EDragojloLiftAdvice::Lit;
-		DragojloCommitment.bFollowedLastLiftAdvice = (bChoseLit == bAdviceWasLit);
-		if (DragojloCommitment.bFollowedLastLiftAdvice)
-		{
-			++DragojloCommitment.FollowedLiftAdviceCount;
-			if (DragojloCommitment.LastAdviceMode == EDragojloAdviceMode::WrongLift)
-			{
-				++DragojloCommitment.FollowedWrongLiftAdviceCount;
-			}
-		}
-		DragojloCommitment.bPendingDecisionSurrender = false;
-		DragojloCommitment.LastLiftAdvice = EDragojloLiftAdvice::None;
-	}
+	DragojloCommitmentTracker.ApplyDecision(Decision.ButtonType);
 
 	if (ULoop9AchievementsSubsystem* Achievements = GetGameInstance()->GetSubsystem<ULoop9AchievementsSubsystem>())
 	{
@@ -459,71 +443,25 @@ void ULoopManagerSubsystem::RecordDragojloAdvice(
 	int32 SuspicionDelta,
 	int32 DependencyDelta)
 {
-	DragojloCommitment.LastAdviceMode = Mode;
-	DragojloCommitment.LastLiftAdvice = LiftAdvice;
-	DragojloCommitment.LastSuggestedZone = SuggestedZone;
-	DragojloCommitment.bFollowedLastLiftAdvice = false;
-
-	if (!CommitmentId.IsEmpty())
-	{
-		DragojloCommitment.LastCommitmentId = CommitmentId;
-	}
-
-	if (Mode == EDragojloAdviceMode::MisdirectLocation)
-	{
-		DragojloCommitment.bLocationMisdirectionUsed = true;
-		DragojloCommitment.bVisitedSuggestedDecoy = false;
-		DragojloCommitment.DecoyVisitSeconds = -1.0f;
-		ActiveDragojloDecoyZoneId = Loop9RuntimePolicies::NormalizeObservationZoneId(SuggestedZone);
-		DragojloDecoyTrackingStartedAt = FPlatformTime::Seconds();
-	}
-
-	if (Mode == EDragojloAdviceMode::Confrontation)
-	{
-		DragojloCommitment.bConfrontationResponseUsed = true;
-	}
-
-	if (Mode == EDragojloAdviceMode::WrongLift)
-	{
-		DragojloCommitment.bWrongLiftUsed = true;
-		++DragojloCommitment.WrongLiftAdviceCount;
-	}
-
-	if (LiftAdvice != EDragojloLiftAdvice::None)
-	{
-		++DragojloCommitment.LiftAdviceCount;
-	}
-
-	// Accusation after a planted wrong location is the readable contradiction beat.
-	if (DragojloCommitment.bLocationMisdirectionUsed && SuspicionDelta > 0)
-	{
-		DragojloCommitment.bContradictionExposed = true;
-	}
-
-	// Surrendering the decision while still withheld arms the late wrong-lift path.
-	if (Mode == EDragojloAdviceMode::Withhold && DependencyDelta > 0)
-	{
-		DragojloCommitment.bPendingDecisionSurrender = true;
-	}
+	DragojloCommitmentTracker.ApplyAdvice(
+		Mode,
+		LiftAdvice,
+		SuggestedZone,
+		CommitmentId,
+		SuspicionDelta,
+		DependencyDelta,
+		FPlatformTime::Seconds());
 }
 
 void ULoopManagerSubsystem::HandleObservationZoneEntered(FName ZoneId)
 {
-	if (!Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
-		ActiveDragojloDecoyZoneId,
-		ZoneId,
-		DragojloCommitment.bVisitedSuggestedDecoy))
+	if (!DragojloCommitmentTracker.OnZoneEntered(ZoneId, FPlatformTime::Seconds()))
 	{
 		return;
 	}
 
-	DragojloCommitment.bVisitedSuggestedDecoy = true;
-	DragojloCommitment.DecoyVisitSeconds = static_cast<float>(
-		FMath::Max(0.0, FPlatformTime::Seconds() - DragojloDecoyTrackingStartedAt));
-	ActiveDragojloDecoyZoneId = NAME_None;
-
 	UE_LOG(LogTemp, Log, TEXT("Dragojlo decoy zone visited after %.2fs."),
-		DragojloCommitment.DecoyVisitSeconds);
+		DragojloCommitmentTracker.GetState().DecoyVisitSeconds);
 }
 
 void ULoopManagerSubsystem::ResetRunState()
@@ -536,9 +474,7 @@ void ULoopManagerSubsystem::ResetRunState()
 	ActiveElevatorDecisionId = 0;
 	bElevatorTransitionActive = false;
 	bDeferredEndingPresentation = false;
-	DragojloCommitment.Reset();
-	ActiveDragojloDecoyZoneId = NAME_None;
-	DragojloDecoyTrackingStartedAt = 0.0;
+	DragojloCommitmentTracker.Reset();
 	if (ULoop9ObservationJournalSubsystem* Journal =
 		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 	{

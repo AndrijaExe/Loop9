@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Loop9ObservationIds.h"
 #include "Loop9ObservationJournal.generated.h"
 
 UENUM()
@@ -73,11 +74,13 @@ public:
 	static constexpr int32 MaxInternalEvents = 16;
 	static constexpr int32 MaxProjectedEvents = 8;
 	static constexpr int32 MaxVisitedZones = 8;
-	static constexpr int32 MaxIdentifierLength = 32;
+	static constexpr int32 MaxIdentifierLength = Loop9ObservationIds::MaxLength;
 
 	void ResetRun();
 	void BeginFloor(int32 FloorIndex, double NowSeconds);
 	void SetCurrentZone(FName ZoneId);
+	/** Restores physical occupancy without recording a visit in the new floor. */
+	void RestoreCurrentZone(FName ZoneId);
 	void ClearCurrentZone(FName ZoneId);
 	void Record(
 		ELoop9ObservationEventType Type,
@@ -92,8 +95,6 @@ public:
 	FName GetCurrentZone() const { return CurrentZone; }
 	int32 GetFloorIndex() const { return CurrentFloorIndex; }
 
-	static FName SanitizeIdentifier(FName Identifier, FName Fallback = NAME_None);
-	static FString EventTypeToWire(ELoop9ObservationEventType Type);
 	static int32 EventPriority(ELoop9ObservationEventType Type);
 
 private:

@@ -1,5 +1,6 @@
 #include "AI/Services/Loop9BackendChatService.h"
 
+#include "AI/Services/Loop9ObservationCodec.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
@@ -214,88 +215,6 @@ bool ULoop9BackendChatService::TryParseAdviceObject(const TSharedPtr<FJsonObject
 	return OutResponse.AdviceMode != EDragojloAdviceMode::None;
 }
 
-FString ULoop9BackendChatService::SerializeObservationSnapshot(
-	const FLoop9ObservationSnapshot& Snapshot,
-	int32 MaxUtf8Bytes)
-{
-	const int32 SafeBudget = FMath::Max(1, MaxUtf8Bytes);
-	int32 EventCount = FMath::Min(
-		Snapshot.Events.Num(),
-		FLoop9ObservationJournalCore::MaxProjectedEvents);
-
-	for (; EventCount >= 0; --EventCount)
-	{
-		TSharedPtr<FJsonObject> Root = MakeShareable(new FJsonObject());
-		Root->SetStringField(
-			TEXT("current_zone"),
-			FLoop9ObservationJournalCore::SanitizeIdentifier(Snapshot.CurrentZone).ToString());
-		Root->SetNumberField(TEXT("seconds_on_floor"), Snapshot.SecondsOnFloor);
-
-		TArray<TSharedPtr<FJsonValue>> EventValues;
-		for (int32 Index = 0; Index < EventCount; ++Index)
-		{
-			const FLoop9ObservationEvent& Event = Snapshot.Events[Index];
-			TSharedPtr<FJsonObject> EventObject = MakeShareable(new FJsonObject());
-			EventObject->SetStringField(
-				TEXT("type"),
-				FLoop9ObservationJournalCore::EventTypeToWire(Event.Type));
-			const FName SafeZone =
-				FLoop9ObservationJournalCore::SanitizeIdentifier(Event.ZoneId);
-			const FName SafeSubject =
-				FLoop9ObservationJournalCore::SanitizeIdentifier(Event.SubjectId);
-			if (!SafeZone.IsNone())
-			{
-				EventObject->SetStringField(TEXT("zone"), SafeZone.ToString());
-			}
-			if (!SafeSubject.IsNone())
-			{
-				EventObject->SetStringField(TEXT("subject"), SafeSubject.ToString());
-			}
-			EventObject->SetNumberField(TEXT("count"), Event.Count);
-			EventObject->SetNumberField(
-				TEXT("age_seconds"),
-				FMath::Max(0, static_cast<int32>(Snapshot.SecondsOnFloor)
-					- static_cast<int32>(Event.AtSecond)));
-			EventValues.Add(MakeShareable(new FJsonValueObject(EventObject)));
-		}
-		Root->SetArrayField(TEXT("events"), EventValues);
-
-		TArray<TSharedPtr<FJsonValue>> VisitedZoneValues;
-		const int32 VisitedZoneCount = FMath::Min(
-			Snapshot.VisitedZones.Num(),
-			FLoop9ObservationJournalCore::MaxVisitedZones);
-		for (int32 Index = 0; Index < VisitedZoneCount; ++Index)
-		{
-			const FName SafeZone =
-				FLoop9ObservationJournalCore::SanitizeIdentifier(Snapshot.VisitedZones[Index]);
-			if (!SafeZone.IsNone())
-			{
-				VisitedZoneValues.Add(MakeShareable(new FJsonValueString(SafeZone.ToString())));
-			}
-		}
-		Root->SetArrayField(TEXT("visited_zones"), VisitedZoneValues);
-
-		TSharedPtr<FJsonObject> SummaryObject = MakeShareable(new FJsonObject());
-		SummaryObject->SetNumberField(TEXT("floors_started"), Snapshot.RunSummary.FloorsStarted);
-		SummaryObject->SetNumberField(TEXT("ai_interactions"), Snapshot.RunSummary.AIInteractions);
-		SummaryObject->SetNumberField(TEXT("elevator_decisions"), Snapshot.RunSummary.ElevatorDecisions);
-		SummaryObject->SetNumberField(TEXT("correct_decisions"), Snapshot.RunSummary.CorrectDecisions);
-		Root->SetObjectField(TEXT("run_summary"), SummaryObject);
-
-		FString Output;
-		TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
-			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Output);
-		FJsonSerializer::Serialize(Root.ToSharedRef(), Writer);
-		const FTCHARToUTF8 Utf8(*Output);
-		if (Utf8.Length() <= SafeBudget)
-		{
-			return Output;
-		}
-	}
-
-	return FString();
-}
-
 void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& Context, FOnLoop9ChatResponseReceived OnComplete)
 {
 	FLoop9ChatResponse Result;
@@ -386,14 +305,10 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 
 	if (Context.ObservationSnapshot.IsSet())
 	{
-		const FString SnapshotJson = SerializeObservationSnapshot(
-			Context.ObservationSnapshot.GetValue());
-		TSharedPtr<FJsonObject> SnapshotObject;
-		const TSharedRef<TJsonReader<>> SnapshotReader =
-			TJsonReaderFactory<>::Create(SnapshotJson);
-		if (!SnapshotJson.IsEmpty()
-			&& FJsonSerializer::Deserialize(SnapshotReader, SnapshotObject)
-			&& SnapshotObject.IsValid())
+		const TSharedPtr<FJsonObject> SnapshotObject =
+			FLoop9ObservationCodec::BuildSnapshotObject(
+				Context.ObservationSnapshot.GetValue());
+		if (SnapshotObject.IsValid())
 		{
 			JsonObject->SetObjectField(TEXT("observation_snapshot"), SnapshotObject);
 		}

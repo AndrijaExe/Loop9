@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Loop/LoopTypes.h"
+#include "Runtime/DragojloCommitmentTracker.h"
 #include "LoopManagerSubsystem.generated.h"
 
 class URelationshipSubsystem;
@@ -104,7 +105,10 @@ public:
 		int32 SuspicionDelta,
 		int32 DependencyDelta);
 
-	const FDragojloCommitmentState& GetDragojloCommitmentState() const { return DragojloCommitment; }
+	const FDragojloCommitmentState& GetDragojloCommitmentState() const
+	{
+		return DragojloCommitmentTracker.GetState();
+	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void RegisterLoopDecision(bool bWasCorrect, bool bAnomalyExisted, EButtonType ButtonType);
@@ -182,7 +186,5 @@ private:
 	bool bElevatorTransitionActive = false;
 	bool bDeferredEndingPresentation = false;
 
-	FDragojloCommitmentState DragojloCommitment;
-	FName ActiveDragojloDecoyZoneId;
-	double DragojloDecoyTrackingStartedAt = 0.0;
+	FDragojloCommitmentTracker DragojloCommitmentTracker;
 };

@@ -77,8 +77,4 @@ public:
 	static EDragojloAdviceMode AdviceModeFromWire(const FString& Wire);
 	static FString LiftAdviceToWire(EDragojloLiftAdvice Advice);
 	static EDragojloLiftAdvice LiftAdviceFromWire(const FString& Wire);
-	/** Serializes only the snapshot and deterministically drops trailing events to fit. */
-	static FString SerializeObservationSnapshot(
-		const FLoop9ObservationSnapshot& Snapshot,
-		int32 MaxUtf8Bytes = 1024);
 };

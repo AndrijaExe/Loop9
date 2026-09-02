@@ -111,12 +111,15 @@ Initial phone rule (localized) uses lit/dark elevator wording and states that th
 
 ## Dragojlo commitment (per-run)
 
-Structured advice memory lives in `ULoopManagerSubsystem` as
-`FDragojloCommitmentState`. It tracks the last server `advice` mode / lift /
-zone, whether a location lie was used, whether the player later accused him
-(`SUSPICION=1`), whether they surrendered a decision on a withheld reply, and
-whether a wrong lift was already spent. Cleared only in `ResetRunState` — not
-saved, not Clouded, not stored on the backend.
+`ULoopManagerSubsystem` delegates structured advice memory to the pure
+`FDragojloCommitmentTracker`. Its `FDragojloCommitmentState` projection tracks
+the last server `advice` mode / actionable lift / zone, whether a location lie
+was used, whether the player later accused him (`SUSPICION=1`), whether they
+surrendered a decision on a withheld reply, and whether a wrong lift was
+already spent. Pending lift advice is consumed only by an elevator decision, so
+an intervening non-lift response cannot erase follow telemetry. The tracker is
+cleared only in `ResetRunState` — not saved, not Clouded, not stored on the
+backend.
 
 `UAnomalyManager::SelectDecoyZone()` picks one authored inactive zone that
 differs from every active zone and has a matching passive

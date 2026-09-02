@@ -35,12 +35,14 @@ flowchart TB
 | Concern | Owner | Notes |
 |---|---|---|
 | Current loop, game finished, elevator decision IDs | `ULoopManagerSubsystem` | Game Instance |
+| Per-run Dragojlo advice reduction | `FDragojloCommitmentTracker` | Pure reducer owned by LoopManager |
 | Active anomaly registration / selection | `UAnomalyManager` | Game Instance |
 | Trust / kindness / suspicion / dependency / AI stability | `URelationshipSubsystem` | Game Instance |
 | Ending evaluation + sequence/widget presentation | `ULoopEndingPresenterSubsystem` | `FLoopEndingEvaluator` scores all six after a `< 3` chat Paranoid gate |
 | Steam achievements | `ULoop9AchievementsSubsystem` | No-op without Steam |
 | Steam session token for chat | `ULoop9BackendAuthSubsystem` | Ticket → `/api/auth/steam` |
 | Chat HTTP | `ULoop9BackendChatService` | Static-safe response handling |
+| Observation request encoding | `FLoop9ObservationCodec` | Wire names, JSON shape, 1024-byte budget |
 | Bounded observation context + zone registry | `ULoop9ObservationJournalSubsystem` | Advisory Game Instance state; never gameplay authority |
 | Elevator doors / fade / teleport timing / travel audio | `ALoopElevatorTransitionDirector` | World actor |
 | Ending Level Sequences | `ALoop9GameMode::EndingSequences` | Soft refs; presenter plays them |

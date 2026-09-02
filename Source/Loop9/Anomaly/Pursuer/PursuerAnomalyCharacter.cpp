@@ -255,9 +255,7 @@ void APursuerAnomalyCharacter::ApplyObservationFreeze(bool bObservedNow)
 			if (ULoop9ObservationJournalSubsystem* Journal =
 				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 			{
-				Journal->RecordEvent(
-					ELoop9ObservationEventType::PursuerObserved,
-					FName(TEXT("generic_pursuer")));
+				Journal->RecordPursuerObserved();
 			}
 		}
 	}
@@ -283,9 +281,7 @@ void APursuerAnomalyCharacter::CatchAndDespawn(bool bCaughtPlayer)
 			if (ULoop9ObservationJournalSubsystem* Journal =
 				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 			{
-				Journal->RecordEvent(
-					ELoop9ObservationEventType::PursuerCaught,
-					FName(TEXT("generic_pursuer")));
+				Journal->RecordPursuerCaught();
 			}
 		}
 	}

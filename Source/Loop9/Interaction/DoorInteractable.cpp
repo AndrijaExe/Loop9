@@ -154,9 +154,7 @@ bool ADoorInteractable::Interact()
 			if (ULoop9ObservationJournalSubsystem* Journal =
 				GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 			{
-				Journal->RecordEvent(
-					ELoop9ObservationEventType::DoorDenied,
-					FName(TEXT("generic_door")));
+				Journal->RecordDoorDenied();
 			}
 		}
 		return false;
@@ -173,11 +171,14 @@ bool ADoorInteractable::Interact()
 		if (ULoop9ObservationJournalSubsystem* Journal =
 			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
 		{
-			Journal->RecordEvent(
-				bIsOpen
-					? ELoop9ObservationEventType::DoorOpened
-					: ELoop9ObservationEventType::DoorClosed,
-				FName(TEXT("generic_door")));
+			if (bIsOpen)
+			{
+				Journal->RecordDoorOpened();
+			}
+			else
+			{
+				Journal->RecordDoorClosed();
+			}
 		}
 	}
 	return true;

@@ -2,17 +2,6 @@
 
 #include "Algo/Reverse.h"
 
-namespace
-{
-	bool IsIdentifierCharacter(TCHAR Character)
-	{
-		return (Character >= TEXT('a') && Character <= TEXT('z'))
-			|| (Character >= TEXT('0') && Character <= TEXT('9'))
-			|| Character == TEXT('_')
-			|| Character == TEXT('-');
-	}
-}
-
 void FLoop9ObservationJournalCore::ResetRun()
 {
 	Events.Reset();
@@ -37,13 +26,18 @@ void FLoop9ObservationJournalCore::BeginFloor(int32 FloorIndex, double NowSecond
 
 void FLoop9ObservationJournalCore::SetCurrentZone(FName ZoneId)
 {
-	CurrentZone = SanitizeIdentifier(ZoneId);
+	CurrentZone = Loop9ObservationIds::Canonicalize(ZoneId);
 	RememberVisitedZone(CurrentZone);
+}
+
+void FLoop9ObservationJournalCore::RestoreCurrentZone(FName ZoneId)
+{
+	CurrentZone = Loop9ObservationIds::Canonicalize(ZoneId);
 }
 
 void FLoop9ObservationJournalCore::ClearCurrentZone(FName ZoneId)
 {
-	if (CurrentZone == SanitizeIdentifier(ZoneId))
+	if (CurrentZone == Loop9ObservationIds::Canonicalize(ZoneId))
 	{
 		CurrentZone = NAME_None;
 	}
@@ -55,8 +49,8 @@ void FLoop9ObservationJournalCore::Record(
 	FName SubjectId,
 	double NowSeconds)
 {
-	const FName SafeZone = SanitizeIdentifier(ZoneId);
-	const FName SafeSubject = SanitizeIdentifier(SubjectId);
+	const FName SafeZone = Loop9ObservationIds::Canonicalize(ZoneId);
+	const FName SafeSubject = Loop9ObservationIds::Canonicalize(SubjectId);
 	const uint16 AtSecond = SaturatingSeconds(NowSeconds - FloorStartedAt);
 
 	if (Type == ELoop9ObservationEventType::ZoneEntered)
@@ -131,71 +125,6 @@ FLoop9ObservationSnapshot FLoop9ObservationJournalCore::BuildSnapshot(double Now
 		Snapshot.Events.SetNum(MaxProjectedEvents);
 	}
 	return Snapshot;
-}
-
-FName FLoop9ObservationJournalCore::SanitizeIdentifier(FName Identifier, FName Fallback)
-{
-	if (Identifier.IsNone())
-	{
-		return Fallback.IsNone() ? NAME_None : SanitizeIdentifier(Fallback);
-	}
-
-	FString Source = Identifier.ToString().TrimStartAndEnd().ToLower();
-	FString Safe;
-	Safe.Reserve(FMath::Min(Source.Len(), MaxIdentifierLength));
-	bool bLastWasSeparator = false;
-
-	for (const TCHAR Character : Source)
-	{
-		if (Safe.Len() >= MaxIdentifierLength)
-		{
-			break;
-		}
-
-		TCHAR Output = Character;
-		if (FChar::IsWhitespace(Character))
-		{
-			Output = TEXT('_');
-		}
-		if (!IsIdentifierCharacter(Output))
-		{
-			continue;
-		}
-
-		const bool bSeparator = Output == TEXT('_') || Output == TEXT('-');
-		if (bSeparator && (Safe.IsEmpty() || bLastWasSeparator))
-		{
-			continue;
-		}
-		Safe.AppendChar(Output);
-		bLastWasSeparator = bSeparator;
-	}
-
-	while (Safe.EndsWith(TEXT("_")) || Safe.EndsWith(TEXT("-")))
-	{
-		Safe.LeftChopInline(1, EAllowShrinking::No);
-	}
-	return Safe.IsEmpty()
-		? (Fallback.IsNone() ? NAME_None : SanitizeIdentifier(Fallback))
-		: FName(*Safe);
-}
-
-FString FLoop9ObservationJournalCore::EventTypeToWire(ELoop9ObservationEventType Type)
-{
-	switch (Type)
-	{
-	case ELoop9ObservationEventType::ZoneEntered: return TEXT("zone_entered");
-	case ELoop9ObservationEventType::ObjectInspected: return TEXT("object_inspected");
-	case ELoop9ObservationEventType::DoorOpened: return TEXT("door_opened");
-	case ELoop9ObservationEventType::DoorClosed: return TEXT("door_closed");
-	case ELoop9ObservationEventType::DoorDenied: return TEXT("door_denied");
-	case ELoop9ObservationEventType::FlashlightOn: return TEXT("flashlight_on");
-	case ELoop9ObservationEventType::FlashlightOff: return TEXT("flashlight_off");
-	case ELoop9ObservationEventType::PursuerObserved: return TEXT("pursuer_observed");
-	case ELoop9ObservationEventType::PursuerCaught: return TEXT("pursuer_caught");
-	case ELoop9ObservationEventType::CallCompleted: return TEXT("call_completed");
-	default: return TEXT("unknown");
-	}
 }
 
 int32 FLoop9ObservationJournalCore::EventPriority(ELoop9ObservationEventType Type)

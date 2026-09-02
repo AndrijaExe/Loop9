@@ -2,8 +2,11 @@
 
 #include "Misc/AutomationTest.h"
 #include "AI/Services/Loop9BackendChatService.h"
+#include "AI/Services/Loop9ObservationCodec.h"
 #include "Dom/JsonObject.h"
 #include "Loop/LoopTypes.h"
+#include "Runtime/DragojloCommitmentTracker.h"
+#include "Runtime/Loop9ObservationIds.h"
 #include "Runtime/Loop9ObservationJournal.h"
 #include "Runtime/Loop9RunEventCards.h"
 #include "Runtime/Loop9RuntimePolicies.h"
@@ -248,25 +251,108 @@ bool FLoop9DecoyZoneSelectionTest::RunTest(const FString&)
 		FString(TEXT("the north corridor")));
 	TestEqual(
 		TEXT("Authored labels normalize to stable volume ids"),
-		Loop9RuntimePolicies::NormalizeObservationZoneId(TEXT("The North Corridor")),
+		Loop9ObservationIds::Canonicalize(TEXT("The North Corridor")),
 		FName(TEXT("north_corridor")));
-	TestFalse(
-		TEXT("Entering a zone before advice records nothing"),
-		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
-			NAME_None, FName(TEXT("north_corridor")), false));
-	TestFalse(
-		TEXT("Entering another zone records nothing"),
-		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
-			FName(TEXT("north_corridor")), FName(TEXT("meeting_room")), false));
-	TestTrue(
-		TEXT("Entering the target after advice records the visit"),
-		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
-			FName(TEXT("north_corridor")), FName(TEXT("north_corridor")), false));
-	TestFalse(
-		TEXT("A decoy visit records only once"),
-		Loop9RuntimePolicies::ShouldRecordDragojloDecoyVisit(
-			FName(TEXT("north_corridor")), FName(TEXT("north_corridor")), true));
+	TestEqual(
+		TEXT("Authored labels and concise ids are equivalent"),
+		Loop9ObservationIds::Canonicalize(TEXT("The North Corridor")),
+		Loop9ObservationIds::Canonicalize(FName(TEXT("north_corridor"))));
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9CommitmentTrackerTest,
+	"Loop9.Runtime.AI.CommitmentTracker",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9CommitmentTrackerTest::RunTest(const FString&)
+{
+	FDragojloCommitmentTracker Tracker;
+	Tracker.ApplyAdvice(
+		EDragojloAdviceMode::WrongLift,
+		EDragojloLiftAdvice::Dark,
+		FString(),
+		TEXT("wrong-lift-1"),
+		0,
+		0,
+		100.0);
+	Tracker.ApplyAdvice(
+		EDragojloAdviceMode::AccurateHint,
+		EDragojloLiftAdvice::None,
+		TEXT("The North Corridor"),
+		TEXT("hint-2"),
+		0,
+		0,
+		101.0);
+
+	TestEqual(
+		TEXT("Non-lift response preserves pending lift advice"),
+		AsInt(Tracker.GetPendingLiftAdvice()),
+		AsInt(EDragojloLiftAdvice::Dark));
+	TestEqual(
+		TEXT("Non-lift response does not reclassify pending advice"),
+		AsInt(Tracker.GetPendingLiftAdviceMode()),
+		AsInt(EDragojloAdviceMode::WrongLift));
+	TestEqual(
+		TEXT("Current response mode still updates"),
+		AsInt(Tracker.GetState().LastAdviceMode),
+		AsInt(EDragojloAdviceMode::AccurateHint));
+	TestEqual(
+		TEXT("Non-lift response preserves last actionable lift metadata"),
+		AsInt(Tracker.GetState().LastLiftAdvice),
+		AsInt(EDragojloLiftAdvice::Dark));
+
+	Tracker.ApplyDecision(EButtonType::Increment);
+	TestTrue(TEXT("Dark choice follows pending dark advice"),
+		Tracker.GetState().bFollowedLastLiftAdvice);
+	TestEqual(TEXT("Followed advice count increments once"),
+		Tracker.GetState().FollowedLiftAdviceCount, 1);
+	TestEqual(TEXT("Wrong-lift attribution survives later response"),
+		Tracker.GetState().FollowedWrongLiftAdviceCount, 1);
+	TestEqual(TEXT("Pending advice is consumed"),
+		AsInt(Tracker.GetPendingLiftAdvice()),
+		AsInt(EDragojloLiftAdvice::None));
+
+	Tracker.ApplyDecision(EButtonType::Increment);
+	TestEqual(TEXT("Consumed advice cannot count twice"),
+		Tracker.GetState().FollowedLiftAdviceCount, 1);
+
+	Tracker.ApplyAdvice(
+		EDragojloAdviceMode::Withhold,
+		EDragojloLiftAdvice::None,
+		FString(),
+		TEXT("surrender-1"),
+		0,
+		1,
+		150.0);
+	TestTrue(TEXT("Withheld surrender arms the current decision"),
+		Tracker.GetState().bPendingDecisionSurrender);
+	Tracker.ApplyDecision(EButtonType::Reset);
+	TestFalse(TEXT("Any elevator decision clears an unused surrender"),
+		Tracker.GetState().bPendingDecisionSurrender);
+
+	Tracker.ApplyAdvice(
+		EDragojloAdviceMode::MisdirectLocation,
+		EDragojloLiftAdvice::None,
+		TEXT("The North Corridor"),
+		TEXT("decoy-1"),
+		0,
+		0,
+		200.0);
+	TestTrue(TEXT("Canonical concise zone records decoy visit"),
+		Tracker.OnZoneEntered(FName(TEXT("north_corridor")), 204.5));
+	TestEqual(TEXT("Decoy visit timing is retained"),
+		Tracker.GetState().DecoyVisitSeconds, 4.5f);
+
+	Tracker.Reset();
+	TestEqual(TEXT("Reset clears commitment state"),
+		Tracker.GetState().FollowedWrongLiftAdviceCount, 0);
+	TestEqual(TEXT("Reset clears pending advice"),
+		AsInt(Tracker.GetPendingLiftAdvice()),
+		AsInt(EDragojloLiftAdvice::None));
+	TestFalse(TEXT("Reset clears decoy target"),
+		Tracker.OnZoneEntered(FName(TEXT("north_corridor")), 210.0));
 	return true;
 }
 
@@ -307,16 +393,6 @@ bool FLoop9AdviceWireParsingTest::RunTest(const FString&)
 	TestEqual(TEXT("Parsed mode"), AsInt(Parsed.AdviceMode), AsInt(EDragojloAdviceMode::MisdirectLocation));
 	TestEqual(TEXT("Parsed zone"), Parsed.SuggestedZone, FString(TEXT("the north corridor")));
 	TestEqual(TEXT("Parsed commitment id"), Parsed.CommitmentId, FString(TEXT("abc123")));
-
-	FDragojloCommitmentState State;
-	State.bLocationMisdirectionUsed = true;
-	State.bVisitedSuggestedDecoy = true;
-	State.FollowedWrongLiftAdviceCount = 1;
-	State.Reset();
-	TestFalse(TEXT("Commitment reset clears misdirection"), State.bLocationMisdirectionUsed);
-	TestFalse(TEXT("Commitment reset clears decoy visit"), State.bVisitedSuggestedDecoy);
-	TestEqual(TEXT("Commitment reset clears follow count"), State.FollowedWrongLiftAdviceCount, 0);
-	TestEqual(TEXT("Commitment reset clears mode"), AsInt(State.LastAdviceMode), AsInt(EDragojloAdviceMode::None));
 
 	return true;
 }
@@ -460,6 +536,13 @@ bool FLoop9ObservationJournalResetTest::RunTest(const FString&)
 {
 	FLoop9ObservationJournalCore Journal;
 	Journal.BeginFloor(1, 10.0);
+	Journal.Record(
+		ELoop9ObservationEventType::ZoneEntered,
+		FName(TEXT("The North Corridor")),
+		NAME_None,
+		10.5);
+	TestEqual(TEXT("Journal stores the canonical current zone"),
+		Journal.GetCurrentZone(), FName(TEXT("north_corridor")));
 	for (int32 Index = 0; Index < 10; ++Index)
 	{
 		Journal.Record(
@@ -479,6 +562,14 @@ bool FLoop9ObservationJournalResetTest::RunTest(const FString&)
 	TestTrue(TEXT("Floor reset clears visited zones"), Snapshot.VisitedZones.IsEmpty());
 	TestTrue(TEXT("Floor reset clears current zone"), Snapshot.CurrentZone.IsNone());
 	TestEqual(TEXT("Floor reset preserves fixed run summary"), Snapshot.RunSummary.FloorsStarted, 2);
+	Journal.RestoreCurrentZone(FName(TEXT("The North Corridor")));
+	Snapshot = Journal.BuildSnapshot(31.5);
+	TestEqual(TEXT("Physical occupancy can be restored after floor reset"),
+		Snapshot.CurrentZone, FName(TEXT("north_corridor")));
+	TestTrue(TEXT("Restored occupancy does not synthesize a visited zone"),
+		Snapshot.VisitedZones.IsEmpty());
+	TestTrue(TEXT("Restored occupancy does not synthesize an event"),
+		Snapshot.Events.IsEmpty());
 
 	Journal.RecordAIInteraction(32.0);
 	Journal.RecordElevatorDecision(FName(TEXT("dark")), true, 33.0);
@@ -498,20 +589,19 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FLoop9ObservationJournalProjectionTest::RunTest(const FString&)
 {
 	TestEqual(TEXT("Authored ids normalize safely"),
-		FLoop9ObservationJournalCore::SanitizeIdentifier(
-			FName(TEXT(" North Hall / Actor.Secret:42 "))),
-		FName(TEXT("north_hall_actorsecret42")));
-	TestEqual(TEXT("Empty unsafe ids use explicit generic fallback"),
-		FLoop9ObservationJournalCore::SanitizeIdentifier(
-			FName(TEXT("!!!")),
-			FName(TEXT("generic_object"))),
-		FName(TEXT("generic_object")));
+		Loop9ObservationIds::Canonicalize(TEXT(" North Hall / Actor.Secret:42 ")),
+		FName(TEXT("north_hall_actor_secret_42")));
+	TestTrue(TEXT("Empty unsafe ids are omitted"),
+		Loop9ObservationIds::Canonicalize(TEXT("!!!")).IsNone());
+	TestEqual(TEXT("Leading article is ignored consistently"),
+		Loop9ObservationIds::Canonicalize(TEXT("The North Hall")),
+		Loop9ObservationIds::Canonicalize(TEXT("north_hall")));
 	TestEqual(TEXT("Denied doors use the backend wire contract"),
-		FLoop9ObservationJournalCore::EventTypeToWire(
+		FLoop9ObservationCodec::EventTypeToWire(
 			ELoop9ObservationEventType::DoorDenied),
 		FString(TEXT("door_denied")));
 	TestEqual(TEXT("A verified pursuer catch uses the backend wire contract"),
-		FLoop9ObservationJournalCore::EventTypeToWire(
+		FLoop9ObservationCodec::EventTypeToWire(
 			ELoop9ObservationEventType::PursuerCaught),
 		FString(TEXT("pursuer_caught")));
 
@@ -529,8 +619,8 @@ bool FLoop9ObservationJournalProjectionTest::RunTest(const FString&)
 	}
 	Journal.RecordAIInteraction(1018.0);
 	const FLoop9ObservationSnapshot Snapshot = Journal.BuildSnapshot(1030.0);
-	const FString First = ULoop9BackendChatService::SerializeObservationSnapshot(Snapshot);
-	const FString Second = ULoop9BackendChatService::SerializeObservationSnapshot(Snapshot);
+	const FString First = FLoop9ObservationCodec::SerializeSnapshot(Snapshot);
+	const FString Second = FLoop9ObservationCodec::SerializeSnapshot(Snapshot);
 	TestEqual(TEXT("Projection serialization is deterministic"), First, Second);
 	const FTCHARToUTF8 Utf8(*First);
 	TestTrue(TEXT("Snapshot respects 1024-byte UTF-8 budget"), Utf8.Length() <= 1024);
@@ -553,6 +643,9 @@ bool FLoop9ObservationJournalProjectionTest::RunTest(const FString&)
 		Parsed.IsValid() && Parsed->TryGetArrayField(TEXT("events"), Events));
 	TestTrue(TEXT("Budget trimming never exceeds projection cap"),
 		Events && Events->Num() <= FLoop9ObservationJournalCore::MaxProjectedEvents);
+	const TSharedPtr<FJsonObject> DirectObject =
+		FLoop9ObservationCodec::BuildSnapshotObject(Snapshot);
+	TestTrue(TEXT("Codec exposes a direct JSON object"), DirectObject.IsValid());
 	return true;
 }
 
