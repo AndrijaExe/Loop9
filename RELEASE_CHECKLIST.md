@@ -1,24 +1,20 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **01.09.2026.**
+Poslednje ažuriranje: **03.09.2026.**
 Steam App ID: **4982260**
 
-> **Valve je oborio build `24910264` (28.08.2026.).** Tri stavke, plan i tekst
-> odgovora su u
-> `[Marketing/Steam/VALVE_REVIEW_REPLY.md](Marketing/Steam/VALVE_REVIEW_REPLY.md)`:
-> redistributables (Steamworks, publish-ovano), Cloud (**108 bytes** u
-> Properties → General na **`25008533`**, 29.08. 12:52), šest endinga
-> (`valvereview` **`25008639`**).
+> **Valve build review je prošao (03.09.2026.).** Store i Steamworks su
+> spremni za release. Najraniji datum i dalje **10.09.2026.** (14 dana od
+> Coming Soon 27.08.). Live/default Shipping je **`25008533`**.
+> `valvereview` Development **`25008639`** može da se skine.
 >
-> **Ostalo:**
-> 1. Steamworks Builds: **`25008533` je već live na defaultu**. Sledeći
->    kandidat ide live tek posle QA.
-> 2. Tiket §4: redistributables + Cloud + endings. Lozinka `valvereview`.
->    Ne tvrdi two-machine round-trip.
-> 3. Sledeći cook: nova exe ikonica (lift+ruka), mali splash 720×480, ending
->    scoring, SMENA krediti.
-> 4. Store: SMENA Developer/Publisher (urađeno). Main-menu VerticalBox i dalje
->    nisko.
+> **Ostalo pre release-a:**
+> 1. QA + eventualni `v1.0.3` cook (nova ikonica, splash 720×480, ending
+>    scoring, observation journal, Dragojlo commitment). Ne ide live dok
+>    ne prođe QA.
+> 2. Nova exe ikonica je u ClientAssets; `Application.ico` se kopira pre
+>    cooka (Build/ nije u gitu kao folder).
+> 3. Release day checklist §8. Creator Homepage nije bloker.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -631,8 +627,9 @@ Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
   Javna Coming Soon stranica:
   https://store.steampowered.com/app/4982260/Loop_9/ (`?beta=0`, 27.08.2026.).
 - [x] Poslati release-candidate **build** na Valve review. Shipping
-  v1.0.2 `25008533` + `valvereview` Development `25008639`, 01.09.2026.
-- [ ] Ispraviti eventualne review primedbe i ponovo poslati. Čeka se Valve.
+  v1.0.2 `25008533` + `valvereview` Development `25008639`.
+- [x] Valve build review **prošao 03.09.2026.** Steamworks spreman za
+  release. `valvereview` granu skini ili joj promeni lozinku.
 - [x] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
   Objavljena **27.08.2026.** Najraniji release datum: **10.09.2026.**
 - [x] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
@@ -724,22 +721,14 @@ Brief:
 
 ## Trenutni kritični put
 
-Valve je oborio `24910264`. Shipping v1.0.2 **`25008533` je live na
-defaultu**. Debug je na `valvereview` kao **`25008639`**.
-`Builds/v1.0.0` fallback nije diran.
+Valve build review **prošao 03.09.2026.** Steamworks je spreman za release.
+Live/default je i dalje v1.0.2 **`25008533`**. `Builds/v1.0.0` fallback
+nije diran. Najraniji store datum: **10.09.2026.**
 
-1. Tiket §4: redistributables + Cloud (108 bytes) + endings. Lozinka
-   `valvereview`. Markirati **`25008533`**. Ne tvrdi two-machine round-trip.
-2. Sledeći cook (nov folder `v1.0.3`): kopirati
-   `loop9_shortcut.ico` → `Build/Windows/Application.ico`, reimport
-   `Splash.uasset`, GatherText `STUDIO`. U cook ulaze mala splash 720×480,
-   nova ikonica, SMENA krediti i ending scoring.
-3. QA tog cooka: splash, ikonica, `EndingSetup` 1:1, pa Cold / Obedient /
-   Merged / Replacement.
-4. Ručni prolaz: svaki tagged predmet — `AnomalyZone` / `AnomalyObjectKind`
-   sedi sa onim što se vidi. §9.
-5. Backend `f6d97aa` je deployovan 01.09.; na Steam buildu proveriti da
-   poruka bez nalaza ne dobija lift, a prijavljen nalaz dobija verdikt.
-6. `UploadPlaytest.bat` + Cloud / achievement / offline smoke. Najraniji
-   release **10.09.2026.**
+1. QA `v1.0.3` cooka (ikonica, splash 720×480, ending scoring, journal,
+   commitment). Ne Set Live dok QA ne prođe.
+2. Ručni prolaz tagged predmeta — `AnomalyZone` / `AnomalyObjectKind`.
+3. Backend commitment na Steam buildu: poruka bez nalaza ne dobija lift.
+4. Skini `valvereview` posle odobrenja.
+5. Release day §8.
 7. Posle Valve: lore papiri u mapi (`docs/LORE.md` §4). Nije ovaj cook.

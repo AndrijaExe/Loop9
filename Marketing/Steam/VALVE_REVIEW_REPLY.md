@@ -1,22 +1,14 @@
-# Valve build review — failed BuildID 24910264 (28.08.2026.)
+# Valve build review — **odobreno 03.09.2026.**
 
-Valve je oborio build iz tri razloga i uz to blokirao prodaju u Kini. Kina je
-informacija, ne zadatak. Ostala tri se rešavaju: dva čisto u Steamworksu, treći
-tako što recenzentu damo Development build i uputstvo.
+Oboreni build `24910264` (28.08.) je zatvoren: redistributables, Cloud
+(108 bytes na `25008533`) i šest endinga (`valvereview` `25008639`).
+Steamworks je spreman za release. Najraniji store datum: **10.09.2026.**
 
-**Redosled:** prvo Steamworks (§1, §2), pa Development build na passworded granu
-(§3), pa odgovor na tiket (§4). Bez §3 recenzent ne može do endinga jer su sve
-debug komande isečene iz Shipping builda.
+`valvereview` granu skini ili joj promeni lozinku. Development build ne sme
+da ostane dostupan posle odobrenja.
 
-Oboreni build `24910264` je cook od 24.08. Live playtest je
-**v1.0.2 (BuildID `25008533`)**. Debug `valvereview` je **`25008639`**.
-
-**Cloud je OK na ovoj mašini (29.08. 12:52).** Properties → General:
-**108 bytes stored.** Fajl je
-`userdata\375407870\4982260\remote\Game.ini` (`CloudReady=1`). Auto-Cloud
-i dalje briše AppData kopiju; Valve gleda Properties, to je sada tu.
-Redistributables + endings + Cloud mogu u tiket. `default` ručni Set Live.
-Ne tvrdi two-machine round-trip dok to ne uradiš.
+Live/default Shipping je i dalje **`25008533`**. Novi kod (journal,
+commitment, ending scoring, splash/ikonica) ide u `v1.0.3` tek posle QA.
 
 ---
 

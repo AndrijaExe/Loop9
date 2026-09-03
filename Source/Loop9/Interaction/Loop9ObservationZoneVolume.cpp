@@ -1,7 +1,6 @@
 #include "Interaction/Loop9ObservationZoneVolume.h"
 
-#include "Components/BoxComponent.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/ShapeComponent.h"
 #include "Engine/GameInstance.h"
 #include "Loop9.h"
 #include "Loop9Character.h"
@@ -31,7 +30,7 @@ void ALoop9ObservationZoneVolume::BeginPlay()
 		}
 	}
 
-	if (UBoxComponent* TriggerComponent = GetCollisionComponent())
+	if (UShapeComponent* TriggerComponent = GetCollisionComponent())
 	{
 		TriggerComponent->OnComponentBeginOverlap.AddDynamic(
 			this, &ALoop9ObservationZoneVolume::HandleComponentEntered);
