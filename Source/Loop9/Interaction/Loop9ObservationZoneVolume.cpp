@@ -1,5 +1,6 @@
 #include "Interaction/Loop9ObservationZoneVolume.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Engine/GameInstance.h"
 #include "Loop9.h"
@@ -61,7 +62,7 @@ void ALoop9ObservationZoneVolume::HandleComponentEntered(
 	const FHitResult&)
 {
 	const ALoop9Character* Character = Cast<ALoop9Character>(OtherActor);
-	if (!Character || OtherComponent != Character->GetCapsuleComponent())
+	if (!Character || OtherComponent != static_cast<UPrimitiveComponent*>(Character->GetCapsuleComponent()))
 	{
 		return;
 	}
@@ -83,7 +84,7 @@ void ALoop9ObservationZoneVolume::HandleComponentExited(
 	int32)
 {
 	const ALoop9Character* Character = Cast<ALoop9Character>(OtherActor);
-	if (!Character || OtherComponent != Character->GetCapsuleComponent())
+	if (!Character || OtherComponent != static_cast<UPrimitiveComponent*>(Character->GetCapsuleComponent()))
 	{
 		return;
 	}
