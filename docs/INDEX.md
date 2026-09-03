@@ -10,6 +10,7 @@ Cross-repo index (sibling folder): [`../../../DOCUMENTATION.md`](../../../DOCUME
 |---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Subsystems, actors, ownership, game↔backend boundary |
 | [SETUP_AND_DEVELOPMENT.md](SETUP_AND_DEVELOPMENT.md) | Clone, UE 5.8, configs, marketplace, Steam Dev App ID |
+| [CURSOR_HOME_WORKER.md](CURSOR_HOME_WORKER.md) | Windows home PC as a Cursor My Machines worker (Unreal + MCP) |
 | [GAMEPLAY_SYSTEMS.md](GAMEPLAY_SYSTEMS.md) | Loops, elevators, relationships, endings, achievements |
 | [LORE.md](LORE.md) | Story proposal: the nine, why anomalies exist, how the six endings read |
 | [ANOMALIES.md](ANOMALIES.md) | Nine anomaly types, manager lifecycle, debug commands |

@@ -70,4 +70,5 @@ Without these folders, `FullOfficeMap` will show missing references.
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md)
 - [AI_AND_BACKEND_INTEGRATION.md](AI_AND_BACKEND_INTEGRATION.md)
+- [CURSOR_HOME_WORKER.md](CURSOR_HOME_WORKER.md) — leave the Windows Unreal PC on and prompt it remotely
 - Backend setup: [`../../../Backend/Loop9_backend/docs/DEVELOPMENT_AND_TESTING.md`](../../../Backend/Loop9_backend/docs/DEVELOPMENT_AND_TESTING.md)
