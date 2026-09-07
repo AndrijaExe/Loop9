@@ -58,11 +58,9 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 Oba zadatka su **WBP layout u editoru**, ne C++. Kôd samo klonira postojeće
 slotove, pa preuzima šta god zatekne.
 
-- [ ] **Main menu: podići vertikalni stack dugmadi.** Trenutno sedi previše
-  nisko. Pomeri sam `VerticalBox` (ili njegov `CanvasPanelSlot`) u
-  `WBP_MainMenu`. **Ne treba dirati kôd:** `SynthesizeButtonBefore` u
-  `MainMenuWidget.cpp` kopira padding, anchors, alignment i size sa template
-  slota, pa se sintetizovano `CREDITS` dugme samo poravna po novom rasporedu.
+- [x] **Main menu: podići vertikalni stack dugmadi.** VerticalBox pomeran
+  07.09. `SynthesizeButtonBefore` kopira layout sa template slota, pa
+  sintetizovano `CREDITS` ostaje poravnato.
 - [x] **Ending ekrani: `Return to Main Menu` pomereno udesno.** C++
   `AlignToCanvasBottomRight` na `BT_Continue` (svih šest `WBP_Ending_*` plus
   `WBP_ReplacementTerminal`). Anchor donji-desni, padding 64×80, veličina
