@@ -12,7 +12,9 @@ Steam App ID: **4982260**
 > **Ostalo pre 11.09.:**
 > 1. Library QA na Steam playtest v1.0.5. Set Live na default ide u petak
 >    sa store release-om, ne ranije.
-> 2. Release day §8 u petak. Creator Homepage nije bloker.
+> 2. Zone / Dragojlo location: Andrija hoće još jedan live prolaz da čuje
+>    kako AI rezonuje (vidi §6). Nije petak-bloker ako ostalo drži.
+> 3. Release day §8 u petak. Creator Homepage nije bloker.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -537,6 +539,15 @@ v1.0.1 BuildID više nije QA cilj:
   `OZ_StorageCorner`, `OZ_CorridorLiftsDesks`. Merge 05.09. (desk row +
   cabinets → office desks; copy alcove → back shelves). `v1.0.4` cook je
   posle postavljanja.
+- [~] **Zone live QA (Andrija, v1.0.5).** Merni put je u kodu: `decoy_zone`
+  samo iz tagged + registrovanog volume-a; `misdirect_location` naoružava
+  target; ulazak posle saveta setuje `bVisitedSuggestedDecoy` i loguje
+  `Dragojlo decoy zone visited`; sledeći chat šalje taj flag. Lift bez
+  drugog poziva AI-u ne menja glas, ali flag i ending telemetry ostaju.
+  100% „kako model priča o zoni“ nije statički garant — to se čuje samo
+  u igri. Jedan ciljani run: traži da proveriš mesto → uđi u tu zonu →
+  Output Log za visit → drugi poziv. Ako visit log postoji, sistem meri;
+  ako AI i dalje zvuči isto, to je glas, ne rupa u overlap-u.
 - [ ] `OZ_OfficeDesks` `ZoneId` = `near one of the office desks` (MCP često
   ne upisuje FName). Ostali ZoneId-ovi ručno editovani 05.09.
 - [~] Box scale-ovi grubo oko tagged predmeta; lift cabin nije pokriven
@@ -587,6 +598,11 @@ v1.0.1 BuildID više nije QA cilj:
   slučaj daju in-fiction fallback.
 - [x] Cold-start/timeout: `Thinking…` i `Still thinking…` rade; zahtev završi odgovorom
   ili lokalizovanom greškom pre client timeouta od 65 s.
+- [~] Jedan instant EN fragment na playtestu (~„… shift …“, 07.09.). Nije
+  connection-lost / LOW SIGNAL / moderation fallback — ti su cele, lokalizovane
+  rečenice. Verovatnije kratak model stub ili low-stability mid-thought
+  (prompt ima „this shift to end“). Ako se ponovi: zapiši petlju i da li je
+  stiglo odmah posle slanja. Nije launch bloker.
 - [ ] Telemetry `run-finished` stiže samo sa validnom sesijom.
 - [ ] Steam Cloud: odigraj → izađi → druga mašina/obrisan lokalni save →
   `SeenEndings` / `SpottedAnomalies` se vrate. Ovo je i persist QA iz §3. Od
@@ -714,8 +730,8 @@ Valve build review **prošao 03.09.2026.** `valvereview` lozinka promenjena
 Live/default je još v1.0.2 **`25008533`**. `Builds/v1.0.0` fallback nije
 diran. Valve dozvoljava od 10.09.; store datum: **petak 11.09.2026.**
 
-1. Steam playtest v1.0.5: ending runovi, journal, toast. Novi cook samo
-   ako QA nađe blocker.
+1. Steam playtest v1.0.5: ending runovi, journal, toast. Jedan zone run
+   (§6) ako stigne. Novi cook samo ako QA nađe blocker.
 2. Petak 11.09.: Set Live na default + release day §8. Ne Set Live pre toga.
 3. Observation volume-i i AI context tagovi su u mapi.
 4. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo.
