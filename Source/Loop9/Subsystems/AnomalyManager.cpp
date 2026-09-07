@@ -293,7 +293,7 @@ void UAnomalyManager::EnsureScaleAnomalyPlacement(UWorld* World)
 	}
 
 	UScaleAnomalyComponent* Scale = NewObject<UScaleAnomalyComponent>(Host, TEXT("ScaleAnomaly"));
-	Scale->AnomalyZone = TEXT("the copy alcove");
+	Scale->AnomalyZone = TEXT("the back shelves past the lifts");
 	Scale->AnomalyObjectKind = TEXT("a printer");
 	Scale->ScaleMultiplier = 1.4f;
 	Host->AddInstanceComponent(Scale);

@@ -52,9 +52,9 @@ Edit these two paths if your disks differ, then keep them for the rest of the
 guide.
 
 ```powershell
-$GameRepo    = "D:\Loop9\Game\Loop9"
-$BackendRepo = "D:\Loop9\Backend\Loop9_backend"   # skip this flag if the folder is missing
-$UeEditor    = "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe"
+$GameRepo    = "D:\UE Course\Loop 9 AI\Loop9 5.8"
+$BackendRepo = "C:\Users\andri\OneDrive\Desktop\Loop9Backend\my_project_directory"
+$UeEditor    = "D:\UE5.8\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe"
 $WorkerName  = "kuca-unreal"
 ```
 
@@ -227,9 +227,9 @@ is logged on or not" will not drive Unreal or computer-use.
 
 ```powershell
 $ErrorActionPreference = "Stop"
-$GameRepo    = "D:\Loop9\Game\Loop9"
-$BackendRepo = "D:\Loop9\Backend\Loop9_backend"
-$UeEditor    = "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe"
+$GameRepo    = "D:\UE Course\Loop 9 AI\Loop9 5.8"
+$BackendRepo = "C:\Users\andri\OneDrive\Desktop\Loop9Backend\my_project_directory"
+$UeEditor    = "D:\UE5.8\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe"
 $WorkerName  = "kuca-unreal"
 
 # Uncomment if you want the editor to come back after reboot:

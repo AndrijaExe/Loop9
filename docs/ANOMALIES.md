@@ -93,7 +93,7 @@ refuses to apply.
    actor in `FullOfficeMap` — the umap only has the class in its name table.
    At world begin play, if no Scale component registered, `UAnomalyManager`
    attaches one to `SM_ComputerPrinter_A01_N1` (Zoran / "ništa u mašini"),
-   1.4×, zone `the copy alcove`. Prefer adding the component in the editor so
+   1.4×, zone `the back shelves past the lifts`. Prefer adding the component in the editor so
    this fallback is not needed; the runtime attach skips when a map placement
    exists.
 8. Fill `AnomalyZone` and `AnomalyObjectKind` (details panel, **Anomaly > AI Context**).

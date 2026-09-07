@@ -1,6 +1,6 @@
 # Polish pass — šta ostaje u editoru
 
-Poslednje ažuriranje: **26.08.2026.**
+Poslednje ažuriranje: **04.09.2026.**
 
 C++ deo polish prolaza je odrađen. Editorski deo (Move destinacije, materijali,
 atenuacija, Help/Archive dugmad, figura u meniju, `IA_Flashlight`) je takođe
@@ -58,9 +58,10 @@ Legenda: `[ ]` nije odrađeno · `[~]` radi ali vredi proveriti
 Oba zadatka su **WBP layout u editoru**, ne C++. Kôd samo klonira postojeće
 slotove, pa preuzima šta god zatekne.
 
-- [x] **Main menu: podići vertikalni stack dugmadi.** VerticalBox pomeran
-  07.09. `SynthesizeButtonBefore` kopira layout sa template slota, pa
-  sintetizovano `CREDITS` ostaje poravnato.
+- [x] **Main menu: podići vertikalni stack dugmadi.** VerticalBox pomeran;
+  potvrđeno na v1.0.3 (04.09.) i editor 07.09. `SynthesizeButtonBefore`
+  kopira layout sa template slota, pa sintetizovano `CREDITS` ostaje
+  poravnato.
 - [x] **Ending ekrani: `Return to Main Menu` pomereno udesno.** C++
   `AlignToCanvasBottomRight` na `BT_Continue` (svih šest `WBP_Ending_*` plus
   `WBP_ReplacementTerminal`). Anchor donji-desni, padding 64×80, veličina
@@ -70,27 +71,22 @@ slotove, pa preuzima šta god zatekne.
 
 ## 3. QA prolaz posle svega
 
-- [ ] Odigraj 10 petlji i zabeleži koliko ih je imalo anomaliju. Očekivano ~8/10,
+Potvrđeno na **v1.0.3** (04.09.2026.).
+
+- [x] Odigraj 10 petlji i zabeleži koliko ih je imalo anomaliju. Očekivano ~8/10,
   loop 1 uvek čist.
-- [ ] U tih 10 petlji: Hide i Material/Text treba da se pojave češće nego ranije,
+- [x] U tih 10 petlji: Hide i Material/Text treba da se pojave češće nego ranije,
   Pursuer osetno ređe.
-- [ ] Nijedna aktivna anomalija ne sme biti nevidljiva. Ako se to opet desi,
+- [x] Nijedna aktivna anomalija ne sme biti nevidljiva. Ako se to opet desi,
   `AnomalyList` u konzoli pokazuje šta je aktivno na tom spratu.
-- [ ] Background muzika radi **od ulaska u nivo**, bez ulaska u settings menu.
-  Ako ne radi, otvori konzolu i pokreni **`AudioStatus`** — ispisaće da li postoji
-  audio device, koje su jačine, da li muzički bed svira i šta je sa svakim
-  `AmbientSound` akterom u mapi. Pošalji mi taj ispis, to je dovoljno da se vidi
-  gde je stalo.
-- [ ] Posle jedne Pursuer anomalije muzika se **vrati** kad Dragojlo nestane. Ovo
-  je bio bug: brojač utišavanja nije padao na nulu kad se komponenta uništi, a
-  reset petlje ne učitava novi svet, pa je sprat ostajao tih do kraja sesije.
-- [ ] Zvuk treperenja se čuje samo blizu tog svetla, ne kroz celu mapu.
-- [ ] `F` gasi i pali lampu, i ne radi tokom pauze i inspekcije objekta.
-- [ ] Zaključana vrata: čuje se `DoorLocked`/`DoorBlocked` **i** vrata se blago
+- [x] Background muzika radi **od ulaska u nivo**, bez ulaska u settings menu.
+- [x] Posle jedne Pursuer anomalije muzika se **vrati** kad Dragojlo nestane.
+- [x] Zvuk treperenja se čuje samo blizu tog svetla, ne kroz celu mapu.
+- [x] `F` gasi i pali lampu, i ne radi tokom pauze i inspekcije objekta.
+- [x] Zaključana vrata: čuje se `DoorLocked`/`DoorBlocked` **i** vrata se blago
   zatresu (2°, 0.35 s). Otvaranje i zatvaranje imaju različite zvuke.
-- [ ] Ending ekran: tekst se iskucava (~20 znakova/s) sa zvukom tastera i povremenom
+- [x] Ending ekran: tekst se iskucava (~20 znakova/s) sa zvukom tastera i povremenom
   greškom koju "ispravi". Dugme piše **SKIP** dok kuca, pa se vrati na **Return to
   Main Menu**. Prvi klik na SKIP dopuni tekst, ne izbaci te u meni.
-- [ ] Prebaci jezik na sr/de/fr/ru i proveri chat ("Razmišlja...", poruka o
-  predugačkoj poruci), prompt u liftu i `TASK COMPLETE` na kraju — to su stringovi
-  prevedeni 25.08.2026.
+- [x] Prebaci jezik na sr/de/fr/ru i proveri chat ("Razmišlja...", poruka o
+  predugačkoj poruci), prompt u liftu i `TASK COMPLETE` na kraju.

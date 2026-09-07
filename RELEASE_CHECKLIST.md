@@ -3,14 +3,14 @@
 Poslednje ažuriranje: **07.09.2026.**
 Steam App ID: **4982260**
 
-> **Valve build review je prošao (03.09.2026.).** Store i Steamworks su
-> spremni za release. Najraniji datum **10.09.2026.** Live/default Shipping
-> je i dalje **`25008533`**. `v1.0.3` je skuvaren; **četvrtak 10.09.** je
-> finalni prvi release cook. `valvereview` lozinka promenjena 07.09.
+> **Valve build review je prošao (03.09.2026.).** Store spreman.
+> Najraniji datum **četvrtak 10.09.2026.** Feature freeze: nema novih
+> stvari do release-a. **v1.0.4** je na `playtest` (upload + Set Live 07.09.).
+> Live/default je još **`25008533`**. `valvereview` lozinka promenjena 07.09.
 >
-> **Ostalo pre release-a:**
-> 1. Četvrtak: finalni Shipping cook → tajne/`.pdb` provera → Library QA
->    (ending runovi, achievement toast, lift mix) → Set Live.
+> **Ostalo pre 10.09.:**
+> 1. Library QA na Steam playtest v1.0.4 (splash/ikonica/journal/ending).
+>    Ako prođe — Set Live na default. Novi cook samo ako QA nađe blocker.
 > 2. Release day §8. Creator Homepage nije bloker.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
@@ -28,10 +28,10 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 nužno i na Steam playtestu. **`Builds/v1.0.0`** je trenutni fallback Shipping
 drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
-se kuva. SteamPipe contentroot je **`Builds/v1.0.3/Windows`**. **`Builds/v1.0.0`
+se kuva. SteamPipe contentroot je **`Builds/v1.0.4/Windows`**. **`Builds/v1.0.0`
 ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
 više nisu cilj. Live/default Shipping build je **v1.0.2** (BuildID
-`25008533`, 29.08.2026) dok četvrtak ne Set Live-uje `v1.0.3`. Development
+`25008533`, 29.08.2026) dok se Set Live ne uradi na `v1.0.4`. Development
 reviewer build je `25008639` na `valvereview` (lozinka promenjena 07.09.).
 Valve-oboreni cook je `24910264`.
 **Coming Soon store je javan od 27.08.2026.**:
@@ -50,15 +50,15 @@ https://store.steampowered.com/app/4982260/Loop_9/
   C++ gate u `ALiftButton` (door-plane depth + distance; optional `CabinVolume`).
   U editoru po želji uvećati `CabinVolume` box extent za stroži overlap check.
 
-- [~] U `BP_LoopElevatorTransitionDirector` postavljeni `Button Press Sound`
+- [x] U `BP_LoopElevatorTransitionDirector` postavljeni `Button Press Sound`
 (`Sound/Elevator/ElevatorButtonPress`) i looping `Travel Sound`
 (`Sound/Elevator/ElevatorTravelLoop`, `Looping` = true na SoundWave-u) — i na
 class defaults i na instancu u `FullOfficeMap`. Zvukovi su uvezeni iz CC0
 izvora; licence i izvorni URL-ovi su u
 `[docs/AUDIO_ASSIGNMENT_CHECKLIST.md](docs/AUDIO_ASSIGNMENT_CHECKLIST.md)`
 (atribucija nije potrebna). Volume/fade ostaju na defaultima
-(`1.0 / 1.0 / 0.15 s`) — **ostaje jedno slušanje u igri** da se potvrdi mix
-i da travel loop ne slaže loopove kroz ponovljene vožnje.
+(`1.0 / 1.0 / 0.15 s`). Mix i da travel loop ne slaže vožnje potvrđeni
+na **v1.0.3** polish smoke (04.09.2026.).
 
 - [x] Obrisani `LS_Elevator_Lit` i `LS_Elevator_Dark`. Pre brisanja potvrđeno
   nulom referenci (asset registry) i binarnom proverom da ih ni
@@ -232,7 +232,8 @@ Sledeća sesija (urađeno 26.08.2026.):
   `.locres` (26.08.2026. uveče).
 - [x] **Raspored dugmadi (28.08. / 07.09.):** `Return to Main Menu` na ending
   ekranima ide donji desni ugao (`AlignToCanvasBottomRight`, svih šest WBP +
-  replacement terminal). Main-menu VerticalBox podignut 07.09.
+  replacement terminal). Main-menu VerticalBox podignut; v1.0.3 smoke 04.09.
+  i editor 07.09.
 
 
 ## 2. Steamworks — Store Presence
@@ -298,22 +299,19 @@ publish-ovane, ne samo sačuvane.
 
 ### Branding u igri — ikonice, splash i boot sekvenca
 
-Steamworks store grafika je gotova. Ikonica i splash su u repou od 01.09.
-(`Build/Windows/Application.ico` iz `loop9_shortcut.ico` — `Build/` nije u
-gitu; `Content/Splash/Splash.bmp` jeste). Uđu tek u **sledeći cook**.
-Stari `v1.0.0` / `v1.0.1` i dalje nose Epic identitet.
+Steamworks store grafika je gotova. Ikonica i splash su u **v1.0.3** cooku
+(04.09.2026.). Stari `v1.0.0` / `v1.0.1` i dalje nose Epic identitet.
 
-- [x] **Ikonica `.exe`-a.** Master i ICO od 01.09.2026. (lift, ruka, crveno 9)
-  su u `Marketing/Steam/ClientAssets/`. `Build/` nije u gitu — pre cooka
-  kopirati `loop9_shortcut.ico` → `Build/Windows/Application.ico`.
-- [x] **Splash pri pokretanju.** `Content/Splash/Splash.bmp` od 01.09.2026.
-  Mali prozor **720×480** (ne 1920×1080 fullscreen). Otvoren lift, crveno 9,
-  monstera, LOOP 9 + SMENA u donjem desnom. Izvor:
-  `Marketing/Branding/loop9_splash_source.png`. `Splash.uasset` reimport u
-  editoru pre cooka. `EdSplash.bmp` nije stavljen.
-- [ ] Napomena: ako ikonicu Unreal Engine-a vidiš dok si **u editoru**, to je
-  normalno i ne može se promeniti — to je `UnrealEditor.exe`, ne tvoja igra.
-  Proveri na paketovanom buildu pre nego što se juriš za bugom.
+- [x] **Ikonica `.exe`-a.** Master i ICO (lift, ruka, crveno 9) su u
+  `Marketing/Steam/ClientAssets/`. Kopirano u `Build/Windows/Application.ico`
+  pre v1.0.3 cooka. Potvrđeno na paketovanom buildu 04.09.2026.
+- [x] **Splash pri pokretanju.** `Content/Splash/Splash.bmp` — mali prozor
+  **720×480** (ne 1920×1080 fullscreen). Otvoren lift, crveno 9, monstera,
+  LOOP 9 + SMENA u donjem desnom. Potvrđeno na v1.0.3 04.09.2026.
+  Izvor: `Marketing/Branding/loop9_splash_source.png`. `EdSplash.bmp` nije
+  stavljen.
+- [x] Napomena: ikonica Unreal Engine-a u **editoru** je `UnrealEditor.exe`,
+  ne igra. Na paketovanom v1.0.3 je SMENA/lift ikonica.
 - [x] **Ime studija i wordmark.** SMENA („smena“ = radna smena), izabran
   28.08.2026. Žig je outline-ovan u SVG putanje pa ne zavisi od fonta; svi
   fajlovi i objašnjenje su u
@@ -337,9 +335,10 @@ Stari `v1.0.0` / `v1.0.1` i dalje nose Epic identitet.
   kursor kucka, `SMENA` se iskuca, kursor ostane da blinka, fade. Scanline
   tretman (varijanta 06 u `wordmark-explorations.png`) je dobar kao *prelaz*,
   ne kao završni kadar.
-- [ ] **Ne dodavati Unreal Engine logo u boot sekvencu.** Po Epicu, prikaz UE
+- [x] **Ne dodavati Unreal Engine logo u boot sekvencu.** Po Epicu, prikaz UE
   logotipa traži posebnu dozvolu preko branding zahteva; AAA igre koje ga
   prikazuju imaju custom licencu. EULA zahteva samo tekst u kreditima.
+  Držimo se toga: samo `ENGINE` tekst u Credits.
 - [x] **UE atribucija u kreditima (obavezna po EULA).** Dodata `ENGINE` sekcija
   u `CreditsWidget` 28.08.2026. sa tačnom formulacijom koju Epic traži.
   Namerno nije lokalizovana da prevod ne bi izmenio pravni tekst.
@@ -374,9 +373,8 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
   (`SetAchievement` + `StoreStats`), pa tek onda pada na subsystem. Direktan
   put ne traži ni keširanu listu ni online identitet, pa radi i ako engine
   opet ne pročita config.
-- [ ] Verifikovati popravku na Windows buildu: log treba da ima
-  `Achievements: unlock ACH_FIRST_CALL -> OK` i toast treba da se pojavi.
-  Obavezno iz Steam Library-ja — iz Explorera nema Steam sesije.
+- [x] Verifikovati popravku na Windows buildu: unlock i toast rade, achievementi
+  se čuvaju. Potvrđeno 04.09.2026. (v1.0.3 / Steam).
 
 - [x] **Arhiva se sama popravlja (25.08.2026.):** `GetSeenEndingIds` i
   `RecordSpottedAnomalies` više ne čitaju samo `Game.ini`, nego ga spajaju sa
@@ -386,8 +384,8 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
   čita kao „nije otključano“, pa nema lažnog brisanja. Spojena lista se upiše
   natrag samo kad se dve razlikuju. Time Cloud prestaje da bude nosiva greda za
   arhivu i za `ACH_SPOT_ALL`.
-- [ ] Provera: pusti jedan ending, obriši `SeenEndings` red iz `Game.ini`,
-  otvori Archive. Čvor treba da se vrati sa Steama i red da se ponovo upiše.
+- [x] Provera arhive / persist: achievementi i viđeni endingi se čuvaju.
+  Potvrđeno 04.09.2026. Two-machine Cloud round-trip i dalje nije rađen.
 
 - [x] Definisano svih **27** API imena tačno po
   `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`.
@@ -466,8 +464,10 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 ## 5. Build i SteamPipe
 
 - [x] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
-  `v1.0.3` skuvaren (potvrda 07.09.). **Četvrtak 10.09.**: finalni prvi
-  release cook u isti folder ili novi `v1.0.4` samo ako QA nađe blocker.
+  `v1.0.3` 03.09.; **`v1.0.4` skuvaren 05.09.** (`Builds/v1.0.4/Windows`).
+  Upload + Set Live **`playtest` 07.09.** Lokalni SteamPipe log: BuildID
+  **`25139756`** (05.09.) — potvrdi u Steamworks ako je to baš taj live
+  playtest. Novi cook **četvrtak 10.09.** samo ako QA nađe blocker.
   `PackageWindowsShipping.bat` bez argumenta kuva u `Builds/Feature`.
   **`Builds/v1.0.0` se ne dira.** Live/default je još **v1.0.2**
   (`25008533`) dok se Set Live ne uradi svesno.
@@ -477,16 +477,16 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
   Ranije provereno na starom `Builds/Alfa/Windows`; **v1.0.2** (`28.08.2026`)
   nema `steam_appid.txt` ni `.pdb`.
 - [x] Ponovljeno na v1.0.2.
-- [ ] Ponoviti proveru tajni / `.pdb` / `steam_appid.txt` na sledećem
-  versioned cooku (`v1.0.3`).
+- [x] Ponoviti proveru tajni / `.pdb` / `steam_appid.txt` na **v1.0.4**
+  (nema `steam_appid.txt` ni `.pdb` u `Builds/v1.0.4/Windows`).
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  v1.0.2 / BuildID `25008533` je live; Development `25008639` je na
-  passwordovanom `valvereview`.
+  **v1.0.4** je na `playtest` (07.09.). Default/live je još v1.0.2
+  `25008533`. Development `25008639` je na passwordovanom `valvereview`.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
   ne radi — QA se radi isključivo iz Library-ja.
@@ -512,18 +512,17 @@ dobar; ostaje još jedan kontrolni prolaz po endingu i polish iz §1.
 - [ ] Save migracija: stari save bez Clock anomalije ne kvari `ACH_SPOT_ALL`.
   (C++ već briše `ClockAnomaly` iz `SpottedAnomalies` pri startu.)
 
-Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
-(`24980937`). **Ponoviti i čekirati na sledećem Shipping kandidatu
-(v1.0.3)**; stari BuildID nije QA cilj:
+Polish smoke ponovljen i potvrđen na **v1.0.3** (04.09.2026.). Stari
+v1.0.1 BuildID više nije QA cilj:
 
-- [ ] ~8/10 petlji ima anomaliju; loop 1 čist; Hide/Material češći, Pursuer ređi.
-- [ ] Nijedna aktivna anomalija nije nevidljiva (`AnomalyList` u konzoli).
-- [ ] Muzika sprata od ulaska u nivo, bez settings menija; posle Pursuer-a se vraća.
-- [ ] Flicker se čuje samo blizu tog svetla.
-- [ ] `F` pali/gasi lampu; ne radi u pauzi i inspekciji.
-- [ ] Zaključana vrata: zvuk + shake; open/close različiti.
-- [ ] Ending kuca, SKIP dopuni tekst, zatim Return to Main Menu.
-- [ ] sr/de/fr/ru: chat („Razmišlja…“), predugačka poruka, prompt u liftu,
+- [x] ~8/10 petlji ima anomaliju; loop 1 čist; Hide/Material češći, Pursuer ređi.
+- [x] Nijedna aktivna anomalija nije nevidljiva (`AnomalyList` u konzoli).
+- [x] Muzika sprata od ulaska u nivo, bez settings menija; posle Pursuer-a se vraća.
+- [x] Flicker se čuje samo blizu tog svetla.
+- [x] `F` pali/gasi lampu; ne radi u pauzi i inspekciji.
+- [x] Zaključana vrata: zvuk + shake; open/close različiti.
+- [x] Ending kuca, SKIP dopuni tekst, zatim Return to Main Menu.
+- [x] sr/de/fr/ru: chat („Razmišlja…“), predugačka poruka, prompt u liftu,
   `TASK COMPLETE`, Help, SKIP.
 
 ### Dragojlo commitment (posle v1.0.3 / Valve QA)
@@ -531,20 +530,19 @@ Polish smoke ispod je istorijski ostao nečekiran sa v1.0.1
 - [x] Backend deploy sa `AI_COMMITMENT_ENABLED=true`.
 - [x] **AI context tekstovi (07.09.).** Zone/kind stringovi na anomaly
   komponentama ažurirani. To **nije** isto što i observation volume.
-- [ ] **`Loop9ObservationZoneVolume` u committed mapi: 0 instanci**
-  (provera name table `FullOfficeMap.umap` 07.09.). `DragojloZoneVolume`
-  takođe 0. Ako su volume-i postavljeni samo lokalno kući, treba
-  sačuvati mapu i push. Bez ovih TriggerBox aktera location decoy
-  merljivo ne radi i backend ostaje na truthful savetu — to je OK za
-  četvrtak.
-- [ ] Ako volume-i uđu u git: `ZoneId` = kanonski (`the meeting room` →
-  `meeting_room`); box da hvata ulazak, bez preklopa sa liftom; Phantom
-  bez zone; Pursuer nije location decoy; bez Blueprint logike na volume-u.
-- [ ] Na važnim `InspectableComponent` instancama kratki `ObservationId`
-  (`ledger`, `family_photo`); prazno = `generic_object`. Ne actor/asset ime.
-  Location/wrong-lift/observation **flagove na Renderu ne paliti šire**
-  dok volume-i nisu u shipped cooku. `.env` već ima location/wrong-lift
-  `true`; bez volume-a to je no-op na lokaciju.
+- [x] **Editor migration:** nema starog `DragojloZoneVolume` (MCP 05.09.).
+- [x] **9 `Loop9ObservationZoneVolume` u `FullOfficeMap`** (commit 07.09.):
+  `OZ_OfficeDesks`, `OZ_BesideElevatorDoors`, `OZ_PottedPlantCabinets`,
+  `OZ_MeetingRoom`, `OZ_BackRoomRadio`, `OZ_BackShelves`, `OZ_ToolShelf`,
+  `OZ_StorageCorner`, `OZ_CorridorLiftsDesks`. Merge 05.09. (desk row +
+  cabinets → office desks; copy alcove → back shelves). `v1.0.4` cook je
+  posle postavljanja.
+- [ ] `OZ_OfficeDesks` `ZoneId` = `near one of the office desks` (MCP često
+  ne upisuje FName). Ostali ZoneId-ovi ručno editovani 05.09.
+- [~] Box scale-ovi grubo oko tagged predmeta; lift cabin nije pokriven
+  osim malog `OZ_BesideElevatorDoors`. Overlap još ručno.
+- [~] Radio inspectable: `ObservationId=radio_set`. `ledger` / `family_photo`
+  još čekaju ručni upis. Phantom/loop counter bez zone; Pursuer nije decoy.
 - [ ] Sačuvaj mapu i Standalone proveri: ulazak pre saveta se ne računa; posle
   `misdirect_location` ulazak u baš sugerisanu zonu loguje
   `Dragojlo decoy zone visited`. Bez odgovarajućeg volume-a backend bezbedno
@@ -664,9 +662,10 @@ Brief:
   `PhantomMessage` po pravilu ima praznu zonu, a `PursuerAnomaly` je namerno
   ostavljen neoznačen jer nema fiksno mesto (netagovane komponente se
   preskaču, ne blokiraju). Nijedan string ne prelazi 48 znakova i nijedan ne
-  koristi ime aktera. Upotrebljene zone: desk row, overhead cabinets, cabinets
-  with potted plants, filing cabinets, meeting room, back room with the radio,
-  tool shelf, storage corner, corridor between lifts and desks.
+  koristi ime aktera. Upotrebljene zone (05.09. merge): near the office desks,
+  cabinets with potted plants, meeting room, back room with the radio, back
+  shelves (includes former copy alcove), tool shelf, storage corner, corridor
+  between lifts and desks, beside the elevator doors.
   Pravila i primeri: `[docs/ANOMALIES.md](docs/ANOMALIES.md#ai-context-tagging)`.
 - [x] **Ručni prolaz AI konteksta (Andrija, 07.09.).** `AnomalyZone` /
   `AnomalyObjectKind` tekstovi ažurirani predmet po predmet na
@@ -710,14 +709,13 @@ Brief:
 ## Trenutni kritični put
 
 Valve build review **prošao 03.09.2026.** `valvereview` lozinka promenjena
-07.09. `v1.0.3` je skuvaren. Live/default je još v1.0.2 **`25008533`**.
-`Builds/v1.0.0` fallback nije diran. Store datum: **četvrtak 10.09.2026.**
+07.09. Feature freeze. **v1.0.4 je na playtest** (07.09.). Live/default je
+još v1.0.2 **`25008533`**. `Builds/v1.0.0` fallback nije diran. Store
+datum: **četvrtak 10.09.2026.**
 
-1. Četvrtak: finalni release cook (isto `v1.0.3` ili novi folder samo ako
-   QA nađe blocker). Tajne / `.pdb` / čist Windows EXE.
-2. Library QA na tom cooku: Cold / Obedient / Merged / Replacement, dependency
-   predaja, achievement toast, lift mix, ikonica/splash.
-3. Set Live svesno + release day §8.
-4. Observation **volume-i** nisu u committed mapi — ne blokiraju četvrtak.
-   AI context tagovi jesu ažurirani.
-5. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo.
+1. Library QA na Steam playtest v1.0.4: Cold / Obedient / Merged /
+   Replacement, dependency, toast, lift mix, ikonica/splash, journal.
+   Novi cook samo ako QA nađe blocker.
+2. Ako QA prođe — Set Live na default + release day §8.
+3. Observation volume-i i AI context tagovi su u mapi.
+4. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo.

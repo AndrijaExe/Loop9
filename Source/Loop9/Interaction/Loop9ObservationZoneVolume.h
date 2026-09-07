@@ -17,7 +17,7 @@ public:
 	ALoop9ObservationZoneVolume();
 
 	/** Stable coarse location id, for example north_corridor. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Observation Zone")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Observation Zone")
 	FName ZoneId;
 
 protected:
