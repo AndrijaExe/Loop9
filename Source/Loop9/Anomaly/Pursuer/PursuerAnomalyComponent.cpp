@@ -13,6 +13,11 @@
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
+namespace
+{
+	constexpr float MinTensionMusicDelaySeconds = 5.5f;
+}
+
 UPursuerAnomalyComponent::UPursuerAnomalyComponent()
 {
 	AnomalyProbability = 0.4f;
@@ -113,9 +118,10 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 		*SpawnTransform.GetLocation().ToCompactString());
 
 	SpawnedPursuer->OnDestroyed.AddDynamic(this, &UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed);
+	SpawnedPursuer->OnFirstObserved.AddDynamic(this, &UPursuerAnomalyComponent::StartTensionMusic);
 	if (TensionMusicDelaySeconds <= 0.0f)
 	{
-		StartTensionMusic();
+		// Sight-only: the bed waits until OnFirstObserved.
 	}
 	else if (UWorld* World = GetWorld())
 	{
@@ -123,7 +129,7 @@ bool UPursuerAnomalyComponent::ApplyAnomalyState()
 			TensionMusicDelayHandle,
 			this,
 			&UPursuerAnomalyComponent::StartTensionMusic,
-			TensionMusicDelaySeconds,
+			FMath::Max(MinTensionMusicDelaySeconds, TensionMusicDelaySeconds),
 			false);
 	}
 
@@ -147,6 +153,7 @@ void UPursuerAnomalyComponent::RestoreNormalState()
 
 	if (SpawnedPursuer)
 	{
+		SpawnedPursuer->OnFirstObserved.RemoveDynamic(this, &UPursuerAnomalyComponent::StartTensionMusic);
 		SpawnedPursuer->Destroy();
 		SpawnedPursuer = nullptr;
 	}
@@ -168,6 +175,11 @@ void UPursuerAnomalyComponent::OnSpawnedPursuerDestroyed(AActor* DestroyedActor)
 void UPursuerAnomalyComponent::StartTensionMusic()
 {
 	ClearTensionMusicDelay();
+
+	if (ActiveAnomalyLoopAudioComponent)
+	{
+		return;
+	}
 
 	if (!IsValid(SpawnedPursuer))
 	{

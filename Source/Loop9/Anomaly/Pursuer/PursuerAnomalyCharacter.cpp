@@ -250,6 +250,7 @@ void APursuerAnomalyCharacter::ApplyObservationFreeze(bool bObservedNow)
 	bWasObservedByPlayer = bObservedNow;
 	if (bObservedNow)
 	{
+		OnFirstObserved.Broadcast();
 		if (UGameInstance* GameInstance = GetGameInstance())
 		{
 			if (ULoop9ObservationJournalSubsystem* Journal =

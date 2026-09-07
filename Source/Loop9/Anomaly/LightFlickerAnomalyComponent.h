@@ -38,9 +38,8 @@ public:
 	TObjectPtr<class USoundBase> FlickerSound;
 
 	/**
-	 * Falloff for the flicker click. Defaults to ATT_FlickerHallway (inner 300 cm,
-	 * silent at 1800 cm) so it leads the player down a corridor instead of playing
-	 * across the whole floor. Clear it only if you want a silent flicker.
+	 * Falloff for the flicker click. Defaults to ATT_FlickerHallway (inner 250 cm,
+	 * silent at 800 cm) so hallway fittings do not read from the lift cabin.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flicker|Audio")
 	TObjectPtr<class USoundAttenuation> FlickerSoundAttenuation;

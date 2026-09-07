@@ -4,14 +4,15 @@ Poslednje ažuriranje: **07.09.2026.**
 Steam App ID: **4982260**
 
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
-> Najraniji datum **četvrtak 10.09.2026.** Feature freeze: nema novih
-> stvari do release-a. **v1.0.4** je na `playtest` (upload + Set Live 07.09.).
-> Live/default je još **`25008533`**. `valvereview` lozinka promenjena 07.09.
+> Valve dozvoljava od **četvrtka 10.09.** Release day je **petak 11.09.2026.**
+> (vikend za hotfix ako zatreba). Feature freeze do tada. Kandidat **v1.0.5**
+> (vrata / pursuer bed / flicker 8 m). Live/default je još **`25008533`**.
+> `valvereview` lozinka promenjena 07.09.
 >
-> **Ostalo pre 10.09.:**
-> 1. Library QA na Steam playtest v1.0.4 (splash/ikonica/journal/ending).
->    Ako prođe — Set Live na default. Novi cook samo ako QA nađe blocker.
-> 2. Release day §8. Creator Homepage nije bloker.
+> **Ostalo pre 11.09.:**
+> 1. Library QA na Steam playtest v1.0.5. Set Live na default ide u petak
+>    sa store release-om, ne ranije.
+> 2. Release day §8 u petak. Creator Homepage nije bloker.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -28,10 +29,10 @@ Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 nužno i na Steam playtestu. **`Builds/v1.0.0`** je trenutni fallback Shipping
 drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
 **`Builds/Feature`**. Nova verzija (`v1.0.1` itd.) dobija **novi folder** i tamo
-se kuva. SteamPipe contentroot je **`Builds/v1.0.4/Windows`**. **`Builds/v1.0.0`
+se kuva. SteamPipe contentroot je **`Builds/v1.0.5/Windows`**. **`Builds/v1.0.0`
 ostaje fallback** i ne overwrite-uje se. Stari `Builds/Alfa` i `Builds/Beta`
 više nisu cilj. Live/default Shipping build je **v1.0.2** (BuildID
-`25008533`, 29.08.2026) dok se Set Live ne uradi na `v1.0.4`. Development
+`25008533`, 29.08.2026) dok se Set Live ne uradi na `v1.0.5`. Development
 reviewer build je `25008639` na `valvereview` (lozinka promenjena 07.09.).
 Valve-oboreni cook je `24910264`.
 **Coming Soon store je javan od 27.08.2026.**:
@@ -464,10 +465,9 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
 ## 5. Build i SteamPipe
 
 - [x] Napraviti **Windows Shipping** build iz UE 5.8 posle content locka.
-  `v1.0.3` 03.09.; **`v1.0.4` skuvaren 05.09.** (`Builds/v1.0.4/Windows`).
-  Upload + Set Live **`playtest` 07.09.** Lokalni SteamPipe log: BuildID
-  **`25139756`** (05.09.) — potvrdi u Steamworks ako je to baš taj live
-  playtest. Novi cook **četvrtak 10.09.** samo ako QA nađe blocker.
+  `v1.0.3` 03.09.; `v1.0.4` 05.09.; **`v1.0.5` skuvaren 07.09.**
+  (`Builds/v1.0.5/Windows`) — DoorLock snap, pursuer bed na pogled / 5.5 s,
+  flicker silent at 8 m. SteamPipe `setlive` `playtest`.
   `PackageWindowsShipping.bat` bez argumenta kuva u `Builds/Feature`.
   **`Builds/v1.0.0` se ne dira.** Live/default je još **v1.0.2**
   (`25008533`) dok se Set Live ne uradi svesno.
@@ -477,15 +477,15 @@ odgovore (17.08.2026). Backend je od tada na **Starter** (always-on) planu.
   Ranije provereno na starom `Builds/Alfa/Windows`; **v1.0.2** (`28.08.2026`)
   nema `steam_appid.txt` ni `.pdb`.
 - [x] Ponovljeno na v1.0.2.
-- [x] Ponoviti proveru tajni / `.pdb` / `steam_appid.txt` na **v1.0.4**
-  (nema `steam_appid.txt` ni `.pdb` u `Builds/v1.0.4/Windows`).
+- [x] Ponoviti proveru tajni / `.pdb` / `steam_appid.txt` na **v1.0.5**
+  (nema `steam_appid.txt` ni `.pdb` u `Builds/v1.0.5/Windows`).
 - [ ] Pokrenuti Shipping EXE direktno na čistoj Windows mašini radi dependency
   provere.
 - [x] Napraviti SteamPipe `app_build`/depot VDF i uploadovati Windows depot.
   Skripte su u `Tools/SteamPipe/`, depot `4982261`; sledeći upload je
   `Tools/SteamPipe/UploadPlaytest.bat`.
 - [x] Postaviti build prvo na privatni `internal` ili `playtest` branch.
-  **v1.0.4** je na `playtest` (07.09.). Default/live je još v1.0.2
+  **v1.0.5** ide na `playtest` (07.09.). Default/live je još v1.0.2
   `25008533`. Development `25008639` je na passwordovanom `valvereview`.
 - [x] Instalirati build kroz Steam klijent, ne koristiti samo lokalni packaged
   folder. Shipping build pokrenut iz Explorera ne dobija Steam ticket, pa AI chat
@@ -557,7 +557,7 @@ v1.0.1 BuildID više nije QA cilj:
 - [ ] Proxy/backend log potvrđuje da je `observation_snapshot` ≤1024 UTF-8
   bajta, ima najviše 8 events/8 visited_zones i nema chat, koordinate, actor
   names, anomaly keys, commitment IDs ni relationship floatove.
-- [ ] Render flagovi **posle** volume-a u shipped cooku, ne za četvrtak:
+- [ ] Render flagovi **posle** volume-a u shipped cooku, ne za petak:
   `AI_COMMITMENT_ENABLED=true` već stoji. Location / wrong-lift / observation
   context paliti tek kad `Loop9ObservationZoneVolume` postoji u mapi koju
   igrači dobiju. `AI_OBSERVATION_CONTEXT_ENABLED=false` gasi samo naraciju
@@ -623,7 +623,8 @@ v1.0.1 BuildID više nije QA cilj:
 - [x] Valve build review **prošao 03.09.2026.** Steamworks spreman za
   release. `valvereview` lozinka promenjena 07.09.
 - [x] Objaviti Coming Soon stranicu najmanje **14 dana** pre release-a.
-  Objavljena **27.08.2026.** Najraniji release datum: **10.09.2026.**
+  Objavljena **27.08.2026.** Najraniji Valve datum: **10.09.2026.**
+  Planirani release: **petak 11.09.2026.**
 - [x] Steam Direct fee je plaćen 15.07.2026. Obavezni 30-dnevni Direct period
   istekao je približno **14.08.2026.** To nije release datum; čeka se 14 dana
   od Coming Soon + RC build review + QA.
@@ -672,7 +673,7 @@ Brief:
   `FullOfficeMap`. Phantom bez zone; Pursuer sme prazan. Veći anomaly
   beatovi (blackout / slam) **ne radimo za sada**.
 
-- [ ] **Lore u igri — inspect papiri.** Nije Valve / 10.09 bloker, i
+- [ ] **Lore u igri — inspect papiri.** Nije Valve / 11.09 bloker, i
   **ne sada.** Andrija piše tekstove kad dođe do toga. Smisao ostaje:
   listovi stoje od loop 1, document inspect (levo papir, desno tekst),
   bez `AnomalyComponent`. Vidi `[docs/LORE.md](docs/LORE.md)` §4.
@@ -709,13 +710,12 @@ Brief:
 ## Trenutni kritični put
 
 Valve build review **prošao 03.09.2026.** `valvereview` lozinka promenjena
-07.09. Feature freeze. **v1.0.4 je na playtest** (07.09.). Live/default je
-još v1.0.2 **`25008533`**. `Builds/v1.0.0` fallback nije diran. Store
-datum: **četvrtak 10.09.2026.**
+07.09. Feature freeze. Kandidat **v1.0.5** (vrata / pursuer / flicker).
+Live/default je još v1.0.2 **`25008533`**. `Builds/v1.0.0` fallback nije
+diran. Valve dozvoljava od 10.09.; store datum: **petak 11.09.2026.**
 
-1. Library QA na Steam playtest v1.0.4: Cold / Obedient / Merged /
-   Replacement, dependency, toast, lift mix, ikonica/splash, journal.
-   Novi cook samo ako QA nađe blocker.
-2. Ako QA prođe — Set Live na default + release day §8.
+1. Steam playtest v1.0.5: ending runovi, journal, toast. Novi cook samo
+   ako QA nađe blocker.
+2. Petak 11.09.: Set Live na default + release day §8. Ne Set Live pre toga.
 3. Observation volume-i i AI context tagovi su u mapi.
 4. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo.

@@ -86,6 +86,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Door")
 	void UnlockDoor();
 
+	/** Silent snap to the closed pose. Loop reset must not leave a swung door. */
+	UFUNCTION(BlueprintCallable, Category = "Door")
+	void ResetToClosedBaseline();
+
 	UFUNCTION(BlueprintPure, Category = "Door")
 	bool IsBlockedFromBehind() const { return bIsBlocked; }
 

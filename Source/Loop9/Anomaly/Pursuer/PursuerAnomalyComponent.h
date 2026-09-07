@@ -55,12 +55,12 @@ public:
 	float ActiveAnomalyLoopVolume = 0.60f;
 
 	/**
-	 * Seconds after the pursuer exists before the tension bed replaces the
-	 * floor music. Immediate music tells the player to take the lit elevator
-	 * before they have looked around.
+	 * Fallback if the player never looks at the pursuer. First sight starts
+	 * the bed immediately. Values below this floor are raised so a serialized
+	 * Blueprint delay of 2–3 s cannot spoil the reveal.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio", meta = (ClampMin = "0.0"))
-	float TensionMusicDelaySeconds = 3.5f;
+	float TensionMusicDelaySeconds = 5.5f;
 
 	/** 2D tension bed that replaces level ambience while the pursuer exists. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Audio")

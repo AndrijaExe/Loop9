@@ -63,10 +63,17 @@ bool UDoorLockStateAnomalyComponent::ApplyAnomalyState()
 
 void UDoorLockStateAnomalyComponent::RestoreNormalState()
 {
-	if (!DoorRef || !bHasCapturedOriginal)
+	if (!DoorRef)
 	{
 		return;
 	}
 
-	DoorRef->SetLocked(bOriginalLockedState);
+	if (bHasCapturedOriginal)
+	{
+		DoorRef->SetLocked(bOriginalLockedState);
+	}
+
+	// Every door owns a DoorLock component, so this runs on every floor reset.
+	// An opened door that stayed swung made the next lock look like a snap-shut.
+	DoorRef->ResetToClosedBaseline();
 }

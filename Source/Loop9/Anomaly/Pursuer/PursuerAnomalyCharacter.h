@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "PursuerAnomalyCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPursuerFirstObserved);
+
 UCLASS()
 class LOOP9_API APursuerAnomalyCharacter : public ACharacter
 {
@@ -58,6 +60,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuer|Perception", meta = (ClampMin = "0.01"))
 	float ObservationCheckInterval = 0.08f;
+
+	/** Fires once the first time the player has a clear look at this pursuer. */
+	UPROPERTY(BlueprintAssignable, Category = "Pursuer|Perception")
+	FOnPursuerFirstObserved OnFirstObserved;
 
 private:
 	float MoveRefreshAccumulator = 0.0f;

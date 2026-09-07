@@ -204,6 +204,19 @@ void ADoorInteractable::UnlockDoor()
 	bIsLocked = false;
 }
 
+void ADoorInteractable::ResetToClosedBaseline()
+{
+	bIsOpen = false;
+	bIsMoving = false;
+	RattleTimeRemaining = 0.0f;
+	TargetRelativeRotation = ClosedRelativeRotation;
+	if (DoorMesh)
+	{
+		DoorMesh->SetRelativeRotation(ClosedRelativeRotation);
+	}
+	SetActorTickEnabled(false);
+}
+
 bool ADoorInteractable::TryInteract_Implementation(APlayerController* InteractingController)
 {
 	return Interact();
