@@ -59,7 +59,17 @@ public:
 
 	void EnsureCloudSaveFile() const;
 
+	/**
+	 * Cross-run Dragojlo memory, stored as one compact string in the same
+	 * Game.ini / Steam Cloud file as SeenEndings. Owned and interpreted by
+	 * ULoop9DragojloMemorySubsystem; this class only carries the bytes.
+	 */
+	FString LoadDragojloMemory() const;
+	void SaveDragojloMemory(const FString& Persisted) const;
+
 private:
+	FString LoadPersistedValue(const TCHAR* Key) const;
+	void SavePersistedValue(const TCHAR* Key, const FString& Value) const;
 	void QueryAchievementsCache();
 	void FlushPendingUnlocks();
 	bool WriteUnlock(FName AchievementId);

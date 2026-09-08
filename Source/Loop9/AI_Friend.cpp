@@ -16,6 +16,7 @@
 #include "Sound/SoundAttenuation.h"
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
+#include "Subsystems/Loop9DragojloMemorySubsystem.h"
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Internationalization/Culture.h"
@@ -780,6 +781,15 @@ void AAI_Friend::DispatchChatRequest(const FString& Message, bool bIsAuthRetry)
 			{
 				RequestContext.ObservationSnapshot = Snapshot;
 			}
+		}
+
+		// He recognises a returning player in his first few replies, then the
+		// live relationship takes over. Sent only while that window is open.
+		if (const ULoop9DragojloMemorySubsystem* DragojloMemory =
+			GI->GetSubsystem<ULoop9DragojloMemorySubsystem>())
+		{
+			const int32 InteractionsThisRun = LoopManager ? LoopManager->GetTotalAIInteractions() : 0;
+			RequestContext.RunHistory = DragojloMemory->MemoryForChatRequest(InteractionsThisRun);
 		}
 	}
 

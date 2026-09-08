@@ -27,6 +27,8 @@ namespace
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
 	const TCHAR* SpottedAnomaliesKey = TEXT("SpottedAnomalies");
 	const TCHAR* PendingUnlocksKey = TEXT("PendingUnlocks");
+	/** Cross-run Dragojlo memory (see FDragojloMemory); rides the same Cloud file. */
+	const TCHAR* DragojloMemoryKey = TEXT("DragojloMemory");
 
 	/** Exact Steam Auto-Cloud path: WinAppDataLocal / Loop9/Saved/Config/Windows/Game.ini */
 	FString CloudGameIni()
@@ -56,21 +58,27 @@ namespace
 		FString Seen;
 		FString Spotted;
 		FString Pending;
+		FString Memory;
 		File.GetString(PersistSection, SeenEndingsKey, Seen);
 		File.GetString(PersistSection, SpottedAnomaliesKey, Spotted);
 		File.GetString(PersistSection, PendingUnlocksKey, Pending);
+		File.GetString(PersistSection, DragojloMemoryKey, Memory);
 
 		// Do not use FConfigFile::Write / WriteToString / GConfig. Those skip or
 		// no-op missing inis. Steam Auto-Cloud only needs this file on disk.
+		// Every key the file carries must be listed here: the whole file is
+		// rewritten, so an unlisted key would be dropped on the next save.
 		const FString Text = FString::Printf(
-			TEXT("[%s]\r\nCloudReady=1\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n"),
+			TEXT("[%s]\r\nCloudReady=1\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n"),
 			PersistSection,
 			SeenEndingsKey,
 			*Seen,
 			SpottedAnomaliesKey,
 			*Spotted,
 			PendingUnlocksKey,
-			*Pending);
+			*Pending,
+			DragojloMemoryKey,
+			*Memory);
 
 		const FString Ini = CloudGameIni();
 		IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);
@@ -398,7 +406,7 @@ void ULoop9AchievementsSubsystem::RecordSpottedAnomalies(const FString& AnomalyK
 	}
 }
 
-TArray<FString> ULoop9AchievementsSubsystem::LoadPersistedList(const TCHAR* Key) const
+FString ULoop9AchievementsSubsystem::LoadPersistedValue(const TCHAR* Key) const
 {
 	FString Raw;
 	FConfigFile CloudFile;
@@ -408,24 +416,42 @@ TArray<FString> ULoop9AchievementsSubsystem::LoadPersistedList(const TCHAR* Key)
 	{
 		GConfig->GetString(PersistSection, Key, Raw, GGameIni);
 	}
+	return Raw;
+}
 
+void ULoop9AchievementsSubsystem::SavePersistedValue(const TCHAR* Key, const FString& Value) const
+{
+	FConfigFile CloudFile;
+	LoadCloudFile(CloudFile);
+	CloudFile.SetString(PersistSection, Key, *Value);
+	CloudFile.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
+	SaveCloudFile(CloudFile);
+	if (!GGameIni.IsEmpty())
+	{
+		GConfig->SetString(PersistSection, Key, *Value, GGameIni);
+	}
+}
+
+FString ULoop9AchievementsSubsystem::LoadDragojloMemory() const
+{
+	return LoadPersistedValue(DragojloMemoryKey);
+}
+
+void ULoop9AchievementsSubsystem::SaveDragojloMemory(const FString& Persisted) const
+{
+	SavePersistedValue(DragojloMemoryKey, Persisted);
+}
+
+TArray<FString> ULoop9AchievementsSubsystem::LoadPersistedList(const TCHAR* Key) const
+{
 	TArray<FString> Values;
-	Raw.ParseIntoArray(Values, TEXT(","), true);
+	LoadPersistedValue(Key).ParseIntoArray(Values, TEXT(","), true);
 	return Values;
 }
 
 void ULoop9AchievementsSubsystem::SavePersistedList(const TCHAR* Key, const TArray<FString>& Values) const
 {
-	const FString Joined = FString::Join(Values, TEXT(","));
-	FConfigFile CloudFile;
-	LoadCloudFile(CloudFile);
-	CloudFile.SetString(PersistSection, Key, *Joined);
-	CloudFile.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
-	SaveCloudFile(CloudFile);
-	if (!GGameIni.IsEmpty())
-	{
-		GConfig->SetString(PersistSection, Key, *Joined, GGameIni);
-	}
+	SavePersistedValue(Key, FString::Join(Values, TEXT(",")));
 }
 
 void ULoop9AchievementsSubsystem::EnsureCloudSaveFile() const

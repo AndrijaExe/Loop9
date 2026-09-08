@@ -12,6 +12,7 @@ Cross-repo index (sibling folder): [`../../../DOCUMENTATION.md`](../../../DOCUME
 | [SETUP_AND_DEVELOPMENT.md](SETUP_AND_DEVELOPMENT.md) | Clone, UE 5.8, configs, marketplace, Steam Dev App ID |
 | [CURSOR_HOME_WORKER.md](CURSOR_HOME_WORKER.md) | Windows home PC as a Cursor My Machines worker (Unreal + MCP) |
 | [GAMEPLAY_SYSTEMS.md](GAMEPLAY_SYSTEMS.md) | Loops, elevators, relationships, endings, achievements |
+| [ROADMAP_1_1.md](ROADMAP_1_1.md) | `develop` branch scope: Dragojlo memory, ringing phones, new anomalies, secret ending |
 | [LORE.md](LORE.md) | Story proposal: the nine, why anomalies exist, how the six endings read |
 | [ANOMALIES.md](ANOMALIES.md) | Nine anomaly types, manager lifecycle, debug commands |
 | [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) | Map/Blueprint wiring and safe extension workflows |

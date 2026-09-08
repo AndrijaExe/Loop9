@@ -4,6 +4,7 @@
 #include "Loop/LoopEndingEvaluator.h"
 #include "Loop9GameMode.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9DragojloMemorySubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "UI/EndingWidget.h"
 #include "UI/ReplacementTerminalWidget.h"
@@ -110,13 +111,24 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 		AchievementsSubsystem->NotifyRunFinished(EndingType, TotalResets, TotalAIInteractions);
 	}
 
-	if (ULoop9TelemetrySubsystem* Telemetry = GetGameInstance()->GetSubsystem<ULoop9TelemetrySubsystem>())
 	{
 		const ULoopManagerSubsystem* LoopManager = GetGameInstance()->GetSubsystem<ULoopManagerSubsystem>();
 		const FDragojloCommitmentState Commitment = LoopManager
 			? LoopManager->GetDragojloCommitmentState()
 			: FDragojloCommitmentState();
-		Telemetry->SendRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment);
+
+		if (ULoop9TelemetrySubsystem* Telemetry = GetGameInstance()->GetSubsystem<ULoop9TelemetrySubsystem>())
+		{
+			Telemetry->SendRunFinished(EndingType, TotalResets, TotalAIInteractions, Commitment);
+		}
+
+		// What he will remember next shift. Tone only; nothing above reads it.
+		if (ULoop9DragojloMemorySubsystem* DragojloMemory =
+			GetGameInstance()->GetSubsystem<ULoop9DragojloMemorySubsystem>())
+		{
+			DragojloMemory->RecordRunFinished(
+				EndingType, TotalAIInteractions, Relationship->Kindness, Commitment);
+		}
 	}
 
 	PendingEndingType = EndingType;

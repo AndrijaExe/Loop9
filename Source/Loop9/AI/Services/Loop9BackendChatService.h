@@ -4,6 +4,7 @@
 #include "Dom/JsonObject.h"
 #include "UObject/Object.h"
 #include "Loop/LoopTypes.h"
+#include "Runtime/DragojloMemory.h"
 #include "Runtime/Loop9ObservationJournal.h"
 #include "Loop9BackendChatService.generated.h"
 
@@ -34,6 +35,8 @@ struct FLoop9ChatRequestContext
 	float Dependency = 0.2f;
 	FDragojloCommitmentState AdviceState;
 	TOptional<FLoop9ObservationSnapshot> ObservationSnapshot;
+	/** Cross-run memory; set only for the first replies of a run when he has one. */
+	TOptional<FDragojloMemory> RunHistory;
 };
 
 struct FLoop9ChatResponse
@@ -75,6 +78,8 @@ public:
 	static FString SanitizeReplyText(const FString& InText);
 	static bool TryExtractStateDeltas(const FString& RawContent, FString& OutReply, int32& OutKindnessDelta, int32& OutSuspicionDelta, int32& OutDependencyDelta);
 	static bool TryParseAdviceObject(const TSharedPtr<FJsonObject>& JsonResponse, FLoop9ChatResponse& OutResponse);
+	/** `run_history` request object: counters and snake_case labels only, never chat text. */
+	static TSharedPtr<FJsonObject> BuildRunHistoryObject(const FDragojloMemory& Memory);
 	static FString AdviceModeToWire(EDragojloAdviceMode Mode);
 	static EDragojloAdviceMode AdviceModeFromWire(const FString& Wire);
 	static FString LiftAdviceToWire(EDragojloLiftAdvice Advice);

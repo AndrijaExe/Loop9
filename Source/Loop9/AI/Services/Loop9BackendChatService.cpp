@@ -143,6 +143,28 @@ bool ULoop9BackendChatService::TryExtractStateDeltas(const FString& RawContent, 
 	return true;
 }
 
+TSharedPtr<FJsonObject> ULoop9BackendChatService::BuildRunHistoryObject(const FDragojloMemory& Memory)
+{
+	if (Memory.IsEmpty())
+	{
+		return nullptr;
+	}
+
+	TSharedPtr<FJsonObject> History = MakeShareable(new FJsonObject());
+	History->SetNumberField(TEXT("runs_finished"), Memory.RunsFinished);
+	if (Memory.bHasLastEnding)
+	{
+		History->SetStringField(TEXT("last_ending"), FDragojloMemory::EndingWireLabel(Memory.LastEnding));
+	}
+	History->SetNumberField(TEXT("last_run_calls"), Memory.LastRunCalls);
+	History->SetStringField(TEXT("last_run_tone"),
+		Memory.LastRunTone > 0 ? TEXT("warm") : (Memory.LastRunTone < 0 ? TEXT("cold") : TEXT("neutral")));
+	History->SetNumberField(TEXT("lies_told"), Memory.LiesTold);
+	History->SetNumberField(TEXT("caught_lying"), Memory.CaughtLying);
+	History->SetNumberField(TEXT("runs_following_him"), Memory.RunsFollowingHim);
+	return History;
+}
+
 FString ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode Mode)
 {
 	switch (Mode)
@@ -311,6 +333,15 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		if (SnapshotObject.IsValid())
 		{
 			JsonObject->SetObjectField(TEXT("observation_snapshot"), SnapshotObject);
+		}
+	}
+
+	if (Context.RunHistory.IsSet() && !Context.RunHistory->IsEmpty())
+	{
+		const TSharedPtr<FJsonObject> HistoryObject = BuildRunHistoryObject(Context.RunHistory.GetValue());
+		if (HistoryObject.IsValid())
+		{
+			JsonObject->SetObjectField(TEXT("run_history"), HistoryObject);
 		}
 	}
 

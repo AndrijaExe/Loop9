@@ -5,6 +5,7 @@ Client systems:
 - `ULoop9BackendAuthSubsystem` — Steam ticket exchange
 - `ULoop9BackendChatService` — chat HTTP
 - `ULoop9ObservationJournalSubsystem` — bounded, structured floor observations
+- `ULoop9DragojloMemorySubsystem` — cross-run memory (`run_history`), tone only
 - `AAI_Friend` / `UAI_ChatWidget` — phone UX + thinking indicator
 - `ULoop9TelemetrySubsystem` — run-finished telemetry
 - `Loop9BackendEndpointUtils` — derive auth/chat/telemetry URLs from `APIEndpoint`
@@ -50,6 +51,11 @@ Details:
    - advice_state (structured per-run commitment flags; never raw chat)
    - optional `observation_snapshot`: current authored zone, seconds on floor,
      at most 8 compact events, at most 8 visited zones, and fixed run counters
+   - optional `run_history` (1.1+): what he remembers from earlier finished runs
+     (runs finished, last ending label, last-run call count and tone bucket,
+     lies told / caught, runs in which the player followed his lift call). Sent
+     only while the run has < 3 AI interactions and only when at least one run
+     has finished on this install
    - discrete kindness/suspicion state used by the backend
 6. Client HTTP timeout: **65 seconds**
 7. Backend AI cascade deadline: **45 seconds** (client timeout is intentionally larger)

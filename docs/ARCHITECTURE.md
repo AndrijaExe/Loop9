@@ -44,6 +44,7 @@ flowchart TB
 | Chat HTTP | `ULoop9BackendChatService` | Static-safe response handling |
 | Observation request encoding | `FLoop9ObservationCodec` | Wire names, JSON shape, 1024-byte budget |
 | Bounded observation context + zone registry | `ULoop9ObservationJournalSubsystem` | Advisory Game Instance state; never gameplay authority |
+| Cross-run Dragojlo memory | `ULoop9DragojloMemorySubsystem` + `FDragojloMemory` | Persists via the achievements `Game.ini`/Cloud record; tone only, survives `ResetRunState` |
 | Elevator doors / fade / teleport timing / travel audio | `ALoopElevatorTransitionDirector` | World actor |
 | Ending Level Sequences | `ALoop9GameMode::EndingSequences` | Soft refs; presenter plays them |
 | Settings persistence | `ULoop9GameSettingsSubsystem` | `Game.ini` / user settings |

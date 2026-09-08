@@ -148,6 +148,24 @@ The journal is one-way context for `AAI_Friend` chat requests. Gameplay systems
 must never read it to judge the lift, mutate relationships, grant achievements,
 choose endings, emit telemetry, spawn anomalies, or select `AdvicePolicy`.
 
+## Dragojlo remembers (cross-run memory, 1.1)
+
+`ULoop9DragojloMemorySubsystem` owns `FDragojloMemory`: runs finished, the last
+ending (as a stable `snake_case` label), the last run's call count and kindness
+bucket (warm / neutral / cold), lies told across runs (planted place + wrong
+lifts), runs in which the player caught him in a contradiction, and runs in
+which they followed his lift call. `ULoopEndingPresenterSubsystem` folds one
+run in right after `NotifyRunFinished`; the record is one compact string
+(`runs=2;calls=7;tone=-1;...;last=cold_betrayal`) stored under
+`DragojloMemory` in the same `Game.ini` / Steam Cloud record as `SeenEndings`.
+
+It is tone only. `AAI_Friend` attaches it as `run_history` for the first three
+AI interactions of a run; the backend renders a recognition paragraph and
+nothing else reads it — not the ending evaluator, not `AdvicePolicy`, not
+achievements or telemetry. `ResetRunState` leaves it alone on purpose: a new
+shift does not make him forget you. There is no player-facing reset;
+`ForgetEverything()` exists for debug and support.
+
 Backend switches: `AI_COMMITMENT_ENABLED` (master),
 `AI_COMMITMENT_LOCATION_ENABLED`, `AI_COMMITMENT_WRONG_LIFT_ENABLED`,
 `AI_COMMITMENT_WRONG_LIFT_CHANCE` (per-floor odds of the late wrong lift when

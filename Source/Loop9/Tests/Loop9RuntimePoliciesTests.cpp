@@ -6,6 +6,7 @@
 #include "Dom/JsonObject.h"
 #include "Loop/LoopTypes.h"
 #include "Runtime/DragojloCommitmentTracker.h"
+#include "Runtime/DragojloMemory.h"
 #include "Runtime/Loop9ObservationIds.h"
 #include "Runtime/Loop9ObservationJournal.h"
 #include "Runtime/Loop9RunEventCards.h"
@@ -646,6 +647,61 @@ bool FLoop9ObservationJournalProjectionTest::RunTest(const FString&)
 	const TSharedPtr<FJsonObject> DirectObject =
 		FLoop9ObservationCodec::BuildSnapshotObject(Snapshot);
 	TestTrue(TEXT("Codec exposes a direct JSON object"), DirectObject.IsValid());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9DragojloMemoryRoundTripTest,
+	"Loop9.Runtime.DragojloMemory.RoundTrip",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9DragojloMemoryRoundTripTest::RunTest(const FString&)
+{
+	FDragojloMemory Memory;
+	TestTrue(TEXT("Fresh install has no memory"), Memory.IsEmpty());
+	TestEqual(TEXT("Empty memory persists as an empty string"), Memory.ToPersistedString(), FString());
+	TestFalse(TEXT("Empty memory is never sent"), FDragojloMemory::ShouldSendToBackend(Memory, 0));
+
+	FDragojloCommitmentState Commitment;
+	Commitment.bLocationMisdirectionUsed = true;
+	Commitment.WrongLiftAdviceCount = 1;
+	Commitment.bContradictionExposed = true;
+	Commitment.FollowedLiftAdviceCount = 2;
+	Memory.RecordRunFinished(ELoopEndingType::ColdBetrayal, 7, 0.30f, Commitment);
+
+	TestEqual(TEXT("One run recorded"), Memory.RunsFinished, 1);
+	TestEqual(TEXT("Planted place plus wrong lift count as two lies"), Memory.LiesTold, 2);
+	TestEqual(TEXT("Exposed contradiction is one caught run"), Memory.CaughtLying, 1);
+	TestEqual(TEXT("Following him once marks the run"), Memory.RunsFollowingHim, 1);
+	TestEqual(TEXT("Low kindness is a cold tone"), Memory.LastRunTone, -1);
+	TestTrue(TEXT("Last ending is kept"), Memory.bHasLastEnding);
+	TestEqual(TEXT("Last ending is the cold one"), AsInt(Memory.LastEnding), AsInt(ELoopEndingType::ColdBetrayal));
+
+	const FString Persisted = Memory.ToPersistedString();
+	TestTrue(TEXT("Persisted string carries the ending label"), Persisted.Contains(TEXT("last=cold_betrayal")));
+	TestFalse(TEXT("Persisted string carries no raw text separators"), Persisted.Contains(TEXT(",")));
+
+	const FDragojloMemory Restored = FDragojloMemory::FromPersistedString(Persisted);
+	TestEqual(TEXT("Runs survive the round trip"), Restored.RunsFinished, 1);
+	TestEqual(TEXT("Lies survive the round trip"), Restored.LiesTold, 2);
+	TestEqual(TEXT("Calls survive the round trip"), Restored.LastRunCalls, 7);
+	TestEqual(TEXT("Tone survives the round trip"), Restored.LastRunTone, -1);
+	TestEqual(TEXT("Ending survives the round trip"), AsInt(Restored.LastEnding), AsInt(ELoopEndingType::ColdBetrayal));
+
+	TestTrue(TEXT("Sent for the first reply of the next run"), FDragojloMemory::ShouldSendToBackend(Restored, 0));
+	TestTrue(TEXT("Still sent for the third reply"), FDragojloMemory::ShouldSendToBackend(Restored, 2));
+	TestFalse(TEXT("Silent from the fourth reply on"), FDragojloMemory::ShouldSendToBackend(Restored, 3));
+
+	TestTrue(TEXT("Garbage decodes to empty memory"),
+		FDragojloMemory::FromPersistedString(TEXT("runs=abc;last=??;;=")).IsEmpty());
+	TestTrue(TEXT("Zero runs decodes to empty memory"),
+		FDragojloMemory::FromPersistedString(TEXT("runs=0;lies=5")).IsEmpty());
+
+	const TSharedPtr<FJsonObject> Wire = ULoop9BackendChatService::BuildRunHistoryObject(Restored);
+	TestTrue(TEXT("Wire object exists"), Wire.IsValid());
+	TestEqual(TEXT("Wire carries the snake_case ending"), Wire->GetStringField(TEXT("last_ending")), FString(TEXT("cold_betrayal")));
+	TestEqual(TEXT("Wire carries the tone label"), Wire->GetStringField(TEXT("last_run_tone")), FString(TEXT("cold")));
+	TestFalse(TEXT("Wire never carries relationship floats"), Wire->HasField(TEXT("kindness")));
 	return true;
 }
 
