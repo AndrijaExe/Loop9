@@ -15,6 +15,21 @@ Steam App ID: **4982260**
 > 2. Zone / Dragojlo location: Andrija hoće još jedan live prolaz da čuje
 >    kako AI rezonuje (vidi §6). Nije petak-bloker ako ostalo drži.
 > 3. Release day §8 u petak. Creator Homepage nije bloker.
+>
+> **Andrija — ručne stavke od 08.09. (ništa od ovoga nije u kodu):**
+> - [ ] Render env: dodaj `AI_COMMITMENT_WRONG_LIFT_CHANCE=0.5` (backend je
+>   deployovan; bez ključa važi `.env` = 0.5, radi i bez toga).
+> - [ ] **OpenAI / provider nalog: postavi tvrdi mesečni spend limit.** Kod
+>   ograničava broj zahteva (5000/dan globalno), ne dolare — ovo je poslednja
+>   brana i jedina koju repo ne može da uradi za tebe.
+> - [ ] Odluči: v1.0.6 pre petka (Pursuer mrtva linija + poruka ≤1000 znakova)
+>   ili prvi patch posle launcha. Ako kuvaš: **GatherText** pa cook.
+> - [ ] Ako kuvaš v1.0.6: Standalone QA Pursuer linije (§6) i jedan run da
+>   chat radi normalno na sledećem spratu.
+> - [ ] Monitoring alarm na `chat.denied.global` i `abuse.watch` (metrike već
+>   postoje na `/metrics`). Ako launch dan probije 5000 legitimnih chatova,
+>   igrači dobijaju „Service is at capacity“ — tada se diže
+>   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred.
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -614,6 +629,16 @@ v1.0.1 BuildID više nije QA cilj:
 ### Steam i online
 
 - [x] Steam ticket → backend session → prvi chat zahtev radi na App ID `4982260`.
+- [x] **Audit rate limiting / AI troška (08.09.).** Redosled na `/api/chat`:
+  HMAC session token (legacy game token odbijen u kodu u prod) → burst 20/min
+  po IP → validacija tela → IP 300/dan → igrač 120/dan → igrač 2000/mesec →
+  globalno 5000/dan → tek onda moderacija + AI. Brojači su u Redis-u (deljeni,
+  preživljavaju deploy); `/readyz` na live-u vraća `ready`, forged/legacy
+  token vraćaju 403 bez troška. Bez Steam naloga koji poseduje igru napadač ne
+  može da potroši ništa; sa jednom kopijom max 120/dan. Poruka spuštena sa
+  4000 na 1000 znakova (backend + klijent u `main`). Detalji i preostale meke
+  tačke: backend `docs/SECURITY_AND_PRIVACY.md`. Ostaje ručno: spend limit na
+  provider nalogu (gore).
 - [x] Klijent traži svež Steam Web API ticket asinhrono (`WebAPI:Loop9`), a backend
   ga proverava preko publisher API-ja sa istim identity parametrom.
 - [x] Steam Overlay i achievement toast rade.

@@ -57,7 +57,9 @@ struct FLoop9ChatResponse
 namespace Loop9ChatLimits
 {
 	/** Must stay aligned with backend ChatRequestMapper::MAX_MESSAGE_LENGTH. */
-	inline constexpr int32 MaxMessageLength = 4000;
+	// Mirrors backend ChatRequestMapper::MAX_MESSAGE_LENGTH (1000 since 08.09.2026).
+	// Older cooks (≤ v1.0.5) still allow 4000 and get a clean 400 → static reply.
+	inline constexpr int32 MaxMessageLength = 1000;
 }
 
 DECLARE_DELEGATE_OneParam(FOnLoop9ChatResponseReceived, const FLoop9ChatResponse&);
