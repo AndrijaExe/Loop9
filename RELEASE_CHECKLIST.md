@@ -30,6 +30,8 @@ Steam App ID: **4982260**
 >   postoje na `/metrics`). Ako launch dan probije 5000 legitimnih chatova,
 >   igrači dobijaju „Service is at capacity“ — tada se diže
 >   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred.
+> - [ ] **1.1 (`develop`) — Steamworks + Render + editor:** vidi §10 dole
+>   (`ACH_ENDING_THE_EXIT`, opis `ACH_ALL_ENDINGS`, tri env ključa, cook).
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -783,6 +785,69 @@ Brief:
   Prompt-complete i chat typing i dalje prazni; nisu launch bloker.
 - [x] Credits ekran odvojen od Help-a + How to Play label (26.08.2026.).
 
+
+---
+
+## 10. Verzija 1.1 (`develop`) — ručne stavke pre merge-a u `main`
+
+Kod za svih pet 1.1 stavki je na `develop` u oba repoa od 08.09.2026.
+(Dragojlo memorija, telefoni zvone, poziv o pogrešnom spratu, Watcher figura,
+tajni ending „The Exit“). Ništa od ovoga **ne sme** u `main` dok sve ispod
+nije `[x]`. Detalji koda i editor koraci:
+`[docs/ROADMAP_1_1.md](docs/ROADMAP_1_1.md)`.
+
+### Steamworks (App ID `4982260`, Stats & Achievements)
+
+- [ ] **Novi achievement `ACH_ENDING_THE_EXIT`.** Display name „The Exit“,
+  opis „You never needed the lift.“, **hidden = da** (spojler). Ikonice:
+  achieved + locked (isti stil kao ostalih šest endinga). U kodu je već
+  `Achievement_27_Id=ACH_ENDING_THE_EXIT` u `DefaultEngine.ini` i mapiranje u
+  `ULoop9AchievementsSubsystem::EndingAchievementId`. Ako ime u Steamworksu ne
+  postoji do slova, `SetAchievement` tiho ne uspeva **za ceo blok**, ne samo
+  za taj jedan — ovo je bloker za 1.1 cook na playtestu, ne samo za default.
+- [ ] **`ACH_ALL_ENDINGS` opis** promeniti sa „See all six endings.“ na
+  „See every ending.“ — od 1.1 kod traži **sedam** viđenih
+  (`EndingTypeCount = 7`). Igrači koji već imaju svih šest neće ga dobiti dok
+  ne nađu i The Exit; to je namerno.
+- [ ] **Publish** Stats & Achievements posle izmene (bez publish-a promena ne
+  postoji za klijent).
+- [ ] **Ne dodavati** spot achievement za `WatcherAnomaly` — odluka 08.09.:
+  Watcher i `LoopNumber` se broje na liftu, ali ne ulaze u `ACH_SPOT_ALL`
+  (ostaje 9 tipova). Ako se predomisliš: jedna linija u `SpotAchievementId`,
+  `SpotAllAnomalyTypeCount = 10`, novi `ACH_SPOT_WATCHER` u Steamworksu +
+  `Achievement_28_Id` u configu.
+- [ ] Store: nema novih store asseta; ako želiš, jedna rečenica u „What's
+  new“ / patch notes o novoj anomaliji i „nečemu iza zida“ bez spojlera
+  endinga.
+
+### Render (backend `develop` → `main` = deploy)
+
+- [ ] `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`
+- [ ] `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`
+- [ ] `AI_RUN_HISTORY_ENABLED=true`
+- Sve tri su inertne za v1.0.5 klijente (nikad ne šalju `previous_anomaly_detail`
+  ni `run_history`), pa backend sme da ode na `main` **pre** igre. Kill switch
+  bez cooka: prva i treća na `false`.
+
+### Editor / cook (Windows)
+
+- [ ] Kompajlirati `develop` (novi fajlovi `WatcherAnomalyComponent.*`,
+  `Loop9SecretExitDoor.*`); popraviti šta kompajler nađe i pushovati.
+- [ ] `AudioAnomaly` komponenta na 2–3 `AI_Friend` telefona (zvono, looping,
+  zone tag).
+- [ ] `BP_WatcherFigure` + 3–4 anchor aktora sa `WatcherAnomaly`.
+- [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
+  `Loop9SecretExitDoor` kao ulična vrata.
+- [ ] `LS_TheExit` cutscena → `BP_Loop9GameMode → EndingSequences → TheExit`
+  (fallback fade → karta radi bez nje).
+- [ ] **GatherText** (novi ključevi: `ChatRingingPhoneAnswered`,
+  `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
+  prevodi su već u `.po`), compile texts, pa cook u **novi** `Builds/v1.1.0`.
+- [ ] Cook na playtest granu (isti tok kao `valvereview`), QA po
+  `docs/ROADMAP_1_1.md` → „QA pass for the 1.1 cook“ (uključuje regresiju
+  svih šest starih endinga i Pursuer mrtve linije).
+- [ ] Tek onda: backend `develop → main`, verifikovati `/api/health`, pa igra
+  `develop → main`, upload, Set Live. `release/v1.0.5` ostaje rollback.
 
 ---
 
