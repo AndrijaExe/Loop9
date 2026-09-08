@@ -28,6 +28,9 @@ struct FLoop9ChatRequestContext
 	FString AnomalyObjectKind;
 	/** Authored inactive place offered as a one-shot location misdirection target. */
 	FString DecoyZone;
+	/** Zone / kind of the previous floor's anomaly; empty when that floor was clean. */
+	FString PreviousAnomalyZone;
+	FString PreviousAnomalyObjectKind;
 	bool bRepeatAnomaly = false;
 	float Trust = 0.5f;
 	float Kindness = 0.5f;

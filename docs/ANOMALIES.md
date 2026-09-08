@@ -16,8 +16,27 @@ Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`
 | Scale | `ScaleAnomaly` | wrong-sized object |
 | PhantomMessage | `PhantomMessageAnomaly` | chat message the player never sent |
 | LoopNumber | `LoopNumberAnomaly` | loop counter flickers / turns into `?` |
+| Watcher (1.1) | `WatcherAnomaly` | `UWatcherAnomalyComponent`: a figure standing with its back turned |
 
 `MaterialSwapAnomalyComponent` currently reports type `Text` and is used for material/text visual variants.
+
+**Ringing phones (1.1).** An `AudioAnomalyComponent` placed on an `AAI_Friend`
+desk phone with `bAnswerable` (default) is a ringing phone: interacting while
+it rings stops the sound (`Answer()`, anomaly stays active), opens the chat
+with one local canned line (`ChatRingingPhoneAnswered`, no backend call, no
+message slot), logs `object_inspected` / `ringing_phone`, and cuts the line for
+the whole floor (`UAnomalyManager::CutPhoneLineForFloor`). Every phone then
+answers `SayToAI` with `ChatLineCutAfterRing` until the next floor. Audio
+components on any other actor behave as before.
+
+**Watcher (1.1).** `UWatcherAnomalyComponent` sits on an empty anchor actor and
+spawns `FigureClass` there, rotated so its back faces the player. It never
+moves. The manifestation vanishes when the player comes within
+`VanishDistance`, on the second look after looking away, after
+`MaxContinuousLookSeconds`, or after `MaxLifetimeSeconds`; the component stays
+active so the floor still judges "lit". First sight logs `object_inspected` /
+`figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). No spot
+achievement, like `LoopNumber`.
 
 Pursuer is the one anomaly that changes the phone. While it is active
 (`UAnomalyManager::IsAnomalyTypeActive(Pursuer)` — true for the whole floor
@@ -184,4 +203,4 @@ Filter notes:
 
 ## Achievements tied to anomalies
 
-Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all nine original types across runs (persisted). `LoopNumber` is a tenth elevator-counted type without a Steam spot achievement. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).
+Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all nine original types across runs (persisted). `LoopNumber` is a tenth elevator-counted type without a Steam spot achievement; the 1.1 `Watcher` is an eleventh, also without one. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).

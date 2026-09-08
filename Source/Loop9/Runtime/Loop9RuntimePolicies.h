@@ -192,6 +192,7 @@ namespace Loop9RuntimePolicies
 			ELoopEndingType::ParanoidSurvivor,
 			ELoopEndingType::MergedMemory,
 			ELoopEndingType::TheReplacement,
+			ELoopEndingType::TheExit,
 		};
 	}
 

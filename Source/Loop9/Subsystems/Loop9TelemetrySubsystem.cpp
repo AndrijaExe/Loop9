@@ -59,6 +59,7 @@ FString ULoop9TelemetrySubsystem::EndingTelemetryId(ELoopEndingType EndingType)
 	case ELoopEndingType::MergedMemory: return TEXT("merged_memory");
 	case ELoopEndingType::TheReplacement: return TEXT("the_replacement");
 	case ELoopEndingType::ParanoidSurvivor: return TEXT("paranoid_survivor");
+	case ELoopEndingType::TheExit: return TEXT("the_exit");
 	default: return FString();
 	}
 }

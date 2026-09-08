@@ -383,7 +383,7 @@ namespace
 		if (Token.IsNumeric())
 		{
 			const int32 Index = FCString::Atoi(*Token);
-			if (Index >= 0 && Index <= static_cast<int32>(ELoopEndingType::TheReplacement))
+			if (Index >= 0 && Index <= static_cast<int32>(ELoopEndingType::TheExit))
 			{
 				OutType = static_cast<ELoopEndingType>(Index);
 				return true;
@@ -400,6 +400,8 @@ namespace
 			{ TEXT("MergedMemory"), ELoopEndingType::MergedMemory },
 			{ TEXT("TheReplacement"), ELoopEndingType::TheReplacement },
 			{ TEXT("Replacement"), ELoopEndingType::TheReplacement },
+			{ TEXT("TheExit"), ELoopEndingType::TheExit },
+			{ TEXT("Exit"), ELoopEndingType::TheExit },
 		};
 
 		for (const TPair<const TCHAR*, ELoopEndingType>& Alias : Aliases)
@@ -450,13 +452,26 @@ void ALoop9PlayerController::EndingSetup(const FString& Args)
 	{
 		UE_LOG(LogLoop9, Warning, TEXT("EndingSetup: unknown ending '%s'"), *Tokens[0]);
 		DebugScreenMessage(
-			FString::Printf(TEXT("EndingSetup: unknown ending '%s'. Use 0-5."), *Tokens[0]), false);
+			FString::Printf(TEXT("EndingSetup: unknown ending '%s'. Use 0-6."), *Tokens[0]), false);
 		EndingHelp();
 		return;
 	}
 
 	if (ULoopManagerSubsystem* LoopManager = GetLoopManager(this))
 	{
+		if (EndingType == ELoopEndingType::TheExit)
+		{
+			// Not scored: arm the door instead. Walk to the ground-floor exit and open it.
+			LoopManager->CurrentLoop = FMath::Max(LoopManager->CurrentLoop, LoopManager->SecretExitMinLoop);
+			LoopManager->bDebugSecretExitIgnoresWall = true;
+			UE_LOG(LogLoop9, Log, TEXT("EndingSetup TheExit: door armed on loop %d (wall check skipped)."), LoopManager->CurrentLoop);
+			DebugScreenMessage(
+				TEXT("The Exit armed: the ground-floor street door now accepts the exit\n"
+					 "even though the wall is still there. Walk down and open it."),
+				true);
+			return;
+		}
+
 		const bool bOk = LoopManager->ApplyEndingTestSetup(EndingType);
 		UE_LOG(LogLoop9, Log, TEXT("EndingSetup %s -> %s. CurrentLoop=9, floor clean, take the DARK elevator."),
 			*UEnum::GetValueAsString(EndingType),
@@ -492,6 +507,7 @@ void ALoop9PlayerController::EndingHelp()
 		"  EndingSetup ParanoidSurvivor (or 3)\n"
 		"  EndingSetup MergedMemory    (or 4)\n"
 		"  EndingSetup TheReplacement  (or 5)\n"
+		"  EndingSetup TheExit         (or 6) - arms the ground-floor door instead\n"
 		"  EndingHelp\n"
 		"After setup the floor is clean, so the DARK elevator is the correct one.\n"
 		"Take it to advance; the ending fires at loop 10."));

@@ -74,6 +74,21 @@ void ULoopEndingPresenterSubsystem::Deinitialize()
 
 bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem* Relationship)
 {
+	if (!Relationship)
+	{
+		return false;
+	}
+	return BeginEndingPresentation(
+		FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext()), Relationship);
+}
+
+bool ULoopEndingPresenterSubsystem::TriggerForcedEnding(ELoopEndingType EndingType, URelationshipSubsystem* Relationship)
+{
+	return BeginEndingPresentation(EndingType, Relationship);
+}
+
+bool ULoopEndingPresenterSubsystem::BeginEndingPresentation(ELoopEndingType EndingType, URelationshipSubsystem* Relationship)
+{
 	if (PresentationState != EPresentationState::Idle)
 	{
 		return false;
@@ -94,7 +109,6 @@ bool ULoopEndingPresenterSubsystem::TriggerEndingSequence(URelationshipSubsystem
 	LockPresentationInput(PC);
 	PresentationState = EPresentationState::FadingToWidget;
 
-	const ELoopEndingType EndingType = FLoopEndingEvaluator::Evaluate(Relationship->BuildEndingContext());
 	const int32 TotalResets = Relationship->TotalResets;
 	const int32 TotalAIInteractions = Relationship->TotalAIInteractions;
 	// The advance path increments past the ninth floor before it triggers the

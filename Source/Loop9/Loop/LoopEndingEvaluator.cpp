@@ -169,6 +169,7 @@ namespace
 		case ELoopEndingType::ColdBetrayal: return TEXT("Cold");
 		case ELoopEndingType::MergedMemory: return TEXT("Merged");
 		case ELoopEndingType::TheReplacement: return TEXT("Replace");
+		case ELoopEndingType::TheExit: return TEXT("Exit");
 		default: return TEXT("Paranoid");
 		}
 	}

@@ -39,6 +39,8 @@ Details:
    - Pursuer floor: `AAI_Friend::SayToAI` stops here and shows the localized
      dead-line reply (`Loop9Chat/ChatPursuerNoAnswer`). Nothing is sent, no
      message slot, kindness delta or AI interaction is consumed.
+   - Line cut (1.1): after a ringing desk phone was answered on this floor,
+     every phone shows `Loop9Chat/ChatLineCutAfterRing` and stops here too.
 2. `AAI_Friend` ensures a valid session token (queue/wait if auth pending).
 3. Widget shows localized **Thinking...** and disables input.
 4. After a long wait, status upgrades to **Still thinking...**
@@ -48,7 +50,11 @@ Details:
    - anomaly_context / anomaly_key / repeat_anomaly
    - anomaly_detail (zone + object kind), only when authored on the component
    - decoy_zone (one authored inactive place, when available)
-   - advice_state (structured per-run commitment flags; never raw chat)
+   - `previous_anomaly_detail` (1.1+): zone + object kind of the previous
+     floor's anomaly, omitted when that floor was clean or placeless; feeds only
+     the backend `stale_floor` directive
+   - advice_state (structured per-run commitment flags; never raw chat; 1.1 adds
+     `stale_floor_used`)
    - optional `observation_snapshot`: current authored zone, seconds on floor,
      at most 8 compact events, at most 8 visited zones, and fixed run counters
    - optional `run_history` (1.1+): what he remembers from earlier finished runs
@@ -103,6 +109,7 @@ HTTP timeout: **15 seconds**. Backend stores nothing durable; it emits a structu
 | Provider timeout / outage | Fallback providers, then safe failure response |
 | Network failure | Clear chat failure handling; thinking indicator must hide |
 | Pursuer active | Local dead-line reply with anomaly mumble; no request, no thinking indicator |
+| Line cut after ringing phone (1.1) | Local `ChatLineCutAfterRing` reply; no request; clears on the next floor |
 
 ## Configuration
 

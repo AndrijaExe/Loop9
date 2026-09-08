@@ -49,9 +49,16 @@ opisa su na engleskom (Steam prikazuje lokalizaciju kasnije ako je dodaš).
 | 5 | `ACH_ENDING_MERGED_MEMORY` | Merged Memory | Where does he end and you begin? | DA |
 | 6 | `ACH_ENDING_THE_REPLACEMENT` | The Replacement | Someone has to answer the phone. | DA |
 | 7 | `ACH_ALL_ENDINGS` | Every Shift Ends | See all six endings. | NE |
+| 28 | `ACH_ENDING_THE_EXIT` | The Exit | You never needed the lift. | DA |
 
 **Uslov u kodu:** 1–6 se otključavaju automatski kad se prikaže odgovarajući
 ending; 7 kad su svi iz 1–6 viđeni (kroz bilo koji broj prolaza).
+
+**1.1 (`develop`):** `ACH_ENDING_THE_EXIT` (#28, `Achievement_27_Id` u
+`DefaultEngine.ini`) je tajni sedmi ending. Od 1.1 `ACH_ALL_ENDINGS` traži
+**sedam** viđenih endinga (`EndingTypeCount = 7`), pa opis u Steamworks-u treba
+promeniti u "See every ending." **Pre 1.1 builda** achievement mora postojati u
+Steamworks-u i biti publishovan, inače `WriteAchievements` pada za ceo blok.
 
 ### Progresija
 
@@ -99,7 +106,9 @@ odluka dok je aktivna repeat anomalija.
 
 **Uslov u kodu:** 18–26 — tačna odluka (lit elevator) dok je aktivna anomalija
 tog tipa; 27 — svih 9 tipova uočeno (kumulativno kroz prolaze, persistovano).
-`ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju.
+`ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju. `LoopNumber` i
+1.1 `Watcher` (figura okrenuta leđima) se broje na liftu, ali nemaju spot
+achievement i ne ulaze u `ACH_SPOT_ALL`.
 
 ---
 

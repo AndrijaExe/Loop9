@@ -76,12 +76,26 @@ public:
 	FString GetCurrentLoopAnomalyZone() const { return CurrentLoopAnomalyZone; }
 	/** Category of the affected object; the AI never receives the actor name. */
 	FString GetCurrentLoopAnomalyObjectKind() const { return CurrentLoopAnomalyObjectKind; }
+	/**
+	 * Place / kind of the previous floor's anomaly, for the 1.1 stale-floor slip.
+	 * Empty when that floor was clean or placeless, so he never points at nothing.
+	 */
+	FString GetPreviousLoopAnomalyZone() const { return PreviousLoopAnomalyZone; }
+	FString GetPreviousLoopAnomalyObjectKind() const { return PreviousLoopAnomalyObjectKind; }
 
 	/**
 	 * One authored zone from an inactive, non-Pursuer/non-Phantom component that
 	 * differs from every active zone. Empty when no safe decoy exists.
 	 */
 	FString SelectDecoyZone() const;
+
+	/**
+	 * 1.1: answering a ringing desk phone cuts every phone on the floor. Cleared
+	 * on the next floor visit and on run reset. Floor-wide by design: the
+	 * player learns there is no way back to him this floor.
+	 */
+	void CutPhoneLineForFloor() { bPhoneLineCutThisFloor = true; }
+	bool IsPhoneLineCut() const { return bPhoneLineCutThisFloor; }
 
 	/** If the map still has no Scale component, attach one to the office printer. */
 	void EnsureScaleAnomalyPlacement(UWorld* World);
@@ -96,7 +110,10 @@ private:
 	FString CurrentLoopAnomalyContext = TEXT("No active anomaly currently detected.");
 	FString CurrentLoopAnomalyZone;
 	FString CurrentLoopAnomalyObjectKind;
+	FString PreviousLoopAnomalyZone;
+	FString PreviousLoopAnomalyObjectKind;
 	bool bCurrentLoopAnomalyRepeat = false;
+	bool bPhoneLineCutThisFloor = false;
 
 	void ComputeActiveAnomalySnapshot(
 		FString& OutKey,

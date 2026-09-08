@@ -405,6 +405,13 @@ msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Answer"
 
+#. Key:	OpenStreetDoor
+#. SourceLocation:	Source/Loop9/Interaction/Loop9SecretExitDoor.cpp(62)
+#: Source/Loop9/Interaction/Loop9SecretExitDoor.cpp(62)
+msgctxt "Loop9Interaction,OpenStreetDoor"
+msgid "Open"
+msgstr "Open"
+
 #. Key:	ChatConnectionLost
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(559)
 #: Source/Loop9/AI_Friend.cpp(559)
@@ -418,6 +425,20 @@ msgstr "...the line crackles and goes dead. (No connection. Check your internet 
 msgctxt "Loop9Chat,ChatPursuerNoAnswer"
 msgid "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
 msgstr "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
+
+#. Key:	ChatRingingPhoneAnswered
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1144)
+#: Source/Loop9/AI_Friend.cpp(1144)
+msgctxt "Loop9Chat,ChatRingingPhoneAnswered"
+msgid "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
+msgstr "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
+
+#. Key:	ChatLineCutAfterRing
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(634)
+#: Source/Loop9/AI_Friend.cpp(634)
+msgctxt "Loop9Chat,ChatLineCutAfterRing"
+msgid "...static, then a steady tone. Whatever you picked up earlier took the line with it. Nothing gets through on this floor."
+msgstr "...static, then a steady tone. Whatever you picked up earlier took the line with it. Nothing gets through on this floor."
 
 #. Key:	ChatRateLimitedRetry
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(569)
@@ -776,6 +797,13 @@ msgctxt "Loop9Endings,TheReplacementTitle"
 msgid "THE REPLACEMENT"
 msgstr "THE REPLACEMENT"
 
+#. Key:	TheExitTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(78)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(78)
+msgctxt "Loop9Endings,TheExitTitle"
+msgid "THE EXIT"
+msgstr "THE EXIT"
+
 #. Key:	ParanoidSurvivorTitle
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
 #: Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
@@ -936,6 +964,13 @@ msgstr "Your memories and his leaks intertwined. You can no longer tell who reme
 msgctxt "Loop9Endings,TheReplacementDesc"
 msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
 msgstr "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
+
+#. Key:	TheExitDesc
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(191)
+#: Source/Loop9/UI/EndingWidget.cpp(191)
+msgctxt "Loop9Endings,TheExitDesc"
+msgid "A wall that was not there. A door nobody mentioned. You walked home without asking him once. Something at home says you have been here before."
+msgstr "A wall that was not there. A door nobody mentioned. You walked home without asking him once. Something at home says you have been here before."
 
 #. Key:	ParanoidSurvivorDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(191)

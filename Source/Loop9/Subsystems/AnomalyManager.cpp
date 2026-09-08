@@ -24,7 +24,7 @@ namespace
 
 	constexpr bool bDebugOnlyMoveAnomaly = false;
 
-	constexpr int32 AnomalyTypeCount = 10;
+	constexpr int32 AnomalyTypeCount = 11;
 
 	constexpr ELoopAnomalyType AnomalyTypeOrder[AnomalyTypeCount] =
 	{
@@ -37,7 +37,8 @@ namespace
 		ELoopAnomalyType::Pursuer,
 		ELoopAnomalyType::Scale,
 		ELoopAnomalyType::PhantomMessage,
-		ELoopAnomalyType::LoopNumber
+		ELoopAnomalyType::LoopNumber,
+		ELoopAnomalyType::Watcher
 	};
 
 	int32 GetTypeIndex(ELoopAnomalyType Type)
@@ -80,6 +81,11 @@ namespace
 		// easier to call than a missing stapler. Keep it garnish.
 		case ELoopAnomalyType::LoopNumber:
 			return 0.55f;
+
+		// A man with his back turned is a shock, not a search. Rare like the
+		// pursuer, a touch more common because he never takes the choice away.
+		case ELoopAnomalyType::Watcher:
+			return 0.45f;
 
 		default:
 			return 1.0f;
@@ -216,18 +222,25 @@ void UAnomalyManager::Deinitialize()
 
 void UAnomalyManager::BeginLoopVisit()
 {
+	// The judged floor was captured at decision time; keep its place for the
+	// stale-floor slip before the new floor overwrites it.
+	PreviousLoopAnomalyZone = CurrentLoopAnomalyZone;
+	PreviousLoopAnomalyObjectKind = CurrentLoopAnomalyObjectKind;
 	TrackedLoopIndex = INDEX_NONE;
 	CurrentLoopAnomalyKey.Empty();
 	CurrentLoopAnomalyContext = TEXT("No active anomaly currently detected.");
 	CurrentLoopAnomalyZone.Empty();
 	CurrentLoopAnomalyObjectKind.Empty();
 	bCurrentLoopAnomalyRepeat = false;
+	bPhoneLineCutThisFloor = false;
 }
 
 void UAnomalyManager::ResetRunTracking()
 {
 	BeginLoopVisit();
 	PreviousLoopAnomalyKey.Empty();
+	PreviousLoopAnomalyZone.Empty();
+	PreviousLoopAnomalyObjectKind.Empty();
 }
 
 void UAnomalyManager::CleanupInvalidComponents()
@@ -577,6 +590,13 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 	}
 	if (Filter.Equals(TEXT("Scale"), ESearchCase::IgnoreCase)
 		&& Component->GetAnomalyType() == ELoopAnomalyType::Scale)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Watcher"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Figure"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("BackTurned"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Watcher)
 	{
 		return true;
 	}

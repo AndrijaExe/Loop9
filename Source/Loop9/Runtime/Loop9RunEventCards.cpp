@@ -74,6 +74,8 @@ FText Loop9RunEventCards::EndingTitle(ELoopEndingType EndingType)
 		return NSLOCTEXT("Loop9Endings", "MergedMemoryTitle", "MERGED MEMORY");
 	case ELoopEndingType::TheReplacement:
 		return NSLOCTEXT("Loop9Endings", "TheReplacementTitle", "THE REPLACEMENT");
+	case ELoopEndingType::TheExit:
+		return NSLOCTEXT("Loop9Endings", "TheExitTitle", "THE EXIT");
 	case ELoopEndingType::ParanoidSurvivor:
 	default:
 		return NSLOCTEXT("Loop9Endings", "ParanoidSurvivorTitle", "PARANOID SURVIVOR");

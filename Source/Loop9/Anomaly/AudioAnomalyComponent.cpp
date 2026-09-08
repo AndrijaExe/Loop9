@@ -30,6 +30,7 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 	{
 		return false;
 	}
+	bAnswered = false;
 
 	AActor* Owner = GetOwner();
 	if (!Owner)
@@ -104,6 +105,23 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 
 void UAudioAnomalyComponent::RestoreNormalState()
 {
+	if (IsValid(RuntimeAudioComponent))
+	{
+		RuntimeAudioComponent->Stop();
+		RuntimeAudioComponent->DestroyComponent();
+	}
+	RuntimeAudioComponent = nullptr;
+	bAnswered = false;
+}
+
+bool UAudioAnomalyComponent::IsRinging() const
+{
+	return bIsAnomalyActive && !bAnswered && IsValid(RuntimeAudioComponent);
+}
+
+void UAudioAnomalyComponent::Answer()
+{
+	bAnswered = true;
 	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->Stop();

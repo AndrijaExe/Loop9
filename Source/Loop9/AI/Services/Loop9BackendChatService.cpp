@@ -175,6 +175,7 @@ FString ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode Mode)
 	case EDragojloAdviceMode::Confrontation: return TEXT("confrontation");
 	case EDragojloAdviceMode::WrongLift: return TEXT("wrong_lift");
 	case EDragojloAdviceMode::AccurateLift: return TEXT("accurate_lift");
+	case EDragojloAdviceMode::StaleFloor: return TEXT("stale_floor");
 	default: return TEXT("none");
 	}
 }
@@ -187,6 +188,7 @@ EDragojloAdviceMode ULoop9BackendChatService::AdviceModeFromWire(const FString& 
 	if (Wire.Equals(TEXT("confrontation"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::Confrontation;
 	if (Wire.Equals(TEXT("wrong_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::WrongLift;
 	if (Wire.Equals(TEXT("accurate_lift"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::AccurateLift;
+	if (Wire.Equals(TEXT("stale_floor"), ESearchCase::IgnoreCase)) return EDragojloAdviceMode::StaleFloor;
 	return EDragojloAdviceMode::None;
 }
 
@@ -309,6 +311,19 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 		JsonObject->SetStringField(TEXT("decoy_zone"), Context.DecoyZone);
 	}
 
+	// Previous floor's anomaly, for the one-shot stale-floor slip. Omitted when
+	// that floor was clean, which is exactly what stops him pointing at nothing.
+	if (!Context.PreviousAnomalyZone.IsEmpty())
+	{
+		TSharedPtr<FJsonObject> PreviousObject = MakeShareable(new FJsonObject());
+		PreviousObject->SetStringField(TEXT("zone"), Context.PreviousAnomalyZone);
+		if (!Context.PreviousAnomalyObjectKind.IsEmpty())
+		{
+			PreviousObject->SetStringField(TEXT("object"), Context.PreviousAnomalyObjectKind);
+		}
+		JsonObject->SetObjectField(TEXT("previous_anomaly_detail"), PreviousObject);
+	}
+
 	TSharedPtr<FJsonObject> AdviceStateObject = MakeShareable(new FJsonObject());
 	AdviceStateObject->SetBoolField(TEXT("location_misdirection_used"), Context.AdviceState.bLocationMisdirectionUsed);
 	AdviceStateObject->SetBoolField(TEXT("contradiction_exposed"), Context.AdviceState.bContradictionExposed);
@@ -317,6 +332,7 @@ void ULoop9BackendChatService::SendChatRequest(const FLoop9ChatRequestContext& C
 	AdviceStateObject->SetBoolField(TEXT("followed_last_lift_advice"), Context.AdviceState.bFollowedLastLiftAdvice);
 	AdviceStateObject->SetBoolField(TEXT("visited_suggested_decoy"), Context.AdviceState.bVisitedSuggestedDecoy);
 	AdviceStateObject->SetBoolField(TEXT("confrontation_response_used"), Context.AdviceState.bConfrontationResponseUsed);
+	AdviceStateObject->SetBoolField(TEXT("stale_floor_used"), Context.AdviceState.bStaleFloorUsed);
 	AdviceStateObject->SetStringField(TEXT("last_advice_mode"), AdviceModeToWire(Context.AdviceState.LastAdviceMode));
 	AdviceStateObject->SetStringField(TEXT("last_lift_advice"), LiftAdviceToWire(Context.AdviceState.LastLiftAdvice));
 	if (!Context.AdviceState.LastSuggestedZone.IsEmpty())

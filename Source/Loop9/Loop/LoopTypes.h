@@ -12,7 +12,12 @@ enum class ELoopEndingType : uint8
 	ColdBetrayal UMETA(DisplayName = "Cold Betrayal"),
 	ParanoidSurvivor UMETA(DisplayName = "Paranoid Survivor"),
 	MergedMemory UMETA(DisplayName = "Merged Memory"),
-	TheReplacement UMETA(DisplayName = "The Replacement")
+	TheReplacement UMETA(DisplayName = "The Replacement"),
+	/**
+	 * 1.1 secret ending: the player walks out through the ground-floor door
+	 * behind a wall the Hide anomaly removed. Triggered, never scored.
+	 */
+	TheExit UMETA(DisplayName = "The Exit")
 };
 
 UENUM(BlueprintType)
@@ -60,7 +65,9 @@ enum class EDragojloAdviceMode : uint8
 	MisdirectLocation UMETA(DisplayName = "Misdirect Location"),
 	Confrontation UMETA(DisplayName = "Confrontation"),
 	WrongLift UMETA(DisplayName = "Wrong Lift"),
-	AccurateLift UMETA(DisplayName = "Accurate Lift")
+	AccurateLift UMETA(DisplayName = "Accurate Lift"),
+	/** 1.1: he describes the previous floor's anomaly place as if it were this one. */
+	StaleFloor UMETA(DisplayName = "Stale Floor")
 };
 
 /** Structured lift recommendation, never parsed from natural-language reply text. */
@@ -113,6 +120,10 @@ struct FDragojloCommitmentState
 
 	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
 	bool bConfrontationResponseUsed = false;
+
+	/** 1.1: the one-shot "previous floor's place" slip has been spent this run. */
+	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
+	bool bStaleFloorUsed = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Commitment")
 	int32 LiftAdviceCount = 0;

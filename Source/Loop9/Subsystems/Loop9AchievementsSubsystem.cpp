@@ -20,7 +20,8 @@ namespace
 	constexpr int32 GroundhogResetTarget = 10;
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
-	constexpr int32 EndingTypeCount = 6;
+	// Seven since 1.1 (The Exit). ACH_ALL_ENDINGS therefore needs the secret one too.
+	constexpr int32 EndingTypeCount = 7;
 	constexpr int32 SpotAllAnomalyTypeCount = 9;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
@@ -223,6 +224,7 @@ FName ULoop9AchievementsSubsystem::EndingAchievementId(ELoopEndingType EndingTyp
 	case ELoopEndingType::ParanoidSurvivor: return FName(TEXT("ACH_ENDING_PARANOID_SURVIVOR"));
 	case ELoopEndingType::MergedMemory: return FName(TEXT("ACH_ENDING_MERGED_MEMORY"));
 	case ELoopEndingType::TheReplacement: return FName(TEXT("ACH_ENDING_THE_REPLACEMENT"));
+	case ELoopEndingType::TheExit: return FName(TEXT("ACH_ENDING_THE_EXIT"));
 	default: return NAME_None;
 	}
 }

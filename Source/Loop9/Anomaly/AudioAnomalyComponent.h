@@ -35,6 +35,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio Anomaly")
 	float PitchMultiplier = 1.0f;
 
+	/**
+	 * 1.1: when this component sits on a desk phone (AAI_Friend), picking the
+	 * phone up answers the ring. Off = the old behaviour (sound only).
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio Anomaly|Phone")
+	bool bAnswerable = true;
+
+	/** True while the manifestation is playing and has not been answered yet. */
+	bool IsRinging() const;
+
+	/** Stops the sound but keeps the anomaly active, so the floor still judges as wrong. */
+	void Answer();
+
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual bool ApplyAnomalyState() override;
@@ -43,4 +56,6 @@ protected:
 private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> RuntimeAudioComponent = nullptr;
+
+	bool bAnswered = false;
 };

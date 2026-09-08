@@ -125,6 +125,26 @@ public:
 	ELoopEndingType DetermineEndingType() const;
 
 	/**
+	 * 1.1 secret ending. The ground-floor exit door calls this; it only fires
+	 * when the door is legitimately reachable — the run is live, the floor is
+	 * high enough, and the wall is missing (Hide anomaly active this floor).
+	 * Returns false when refused, so the door can stay a plain locked door.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Loop|Ending")
+	bool TryTriggerSecretExitEnding();
+
+	/** True when TryTriggerSecretExitEnding would be accepted right now. */
+	UFUNCTION(BlueprintPure, Category = "Loop|Ending")
+	bool IsSecretExitOpen() const;
+
+	/** Lowest floor on which the exit works; below this the door is just a door. */
+	UPROPERTY(BlueprintReadWrite, Category = "Loop|Ending")
+	int32 SecretExitMinLoop = 4;
+
+	/** Debug (non-shipping): skip the missing-wall requirement for the exit. */
+	bool bDebugSecretExitIgnoresWall = false;
+
+	/**
 	 * Debug: force relationship + loop state so the next successful advance
 	 * (loop 9 -> 10) evaluates to the requested ending. Clears anomalies.
 	 * No-op / returns false in shipping builds.

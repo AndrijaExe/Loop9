@@ -42,6 +42,11 @@ void FDragojloCommitmentTracker::ApplyAdvice(
 		State.bConfrontationResponseUsed = true;
 	}
 
+	if (Mode == EDragojloAdviceMode::StaleFloor)
+	{
+		State.bStaleFloorUsed = true;
+	}
+
 	if (Mode == EDragojloAdviceMode::WrongLift)
 	{
 		State.bWrongLiftUsed = true;

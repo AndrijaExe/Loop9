@@ -186,6 +186,10 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		EndingTitle = LOCTEXT("TheReplacementTitle", "THE REPLACEMENT");
 		EndingDescription = LOCTEXT("TheReplacementDesc", "He did not destroy you. He learned you. Now you are the voice on the other side of the line.");
 		break;
+	case ELoopEndingType::TheExit:
+		EndingTitle = LOCTEXT("TheExitTitle", "THE EXIT");
+		EndingDescription = LOCTEXT("TheExitDesc", "A wall that was not there. A door nobody mentioned. You walked home without asking him once. Something at home says you have been here before.");
+		break;
 	default:
 		EndingTitle = LOCTEXT("ParanoidSurvivorTitle", "PARANOID SURVIVOR");
 		EndingDescription = LOCTEXT("ParanoidSurvivorDesc", "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth.");

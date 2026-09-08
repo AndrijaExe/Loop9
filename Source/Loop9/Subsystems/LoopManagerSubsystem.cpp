@@ -474,6 +474,7 @@ void ULoopManagerSubsystem::ResetRunState()
 	ActiveElevatorDecisionId = 0;
 	bElevatorTransitionActive = false;
 	bDeferredEndingPresentation = false;
+	bDebugSecretExitIgnoresWall = false;
 	DragojloCommitmentTracker.Reset();
 	if (ULoop9ObservationJournalSubsystem* Journal =
 		GetGameInstance()->GetSubsystem<ULoop9ObservationJournalSubsystem>())
@@ -662,6 +663,62 @@ void ULoopManagerSubsystem::TriggerEndingSequence()
 			UE_LOG(LogTemp, Error, TEXT("Loop: ending presentation could not start; gameplay remains active."));
 		}
 	}
+}
+
+bool ULoopManagerSubsystem::IsSecretExitOpen() const
+{
+	if (bGameFinished || bElevatorTransitionActive || bDeferredEndingPresentation)
+	{
+		return false;
+	}
+
+	if (CurrentLoop < SecretExitMinLoop)
+	{
+		return false;
+	}
+
+#if !UE_BUILD_SHIPPING
+	if (bDebugSecretExitIgnoresWall)
+	{
+		return true;
+	}
+#endif
+
+	// The only honest way down is through the wall the Hide anomaly removed.
+	const UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance());
+	return AnomalyManager && AnomalyManager->IsAnomalyTypeActive(ELoopAnomalyType::Hide);
+}
+
+bool ULoopManagerSubsystem::TryTriggerSecretExitEnding()
+{
+	if (!IsSecretExitOpen())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Secret exit refused: loop=%d finished=%d"), CurrentLoop, bGameFinished ? 1 : 0);
+		return false;
+	}
+
+	ULoopEndingPresenterSubsystem* Presenter = GetGameInstance()->GetSubsystem<ULoopEndingPresenterSubsystem>();
+	if (!Presenter)
+	{
+		return false;
+	}
+
+	if (URelationshipSubsystem* Relationship = GetRelationship())
+	{
+		// He is not part of this ending; the archive still counts the floors walked.
+		Relationship->TotalAdvances = FMath::Max(Relationship->TotalAdvances, CurrentLoop - 1);
+	}
+
+	bGameFinished = Presenter->TriggerForcedEnding(ELoopEndingType::TheExit, GetRelationship());
+	if (!bGameFinished)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Secret exit: ending presentation could not start; gameplay remains active."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Secret exit taken on loop %d -> The Exit"), CurrentLoop);
+	}
+	return bGameFinished;
 }
 
 void ULoopManagerSubsystem::RegisterAIFriend(AAI_Friend* AIFriend)

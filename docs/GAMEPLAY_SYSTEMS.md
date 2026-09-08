@@ -86,11 +86,23 @@ There is no waterfall fallback to Paranoid. Signatures:
 `EndingSetup` fixtures in `LoopManagerSubsystem` still map 1:1 onto these.
 Automation: `Loop9.Runtime.Endings.EvaluatorProfiles`.
 
-Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequence → fade → widget → main menu). Replacement ending may show a terminal widget path.
+7. **The Exit** (1.1, secret) — **triggered, never scored.** The evaluator does
+   not know it. `ALoop9SecretExitDoor` on the ground-floor stub calls
+   `ULoopManagerSubsystem::TryTriggerSecretExitEnding()`, which accepts only
+   while the run is live, `CurrentLoop ≥ SecretExitMinLoop` (4) and a Hide
+   anomaly is active on the floor (the wall behind which the stairwell sits is
+   really missing). Otherwise the door refuses and stays a door. Accepted →
+   `ULoopEndingPresenterSubsystem::TriggerForcedEnding(TheExit)` runs the same
+   pipeline as a scored ending (archive, `ACH_ENDING_THE_EXIT`, telemetry
+   `the_exit`, Dragojlo memory), plays `EndingSequences[TheExit]` when
+   authored, else fades to the card. `ACH_ALL_ENDINGS` needs seven since 1.1.
+   Debug: `EndingSetup TheExit` arms the door and skips the wall check.
+
+Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequence → fade → widget → main menu). Replacement ending may show a terminal widget path; The Exit skips `ALoopEndingSceneDirector` (desk scene) on purpose.
 
 ## Achievements
 
-Client hooks live in `ULoop9AchievementsSubsystem`. API names and Steamworks setup are authoritative in [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md) (27 achievements).
+Client hooks live in `ULoop9AchievementsSubsystem`. API names and Steamworks setup are authoritative in [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md) (27 achievements at v1.0.5; 1.1 adds `ACH_ENDING_THE_EXIT`).
 
 ## Presentation locking
 
@@ -133,6 +145,16 @@ Entering the suggested volume after `misdirect_location` records a one-shot
 visit and elapsed seconds. A later `SUSPICION=1` unlocks one defensive
 `confrontation` response. Ending telemetry sends aggregate advice/visit/follow
 counts only—never chat, coordinates, paths, or zone names.
+
+**Stale floor (1.1).** `UAnomalyManager` remembers the judged floor's
+`AnomalyZone` / `AnomalyObjectKind` across `BeginLoopVisit`
+(`GetPreviousLoopAnomalyZone()`); `AAI_Friend` sends them as
+`previous_anomaly_detail` when non-empty. The backend may answer a "where do I
+look" question (before any finding) with mode `stale_floor`, describing the
+previous floor's place as if it were this one; the tracker sets
+`bStaleFloorUsed` so it happens once per run, and `FDragojloMemory` counts it
+as a lie. A clean previous floor never triggers it, so he never points at
+nothing.
 
 ## Bounded observation journal
 

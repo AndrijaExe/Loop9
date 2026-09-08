@@ -35,7 +35,9 @@ void FDragojloMemory::RecordRunFinished(
 	LastRunTone = ToneBucket(FinalKindness);
 
 	const int32 LiesThisRun =
-		(Commitment.bLocationMisdirectionUsed ? 1 : 0) + FMath::Max(0, Commitment.WrongLiftAdviceCount);
+		(Commitment.bLocationMisdirectionUsed ? 1 : 0)
+		+ (Commitment.bStaleFloorUsed ? 1 : 0)
+		+ FMath::Max(0, Commitment.WrongLiftAdviceCount);
 	LiesTold = ClampCounter(LiesTold + LiesThisRun);
 
 	if (Commitment.bContradictionExposed)
@@ -124,6 +126,7 @@ FString FDragojloMemory::EndingWireLabel(ELoopEndingType EndingType)
 	case ELoopEndingType::ParanoidSurvivor: return TEXT("paranoid_survivor");
 	case ELoopEndingType::MergedMemory: return TEXT("merged_memory");
 	case ELoopEndingType::TheReplacement: return TEXT("the_replacement");
+	case ELoopEndingType::TheExit: return TEXT("the_exit");
 	default: return TEXT("paranoid_survivor");
 	}
 }
@@ -137,6 +140,7 @@ bool FDragojloMemory::TryParseEndingWireLabel(const FString& Label, ELoopEndingT
 		ELoopEndingType::ParanoidSurvivor,
 		ELoopEndingType::MergedMemory,
 		ELoopEndingType::TheReplacement,
+		ELoopEndingType::TheExit,
 	};
 
 	const FString Wanted = Label.TrimStartAndEnd().ToLower();

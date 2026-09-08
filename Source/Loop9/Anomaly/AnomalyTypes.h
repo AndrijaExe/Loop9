@@ -16,6 +16,8 @@ enum class ELoopAnomalyType : uint8
 	Scale UMETA(DisplayName = "Scale"),
 	PhantomMessage UMETA(DisplayName = "Phantom Message"),
 	LoopNumber UMETA(DisplayName = "Loop Number"),
+	/** 1.1: a figure standing with its back turned; never moves, vanishes when approached or looked at twice. */
+	Watcher UMETA(DisplayName = "Watcher"),
 };
 
 inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
@@ -31,6 +33,7 @@ inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
 		ELoopAnomalyType::Scale,
 		ELoopAnomalyType::PhantomMessage,
 		ELoopAnomalyType::LoopNumber,
+		ELoopAnomalyType::Watcher,
 	};
 }
 
@@ -48,6 +51,7 @@ inline FName GetLoopAnomalyTypeLabel(ELoopAnomalyType Type)
 	case ELoopAnomalyType::Scale: return TEXT("ScaleAnomaly");
 	case ELoopAnomalyType::PhantomMessage: return TEXT("PhantomMessageAnomaly");
 	case ELoopAnomalyType::LoopNumber: return TEXT("LoopNumberAnomaly");
+	case ELoopAnomalyType::Watcher: return TEXT("WatcherAnomaly");
 	default: return TEXT("UnknownAnomaly");
 	}
 }

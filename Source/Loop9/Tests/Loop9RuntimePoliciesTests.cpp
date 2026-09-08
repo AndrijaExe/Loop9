@@ -147,7 +147,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FLoop9ShiftArchivePolicyTest::RunTest(const FString&)
 {
-	TestEqual(TEXT("All six endings are listed"), Loop9RuntimePolicies::AllEndingTypes().Num(), 6);
+	TestEqual(TEXT("All seven endings are listed"), Loop9RuntimePolicies::AllEndingTypes().Num(), 7);
 
 	const TArray<FString> Seen = { TEXT("ACH_ENDING_ESCAPE_TOGETHER") };
 	TestTrue(
@@ -346,7 +346,26 @@ bool FLoop9CommitmentTrackerTest::RunTest(const FString&)
 	TestEqual(TEXT("Decoy visit timing is retained"),
 		Tracker.GetState().DecoyVisitSeconds, 4.5f);
 
+	TestFalse(TEXT("Stale-floor slip starts unspent"), Tracker.GetState().bStaleFloorUsed);
+	Tracker.ApplyAdvice(
+		EDragojloAdviceMode::StaleFloor,
+		EDragojloLiftAdvice::None,
+		TEXT("The Meeting Room"),
+		TEXT("stale-1"),
+		0,
+		0,
+		250.0);
+	TestTrue(TEXT("Stale-floor slip is one-shot per run"), Tracker.GetState().bStaleFloorUsed);
+	TestEqual(TEXT("Stale-floor advice carries no lift"),
+		AsInt(Tracker.GetPendingLiftAdvice()),
+		AsInt(EDragojloLiftAdvice::None));
+	TestEqual(TEXT("Stale-floor round-trips its wire name"),
+		AsInt(ULoop9BackendChatService::AdviceModeFromWire(
+			ULoop9BackendChatService::AdviceModeToWire(EDragojloAdviceMode::StaleFloor))),
+		AsInt(EDragojloAdviceMode::StaleFloor));
+
 	Tracker.Reset();
+	TestFalse(TEXT("Reset clears the stale-floor slip"), Tracker.GetState().bStaleFloorUsed);
 	TestEqual(TEXT("Reset clears commitment state"),
 		Tracker.GetState().FollowedWrongLiftAdviceCount, 0);
 	TestEqual(TEXT("Reset clears pending advice"),
@@ -702,6 +721,18 @@ bool FLoop9DragojloMemoryRoundTripTest::RunTest(const FString&)
 	TestEqual(TEXT("Wire carries the snake_case ending"), Wire->GetStringField(TEXT("last_ending")), FString(TEXT("cold_betrayal")));
 	TestEqual(TEXT("Wire carries the tone label"), Wire->GetStringField(TEXT("last_run_tone")), FString(TEXT("cold")));
 	TestFalse(TEXT("Wire never carries relationship floats"), Wire->HasField(TEXT("kindness")));
+
+	// 1.1: the stale-floor slip is a lie too, and the secret ending has a label.
+	FDragojloCommitmentState StaleOnly;
+	StaleOnly.bStaleFloorUsed = true;
+	FDragojloMemory Second = Restored;
+	Second.RecordRunFinished(ELoopEndingType::TheExit, 0, 0.5f, StaleOnly);
+	TestEqual(TEXT("Stale-floor slip counts as one more lie"), Second.LiesTold, 3);
+	TestEqual(TEXT("Secret ending has a wire label"),
+		FDragojloMemory::EndingWireLabel(ELoopEndingType::TheExit), FString(TEXT("the_exit")));
+	const FDragojloMemory SecondRestored = FDragojloMemory::FromPersistedString(Second.ToPersistedString());
+	TestEqual(TEXT("Secret ending survives the round trip"),
+		AsInt(SecondRestored.LastEnding), AsInt(ELoopEndingType::TheExit));
 	return true;
 }
 

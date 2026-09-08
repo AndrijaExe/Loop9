@@ -28,6 +28,11 @@ public:
 
 	/** Returns true once presentation has accepted ownership and locked input. */
 	bool TriggerEndingSequence(URelationshipSubsystem* Relationship);
+	/**
+	 * Same pipeline (archive, achievements, telemetry, memory, cutscene, card)
+	 * for an ending that is triggered rather than scored — The Exit.
+	 */
+	bool TriggerForcedEnding(ELoopEndingType EndingType, URelationshipSubsystem* Relationship);
 	void ReturnToMainMenu(APlayerController* PlayerController);
 
 private:
@@ -41,6 +46,7 @@ private:
 		ReturningToMenu
 	};
 
+	bool BeginEndingPresentation(ELoopEndingType EndingType, URelationshipSubsystem* Relationship);
 	bool TryPlayEndingSequence(ELoopEndingType EndingType);
 	bool TryPlayEndingDirector(ELoopEndingType EndingType);
 	bool StartLoadedEndingSequence(ULevelSequence* Sequence);

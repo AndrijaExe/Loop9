@@ -121,6 +121,13 @@ bool ALoopEndingSceneDirector::PlayEnding(ELoopEndingType EndingType, APlayerCon
 		return false;
 	}
 
+	// The Exit happens outside the office; it has its own Level Sequence
+	// (ALoop9GameMode::EndingSequences) or a plain fade, never this desk scene.
+	if (EndingType == ELoopEndingType::TheExit)
+	{
+		return false;
+	}
+
 	Controller = InteractingController;
 	PreviousViewTarget = InteractingController->GetViewTarget();
 	ActiveEnding = EndingType;
