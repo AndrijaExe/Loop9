@@ -706,6 +706,20 @@ int32 UAnomalyManager::GetActiveAnomalyCount() const
 	return ActiveCount;
 }
 
+bool UAnomalyManager::IsAnomalyTypeActive(ELoopAnomalyType Type) const
+{
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		const UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (Component && Component->bIsAnomalyActive && Component->GetAnomalyType() == Type)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void UAnomalyManager::PrintAnomalyStats()
 {
 #if !UE_BUILD_SHIPPING

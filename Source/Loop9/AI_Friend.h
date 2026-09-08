@@ -138,6 +138,8 @@ private:
 	void StartInitialRingIfNeeded();
 	bool ShouldStopInitialRingForLoopChange() const;
 	bool ShouldUseAnomalyMumble() const;
+	/** Pursuer floor: he is out of the phone, so nobody can pick up on the other end. */
+	bool IsPursuerLoose() const;
 	class UAI_ChatWidget* GetChatWidgetTyped() const;
 	class UAI_ChatWidget* GetOrCreateChatWidgetTyped(APlayerController* PlayerController);
 	void SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled);

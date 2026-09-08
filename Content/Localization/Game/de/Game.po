@@ -412,6 +412,13 @@ msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...die Leitung knistert und bricht ab. (Keine Verbindung. Prüfe dein Internet und versuch es erneut.)"
 
+#. Key:	ChatPursuerNoAnswer
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(616)
+#: Source/Loop9/AI_Friend.cpp(616)
+msgctxt "Loop9Chat,ChatPursuerNoAnswer"
+msgid "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
+msgstr "...die Leitung geht auf. Niemand spricht. Das Atmen, das du hörst, kommt nicht aus dem Hörer."
+
 #. Key:	ChatRateLimitedRetry
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(569)
 #: Source/Loop9/AI_Friend.cpp(569)

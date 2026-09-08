@@ -149,5 +149,10 @@ must never read it to judge the lift, mutate relationships, grant achievements,
 choose endings, emit telemetry, spawn anomalies, or select `AdvicePolicy`.
 
 Backend switches: `AI_COMMITMENT_ENABLED` (master),
-`AI_COMMITMENT_LOCATION_ENABLED`, `AI_COMMITMENT_WRONG_LIFT_ENABLED`, and
-`AI_OBSERVATION_CONTEXT_ENABLED` for observation narration only.
+`AI_COMMITMENT_LOCATION_ENABLED`, `AI_COMMITMENT_WRONG_LIFT_ENABLED`,
+`AI_COMMITMENT_WRONG_LIFT_CHANCE` (per-floor odds of the late wrong lift when
+the player surrendered the decision or followed his last call; the full
+planted-location → accusation → surrender arc always lies), and
+`AI_OBSERVATION_CONTEXT_ENABLED` for observation narration only. All are
+`true` / `0.5` in production. See backend
+[`CONFIGURATION.md`](../../../Backend/Loop9_backend/docs/CONFIGURATION.md).

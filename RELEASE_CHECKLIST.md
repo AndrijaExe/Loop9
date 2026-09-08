@@ -1,6 +1,6 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **07.09.2026.**
+Poslednje ažuriranje: **08.09.2026.**
 Steam App ID: **4982260**
 
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
@@ -568,13 +568,37 @@ v1.0.1 BuildID više nije QA cilj:
 - [ ] Proxy/backend log potvrđuje da je `observation_snapshot` ≤1024 UTF-8
   bajta, ima najviše 8 events/8 visited_zones i nema chat, koordinate, actor
   names, anomaly keys, commitment IDs ni relationship floatove.
-- [ ] Render flagovi **posle** volume-a u shipped cooku, ne za petak:
-  `AI_COMMITMENT_ENABLED=true` već stoji. Location / wrong-lift / observation
-  context paliti tek kad `Loop9ObservationZoneVolume` postoji u mapi koju
-  igrači dobiju. `AI_OBSERVATION_CONTEXT_ENABLED=false` gasi samo naraciju
-  observacija, ne lokalni journal. Wrong-lift se gasi samim flagom.
+- [x] Render flagovi usklađeni sa repo-om (08.09.): Render već vrti
+  `AI_OBSERVATION_CONTEXT_ENABLED=true` (Andrija override, 07.09.), pa je i
+  commitovani `.env` sad `true` da svež deploy bez Render ključa ne vrati
+  tiho na `false`. Produkcioni set stoji u backend
+  `docs/CONFIGURATION.md`. Render vrednost je uvek jača od `.env`.
+- [ ] **Render: dodati `AI_COMMITMENT_WRONG_LIFT_CHANCE=0.5`** posle
+  deploy-a backenda (08.09.). Bez ključa Symfony pada na `.env` = `0.5`, pa
+  ništa ne puca — ali neka bude vidljiv da se posle launcha štima bez deploy-a.
+- [x] Wrong-lift rebalans (backend, 08.09.): više ne traži misdirect +
+  razotkrivenu kontradikciju. Uslovi: loop ≥7, aktivna ne-Pursuer anomalija,
+  dependency ≥0.62, nije potrošen, i poluga — igrač je predao odluku
+  (`pending_decision_surrender`) ili poslušao poslednji savet za lift
+  (`followed_last_lift_advice`). Pun luk (lokacijska laž → optužba → predaja)
+  laže uvek; svaki drugi kvalifikovani sprat je jedan stabilan roll po spratu
+  (`AI_COMMITMENT_WRONG_LIFT_CHANCE`, default 0.5). Isti sprat se ne
+  re-roll-uje drugim pitanjem. Testovi: `AdvicePolicyTest` (297 zelenih).
+- [x] **Pursuer = mrtva linija (klijent, 08.09.).** Dok je Pursuer aktivan
+  (ceo sprat, i posle despawna) `SayToAI` ne ide na backend: chat ispiše
+  lokalizovani `ChatPursuerNoAnswer` („...veza se uspostavlja. Niko ne govori.
+  Disanje koje čuješ ne dolazi iz slušalice.“), ne troši message slot, ne
+  broji AI interakciju, ne menja Kindness. PO unosi dodati za svih 5 jezika
+  → **treba GatherText pre cooka** da uđe u `Game.locres`; bez toga se vidi
+  engleski izvor u svim jezicima (ne ruši ništa). **Nije u v1.0.5** (skuvan
+  07.09.) — ide u v1.0.6 ako se kuva pre petka, inače prvi post-launch patch.
+  Backend deo ne zavisi od cooka.
+- [ ] Standalone QA Pursuer linije: `AnomalyPursuer` u konzoli → telefon →
+  pošalji poruku → dead-line poruka, nema `Thinking…`, `MessagesSentThisLoop`
+  ostaje 0, ending timeline ne broji poziv. Sledeći sprat chat radi normalno.
 - [ ] Staging/live voice probe: accurate → misdirect → accusation → surrender →
   wrong-lift (`tools/dragojlo-voice-probe.php`, luna+terra, SR/EN/DE/FR/RU).
+  Dodati i „surrender bez misdirecta“ na loop 7 sa chance=1.0 lokalno.
 - [ ] Ručni QA: neutralan run bez laži; dependent run sa jednom pogrešnom
   lokacijom; Obedient kandidat sa najviše jednim pogrešnim liftom.
 - [ ] Posle razotkrivene kontradikcije sledeći uspešan odgovor je jednom
@@ -734,4 +758,11 @@ diran. Valve dozvoljava od 10.09.; store datum: **petak 11.09.2026.**
    (§6) ako stigne. Novi cook samo ako QA nađe blocker.
 2. Petak 11.09.: Set Live na default + release day §8. Ne Set Live pre toga.
 3. Observation volume-i i AI context tagovi su u mapi.
-4. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo.
+4. **08.09. u `main`, nije u v1.0.5:** Pursuer mrtva linija (klijent, treba
+   GatherText + cook) i wrong-lift rebalans + `AI_COMMITMENT_WRONG_LIFT_CHANCE`
+   (backend, deploy nezavisan od cooka; radi i sa v1.0.2/v1.0.5 klijentom jer
+   koristi flagove koje klijent već šalje). Odluka: v1.0.6 pre petka ili prvi
+   patch posle launcha. Ako se kuva v1.0.6, u Render dodati i
+   `AI_COMMITMENT_WRONG_LIFT_CHANCE=0.5`.
+5. Posle launcha: lore papiri (`docs/LORE.md` §4), Deck, boot logo; dve nedelje
+   `run.ended.*` brojki pre bilo kakvog pomeranja ending pragova.

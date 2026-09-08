@@ -19,6 +19,15 @@ Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`
 
 `MaterialSwapAnomalyComponent` currently reports type `Text` and is used for material/text visual variants.
 
+Pursuer is the one anomaly that changes the phone. While it is active
+(`UAnomalyManager::IsAnomalyTypeActive(Pursuer)` — true for the whole floor
+visit, even after the manifestation despawns), `AAI_Friend::SayToAI` never
+reaches the backend: the chat shows the localized `ChatPursuerNoAnswer` line
+(nobody on the line, the breathing is in the room), no message slot is spent,
+no relationship delta or AI interaction is recorded. The backend additionally
+refuses to plant a location or a wrong lift on a Pursuer floor, so a stale
+client cannot get one either.
+
 ## Manager lifecycle
 
 `UAnomalyManager` (Game Instance subsystem):

@@ -41,6 +41,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	int32 GetActiveAnomalyCount() const;
 
+	/**
+	 * True while at least one registered component of this type is active.
+	 * Pursuer stays active for the whole floor visit even after the
+	 * manifestation despawns, so this also answers "is he out of the phone".
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Anomaly")
+	bool IsAnomalyTypeActive(ELoopAnomalyType Type) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	int32 GetRegisteredAnomalyCount() const { return RegisteredComponents.Num(); }
 

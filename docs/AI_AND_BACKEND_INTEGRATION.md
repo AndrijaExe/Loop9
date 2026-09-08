@@ -35,6 +35,9 @@ Details:
 ## Chat flow
 
 1. Player sends a message in `UAI_ChatWidget`.
+   - Pursuer floor: `AAI_Friend::SayToAI` stops here and shows the localized
+     dead-line reply (`Loop9Chat/ChatPursuerNoAnswer`). Nothing is sent, no
+     message slot, kindness delta or AI interaction is consumed.
 2. `AAI_Friend` ensures a valid session token (queue/wait if auth pending).
 3. Widget shows localized **Thinking...** and disables input.
 4. After a long wait, status upgrades to **Still thinking...**
@@ -93,6 +96,7 @@ HTTP timeout: **15 seconds**. Backend stores nothing durable; it emits a structu
 | Moderation block | In-fiction safe fallback from backend (localized) |
 | Provider timeout / outage | Fallback providers, then safe failure response |
 | Network failure | Clear chat failure handling; thinking indicator must hide |
+| Pursuer active | Local dead-line reply with anomaly mumble; no request, no thinking indicator |
 
 ## Configuration
 

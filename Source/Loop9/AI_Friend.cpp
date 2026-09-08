@@ -185,6 +185,18 @@ bool AAI_Friend::ShouldStopInitialRingForLoopChange() const
 	return !bInitialMessageInjected && ResolveCurrentLoopIndex() != InitialLoopNumberAtBeginPlay;
 }
 
+bool AAI_Friend::IsPursuerLoose() const
+{
+	const UGameInstance* GameInstance = GetGameInstance();
+	if (!GameInstance)
+	{
+		return false;
+	}
+
+	const UAnomalyManager* AnomalyManager = GameInstance->GetSubsystem<UAnomalyManager>();
+	return AnomalyManager && AnomalyManager->IsAnomalyTypeActive(ELoopAnomalyType::Pursuer);
+}
+
 bool AAI_Friend::ShouldUseAnomalyMumble() const
 {
 	const UGameInstance* GameInstance = GetGameInstance();
@@ -594,6 +606,23 @@ FString AAI_Friend::SayToAI(const FString& Message)
 	if (TrimmedMessage.IsEmpty())
 	{
 		return TEXT("Blocked: empty message");
+	}
+
+	// Pursuer: the anomaly is that Dragojlo left the phone. Nothing goes to the
+	// backend, no message slot is spent and no AI interaction is counted — the
+	// player just learns there is nobody on the line this floor.
+	if (IsPursuerLoose())
+	{
+		const FString DeadLineReply = NSLOCTEXT("Loop9Chat", "ChatPursuerNoAnswer",
+			"...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver.").ToString();
+		LastAIResponse = DeadLineReply;
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->AddMessageToChat(DeadLineReply, false, true);
+		}
+		OnResponseReceived(DeadLineReply);
+		UE_LOG(LogTemp, Log, TEXT("AI request suppressed: Pursuer anomaly active, phone line is dead this floor."));
+		return TEXT("Blocked: pursuer loose, nobody answers");
 	}
 
 	if (TrimmedMessage.Len() > Loop9ChatLimits::MaxMessageLength)

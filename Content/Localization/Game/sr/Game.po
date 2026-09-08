@@ -412,6 +412,13 @@ msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...veza krči i prekida se. (Nema konekcije. Proveri internet i pokušaj ponovo.)"
 
+#. Key:	ChatPursuerNoAnswer
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(616)
+#: Source/Loop9/AI_Friend.cpp(616)
+msgctxt "Loop9Chat,ChatPursuerNoAnswer"
+msgid "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
+msgstr "...veza se uspostavlja. Niko ne govori. Disanje koje čuješ ne dolazi iz slušalice."
+
 #. Key:	ChatRateLimitedRetry
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(569)
 #: Source/Loop9/AI_Friend.cpp(569)
