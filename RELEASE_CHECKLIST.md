@@ -42,6 +42,20 @@ Otvoreni editorski ostaci polish prolaza:
 Legenda: `[ ]` nije gotovo · `[~]` podešeno, ali nije završno verifikovano ·
 `[x]` završeno i potvrđeno
 
+**Grane od 08.09.2026. (isto u oba repoa, `Loop9` i `Loop9_backend`):**
+
+| Grana / tag | Šta znači | Ko sme da push-uje |
+|---|---|---|
+| `main` | Ono što svi igraju: Steam default build + Render deploy (backend push na `main` = live deploy) | Samo merge iz `develop` kad je feature gotov i QA-ovan, ili hotfix |
+| `release/v1.0.5` | Rollback. Zamrznuta kopija `main`-a od 08.09. Ne dira se. | Niko |
+| `develop` | Sav novi rad (1.1: Dragojlo memorija, „Loop 1“ ending, nove anomalije) | Slobodno |
+| tag `v1.0.5-cook` (igra) | Tačan commit skuvan 07.09. (`c47c388`) — `main` posle njega ima Pursuer mrtvu liniju i cap poruke koji **nisu** u cooku | — |
+| tag `launch-v1.0.5` (backend) | Backend kakav je na Renderu za launch | — |
+
+Hotfix posle launcha: grana od `main`, merge u `main` **i** u `develop`.
+GitHub branch protection na `main` (bez direktnog push-a) — ručno u
+Settings → Branches, `gh` ovde nije prijavljen.
+
 **Važno o dva stanja.** `[x]` ispod znači da je stvar u `main` repou, ne
 nužno i na Steam playtestu. **`Builds/v1.0.0`** je trenutni fallback Shipping
 drop — ne overwrite-ovati. WIP cook (novi featurei / bugfix) ide u
