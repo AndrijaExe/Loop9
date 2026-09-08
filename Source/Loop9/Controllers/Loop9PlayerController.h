@@ -119,6 +119,25 @@ public:
 	UFUNCTION(Exec)
 	void AnomalyLoopNumber();
 
+	/** 1.1: force the back-turned Watcher figure. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyWatcher();
+
+	/**
+	 * 1.1: undo the floor-wide line cut after answering a ringing phone, so the
+	 * ring can be forced and answered again without changing floors.
+	 */
+	UFUNCTION(Exec)
+	void PhoneLineRestore();
+
+	/** 1.1: print what Dragojlo remembers across runs (the persisted record). */
+	UFUNCTION(Exec)
+	void DragojloMemory();
+
+	/** 1.1: wipe Dragojlo's cross-run memory (same as a fresh install). */
+	UFUNCTION(Exec)
+	void DragojloForget();
+
 	/** Report every material-swap placement that would be invisible if it fired. */
 	UFUNCTION(Exec)
 	void AnomalyAuditMaterials();

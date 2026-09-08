@@ -7,6 +7,7 @@
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
+#include "Subsystems/Loop9DragojloMemorySubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "Loop9Character.h"
 #include "HorrorUI.h"
@@ -285,6 +286,82 @@ void ALoop9PlayerController::AnomalyLoopNumber()
 	AnomalyForce(TEXT("LoopNumber"));
 }
 
+void ALoop9PlayerController::AnomalyWatcher()
+{
+	AnomalyForce(TEXT("Watcher"));
+}
+
+void ALoop9PlayerController::PhoneLineRestore()
+{
+#if !UE_BUILD_SHIPPING
+	UAnomalyManager* Manager = GetAnomalyManager(this);
+	if (!Manager)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("PhoneLineRestore: AnomalyManager not available"));
+		return;
+	}
+	const bool bWasCut = Manager->IsPhoneLineCut();
+	Manager->RestorePhoneLine();
+	UE_LOG(LogLoop9, Log, TEXT("PhoneLineRestore: line %s"), bWasCut ? TEXT("restored") : TEXT("was not cut"));
+	DebugScreenMessage(
+		bWasCut ? TEXT("PhoneLineRestore: phones work again on this floor. AnomalyPhone to ring them once more.")
+				: TEXT("PhoneLineRestore: the line was not cut on this floor."),
+		true);
+#endif
+}
+
+void ALoop9PlayerController::DragojloMemory()
+{
+#if !UE_BUILD_SHIPPING
+	const UGameInstance* GameInstance = GetGameInstance();
+	const ULoop9DragojloMemorySubsystem* MemorySubsystem =
+		GameInstance ? GameInstance->GetSubsystem<ULoop9DragojloMemorySubsystem>() : nullptr;
+	if (!MemorySubsystem)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("DragojloMemory: subsystem not available"));
+		return;
+	}
+
+	const FDragojloMemory& Memory = MemorySubsystem->GetMemory();
+	if (Memory.IsEmpty())
+	{
+		UE_LOG(LogLoop9, Log, TEXT("DragojloMemory: empty (no finished run on this install)"));
+		DebugScreenMessage(TEXT("DragojloMemory: empty. He has never met you."), true);
+		return;
+	}
+
+	const TCHAR* Tone = Memory.LastRunTone > 0 ? TEXT("warm") : (Memory.LastRunTone < 0 ? TEXT("cold") : TEXT("neutral"));
+	const FString Summary = FString::Printf(
+		TEXT("runs=%d  last=%s  lastCalls=%d  tone=%s  lies=%d  caught=%d  followedHim=%d"),
+		Memory.RunsFinished,
+		Memory.bHasLastEnding ? *FDragojloMemory::EndingWireLabel(Memory.LastEnding) : TEXT("-"),
+		Memory.LastRunCalls,
+		Tone,
+		Memory.LiesTold,
+		Memory.CaughtLying,
+		Memory.RunsFollowingHim);
+	UE_LOG(LogLoop9, Log, TEXT("DragojloMemory: %s  raw='%s'"), *Summary, *Memory.ToPersistedString());
+	DebugScreenMessage(FString::Printf(TEXT("DragojloMemory: %s"), *Summary), true);
+#endif
+}
+
+void ALoop9PlayerController::DragojloForget()
+{
+#if !UE_BUILD_SHIPPING
+	UGameInstance* GameInstance = GetGameInstance();
+	ULoop9DragojloMemorySubsystem* MemorySubsystem =
+		GameInstance ? GameInstance->GetSubsystem<ULoop9DragojloMemorySubsystem>() : nullptr;
+	if (!MemorySubsystem)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("DragojloForget: subsystem not available"));
+		return;
+	}
+	MemorySubsystem->ForgetEverything();
+	UE_LOG(LogLoop9, Log, TEXT("DragojloForget: cross-run memory wiped"));
+	DebugScreenMessage(TEXT("DragojloForget: he no longer remembers you. Next run sends no run_history."), true);
+#endif
+}
+
 void ALoop9PlayerController::AnomalyAuditMaterials()
 {
 #if !UE_BUILD_SHIPPING
@@ -318,12 +395,17 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyScale                        - force every scale anomaly\n"
 		"  AnomalyPhantom                      - force every phantom chat message\n"
 		"  AnomalyLoopNumber                   - force the loop-counter ? glitch\n"
+		"  AnomalyWatcher                      - force the back-turned figure (1.1)\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: Hide, Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, Scale, Phantom, DoorLock, LoopNumber, I01\n"
+		"    filter examples: Hide, Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, Scale, Phantom, DoorLock, LoopNumber, Watcher, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
+		"  PhoneLineRestore                    - undo the ringing-phone line cut on this floor (1.1)\n"
+		"  DragojloMemory                      - print what he remembers across runs (1.1)\n"
+		"  DragojloForget                      - wipe that memory (1.1)\n"
 		"  AudioStatus                         - report why the floor is silent\n"
+		"  EndingSetup TheExit                 - arm the ground-floor door (1.1); EndingHelp for the rest\n"
 		"  AnomalyHelp                         - this message"));
 #endif
 }

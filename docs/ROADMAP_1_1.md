@@ -139,14 +139,16 @@ Nothing below needs C++; everything is content on `develop`.
 
 ## QA pass for the 1.1 cook
 
-- Ringing floor: ring audible, prompt "Answer", canned line appears, ring
-  stops, other phones say the line-cut text, no backend request in the log,
-  next floor phones work again. Take the **lit** lift → correct.
+- Ringing floor: `AnomalyPhone` forces the ring. Ring audible, prompt "Answer",
+  canned line appears, ring stops, other phones say the line-cut text, no
+  backend request in the log, next floor phones work again (or
+  `PhoneLineRestore` + `AnomalyPhone` to repeat on the same floor). Take the
+  **lit** lift → correct.
 - Stale floor: play to floor 4+ with an anomaly on the previous floor, ask
   "where should I look" before reporting anything. Log should show mode
   `stale_floor` at most once per run; he must not name a lift.
 - Watcher: spawns with his back turned, disappears on approach / second look,
-  floor judges lit. `Anomaly Watcher` console filter forces it.
+  floor judges lit. `AnomalyWatcher` (or `AnomalyForce Watcher`) forces it.
 - The Exit: `EndingSetup TheExit`, walk down, open door → card `THE EXIT`,
   archive shows seven nodes, `ACH_ENDING_THE_EXIT` toast. Without the debug
   command, the door must refuse while the wall is present.

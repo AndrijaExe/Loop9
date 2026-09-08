@@ -96,6 +96,8 @@ public:
 	 */
 	void CutPhoneLineForFloor() { bPhoneLineCutThisFloor = true; }
 	bool IsPhoneLineCut() const { return bPhoneLineCutThisFloor; }
+	/** Debug only: undo the cut so the ring can be answered again on this floor. */
+	void RestorePhoneLine() { bPhoneLineCutThisFloor = false; }
 
 	/** If the map still has no Scale component, attach one to the office printer. */
 	void EnsureScaleAnomalyPlacement(UWorld* World);

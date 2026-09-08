@@ -188,16 +188,21 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyScale` | Force every Scale anomaly |
 | `AnomalyPhantom` | Force every PhantomMessage anomaly |
 | `AnomalyLoopNumber` | Force the loop-counter `?` glitch |
+| `AnomalyWatcher` | 1.1: force the back-turned Watcher figure |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
+| `PhoneLineRestore` | 1.1: undo the floor-wide line cut after answering a ringing phone (re-test without changing floors) |
+| `DragojloMemory` | 1.1: print the persisted cross-run memory (`runs`, `last`, `tone`, `lies`, ...) |
+| `DragojloForget` | 1.1: wipe that memory, as on a fresh install |
 | `AudioStatus` | Report why the floor is silent: audio device, volumes, music bed, placed ambience |
 | `AnomalyHelp` | Print usage |
+| `EndingSetup TheExit` | 1.1: arm the ground-floor door (see `EndingHelp`) |
 
 These are **tilde console** commands in PIE / Standalone / Development. They are compiled out of Shipping.
 
 Filter notes:
 
-- Type labels match exactly (case-insensitive), plus short names (`Hide`, `Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `Scale`, `Phantom`, `LoopNumber`, `Counter`).
+- Type labels match exactly (case-insensitive), plus short names (`Hide`, `Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `Scale`, `Phantom`, `LoopNumber`, `Counter`, `Watcher`, `Figure`, `BackTurned`).
 - Class/actor partial filters require at least 3 characters.
 - Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 
