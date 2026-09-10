@@ -38,7 +38,10 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Secret Exit")
 	TObjectPtr<AActor> HiddenWallActor = nullptr;
 
-	/** Plays when the manager accepts the exit, right before the fade / cutscene. */
+	/**
+	 * Plays when the manager accepts the exit. The door itself never opens: the
+	 * sound covers the 1.5 s fade to black before the apartment level loads.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Secret Exit|Audio")
 	TObjectPtr<USoundBase> OpenSound = nullptr;
 

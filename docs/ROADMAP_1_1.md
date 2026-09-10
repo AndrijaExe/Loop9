@@ -95,10 +95,17 @@ work, one compile, GatherText, a cook and live QA — see
 - Accepted → `ULoopEndingPresenterSubsystem::TriggerForcedEnding(TheExit)`:
   same pipeline as every ending (archive `RecordEnding`, `ACH_ENDING_THE_EXIT`,
   `ACH_ALL_ENDINGS` now needs seven, telemetry `the_exit`, Dragojlo memory
-  `the_exit`), then the cutscene: `ALoop9GameMode::EndingSequences[TheExit]`
-  Level Sequence if authored, else a 2 s fade straight to the card
-  (`THE EXIT` / `TheExitDesc`). `ALoopEndingSceneDirector` refuses this ending
-  on purpose (it is the desk scene).
+  `the_exit`), input locked. The door plays `OpenSound` and **never opens**.
+  Then, when `BP_Loop9GameMode → TheExitLevel` is set: camera fades to black
+  over `TheExitFadeSeconds` (1.5 s), the presenter opens the apartment level,
+  `ALoop9TheExitGameMode::BeginPlay` hands back to the presenter, which holds
+  black, plays the GameMode's `ExitSequence` (first person: run to the flat's
+  door, open, turn to close, turn back — the TV reads **LOOP 1**), then the
+  0.75 s fade and the card (`THE EXIT` / `TheExitDesc`), Continue → main
+  menu. `TheExitLevel` empty = legacy in-place path (`EndingSequences[TheExit]`
+  else 2 s fade → card). `ALoopEndingSceneDirector` refuses this ending on
+  purpose (it is the desk scene). Brief for the Sequencer work:
+  [UNREAL_MCP_THE_EXIT_HANDOFF.md](UNREAL_MCP_THE_EXIT_HANDOFF.md).
 - Dragojlo is silent on that path by design: the stairwell / ground floor have
   no phone. If you place one, put an answerable `AudioAnomaly` on it or leave
   it off.
@@ -110,7 +117,7 @@ work, one compile, GatherText, a cook and live QA — see
 Nothing below needs C++; everything is content on `develop`.
 
 1. **Compile** the Windows build first (new files: `Anomaly/WatcherAnomalyComponent.*`,
-   `Interaction/Loop9SecretExitDoor.*`). Fix anything the compiler finds and
+   `Interaction/Loop9SecretExitDoor.*`, `Loop9TheExitGameMode.*`). Fix anything the compiler finds and
    push before touching content.
 2. **Ringing phones:** on 2–3 `AI_Friend` desk phones add `AudioAnomaly`
    (AnomalySound = `/Game/MyStuff/Sound/Phone/...` ring, `bLooping = true`,
@@ -130,20 +137,25 @@ Nothing below needs C++; everything is content on `develop`.
    named `stairwell` if you want him to be able to mention it later. On the
    door set `HiddenWallActor` to that wall actor — without it any Hide anomaly
    on the floor opens the door.
-5. **Cutscene:** author `LS_TheExit` (fade from black, exterior walk on rails,
-   house door, interior, close-up on the prop reading **Loop 1**, cut). Assign
-   it in `BP_Loop9GameMode → EndingSequences → TheExit`. Until then the fade →
-   card path is the fallback and is fine for QA. Geometry is hand work; the
-   Sequencer part is an MCP agent task — brief in
-   [UNREAL_MCP_THE_EXIT_HANDOFF.md](UNREAL_MCP_THE_EXIT_HANDOFF.md). The
-   exterior and the house must live in `FullOfficeMap` (no level travel).
-6. **Localization:** run GatherText (new keys: `ChatRingingPhoneAnswered`,
+5. **Apartment level:** new map (e.g. `/Game/MyStuff/Maps/TheExitApartment`):
+   landing outside the flat's door, the door actor, hall, living room, TV with
+   an `ALoopNumberSign` on the screen (`FixedLoopValue = 1`). World Settings →
+   GameMode Override = `Loop9TheExitGameMode` (or a BP child). On
+   `BP_Loop9GameMode` set `TheExitLevel` to this map. Add the map to
+   `MapsToCook` in `DefaultGame.ini`.
+6. **Cutscene:** author `LS_TheExit` in the apartment map and set it as the
+   apartment GameMode's `ExitSequence`. Until then black → card is the
+   fallback and is fine for QA. Geometry is hand work; the Sequencer part is
+   an MCP agent task — brief in
+   [UNREAL_MCP_THE_EXIT_HANDOFF.md](UNREAL_MCP_THE_EXIT_HANDOFF.md). PIE the
+   apartment map directly to preview (the presenter runs it as a preview).
+7. **Localization:** run GatherText (new keys: `ChatRingingPhoneAnswered`,
    `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
    translations are already in the `.po` files), then compile texts.
-7. **Steamworks:** create `ACH_ENDING_THE_EXIT` (hidden, "The Exit — You never
+8. **Steamworks:** create `ACH_ENDING_THE_EXIT` (hidden, "The Exit — You never
    needed the lift."), change `ACH_ALL_ENDINGS` description to "See every
    ending.", publish. `DefaultEngine.ini` already lists `Achievement_27_Id`.
-8. **Render (backend `develop` → deploy to a staging service or the live one):**
+9. **Render (backend `develop` → deploy to a staging service or the live one):**
    `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`, `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`,
    `AI_RUN_HISTORY_ENABLED=true`. Both are inert for v1.0.5 clients.
 
@@ -159,7 +171,8 @@ Nothing below needs C++; everything is content on `develop`.
   `stale_floor` at most once per run; he must not name a lift.
 - Watcher: spawns with his back turned, disappears on approach / second look,
   floor judges lit. `AnomalyWatcher` (or `AnomalyForce Watcher`) forces it.
-- The Exit: `EndingSetup TheExit`, walk down, open door → card `THE EXIT`,
+- The Exit: `EndingSetup TheExit`, walk down, open door → door sound, no
+  door movement, 1.5 s to black, apartment cutscene, card `THE EXIT`,
   archive shows seven nodes, `ACH_ENDING_THE_EXIT` toast. Without the debug
   command, the door must refuse while the wall is present, and also with the
   wall present but a different Hide anomaly forced (`AnomalyForce <other>`).

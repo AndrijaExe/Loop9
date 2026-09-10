@@ -3,6 +3,7 @@
 #include "Interaction/LoopEndingSceneDirector.h"
 #include "Loop/LoopEndingEvaluator.h"
 #include "Loop9GameMode.h"
+#include "Loop9TheExitGameMode.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/Loop9DragojloMemorySubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
@@ -66,6 +67,8 @@ void ULoopEndingPresenterSubsystem::Deinitialize()
 	CleanupActiveSequence(true);
 	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
+	bAwaitingEndingLevel = false;
+	bPresentingInTheExitLevel = false;
 	PresentationState = EPresentationState::Idle;
 	PresentationWorld.Reset();
 
@@ -148,9 +151,17 @@ bool ULoopEndingPresenterSubsystem::BeginEndingPresentation(ELoopEndingType Endi
 	PendingEndingType = EndingType;
 	PendingTotalResets = TotalResets;
 	PendingTotalAIInteractions = TotalAIInteractions;
+	PendingEndingWidgetClass = ResolveEndingWidgetClass(EndingType);
 	bEndingPresentationPending = true;
+	bPresentingInTheExitLevel = false;
 	PresentationWorld = World;
 	++PresentationGeneration;
+
+	// The Exit leaves the office for its own level when one is configured.
+	if (EndingType == ELoopEndingType::TheExit && TryTravelToTheExitLevel())
+	{
+		return true;
+	}
 
 	if (!TryPlayEndingSequence(EndingType))
 	{
@@ -166,6 +177,128 @@ bool ULoopEndingPresenterSubsystem::BeginEndingPresentation(ELoopEndingType Endi
 	}
 
 	return true;
+}
+
+bool ULoopEndingPresenterSubsystem::TryTravelToTheExitLevel()
+{
+	UWorld* World = PresentationWorld.Get();
+	if (!World)
+	{
+		return false;
+	}
+
+	const ALoop9GameMode* LoopGameMode = Cast<ALoop9GameMode>(UGameplayStatics::GetGameMode(World));
+	if (!LoopGameMode || LoopGameMode->TheExitLevel.IsNull())
+	{
+		return false;
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC)
+	{
+		return false;
+	}
+
+	// Input is already locked. The door's OpenSound plays over this fade; the
+	// door never opens. Hold black through the travel so the apartment's first
+	// frame is never seen before its sequence fades in.
+	const float FadeSeconds = FMath::Max(LoopGameMode->TheExitFadeSeconds, 0.0f);
+	PresentationState = EPresentationState::TravelingToEndingLevel;
+	StartCameraFade(PC, 0.0f, 1.0f, FadeSeconds);
+
+	TWeakObjectPtr<ULoopEndingPresenterSubsystem> WeakThis(this);
+	World->GetTimerManager().SetTimer(
+		EndingLevelTravelTimerHandle,
+		[WeakThis]()
+		{
+			if (WeakThis.IsValid())
+			{
+				WeakThis->OpenTheExitLevel();
+			}
+		},
+		FMath::Max(FadeSeconds, 0.05f),
+		false);
+	return true;
+}
+
+void ULoopEndingPresenterSubsystem::OpenTheExitLevel()
+{
+	UWorld* World = PresentationWorld.Get();
+	if (!World || !bEndingPresentationPending || PresentationState != EPresentationState::TravelingToEndingLevel)
+	{
+		return;
+	}
+
+	const ALoop9GameMode* LoopGameMode = Cast<ALoop9GameMode>(UGameplayStatics::GetGameMode(World));
+	if (!LoopGameMode || LoopGameMode->TheExitLevel.IsNull())
+	{
+		// Configuration vanished under us; finish in place instead of stalling on black.
+		PresentPendingEndingFromBlack(0.65f);
+		return;
+	}
+
+	// HandleWorldCleanup keeps the pending ending alive while this is set;
+	// ALoop9TheExitGameMode::BeginPlay in the new world clears it.
+	bAwaitingEndingLevel = true;
+	UE_LOG(LogTemp, Log, TEXT("The Exit: opening %s"), *LoopGameMode->TheExitLevel.GetLongPackageName());
+	UGameplayStatics::OpenLevelBySoftObjectPtr(World, LoopGameMode->TheExitLevel);
+}
+
+void ULoopEndingPresenterSubsystem::ContinueTheExitInLevel(ALoop9TheExitGameMode* ExitGameMode)
+{
+	UWorld* World = ExitGameMode ? ExitGameMode->GetWorld() : nullptr;
+	if (!World)
+	{
+		return;
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("The Exit: no player controller in the ending level."));
+		return;
+	}
+
+	if (!bAwaitingEndingLevel)
+	{
+		// Map opened on its own (PIE / debug): preview the cutscene and the card
+		// without touching archive, achievements, telemetry or memory.
+		UE_LOG(LogTemp, Warning, TEXT("The Exit: level started without a pending ending; running as preview."));
+		PendingEndingType = ELoopEndingType::TheExit;
+		PendingTotalResets = 0;
+		PendingTotalAIInteractions = 0;
+		PendingEndingWidgetClass = nullptr;
+		bEndingPresentationPending = true;
+	}
+	bAwaitingEndingLevel = false;
+	bPresentingInTheExitLevel = true;
+	PresentationWorld = World;
+	++PresentationGeneration;
+
+	// Black stays until the sequence's own fade-in (or the card) lifts it.
+	LockPresentationInput(PC);
+	StartCameraFade(PC, 1.0f, 1.0f, 0.0f);
+
+	if (ExitGameMode->ExitSequence.IsNull())
+	{
+		PresentPendingEndingFromBlack(0.65f);
+		return;
+	}
+
+	PendingSequenceReference = ExitGameMode->ExitSequence;
+	PresentationState = EPresentationState::LoadingSequence;
+	const uint32 LoadGeneration = PresentationGeneration;
+	ActiveSequenceLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		PendingSequenceReference.ToSoftObjectPath(),
+		FStreamableDelegate::CreateUObject(
+			this,
+			&ULoopEndingPresenterSubsystem::HandleEndingSequenceLoadComplete,
+			LoadGeneration));
+	if (!ActiveSequenceLoadHandle.IsValid())
+	{
+		PendingSequenceReference.Reset();
+		PresentPendingEndingFromBlack(0.65f);
+	}
 }
 
 bool ULoopEndingPresenterSubsystem::TryPlayEndingSequence(ELoopEndingType EndingType)
@@ -376,7 +509,7 @@ void ULoopEndingPresenterSubsystem::FallBackFromEndingSequenceLoad()
 		return;
 	}
 
-	if (PendingEndingType == ELoopEndingType::ParanoidSurvivor)
+	if (PendingEndingType == ELoopEndingType::ParanoidSurvivor || bPresentingInTheExitLevel)
 	{
 		PresentPendingEndingFromBlack(0.65f);
 	}
@@ -628,6 +761,7 @@ void ULoopEndingPresenterSubsystem::ClearPresentationTimers()
 	{
 		FTimerManager& TimerManager = World->GetTimerManager();
 		TimerManager.ClearTimer(EndingPresentationTimerHandle);
+		TimerManager.ClearTimer(EndingLevelTravelTimerHandle);
 		TimerManager.ClearTimer(SequenceCleanupAfterFadeTimerHandle);
 		TimerManager.ClearTimer(ReplacementTerminalTimerHandle);
 		TimerManager.ClearTimer(MainMenuTravelTimerHandle);
@@ -650,9 +784,19 @@ void ULoopEndingPresenterSubsystem::HandleWorldCleanup(
 	ActiveEndingWidget = nullptr;
 	ActiveTerminalWidget = nullptr;
 	ReleasePresentationInputLocks();
-	bEndingPresentationPending = false;
-	PresentationState = EPresentationState::Idle;
 	PresentationWorld.Reset();
+
+	if (bAwaitingEndingLevel)
+	{
+		// The office is going away on purpose; the ending resumes in the
+		// apartment. Keep PendingEndingType / counters / widget class.
+		PresentationState = EPresentationState::TravelingToEndingLevel;
+		return;
+	}
+
+	bEndingPresentationPending = false;
+	bPresentingInTheExitLevel = false;
+	PresentationState = EPresentationState::Idle;
 }
 
 void ULoopEndingPresenterSubsystem::LockPresentationInput(APlayerController* PlayerController)
@@ -702,6 +846,8 @@ void ULoopEndingPresenterSubsystem::AbortPresentationToIdle()
 	CleanupActiveSequence(true);
 	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
+	bAwaitingEndingLevel = false;
+	bPresentingInTheExitLevel = false;
 	PresentationState = EPresentationState::Idle;
 }
 
@@ -743,7 +889,11 @@ bool ULoopEndingPresenterSubsystem::ShowEndingWidget(
 		ActiveEndingWidget = nullptr;
 	}
 
-	const TSubclassOf<UEndingWidget> WidgetClass = ResolveEndingWidgetClass(EndingType);
+	// After the level travel there is no ALoop9GameMode to ask, so the class
+	// resolved in the office wins; the live lookup covers everything else.
+	const TSubclassOf<UEndingWidget> WidgetClass = PendingEndingWidgetClass
+		? PendingEndingWidgetClass
+		: ResolveEndingWidgetClass(EndingType);
 	UEndingWidget* EndingWidget = CreateWidget<UEndingWidget>(PC, WidgetClass);
 	if (!EndingWidget)
 	{
@@ -844,6 +994,8 @@ void ULoopEndingPresenterSubsystem::ReturnToMainMenu(APlayerController* PlayerCo
 	CleanupActiveSequence(true);
 	ReleasePresentationInputLocks();
 	bEndingPresentationPending = false;
+	bAwaitingEndingLevel = false;
+	bPresentingInTheExitLevel = false;
 	PresentationState = EPresentationState::ReturningToMenu;
 
 	if (ActiveEndingWidget)

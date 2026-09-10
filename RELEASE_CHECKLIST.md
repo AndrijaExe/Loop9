@@ -832,17 +832,23 @@ nije `[x]`. Detalji koda i editor koraci:
 ### Editor / cook (Windows)
 
 - [ ] Kompajlirati `develop` (novi fajlovi `WatcherAnomalyComponent.*`,
-  `Loop9SecretExitDoor.*`); popraviti šta kompajler nađe i pushovati.
+  `Loop9SecretExitDoor.*`, `Loop9TheExitGameMode.*`); popraviti šta kompajler
+  nađe i pushovati.
 - [ ] `AudioAnomaly` komponenta na 2–3 `AI_Friend` telefona (zvono, looping,
   zone tag).
 - [ ] `BP_WatcherFigure` + 3–4 anchor aktora sa `WatcherAnomaly`.
 - [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
   `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.
-- [ ] `LS_TheExit` cutscena → `BP_Loop9GameMode → EndingSequences → TheExit`
-  (fallback fade → karta radi bez nje). Podela: Andrija geometrija (zid,
-  stepenište, prizemlje, ulica, kuća, prop „Loop 1“), agent kamera/svetla/zvuk
-  kroz Unreal MCP — brief: `docs/UNREAL_MCP_THE_EXIT_HANDOFF.md`. MCP server u
-  editoru: `ModelContextProtocol.StartServer` (port 8000, `/mcp`).
+- [ ] Nova mapa stana (npr. `TheExitApartment`): vrata stana, hodnik, dnevna
+  soba, TV sa `LoopNumberSign` (`FixedLoopValue = 1`). GameMode Override =
+  `Loop9TheExitGameMode`; `BP_Loop9GameMode → TheExitLevel` = ta mapa; mapa u
+  `MapsToCook` (`DefaultGame.ini`).
+- [ ] `LS_TheExit` cutscena u mapi stana → `ExitSequence` na GameMode-u stana
+  (fallback crno → karta radi bez nje). Podela: Andrija geometrija, agent
+  kamera/vrata/svetla/zvuk kroz Unreal MCP — brief:
+  `docs/UNREAL_MCP_THE_EXIT_HANDOFF.md`. MCP server u editoru:
+  `ModelContextProtocol.StartServer` (port 8000, `/mcp`). Kućna mašina je
+  Windows.
 - [ ] **GatherText** (novi ključevi: `ChatRingingPhoneAnswered`,
   `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
   prevodi su već u `.po`), compile texts, pa cook u **novi** `Builds/v1.1.0`.

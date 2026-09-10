@@ -33,6 +33,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign")
 	FString Prefix = TEXT("LOOP");
 
+	/**
+	 * When > 0 the sign shows this number instead of the live loop. The TV in
+	 * the apartment at the end of The Exit reads LOOP 1 while the run's real
+	 * counter is still 4+.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign", meta = (ClampMin = "0"))
+	int32 FixedLoopValue = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign")
 	float UpdateInterval = 0.25f;
 

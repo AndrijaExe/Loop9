@@ -13,6 +13,7 @@ class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ALoopEndingSceneDirector;
+class ALoop9TheExitGameMode;
 class APlayerController;
 class UWorld;
 struct FStreamableHandle;
@@ -35,10 +36,20 @@ public:
 	bool TriggerForcedEnding(ELoopEndingType EndingType, URelationshipSubsystem* Relationship);
 	void ReturnToMainMenu(APlayerController* PlayerController);
 
+	/**
+	 * Second half of The Exit, called by ALoop9TheExitGameMode::BeginPlay once
+	 * the apartment level is up: hold black, play its ExitSequence, then the
+	 * card. If no ending is in flight (map opened directly in PIE) it runs as a
+	 * preview without archive / achievements / telemetry.
+	 */
+	void ContinueTheExitInLevel(ALoop9TheExitGameMode* ExitGameMode);
+
 private:
 	enum class EPresentationState : uint8
 	{
 		Idle,
+		/** Office fading to black, then opening ALoop9GameMode::TheExitLevel. */
+		TravelingToEndingLevel,
 		LoadingSequence,
 		PlayingSequence,
 		FadingToWidget,
@@ -48,6 +59,8 @@ private:
 
 	bool BeginEndingPresentation(ELoopEndingType EndingType, URelationshipSubsystem* Relationship);
 	bool TryPlayEndingSequence(ELoopEndingType EndingType);
+	bool TryTravelToTheExitLevel();
+	void OpenTheExitLevel();
 	bool TryPlayEndingDirector(ELoopEndingType EndingType);
 	bool StartLoadedEndingSequence(ULevelSequence* Sequence);
 	void HandleEndingSequenceLoadComplete(uint32 LoadGeneration);
@@ -97,7 +110,14 @@ private:
 	ELoopEndingType PendingEndingType = ELoopEndingType::ParanoidSurvivor;
 	int32 PendingTotalResets = 0;
 	int32 PendingTotalAIInteractions = 0;
+	/** Resolved in the office GameMode before any level travel; the apartment has no ALoop9GameMode. */
+	UPROPERTY(Transient)
+	TSubclassOf<UEndingWidget> PendingEndingWidgetClass;
 	bool bEndingPresentationPending = false;
+	/** True between the office world tearing down and the apartment GameMode reporting in. */
+	bool bAwaitingEndingLevel = false;
+	/** True while the presentation runs in the apartment level (fallbacks come from black, not from gameplay). */
+	bool bPresentingInTheExitLevel = false;
 	bool bPresentationInputLocked = false;
 	EPresentationState PresentationState = EPresentationState::Idle;
 	TWeakObjectPtr<UWorld> PresentationWorld;
@@ -107,6 +127,7 @@ private:
 	uint32 PresentationGeneration = 0;
 
 	FTimerHandle EndingPresentationTimerHandle;
+	FTimerHandle EndingLevelTravelTimerHandle;
 	FTimerHandle SequenceCleanupAfterFadeTimerHandle;
 	FTimerHandle ReplacementTerminalTimerHandle;
 	FTimerHandle MainMenuTravelTimerHandle;

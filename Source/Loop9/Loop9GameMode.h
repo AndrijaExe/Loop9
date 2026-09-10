@@ -30,6 +30,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinematics")
 	TMap<ELoopEndingType, TSoftObjectPtr<ULevelSequence>> EndingSequences;
 
+	/**
+	 * 1.1 The Exit: the apartment map the ending travels to. On accept the
+	 * office fades to black over TheExitFadeSeconds, opens this level, and
+	 * ALoop9TheExitGameMode there plays its ExitSequence. Empty = legacy path:
+	 * EndingSequences[TheExit] in place, else fade → card.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinematics")
+	TSoftObjectPtr<UWorld> TheExitLevel;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinematics", meta = (ClampMin = "0.0"))
+	float TheExitFadeSeconds = 1.5f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UReplacementTerminalWidget> ReplacementTerminalWidgetClass;
 

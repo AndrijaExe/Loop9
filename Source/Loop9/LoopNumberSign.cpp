@@ -140,7 +140,7 @@ void ALoopNumberSign::RefreshLoopText()
 		return;
 	}
 
-	LastShownLoop = LoopManager->CurrentLoop;
+	LastShownLoop = FixedLoopValue > 0 ? FixedLoopValue : LoopManager->CurrentLoop;
 
 	if (bAnomalyGlitchActive && bGlitchActive)
 	{

@@ -95,9 +95,14 @@ Automation: `Loop9.Runtime.Endings.EvaluatorProfiles`.
    floor). Otherwise the door refuses and stays a door. Accepted →
    `ULoopEndingPresenterSubsystem::TriggerForcedEnding(TheExit)` runs the same
    pipeline as a scored ending (archive, `ACH_ENDING_THE_EXIT`, telemetry
-   `the_exit`, Dragojlo memory), plays `EndingSequences[TheExit]` when
-   authored, else fades to the card. `ACH_ALL_ENDINGS` needs seven since 1.1;
-   `ACH_PERFECT_RUN` is not awarded here (it is the nine-floor route).
+   `the_exit`, Dragojlo memory). The door plays its sound and stays shut; the
+   presenter fades to black (`TheExitFadeSeconds`, 1.5 s), opens
+   `ALoop9GameMode::TheExitLevel` (the apartment, GameMode
+   `ALoop9TheExitGameMode`), survives the travel, holds black, plays that
+   GameMode's `ExitSequence`, then fades to the card. `TheExitLevel` empty =
+   in-place `EndingSequences[TheExit]`, else fade → card. `ACH_ALL_ENDINGS`
+   needs seven since 1.1; `ACH_PERFECT_RUN` is not awarded here (it is the
+   nine-floor route).
    Debug: `EndingSetup TheExit` arms the door and skips the wall check.
 
 Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequence → fade → widget → main menu). Replacement ending may show a terminal widget path; The Exit skips `ALoopEndingSceneDirector` (desk scene) on purpose.
