@@ -5,8 +5,10 @@
 #include "AI/Services/Loop9ObservationCodec.h"
 #include "Dom/JsonObject.h"
 #include "Loop/LoopTypes.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Runtime/DragojloCommitmentTracker.h"
 #include "Runtime/DragojloMemory.h"
+#include "Runtime/Loop9CloudSaveFormat.h"
 #include "Runtime/Loop9ObservationIds.h"
 #include "Runtime/Loop9ObservationJournal.h"
 #include "Runtime/Loop9RunEventCards.h"
@@ -733,6 +735,63 @@ bool FLoop9DragojloMemoryRoundTripTest::RunTest(const FString&)
 	const FDragojloMemory SecondRestored = FDragojloMemory::FromPersistedString(Second.ToPersistedString());
 	TestEqual(TEXT("Secret ending survives the round trip"),
 		AsInt(SecondRestored.LastEnding), AsInt(ELoopEndingType::TheExit));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FLoop9CloudSaveFormatTest,
+	"Loop9.Runtime.CloudSave.KeepsEveryKey",
+	EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
+
+bool FLoop9CloudSaveFormatTest::RunTest(const FString&)
+{
+	using namespace Loop9CloudSaveFormat;
+
+	// Everything the achievements subsystem reads back must be on the list,
+	// or the next save silently drops it.
+	TestTrue(TEXT("SeenEndings is persisted"), IsPersistedKey(SeenEndingsKey));
+	TestTrue(TEXT("SpottedAnomalies is persisted"), IsPersistedKey(SpottedAnomaliesKey));
+	TestTrue(TEXT("PendingUnlocks is persisted"), IsPersistedKey(PendingUnlocksKey));
+	TestTrue(TEXT("DragojloMemory is persisted"), IsPersistedKey(DragojloMemoryKey));
+	TestFalse(TEXT("CloudReady is a marker, not a value"), IsPersistedKey(CloudReadyKey));
+
+	FConfigFile Written;
+	int32 Index = 0;
+	for (const TCHAR* Key : PersistedKeys())
+	{
+		Written.SetString(Section, Key, *FString::Printf(TEXT("value-%d"), Index++));
+	}
+	Written.SetString(Section, TEXT("Stray"), TEXT("dropped"));
+
+	FConfigFile Parsed;
+	Parsed.CombineFromBuffer(BuildIniText(Written), TEXT("Game.ini"));
+
+	FString Ready;
+	TestTrue(TEXT("CloudReady marker is written"),
+		Parsed.GetString(Section, CloudReadyKey, Ready) && Ready == TEXT("1"));
+
+	Index = 0;
+	for (const TCHAR* Key : PersistedKeys())
+	{
+		FString Value;
+		const bool bFound = Parsed.GetString(Section, Key, Value);
+		TestTrue(FString::Printf(TEXT("%s survives the rewrite"), Key),
+			bFound && Value == FString::Printf(TEXT("value-%d"), Index));
+		++Index;
+	}
+
+	FString Stray;
+	TestFalse(TEXT("A key outside the list does not survive the rewrite"),
+		Parsed.GetString(Section, TEXT("Stray"), Stray));
+
+	// A fresh file still names every key, so its shape never depends on history.
+	const FConfigFile Empty;
+	const FString EmptyText = BuildIniText(Empty);
+	for (const TCHAR* Key : PersistedKeys())
+	{
+		TestTrue(FString::Printf(TEXT("%s is written even when unset"), Key),
+			EmptyText.Contains(FString(Key) + TEXT("=")));
+	}
 	return true;
 }
 

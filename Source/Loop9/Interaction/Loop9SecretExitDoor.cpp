@@ -42,8 +42,11 @@ bool ALoop9SecretExitDoor::TryInteract_Implementation(APlayerController* Interac
 		bConsumed = true;
 		if (OpenSound)
 		{
-			UGameplayStatics::PlaySoundAtLocation(
-				this, OpenSound, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, Attenuation);
+			// 2D and persistent: the office world is torn down once the fade
+			// ends, and a spatial one-shot placed in it would be cut with it.
+			UGameplayStatics::SpawnSound2D(
+				this, OpenSound, 1.0f, 1.0f, 0.0f, nullptr,
+				/*bPersistAcrossLevelTransition*/ true, /*bAutoDestroy*/ true);
 		}
 		OnExitAccepted();
 		return true;

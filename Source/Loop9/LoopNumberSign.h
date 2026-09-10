@@ -53,7 +53,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Visual", meta = (ClampMin = "2"))
 	int32 MaxLoopForFullIntensity = 10;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker")
+	/**
+	 * Cosmetic flicker without the anomaly. Interp so a Sequencer bool track can
+	 * key it (the apartment TV at the end of The Exit); the flicker parameters
+	 * below apply to both.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Loop Sign|Flicker")
 	bool bEnableFlicker = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker", meta = (ClampMin = "0.0", ClampMax = "1.0"))
@@ -65,7 +70,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Flicker", meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float FlickerDropoutChancePerSecond = 0.22f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch")
+	/** Cosmetic "LOOP ?" glitch cycle without the anomaly; keyable like bEnableFlicker. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Loop Sign|Glitch")
 	bool bEnableGlitch = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop Sign|Glitch", meta = (ClampMin = "1"))
@@ -88,6 +94,8 @@ private:
 	bool bAnomalyGlitchActive = false;
 	FTimerHandle IdleRefreshTimerHandle;
 
+	/** Anomaly glitch or either cosmetic flag: the sign needs its tick. */
+	bool WantsPresentationFx() const { return bAnomalyGlitchActive || bEnableFlicker || bEnableGlitch; }
 	void RefreshLoopText();
 	void UpdateDynamicColor(int32 LoopValue);
 	FString BuildGlitchText(int32 LoopValue) const;

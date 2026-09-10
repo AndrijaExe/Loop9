@@ -822,6 +822,9 @@ nije `[x]`. Detalji koda i editor koraci:
 
 ### Render (backend `develop` → `main` = deploy)
 
+- [ ] Backend `develop` sada prima i `stale_floor_used` (brojač
+  `run.commitment.stale_floor`) — po njemu se posle playtesta podešava
+  `_CHANCE`.
 - [ ] `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`
 - [ ] `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`
 - [ ] `AI_RUN_HISTORY_ENABLED=true`
@@ -840,7 +843,8 @@ nije `[x]`. Detalji koda i editor koraci:
 - [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
   `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.
 - [ ] Nova mapa stana (npr. `TheExitApartment`): vrata stana, hodnik, dnevna
-  soba, TV sa `LoopNumberSign` (`FixedLoopValue = 1`). GameMode Override =
+  soba, TV sa `LoopNumberSign` (`FixedLoopValue = 1`), telefon kao prop
+  (static mesh, ne `AI_Friend`). GameMode Override =
   `Loop9TheExitGameMode`; `BP_Loop9GameMode → TheExitLevel` = ta mapa; mapa u
   `MapsToCook` (`DefaultGame.ini`).
 - [ ] `LS_TheExit` cutscena u mapi stana → `ExitSequence` na GameMode-u stana

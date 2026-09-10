@@ -11,6 +11,7 @@
 #include "OnlineStats.h"
 #include "Interfaces/OnlineAchievementsInterface.h"
 #include "Interfaces/OnlineIdentityInterface.h"
+#include "Runtime/Loop9CloudSaveFormat.h"
 #include "Runtime/Loop9RuntimePolicies.h"
 #include "Steam/Loop9SteamUtils.h"
 
@@ -24,12 +25,14 @@ namespace
 	constexpr int32 EndingTypeCount = 7;
 	constexpr int32 SpotAllAnomalyTypeCount = 9;
 
-	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
-	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
-	const TCHAR* SpottedAnomaliesKey = TEXT("SpottedAnomalies");
-	const TCHAR* PendingUnlocksKey = TEXT("PendingUnlocks");
+	// Section and keys live in Loop9CloudSaveFormat, together with the list the
+	// file is rewritten from; add a key there, not here.
+	const TCHAR* PersistSection = Loop9CloudSaveFormat::Section;
+	const TCHAR* SeenEndingsKey = Loop9CloudSaveFormat::SeenEndingsKey;
+	const TCHAR* SpottedAnomaliesKey = Loop9CloudSaveFormat::SpottedAnomaliesKey;
+	const TCHAR* PendingUnlocksKey = Loop9CloudSaveFormat::PendingUnlocksKey;
 	/** Cross-run Dragojlo memory (see FDragojloMemory); rides the same Cloud file. */
-	const TCHAR* DragojloMemoryKey = TEXT("DragojloMemory");
+	const TCHAR* DragojloMemoryKey = Loop9CloudSaveFormat::DragojloMemoryKey;
 
 	/** Exact Steam Auto-Cloud path: WinAppDataLocal / Loop9/Saved/Config/Windows/Game.ini */
 	FString CloudGameIni()
@@ -54,32 +57,14 @@ namespace
 
 	bool SaveCloudFile(FConfigFile& File)
 	{
-		File.SetString(PersistSection, TEXT("CloudReady"), TEXT("1"));
-
-		FString Seen;
-		FString Spotted;
-		FString Pending;
-		FString Memory;
-		File.GetString(PersistSection, SeenEndingsKey, Seen);
-		File.GetString(PersistSection, SpottedAnomaliesKey, Spotted);
-		File.GetString(PersistSection, PendingUnlocksKey, Pending);
-		File.GetString(PersistSection, DragojloMemoryKey, Memory);
+		File.SetString(PersistSection, Loop9CloudSaveFormat::CloudReadyKey, TEXT("1"));
 
 		// Do not use FConfigFile::Write / WriteToString / GConfig. Those skip or
 		// no-op missing inis. Steam Auto-Cloud only needs this file on disk.
-		// Every key the file carries must be listed here: the whole file is
-		// rewritten, so an unlisted key would be dropped on the next save.
-		const FString Text = FString::Printf(
-			TEXT("[%s]\r\nCloudReady=1\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n%s=%s\r\n"),
-			PersistSection,
-			SeenEndingsKey,
-			*Seen,
-			SpottedAnomaliesKey,
-			*Spotted,
-			PendingUnlocksKey,
-			*Pending,
-			DragojloMemoryKey,
-			*Memory);
+		// The whole file is rewritten from Loop9CloudSaveFormat::PersistedKeys();
+		// a key missing from that list would be dropped on the next save, which
+		// Loop9.Runtime.CloudSave.KeepsEveryKey guards.
+		const FString Text = Loop9CloudSaveFormat::BuildIniText(File);
 
 		const FString Ini = CloudGameIni();
 		IFileManager::Get().MakeDirectory(*FPaths::GetPath(Ini), true);

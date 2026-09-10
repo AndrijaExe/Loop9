@@ -68,7 +68,7 @@ void ALoopNumberSign::ConfigurePresentationTick()
 		World->GetTimerManager().ClearTimer(IdleRefreshTimerHandle);
 	}
 
-	const bool bNeedsContinuousFx = bAnomalyGlitchActive;
+	const bool bNeedsContinuousFx = WantsPresentationFx();
 	PrimaryActorTick.TickInterval = bNeedsContinuousFx ? 0.05f : FMath::Max(0.1f, UpdateInterval);
 	SetActorTickEnabled(bNeedsContinuousFx);
 
@@ -88,32 +88,45 @@ void ALoopNumberSign::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	RunningTime += DeltaTime;
 
-	if (!bAnomalyGlitchActive)
+	if (!WantsPresentationFx())
 	{
+		// A Sequencer key just cleared the cosmetic flags: back to idle refresh.
+		bGlitchActive = false;
+		bFlickerDropout = false;
+		ConfigurePresentationTick();
+		RefreshLoopText();
 		return;
 	}
 
-	if (!bGlitchActive)
+	if (bAnomalyGlitchActive || bEnableGlitch)
 	{
-		GlitchAccumulator += DeltaTime;
-		if (GlitchAccumulator >= GlitchInterval)
+		if (!bGlitchActive)
 		{
-			bGlitchActive = true;
-			GlitchElapsed = 0.0f;
-			GlitchAccumulator = 0.0f;
+			GlitchAccumulator += DeltaTime;
+			if (GlitchAccumulator >= GlitchInterval)
+			{
+				bGlitchActive = true;
+				GlitchElapsed = 0.0f;
+				GlitchAccumulator = 0.0f;
+			}
+		}
+		else
+		{
+			GlitchElapsed += DeltaTime;
+			if (GlitchElapsed >= GlitchDuration)
+			{
+				bGlitchActive = false;
+				GlitchElapsed = 0.0f;
+			}
 		}
 	}
 	else
 	{
-		GlitchElapsed += DeltaTime;
-		if (GlitchElapsed >= GlitchDuration)
-		{
-			bGlitchActive = false;
-			GlitchElapsed = 0.0f;
-		}
+		bGlitchActive = false;
 	}
 
-	bFlickerDropout = FMath::FRand() < (FlickerDropoutChancePerSecond * DeltaTime);
+	const bool bFlicker = bAnomalyGlitchActive || bEnableFlicker;
+	bFlickerDropout = bFlicker && FMath::FRand() < (FlickerDropoutChancePerSecond * DeltaTime);
 
 	UpdateAccumulator += DeltaTime;
 	if (UpdateAccumulator >= UpdateInterval)
@@ -140,9 +153,16 @@ void ALoopNumberSign::RefreshLoopText()
 		return;
 	}
 
+	// A Sequencer key can flip a cosmetic flag without going through
+	// SetAnomalyGlitchActive; the idle refresh is where that gets noticed.
+	if (!IsActorTickEnabled() && WantsPresentationFx())
+	{
+		ConfigurePresentationTick();
+	}
+
 	LastShownLoop = FixedLoopValue > 0 ? FixedLoopValue : LoopManager->CurrentLoop;
 
-	if (bAnomalyGlitchActive && bGlitchActive)
+	if (bGlitchActive)
 	{
 		TextRender->SetText(FText::FromString(BuildGlitchText(LastShownLoop)));
 	}
@@ -161,7 +181,7 @@ void ALoopNumberSign::UpdateDynamicColor(int32 LoopValue)
 	const FLinearColor Aggressive = FLinearColor(AggressiveTextColor);
 	FLinearColor Result = FMath::Lerp(Base, Aggressive, Progress);
 
-	if (bAnomalyGlitchActive)
+	if (bAnomalyGlitchActive || bEnableFlicker)
 	{
 		const float FlickerWave = (FMath::Sin(RunningTime * FlickerSpeed) * 0.5f) + 0.5f;
 		const float FlickerMultiplier = 1.0f - (FlickerStrength * FlickerWave);

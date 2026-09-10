@@ -14,8 +14,9 @@ only the differences are spelled out here.
   (`/Game/MyStuff/Maps/TheExitApartment` or similar): the landing / street
   side of the flat's door, the door actor, the hall, the living room, the TV
   with an `ALoopNumberSign` on its screen (`FixedLoopValue = 1`, same look as
-  the office sign). World Settings → GameMode Override =
-  `Loop9TheExitGameMode` (or a Blueprint child of it) with `ExitSequence` set
+  the office sign), and a desk phone on a table in the living room (a static
+  mesh prop — **not** an `AI_Friend`, nothing interactable in this map).
+  World Settings → GameMode Override = `Loop9TheExitGameMode` (or a Blueprint child of it) with `ExitSequence` set
   once the sequence exists. `BP_Loop9GameMode → TheExitLevel` = the apartment
   map; `TheExitFadeSeconds` stays 1.5.
 - **Agent (via MCP, in Sequencer):** the Level Sequence — cinematic camera,
@@ -72,15 +73,21 @@ continuous take (no hard cuts). Camera height ~160 cm, 35–50 mm.
 | 3 | 150–210 | At the door: camera decelerates to ~1 m; the door **opens inward** (possessable door actor, eased yaw over ~35 frames); camera steps through the frame. Door-open sound. |
 | 4 | 210–300 | **Turns to close it**: camera yaws ~180° (eased, ~60 frames) to face the door from inside; the door swings shut (~40 frames); latch sound. Breathing slows. |
 | 5 | 300–390 | **Turns back to the room**: camera yaws ~180° back (eased). At the end of the turn the TV is centred in frame, reading **LOOP 1** in the office sign's red — the `ALoopNumberSign` on the screen, `FixedLoopValue = 1`. Nothing else in the room moves. Silence, or a faint TV hum. |
-| 6 | 390–end | Hold. A very slow 10–20 cm push toward the TV is allowed; no cut, no flicker. The presenter fades out from here. |
+| 6 | 390–end | Hold. A very slow 10–20 cm push toward the TV is allowed; no cut. In the last ~1.5 s: key the TV sign's `bEnableFlicker` (bool property track on the `ALoopNumberSign` possessable) to **true** so LOOP 1 stutters once, and the desk phone starts ringing (spatialized audio track at the prop, the office ring sound, ≤ 1.5 s). Neither resolves — the presenter fades out over both. |
 
 Lighting: hall dim, one practical in the living room, the TV screen the
 brightest thing in shot 5–6. No strobing, no white flashes — the fade-in is
 the only brightness ramp.
 
-Audio: use existing project sounds (door open/close, footsteps, breathing);
-report anything missing rather than importing external content. No Dragojlo
-voice — the point is that he was never asked.
+Audio: use existing project sounds (door open/close, footsteps, breathing,
+the phone ring from `/Game/MyStuff/Sound/Phone/`); report anything missing
+rather than importing external content. No Dragojlo voice — the point is that
+he was never asked; the ring at the end says he knows where the player lives.
+
+The `bEnableFlicker` key on the sign is the one property key allowed on a
+gameplay actor here: it is cosmetic (`ALoopNumberSign` reads it in Tick) and
+touches no loop state. `bEnableGlitch` works the same way (LOOP ? cycle) but
+is stronger than this moment needs.
 
 ## Preflight
 

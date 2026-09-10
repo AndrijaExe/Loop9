@@ -40,7 +40,8 @@ public:
 
 	/**
 	 * Plays when the manager accepts the exit. The door itself never opens: the
-	 * sound covers the 1.5 s fade to black before the apartment level loads.
+	 * sound covers the 1.5 s fade to black before the apartment level loads and
+	 * keeps playing across the level change (2D, not attenuated).
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Secret Exit|Audio")
 	TObjectPtr<USoundBase> OpenSound = nullptr;

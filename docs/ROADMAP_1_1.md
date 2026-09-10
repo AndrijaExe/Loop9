@@ -139,7 +139,8 @@ Nothing below needs C++; everything is content on `develop`.
    on the floor opens the door.
 5. **Apartment level:** new map (e.g. `/Game/MyStuff/Maps/TheExitApartment`):
    landing outside the flat's door, the door actor, hall, living room, TV with
-   an `ALoopNumberSign` on the screen (`FixedLoopValue = 1`). World Settings →
+   an `ALoopNumberSign` on the screen (`FixedLoopValue = 1`), a desk phone
+   prop (static mesh, no `AI_Friend`) for the ring at the end. World Settings →
    GameMode Override = `Loop9TheExitGameMode` (or a BP child). On
    `BP_Loop9GameMode` set `TheExitLevel` to this map. Add the map to
    `MapsToCook` in `DefaultGame.ini`.

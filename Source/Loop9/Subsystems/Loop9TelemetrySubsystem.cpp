@@ -157,6 +157,8 @@ void ULoop9TelemetrySubsystem::DispatchRunFinished(
 	JsonObject->SetBoolField(TEXT("location_misdirection_used"), Commitment.bLocationMisdirectionUsed);
 	JsonObject->SetBoolField(TEXT("visited_suggested_decoy"), Commitment.bVisitedSuggestedDecoy);
 	JsonObject->SetBoolField(TEXT("contradiction_exposed"), Commitment.bContradictionExposed);
+	// 1.1: the one-shot previous-floor slip, so its chance can be tuned from data.
+	JsonObject->SetBoolField(TEXT("stale_floor_used"), Commitment.bStaleFloorUsed);
 	JsonObject->SetNumberField(TEXT("lift_advice_count"), FMath::Max(0, Commitment.LiftAdviceCount));
 	JsonObject->SetNumberField(TEXT("followed_lift_advice_count"), FMath::Max(0, Commitment.FollowedLiftAdviceCount));
 	JsonObject->SetNumberField(TEXT("wrong_lift_advice_count"), FMath::Max(0, Commitment.WrongLiftAdviceCount));
