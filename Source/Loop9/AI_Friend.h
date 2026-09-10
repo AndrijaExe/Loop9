@@ -144,6 +144,9 @@ private:
 	class UAudioAnomalyComponent* GetRingingAnomaly() const;
 	/** True once a ringing phone was answered on this floor; every phone is dead until the next floor. */
 	bool IsPhoneLineCut() const;
+	/** 1.1: the ringing-phone line is on screen and unread; closing the chat releases the lift. */
+	bool bRingingMessagePending = false;
+	static FString PickRingingPhoneLine();
 	void AnswerRingingAnomaly(APlayerController* PlayerController, class UAudioAnomalyComponent* Ringing);
 	class UAI_ChatWidget* GetChatWidgetTyped() const;
 	class UAI_ChatWidget* GetOrCreateChatWidgetTyped(APlayerController* PlayerController);

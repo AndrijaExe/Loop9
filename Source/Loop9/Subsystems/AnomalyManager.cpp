@@ -24,7 +24,7 @@ namespace
 
 	constexpr bool bDebugOnlyMoveAnomaly = false;
 
-	constexpr int32 AnomalyTypeCount = 11;
+	constexpr int32 AnomalyTypeCount = 12;
 
 	constexpr ELoopAnomalyType AnomalyTypeOrder[AnomalyTypeCount] =
 	{
@@ -38,7 +38,8 @@ namespace
 		ELoopAnomalyType::Scale,
 		ELoopAnomalyType::PhantomMessage,
 		ELoopAnomalyType::LoopNumber,
-		ELoopAnomalyType::Watcher
+		ELoopAnomalyType::Watcher,
+		ELoopAnomalyType::Creep
 	};
 
 	int32 GetTypeIndex(ELoopAnomalyType Type)
@@ -86,6 +87,11 @@ namespace
 		// pursuer, a touch more common because he never takes the choice away.
 		case ELoopAnomalyType::Watcher:
 			return 0.45f;
+
+		// A slow drift is a fair search once the player knows to compare, and a
+		// blank until then. Keep it at the norm.
+		case ELoopAnomalyType::Creep:
+			return 1.0f;
 
 		default:
 			return 1.0f;
@@ -597,6 +603,13 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 			|| Filter.Equals(TEXT("Figure"), ESearchCase::IgnoreCase)
 			|| Filter.Equals(TEXT("BackTurned"), ESearchCase::IgnoreCase))
 		&& Component->GetAnomalyType() == ELoopAnomalyType::Watcher)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Creep"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Drift"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("SlowMove"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Creep)
 	{
 		return true;
 	}

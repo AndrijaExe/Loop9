@@ -48,6 +48,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category="UI|Cutscene")
 	void RemoveBlinkOverlay();
 
+	/**
+	 * 1.1: a short full-screen "bad signal" burst (black frames, jumping scan
+	 * bars) with an optional sound. Built in code, needs no widget class.
+	 */
+	UFUNCTION(BlueprintCallable, Category="UI|Cutscene")
+	void PlaySignalBurst(float Duration = 0.6f);
+
+	/** Played with the burst. Unset = PhoneLineCut from the phone folder when it exists. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI|Cutscene")
+	TObjectPtr<class USoundBase> SignalBurstSound;
+
 	// ---- Debug / testing console commands (tilde ~) ----
 	/** List all registered anomalies. */
 	UFUNCTION(Exec)
@@ -122,6 +133,10 @@ public:
 	/** 1.1: force the back-turned Watcher figure. Editor / non-Shipping only. */
 	UFUNCTION(Exec)
 	void AnomalyWatcher();
+
+	/** 1.1: force every slow-drift Creep anomaly. Editor / non-Shipping only. */
+	UFUNCTION(Exec)
+	void AnomalyCreep();
 
 	/**
 	 * 1.1: undo the floor-wide line cut after answering a ringing phone, so the

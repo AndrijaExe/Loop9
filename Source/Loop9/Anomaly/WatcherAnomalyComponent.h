@@ -53,6 +53,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "5.0"))
 	float MaxLifetimeSeconds = 90.0f;
 
+	/**
+	 * 1.1: reaching VanishDistance while moving toward him this fast counts as
+	 * running into him. He still goes, but behind a burst of bad signal and
+	 * with the lights out, so the player never sees how. Walking speed is 300,
+	 * sprint 600; anything above this is a charge.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.0"))
+	float ContactApproachSpeed = 420.0f;
+
+	/** Length of the signal burst on contact. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.15"))
+	float ContactBurstSeconds = 0.7f;
+
+	/** How long the floor stays dark after contact. 0 = until the next floor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.0"))
+	float ContactBlackoutSeconds = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact")
+	bool bBlackoutOnContact = true;
+
 	/** Optional one-shot when he vanishes (a breath, a step). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
 	TObjectPtr<class USoundBase> VanishSound = nullptr;
@@ -72,6 +92,7 @@ private:
 	void Poll();
 	bool IsObservedByPlayer(const APawn* PlayerPawn, const APlayerController* PlayerController) const;
 	void Vanish(const TCHAR* Reason);
+	void Contact(const APawn* PlayerPawn);
 	void DestroyFigure();
 
 	UPROPERTY(Transient)

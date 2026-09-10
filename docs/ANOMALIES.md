@@ -1,6 +1,6 @@
 # Anomalies
 
-Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly. `ACH_SPOT_ALL` tracks all ten, including `LoopNumber` (`ACH_SPOT_LOOPNUMBER`).
+Loop 9 has **twelve** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`): ten at v1.0.6, plus `Watcher` and `Creep` in 1.1. There is no Clock anomaly. `ACH_SPOT_ALL` tracks all twelve (`ACH_SPOT_LOOPNUMBER`, `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP` included).
 
 ## Types
 
@@ -17,6 +17,7 @@ Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`
 | PhantomMessage | `PhantomMessageAnomaly` | chat message the player never sent |
 | LoopNumber | `LoopNumberAnomaly` | loop counter flickers / turns into `?` |
 | Watcher (1.1) | `WatcherAnomaly` | `UWatcherAnomalyComponent`: a figure standing with its back turned |
+| Creep (1.1) | `CreepAnomaly` | `UCreepAnomalyComponent`: an object that drifts ~1 cm/s while the player is on the floor |
 
 `MaterialSwapAnomalyComponent` currently reports type `Text` and is used for material/text visual variants.
 
@@ -35,8 +36,39 @@ moves. The manifestation vanishes when the player comes within
 `VanishDistance`, on the second look after looking away, after
 `MaxContinuousLookSeconds`, or after `MaxLifetimeSeconds`; the component stays
 active so the floor still judges "lit". First sight logs `object_inspected` /
-`figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). No spot
-achievement, like `LoopNumber`.
+`figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). Spot
+achievement `ACH_SPOT_WATCHER` (hidden).
+
+**Contact (1.1).** Reaching `VanishDistance` while closing in faster than
+`ContactApproachSpeed` (420 cm/s, i.e. sprinting at him) is a collision, not a
+look: `UWatcherAnomalyComponent::Contact` plays a full-screen "bad signal"
+burst (`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`, built in
+code, no asset), cuts every light on the floor for `ContactBlackoutSeconds`
+(5 s; 0 = until the next floor) through `ULoop9LightsSubsystem`, unlocks
+`ACH_TOO_CLOSE`, and only then removes the figure. A slow approach still just
+makes him vanish.
+
+**Ringing floor (1.1).** A ringing desk phone is a whole beat, run by
+`ULoop9RingingFloorSubsystem` (world subsystem, nothing to place). When the
+player steps out of the lit lift (`LiftExitDistanceCm` from the arrival point),
+its doors close and the lit button refuses presses; every light goes out except
+the lamp nearest the phone (`ULoop9LightsSubsystem::FindNearestLight`, within
+`PhoneLampSearchRadiusCm`). Picking up shows one of six lines
+(`AAI_Friend::PickRingingPhoneLine`, `ChatRingingPhoneAnswered`,
+`ChatRingingLine2..6`) read-only (`UAI_ChatWidget::SetInputLocked`); lines 4-6
+hint at the wall, the stairs and the street door of the secret ending. Closing
+the chat restores the lights and reopens the lit lift. The dark lift is never
+held. `MaxHoldSeconds` (240) reopens the lift if nobody ever answers; a loop
+change restores everything. Achievement `ACH_WRONG_NUMBER` on pickup.
+
+**Creep (1.1).** `UCreepAnomalyComponent` goes on the object itself. On
+activation the object starts at its normal spot and drifts toward a target at
+`CreepSpeedCmPerSecond` (1.0): a tagged `AAnomalyMovePoint` (`CreepTargetTag`,
+same contract as Move) or `CreepOffset` in the object's own axes (default 60 cm
+sideways). It stops when it arrives and never comes back on its own; a
+destination under 5 cm away is refused. `bPauseWhileObserved` (off) makes it
+move only when the player is not looking. Type weight 1.0. Spot achievement
+`ACH_SPOT_CREEP`. Debug: `AnomalyCreep`, filters `Creep` / `Drift` / `SlowMove`.
 
 Pursuer is the one anomaly that changes the phone. While it is active
 (`UAnomalyManager::IsAnomalyTypeActive(Pursuer)` — true for the whole floor
@@ -208,4 +240,4 @@ Filter notes:
 
 ## Achievements tied to anomalies
 
-Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all ten types across runs (persisted), including `LoopNumber` (since v1.0.6). The 1.1 `Watcher` is an eleventh elevator-counted type without a Steam spot achievement. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).
+Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all twelve types across runs (persisted): the original nine, `LoopNumber` (v1.0.6), `Watcher` and `Creep` (1.1). Two event achievements are not tied to the lift: `ACH_WRONG_NUMBER` (answered the ringing phone) and `ACH_TOO_CLOSE` (ran into the Watcher). Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).

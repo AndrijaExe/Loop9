@@ -1,4 +1,5 @@
 #include "Interaction/LiftButton.h"
+#include "Subsystems/Loop9RingingFloorSubsystem.h"
 
 #include "Interaction/LoopElevatorTransitionDirector.h"
 #include "LiftDoorWing.h"
@@ -172,6 +173,19 @@ bool ALiftButton::IsPlayerInsideCabin(APlayerController* InteractingController) 
 
 bool ALiftButton::HandleInteraction(APlayerController* InteractingController)
 {
+	// 1.1: while a ringing phone holds the lit lift shut, its button is dead.
+	if (ButtonType == ELiftButtonType::Reset)
+	{
+		if (const ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+		{
+			if (RingingFloor->IsLitLiftHeld())
+			{
+				UE_LOG(LogTemp, Log, TEXT("LiftButton: ignored press â the lit lift is held shut by the ringing phone."));
+				return false;
+			}
+		}
+	}
+
 	if (!IsPlayerInsideCabin(InteractingController))
 	{
 		UE_LOG(LogTemp, Log, TEXT("LiftButton: ignored press — player is outside the cabin."));

@@ -226,6 +226,10 @@ void UAI_ChatWidget::HideThinkingIndicator()
 	}
 
 	ThinkingIndicatorText = nullptr;
+	if (bInputLocked)
+	{
+		return;
+	}
 	if (MessageInputBox)
 	{
 		MessageInputBox->SetIsEnabled(true);
@@ -233,6 +237,19 @@ void UAI_ChatWidget::HideThinkingIndicator()
 	if (SendButton)
 	{
 		SendButton->SetIsEnabled(true);
+	}
+}
+
+void UAI_ChatWidget::SetInputLocked(bool bLocked)
+{
+	bInputLocked = bLocked;
+	if (MessageInputBox)
+	{
+		MessageInputBox->SetIsEnabled(!bLocked);
+	}
+	if (SendButton)
+	{
+		SendButton->SetIsEnabled(!bLocked);
 	}
 }
 

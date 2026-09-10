@@ -5,6 +5,9 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
 #include "UObject/ConstructorHelpers.h"
+#include "AI_Friend.h"
+#include "Engine/World.h"
+#include "Subsystems/Loop9RingingFloorSubsystem.h"
 
 UAudioAnomalyComponent::UAudioAnomalyComponent()
 {
@@ -100,11 +103,30 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 		RuntimeAudioComponent->SetPitchMultiplier(PitchMultiplier);
 	}
 
+	// 1.1: a desk phone that rings is a whole beat, not just a sound.
+	if (bAnswerable && Owner->IsA<AAI_Friend>())
+	{
+		if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+		{
+			RingingFloor->BeginRingingFloor(Cast<AAI_Friend>(Owner));
+		}
+	}
+
 	return true;
 }
 
 void UAudioAnomalyComponent::RestoreNormalState()
 {
+	if (bAnswerable)
+	{
+		if (const AAI_Friend* Phone = Cast<AAI_Friend>(GetOwner()))
+		{
+			if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+			{
+				RingingFloor->EndRingingFloor(Phone);
+			}
+		}
+	}
 	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->Stop();

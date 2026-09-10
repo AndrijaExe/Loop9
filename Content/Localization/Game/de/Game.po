@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-10 15:44\n"
-"PO-Revision-Date: 2026-09-10 15:44\n"
+"POT-Creation-Date: 2026-09-10 21:44\n"
+"PO-Revision-Date: 2026-09-10 21:44\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -392,78 +392,113 @@ msgid "Still thinking..."
 msgstr "Denkt immer noch nach..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(265)
-#: Source/Loop9/AI_ChatWidget.cpp(265)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(282)
+#: Source/Loop9/AI_ChatWidget.cpp(282)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Du: "
 
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1052)
-#: Source/Loop9/AI_Friend.cpp(1052)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1054)
+#: Source/Loop9/AI_Friend.cpp(1054)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den beleuchteten Aufzug. Findest du keine Anomalie, nimm den dunklen Aufzug. Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
 
 #. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1109)
-#: Source/Loop9/AI_Friend.cpp(1109)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1111)
+#: Source/Loop9/AI_Friend.cpp(1111)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Abheben"
 
 #. Key:	ChatRingingPhoneAnswered
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1144)
-#: Source/Loop9/AI_Friend.cpp(1144)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1183)
+#: Source/Loop9/AI_Friend.cpp(1183)
 msgctxt "Loop9Chat,ChatRingingPhoneAnswered"
 msgid "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
 msgstr "...ein Klicken. Dann seine Stimme, flach und viel zu ruhig: \"Diesen hättest du nicht abnehmen sollen.\" Die Leitung bricht ab, bevor du antworten kannst."
 
+#. Key:	ChatRingingLine2
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1185)
+#: Source/Loop9/AI_Friend.cpp(1185)
+msgctxt "Loop9Chat,ChatRingingLine2"
+msgid "...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."
+msgstr "...Atmen. Nicht seins. Jemand zählt darunter, langsam, und hört bei neun auf. Dann das Freizeichen."
+
+#. Key:	ChatRingingLine3
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1187)
+#: Source/Loop9/AI_Friend.cpp(1187)
+msgctxt "Loop9Chat,ChatRingingLine3"
+msgid "...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."
+msgstr "...seine Stimme, aber älter: \"Was immer du auf dieser Etage findest, sag es mir nicht. Ich weiß es schon.\" Klick."
+
+#. Key:	ChatRingingLine4
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1189)
+#: Source/Loop9/AI_Friend.cpp(1189)
+msgctxt "Loop9Chat,ChatRingingLine4"
+msgid "...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."
+msgstr "...ein Flüstern, das fast seins ist: \"Der Aufzug war nie der einzige Weg nach unten. Manche Wände kamen erst später.\" Rauschen, dann nichts."
+
+#. Key:	ChatRingingLine5
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1191)
+#: Source/Loop9/AI_Friend.cpp(1191)
+msgctxt "Loop9Chat,ChatRingingLine5"
+msgid "...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."
+msgstr "...Schritte, die eine Treppe hinuntergehen. Dieses Gebäude hat auf dieser Etage keine Treppe. Dann eine Haustür, und Verkehr. Dann stirbt die Leitung."
+
+#. Key:	ChatRingingLine6
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1193)
+#: Source/Loop9/AI_Friend.cpp(1193)
+msgctxt "Loop9Chat,ChatRingingLine6"
+msgid "...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."
+msgstr "...\"Sieh dir die Wand an, die du nie ansiehst. Die, die immer da ist.\" Ein langer Atemzug. \"Außer wenn nicht.\" Klick."
+
 #. Key:	ChatConnectionLost
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(574)
-#: Source/Loop9/AI_Friend.cpp(574)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(576)
+#: Source/Loop9/AI_Friend.cpp(576)
 msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...die Leitung knistert und bricht ab. (Keine Verbindung. Prüfe dein Internet und versuch es erneut.)"
 
 #. Key:	ChatRateLimitedRetry
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(584)
-#: Source/Loop9/AI_Friend.cpp(584)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(586)
+#: Source/Loop9/AI_Friend.cpp(586)
 msgctxt "Loop9Chat,ChatRateLimitedRetry"
 msgid "...the line is busy. Try again in {0}s."
 msgstr "...die Leitung ist belegt. Versuch es in {0} s erneut."
 
 #. Key:	ChatServerError
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(590)
-#: Source/Loop9/AI_Friend.cpp(590)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(592)
+#: Source/Loop9/AI_Friend.cpp(592)
 msgctxt "Loop9Chat,ChatServerError"
 msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
 msgstr "...Rauschen zischt durch den Hörer. Auf der anderen Seite stimmt etwas nicht. Versuch es noch mal."
 
 #. Key:	ChatPursuerNoAnswer
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(618)
-#: Source/Loop9/AI_Friend.cpp(618)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(620)
+#: Source/Loop9/AI_Friend.cpp(620)
 msgctxt "Loop9Chat,ChatPursuerNoAnswer"
 msgid "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
 msgstr "...die Leitung geht auf. Niemand spricht. Das Atmen, das du hörst, kommt nicht aus dem Hörer."
 
 #. Key:	ChatLineCutAfterRing
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(634)
-#: Source/Loop9/AI_Friend.cpp(634)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(636)
+#: Source/Loop9/AI_Friend.cpp(636)
 msgctxt "Loop9Chat,ChatLineCutAfterRing"
 msgid "...static, then a steady tone. Whatever you picked up earlier took the line with it. Nothing gets through on this floor."
 msgstr "...Rauschen, dann ein Dauerton. Was du vorhin abgenommen hast, hat die Leitung mitgenommen. Auf dieser Etage kommt nichts durch."
 
 #. Key:	ChatMessageTooLong
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(648)
-#: Source/Loop9/AI_Friend.cpp(648)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(650)
+#: Source/Loop9/AI_Friend.cpp(650)
 msgctxt "Loop9Chat,ChatMessageTooLong"
 msgid "...he cuts you off. Keep it shorter."
 msgstr "...er unterbricht dich. Mach es kürzer."
 
 #. Key:	LowSignalReply
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(680)
-#: Source/Loop9/AI_Friend.cpp(680)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(682)
+#: Source/Loop9/AI_Friend.cpp(682)
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
 msgstr "Schwaches Signal. Versuch es später noch mal."
@@ -595,22 +630,22 @@ msgid "Examine"
 msgstr "Untersuchen"
 
 #. Key:	LiftEnterCabinFirst
-#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(226)
-#: Source/Loop9/Interaction/LiftButton.cpp(226)
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(240)
+#: Source/Loop9/Interaction/LiftButton.cpp(240)
 msgctxt "Loop9Interaction,LiftEnterCabinFirst"
 msgid "Enter the elevator first"
 msgstr "Steig zuerst in den Aufzug"
 
 #. Key:	LiftRestart
-#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(235)
-#: Source/Loop9/Interaction/LiftButton.cpp(235)
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(249)
+#: Source/Loop9/Interaction/LiftButton.cpp(249)
 msgctxt "Loop9Interaction,LiftRestart"
 msgid "Restart loop"
 msgstr "Schleife neu starten"
 
 #. Key:	LiftNext
-#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(236)
-#: Source/Loop9/Interaction/LiftButton.cpp(236)
+#. SourceLocation:	Source/Loop9/Interaction/LiftButton.cpp(250)
+#: Source/Loop9/Interaction/LiftButton.cpp(250)
 msgctxt "Loop9Interaction,LiftNext"
 msgid "Next floor"
 msgstr "Nächste Etage"

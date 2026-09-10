@@ -78,8 +78,14 @@ work, one compile, GatherText, a cook and live QA — see
   chair crossing the visibility trace — is neither a look-away nor a restart of
   the stare timer.
   First sight logs `object_inspected` / `figure_back_turned` to the journal.
-- No Steam spot achievement (same as `LoopNumber`); `ACH_SPOT_ALL` stays at 9.
-  Debug: `Anomaly Watcher` / `Figure` / `BackTurned` filters work.
+- Spot achievement `ACH_SPOT_WATCHER` (hidden); he counts toward `ACH_SPOT_ALL`,
+  which needs 12 types from 1.1. Debug: `Anomaly Watcher` / `Figure` /
+  `BackTurned` filters work.
+- **Contact** (added 10.09.): sprinting into him (approach speed above
+  `ContactApproachSpeed`, 420 cm/s, when he is within `VanishDistance`) plays a
+  0.7 s full-screen signal burst (`PlaySignalBurst`), puts the floor in the dark
+  for `ContactBlackoutSeconds` (5 s) and unlocks `ACH_TOO_CLOSE`. He is gone
+  when the picture comes back. Walking up slowly still just makes him vanish.
 
 ## 5. Secret ending — "Loop 1" — how it works
 
@@ -111,6 +117,43 @@ work, one compile, GatherText, a cook and live QA — see
   it off.
 - Debug: `EndingSetup TheExit` (or `6`) arms the door on the current floor and
   skips the wall check (non-shipping only).
+
+## 6. The ringing phone owns the floor — how it works
+
+- `ULoop9RingingFloorSubsystem` (world subsystem, nothing to place) starts when
+  an answerable `AudioAnomaly` on an `AI_Friend` activates. It waits for the
+  lit lift's doors to finish opening and for the player to be
+  `LiftExitDistanceCm` (230) from `LitElevatorArrivalPoint`, then closes the
+  director's `ArrivalDoorWings`, marks the lit lift held (the lit `ALiftButton`
+  refuses presses) and blacks out the floor through `ULoop9LightsSubsystem`,
+  keeping only the world light nearest the phone (`PhoneLampSearchRadiusCm`,
+  600). Pawn lights (flashlight) and lift-button indicators are never touched.
+- Picking up: `AAI_Friend::AnswerRingingAnomaly` shows one of six lines at
+  random (`PickRingingPhoneLine`), read-only (`UAI_ChatWidget::SetInputLocked`);
+  the last three point at the wall / stairs / street door of The Exit without
+  saying where. Unlocks `ACH_WRONG_NUMBER`. The line stays cut for the floor as
+  before.
+- Closing the chat (`CloseChatWidget` with `bRingingMessagePending`) restores
+  the lights and reopens the lit lift. The dark lift is never held, so a player
+  who refuses to answer can still take the wrong lift. `MaxHoldSeconds` (240)
+  is the safety net; a loop change (`GenerateAnomalyForNextLoop`) restores the
+  lights and the audio component's reset ends the beat.
+- Editor: nothing new beyond section 2, but check that each ringing phone has a
+  lamp within 6 m, or the floor goes fully dark (logged as a warning).
+
+## 7. Creep — an object that moves while you watch
+
+- `UCreepAnomalyComponent` (type `Creep`, label `CreepAnomaly`, weight 1.0) on
+  the object itself. Starts at the normal spot on activation and drifts at
+  `CreepSpeedCmPerSecond` (1.0) toward a tagged `AAnomalyMovePoint`
+  (`CreepTargetTag`) or `CreepOffset` (60 cm sideways in the object's axes),
+  then stops. `bPauseWhileObserved` (off) only moves it when unseen. Under 5 cm
+  of travel is refused like a Move onto its own spot.
+- `AnomalyObjectKind` default "an object that is slowly moving on its own".
+  Spot achievement `ACH_SPOT_CREEP`. Debug: `AnomalyCreep`, filters `Creep` /
+  `Drift` / `SlowMove`.
+- Backend `develop` needs the `CreepAnomaly` label in the prompt taxonomy
+  (same edit as Watcher/LoopNumber).
 
 ## Editor tasks (Andrija)
 
@@ -156,7 +199,18 @@ Nothing below needs C++; everything is content on `develop`.
 8. **Steamworks:** create `ACH_ENDING_THE_EXIT` (hidden, "The Exit — You never
    needed the lift."), change `ACH_ALL_ENDINGS` description to "See every
    ending.", publish. `DefaultEngine.ini` already lists `Achievement_28_Id`.
-9. **Render (backend `develop` → deploy to a staging service or the live one):**
+9. **Creep:** put `CreepAnomalyComponent` on 3-4 small movable props (a vase,
+   a mug, a framed photo) with `CreepOffset` pointing along the desk or shelf,
+   or drop tagged `AnomalyMovePoint`s and set `CreepTargetTag`. Give each an
+   `AnomalyZone`. Check the owner's mobility is Movable (the component forces
+   it, but a static-lit mesh will lose its baked shadow).
+10. **Ringing phones:** for every `AI_Friend` that has an `AudioAnomaly`, make
+   sure a light actor sits within 6 m; that is the lamp that stays on.
+11. **Achievement icons:** author `ACH_SPOT_WATCHER_on`, `ACH_SPOT_CREEP_on`,
+   `ACH_WRONG_NUMBER_on`, `ACH_TOO_CLOSE_on` (256x256) in
+   `Marketing/Steam/Achievements`, then `py -3 Tools/make_achievement_off_icons.py`
+   for the locked variants.
+12. **Render (backend `develop` → deploy to a staging service or the live one):**
    `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`, `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`,
    `AI_RUN_HISTORY_ENABLED=true`. Both are inert for v1.0.5 clients.
 
@@ -178,6 +232,16 @@ Nothing below needs C++; everything is content on `develop`.
   command, the door must refuse while the wall is present, and also with the
   wall present but a different Hide anomaly forced (`AnomalyForce <other>`).
   `ACH_PERFECT_RUN` must **not** toast on this ending; `ACH_SILENT_RUN` may.
+- Watcher contact: `AnomalyWatcher`, sprint straight at him. Screen breaks up
+  for under a second, every light goes out for 5 s, he is gone, `ACH_TOO_CLOSE`
+  toast. Walk at him slowly on another floor: plain vanish, no burst.
+- Ringing floor: `AnomalyPhone` before leaving the lift. Step out → lit doors
+  close, floor dark except one lamp by the phone, lit button does nothing.
+  Answer → line shown, nothing can be typed, `ACH_WRONG_NUMBER` toast. Close
+  chat → lights back, lit lift opens. Dark lift stays usable throughout. Repeat
+  a few times to see different lines.
+- Creep: `AnomalyCreep`, watch a vase for a minute; it should have moved a
+  hand's width. Lit lift → correct, `ACH_SPOT_CREEP`.
 - Regression: all six original endings via `EndingSetup 0–5`, Pursuer dead
   line, `run_history` recognition on a second run.
 

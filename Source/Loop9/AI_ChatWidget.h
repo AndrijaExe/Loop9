@@ -46,6 +46,10 @@ public:
 	void ShowThinkingIndicator();
 	void HideThinkingIndicator();
 
+	/** 1.1: read-only chat â the line is shown, nothing can be typed. Cleared by the next unlock. */
+	void SetInputLocked(bool bLocked);
+	bool IsInputLocked() const { return bInputLocked; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	bool bUseTypewriterForAI = true;
 
@@ -87,6 +91,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI Chat")
 	void ClearChat();
+
+	bool bInputLocked = false;
 
 private:
 	UFUNCTION()

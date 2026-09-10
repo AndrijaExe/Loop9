@@ -97,6 +97,11 @@ Achievement_26_Id=ACH_SPOT_LOOPNUMBER
 Achievement_27_Id=ACH_SPOT_ALL
 ; 1.1 (develop): secret ending. Must exist in Steamworks before the 1.1 build ships.
 Achievement_28_Id=ACH_ENDING_THE_EXIT
+; 1.1 (develop): Watcher and Creep spot achievements, the ringing phone, and walking into the figure.
+Achievement_29_Id=ACH_SPOT_WATCHER
+Achievement_30_Id=ACH_SPOT_CREEP
+Achievement_31_Id=ACH_WRONG_NUMBER
+Achievement_32_Id=ACH_TOO_CLOSE
 
 [/Script/Engine.GameEngine]
 +NetDriverDefinitions=(DefName="GameNetDriver",DriverClassName="OnlineSubsystemSteam.SteamNetDriver",DriverClassNameFallback="OnlineSubsystemUtils.IpNetDriver")

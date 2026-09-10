@@ -818,11 +818,14 @@ nije `[x]`. Detalji koda i editor koraci:
   ne nađu i The Exit; to je namerno.
 - [ ] **Publish** Stats & Achievements posle izmene (bez publish-a promena ne
   postoji za klijent).
-- [ ] **Ne dodavati** spot achievement za `WatcherAnomaly` — odluka 08.09.:
-  Watcher i `LoopNumber` se broje na liftu, ali ne ulaze u `ACH_SPOT_ALL`
-  (ostaje 10 tipova; `LoopNumber` je ušao u v1.0.6). Ako se predomisliš: jedna linija u `SpotAchievementId`,
-  `SpotAllAnomalyTypeCount = 11`, novi `ACH_SPOT_WATCHER` u Steamworksu +
-  `Achievement_29_Id` u configu.
+- [ ] **Četiri nova achievementa (10.09.)** — uneti, ikonice, **Publish**:
+  `ACH_SPOT_WATCHER` (Don't Turn Around, hidden), `ACH_SPOT_CREEP` (It Was Not
+  There a Minute Ago), `ACH_WRONG_NUMBER` (Wrong Number, hidden),
+  `ACH_TOO_CLOSE` (Too Close, hidden). Tekstovi u `STEAM_ACHIEVEMENTS.md`
+  #30-33; u configu su `Achievement_29..32_Id`. Odluka od 08.09. („Watcher bez
+  spot achievementa") je povučena 10.09.: Watcher i Creep ulaze u
+  `ACH_SPOT_ALL`, koji sad traži **12** tipova (`SpotAllAnomalyTypeCount = 12`).
+  Ako Almanac ima progress stat, max 10 → 12.
 - [ ] Store: nema novih store asseta; ako želiš, jedna rečenica u „What's
   new“ / patch notes o novoj anomaliji i „nečemu iza zida“ bez spojlera
   endinga.
@@ -846,6 +849,12 @@ nije `[x]`. Detalji koda i editor koraci:
   nađe i pushovati.
 - [ ] `AudioAnomaly` komponenta na 2–3 `AI_Friend` telefona (zvono, looping,
   zone tag).
+- [ ] Pored svakog telefona koji zvoni jedna lampa u krugu od 6 m (ostaje
+  upaljena dok je sprat u mraku; bez nje sprat je potpuno crn, log upozorava).
+- [ ] `CreepAnomalyComponent` na 3-4 sitna props-a (vaza, šolja, ram) sa
+  `CreepOffset` duž stola ili tagovanim `AnomalyMovePoint`-ima; `AnomalyZone`.
+- [ ] Ikonice za 4 nova achievementa (`*_on.png` 256x256 u
+  `Marketing/Steam/Achievements`, pa `py -3 Tools/make_achievement_off_icons.py`).
 - [ ] `BP_WatcherFigure` + 3–4 anchor aktora sa `WatcherAnomaly`.
 - [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
   `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.

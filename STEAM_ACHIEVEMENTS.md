@@ -11,7 +11,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
   poruke Dragojlu, loopove, endinge) i šalje unlock Steamu — prvo direktnim
   Steamworks pozivom (`SetAchievement` + `StoreStats`), pa ako to ne prođe,
   preko Online Subsystem-a sa retry redom.
-- **Svih 28 imena mora da stoji i u `Config/DefaultEngine.ini`** pod
+- **Svih 33 imena mora da stoji i u `Config/DefaultEngine.ini`** pod
   `[OnlineSubsystemSteam]` kao `Achievement_N_Id=IME` (redom od 0, bez
   navodnika). Online Subsystem odbija svaki read i write ako tog bloka nema.
   Simptom je bio da se vidi samo progress toast, a unlock nikad ne padne, jer
@@ -33,7 +33,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
 
 ---
 
-## Lista achievementa (28)
+## Lista achievementa (33)
 
 Kolona "Hidden" = označi kao skriven u Steamworks-u (spoiler). Predlozi imena i
 opisa su na engleskom (Steam prikazuje lokalizaciju kasnije ako je dodaš).
@@ -106,14 +106,29 @@ odluka dok je aktivna repeat anomalija.
 | 26 | `ACH_SPOT_PHANTOM` | I Never Sent That | Correctly call out a message you never sent. | DA |
 | 27 | `ACH_SPOT_LOOPNUMBER` | Lost Count | Correctly call out a flickering loop counter. | NE |
 | 28 | `ACH_SPOT_ALL` | Anomaly Almanac | Correctly call out every type of anomaly. | NE |
+| 30 | `ACH_SPOT_WATCHER` | Don't Turn Around | Correctly call out the man with his back turned. | DA |
+| 31 | `ACH_SPOT_CREEP` | It Was Not There a Minute Ago | Correctly call out an object that is slowly moving. | NE |
 
-**Uslov u kodu:** 18–27 — tačna odluka (lit elevator) dok je aktivna anomalija
-tog tipa; 28 — svih 10 tipova uočeno (kumulativno kroz prolaze, persistovano).
-`ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju. `LoopNumber` je
-treperenje / `?` na brojaču petlje (od v1.0.6); igrači koji su već imali
-Anomaly Almanac na 9 tipova treba da uoče i ovaj da bi progress bio 10/10,
-Steam unlock ostaje ako je već pao. 1.1 `Watcher` (figura okrenuta leđima) se
-broji na liftu, ali nema spot achievement i ne ulazi u `ACH_SPOT_ALL`.
+**Uslov u kodu:** 18–27, 30, 31 — tačna odluka (lit elevator) dok je aktivna
+anomalija tog tipa; 28 — svih 12 tipova uočeno (kumulativno kroz prolaze,
+persistovano). `ACH_SPOT_PHANTOM` i `ACH_SPOT_WATCHER` su hidden jer bi opis
+spojlovao anomaliju. `LoopNumber` je treperenje / `?` na brojaču petlje (od
+v1.0.6). **1.1:** `Watcher` (figura okrenuta leđima) i `Creep` (objekat koji
+puzi ~1 cm/s) dobijaju spot achievement (#30, #31) i ulaze u `ACH_SPOT_ALL`,
+koji od 1.1 traži 12 tipova. Igrači sa Almanac 10/10 moraju da uoče i ova dva;
+Steam unlock ostaje ako je već pao.
+
+### Događaji (1.1)
+
+| # | API name | Display name | Description | Hidden |
+|---|---|---|---|---|
+| 32 | `ACH_WRONG_NUMBER` | Wrong Number | Pick up a phone that was never meant for you. | DA |
+| 33 | `ACH_TOO_CLOSE` | Too Close | Run into the man with his back turned. | DA |
+
+**Uslov u kodu:** 32 — igrač se javi na telefon koji zvoni kao anomalija
+(`AAI_Friend::AnswerRingingAnomaly`); 33 — igrač utrči u Watcher figuru
+(`UWatcherAnomalyComponent::Contact`, prilaz brži od `ContactApproachSpeed`).
+Oba su hidden: opis bi rekao šta se dešava na spratu.
 
 ---
 

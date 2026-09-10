@@ -1,6 +1,10 @@
 #include "Anomaly/WatcherAnomalyComponent.h"
 
 #include "Camera/PlayerCameraManager.h"
+#include "Controllers/Loop9PlayerController.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9LightsSubsystem.h"
 #include "CollisionQueryParams.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -109,6 +113,14 @@ void UWatcherAnomalyComponent::Poll()
 	const float Distance = FVector::Dist(PlayerPawn->GetActorLocation(), SpawnedFigure->GetActorLocation());
 	if (Distance <= VanishDistance)
 	{
+		// Coming at him fast is a collision, not a look: a different exit.
+		const FVector ToFigure = (SpawnedFigure->GetActorLocation() - PlayerPawn->GetActorLocation()).GetSafeNormal2D();
+		const float ApproachSpeed = static_cast<float>(FVector::DotProduct(PlayerPawn->GetVelocity(), ToFigure));
+		if (ContactApproachSpeed > 0.0f && ApproachSpeed >= ContactApproachSpeed)
+		{
+			Contact(PlayerPawn);
+			return;
+		}
 		Vanish(TEXT("player too close"));
 		return;
 	}
@@ -193,6 +205,40 @@ void UWatcherAnomalyComponent::Vanish(const TCHAR* Reason)
 	UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: figure vanished (%s)"), Reason);
 	// The floor stays "wrong" — bIsAnomalyActive is untouched, only the manifestation leaves.
 	DestroyFigure();
+}
+
+void UWatcherAnomalyComponent::Contact(const APawn* PlayerPawn)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		Vanish(TEXT("contact"));
+		return;
+	}
+
+	// Burst first so the frame he disappears on is already unreadable.
+	if (ALoop9PlayerController* PC = Cast<ALoop9PlayerController>(UGameplayStatics::GetPlayerController(World, 0)))
+	{
+		PC->PlaySignalBurst(ContactBurstSeconds);
+	}
+
+	if (bBlackoutOnContact)
+	{
+		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+		{
+			Lights->BlackoutForSeconds(ContactBlackoutSeconds, TArray<ULightComponent*>());
+		}
+	}
+
+	if (UGameInstance* GameInstance = World->GetGameInstance())
+	{
+		if (ULoop9AchievementsSubsystem* Achievements = GameInstance->GetSubsystem<ULoop9AchievementsSubsystem>())
+		{
+			Achievements->UnlockAchievement(FName(TEXT("ACH_TOO_CLOSE")));
+		}
+	}
+
+	Vanish(TEXT("contact"));
 }
 
 void UWatcherAnomalyComponent::DestroyFigure()

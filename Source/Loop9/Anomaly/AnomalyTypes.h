@@ -18,6 +18,8 @@ enum class ELoopAnomalyType : uint8
 	LoopNumber UMETA(DisplayName = "Loop Number"),
 	/** 1.1: a figure standing with its back turned; never moves, vanishes when approached or looked at twice. */
 	Watcher UMETA(DisplayName = "Watcher"),
+	/** 1.1: an object that drifts a centimetre a second while the player is on the floor. */
+	Creep UMETA(DisplayName = "Creep"),
 };
 
 inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
@@ -34,6 +36,7 @@ inline TArray<ELoopAnomalyType> AllLoopAnomalyTypes()
 		ELoopAnomalyType::PhantomMessage,
 		ELoopAnomalyType::LoopNumber,
 		ELoopAnomalyType::Watcher,
+		ELoopAnomalyType::Creep,
 	};
 }
 
@@ -52,6 +55,7 @@ inline FName GetLoopAnomalyTypeLabel(ELoopAnomalyType Type)
 	case ELoopAnomalyType::PhantomMessage: return TEXT("PhantomMessageAnomaly");
 	case ELoopAnomalyType::LoopNumber: return TEXT("LoopNumberAnomaly");
 	case ELoopAnomalyType::Watcher: return TEXT("WatcherAnomaly");
+	case ELoopAnomalyType::Creep: return TEXT("CreepAnomaly");
 	default: return TEXT("UnknownAnomaly");
 	}
 }
