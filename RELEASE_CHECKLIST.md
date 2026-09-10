@@ -33,7 +33,10 @@ Steam App ID: **4982260**
 > - [ ] Monitoring alarm na `chat.denied.global` i `abuse.watch` (metrike već
 >   postoje na `/metrics`). Ako launch dan probije 5000 legitimnih chatova,
 >   igrači dobijaju „Service is at capacity“ — tada se diže
->   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred.
+>   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred. **Kod je u
+>   `ProjectMonitoring` (10.09., lokalni commit, mail sadrži i savet).** Ostaje
+>   ručno: push + na `monitoring-api` Render env `ALERT_RATE_PER_HOUR` dodati
+>   `chat.denied.global=0` (`abuse.watch=0` već stoji).
 > - [ ] **1.1 (`develop`) — Steamworks + Render + editor:** vidi §10 dole
 >   (`ACH_ENDING_THE_EXIT`, opis `ACH_ALL_ENDINGS`, tri env ključa, cook).
 
@@ -857,9 +860,11 @@ nije `[x]`. Detalji koda i editor koraci:
   `docs/UNREAL_MCP_THE_EXIT_HANDOFF.md`. MCP server u editoru:
   `ModelContextProtocol.StartServer` (port 8000, `/mcp`). Kućna mašina je
   Windows.
-- [ ] **GatherText** (novi ključevi: `ChatRingingPhoneAnswered`,
-  `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
-  prevodi su već u `.po`), compile texts, pa cook u **novi** `Builds/v1.1.0`.
+- [x] **GatherText** + compile texts urađeno 10.09. na `develop` (novi ključevi
+  `ChatRingingPhoneAnswered`, `ChatLineCutAfterRing`, `OpenStreetDoor`,
+  `TheExitTitle`, `TheExitDesc`, plus `ChatPursuerNoAnswer` koji je v1.0.6
+  kuvao bez prevoda). Ponoviti GatherText samo ako se dodaju novi ključevi
+  posle editor rada. Cook ide u **novi** `Builds/v1.1.0`.
 - [ ] Cook na playtest granu (isti tok kao `valvereview`), QA po
   `docs/ROADMAP_1_1.md` → „QA pass for the 1.1 cook“ (uključuje regresiju
   svih šest starih endinga i Pursuer mrtve linije).
