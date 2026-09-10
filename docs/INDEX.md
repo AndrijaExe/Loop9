@@ -18,6 +18,7 @@ Cross-repo index (sibling folder): [`../../../DOCUMENTATION.md`](../../../DOCUME
 | [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) | Map/Blueprint wiring and safe extension workflows |
 | [CINEMATICS_AND_AUDIO.md](CINEMATICS_AND_AUDIO.md) | Elevator C++ transition, ending sequences, audio hooks |
 | [UNREAL_MCP_ENDING_SCENES_HANDOFF.md](UNREAL_MCP_ENDING_SCENES_HANDOFF.md) | Exact MCP task brief for polishing all six ending mini-scenes |
+| [UNREAL_MCP_THE_EXIT_HANDOFF.md](UNREAL_MCP_THE_EXIT_HANDOFF.md) | MCP task brief for the 1.1 `LS_TheExit` cutscene (camera/lights/audio; geometry is hand work) |
 | [HOME_EDITOR_TIMELINE_AND_ARCHIVE.md](HOME_EDITOR_TIMELINE_AND_ARCHIVE.md) | MCP brief: ending timeline, Archive button, Timeline art |
 | [AI_AND_BACKEND_INTEGRATION.md](AI_AND_BACKEND_INTEGRATION.md) | Auth, chat, telemetry, timeouts, thinking UI |
 | [LOCALIZATION.md](LOCALIZATION.md) | Five-language GatherText / PO / locres workflow |

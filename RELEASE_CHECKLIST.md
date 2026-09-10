@@ -839,7 +839,10 @@ nije `[x]`. Detalji koda i editor koraci:
 - [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
   `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.
 - [ ] `LS_TheExit` cutscena → `BP_Loop9GameMode → EndingSequences → TheExit`
-  (fallback fade → karta radi bez nje).
+  (fallback fade → karta radi bez nje). Podela: Andrija geometrija (zid,
+  stepenište, prizemlje, ulica, kuća, prop „Loop 1“), agent kamera/svetla/zvuk
+  kroz Unreal MCP — brief: `docs/UNREAL_MCP_THE_EXIT_HANDOFF.md`. MCP server u
+  editoru: `ModelContextProtocol.StartServer` (port 8000, `/mcp`).
 - [ ] **GatherText** (novi ključevi: `ChatRingingPhoneAnswered`,
   `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
   prevodi su već u `.po`), compile texts, pa cook u **novi** `Builds/v1.1.0`.

@@ -133,7 +133,10 @@ Nothing below needs C++; everything is content on `develop`.
 5. **Cutscene:** author `LS_TheExit` (fade from black, exterior walk on rails,
    house door, interior, close-up on the prop reading **Loop 1**, cut). Assign
    it in `BP_Loop9GameMode → EndingSequences → TheExit`. Until then the fade →
-   card path is the fallback and is fine for QA.
+   card path is the fallback and is fine for QA. Geometry is hand work; the
+   Sequencer part is an MCP agent task — brief in
+   [UNREAL_MCP_THE_EXIT_HANDOFF.md](UNREAL_MCP_THE_EXIT_HANDOFF.md). The
+   exterior and the house must live in `FullOfficeMap` (no level travel).
 6. **Localization:** run GatherText (new keys: `ChatRingingPhoneAnswered`,
    `ChatLineCutAfterRing`, `OpenStreetDoor`, `TheExitTitle`, `TheExitDesc`;
    translations are already in the `.po` files), then compile texts.
