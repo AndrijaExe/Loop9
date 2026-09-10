@@ -155,7 +155,7 @@ Nothing below needs C++; everything is content on `develop`.
    translations are already in the `.po` files), then compile texts.
 8. **Steamworks:** create `ACH_ENDING_THE_EXIT` (hidden, "The Exit — You never
    needed the lift."), change `ACH_ALL_ENDINGS` description to "See every
-   ending.", publish. `DefaultEngine.ini` already lists `Achievement_27_Id`.
+   ending.", publish. `DefaultEngine.ini` already lists `Achievement_28_Id`.
 9. **Render (backend `develop` → deploy to a staging service or the live one):**
    `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`, `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`,
    `AI_RUN_HISTORY_ENABLED=true`. Both are inert for v1.0.5 clients.

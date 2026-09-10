@@ -36,7 +36,7 @@ Release status remains authoritative in [`../RELEASE_CHECKLIST.md`](../RELEASE_C
 - [ ] Steam ticket auth succeeds (`POST /api/auth/steam`).
 - [ ] Chat uses `X-Session-Token`.
 - [ ] At least one achievement from each group unlocks.
-- [ ] `ACH_SPOT_ALL` still expects nine anomaly types.
+- [ ] `ACH_SPOT_ALL` expects ten anomaly types (`LoopNumber` counts since v1.0.6; the 1.1 `Watcher` does not).
 - [ ] Steam Cloud syncs intended config files.
 - [ ] Shipping build contains no `steam_appid.txt`, game token, or editor-only content.
 

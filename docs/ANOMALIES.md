@@ -1,6 +1,6 @@
 # Anomalies
 
-Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly. `ACH_SPOT_ALL` still tracks the original nine floor-search types; `LoopNumber` counts for the elevator and for Dragojlo, but has no `ACH_SPOT_*`.
+Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly. `ACH_SPOT_ALL` tracks all ten, including `LoopNumber` (`ACH_SPOT_LOOPNUMBER`).
 
 ## Types
 
@@ -208,4 +208,4 @@ Filter notes:
 
 ## Achievements tied to anomalies
 
-Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all nine original types across runs (persisted). `LoopNumber` is a tenth elevator-counted type without a Steam spot achievement; the 1.1 `Watcher` is an eleventh, also without one. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).
+Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all ten types across runs (persisted), including `LoopNumber` (since v1.0.6). The 1.1 `Watcher` is an eleventh elevator-counted type without a Steam spot achievement. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).

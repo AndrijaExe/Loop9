@@ -23,7 +23,8 @@ namespace
 	constexpr int32 HalfwayLoopIndex = 5;
 	// Seven since 1.1 (The Exit). ACH_ALL_ENDINGS therefore needs the secret one too.
 	constexpr int32 EndingTypeCount = 7;
-	constexpr int32 SpotAllAnomalyTypeCount = 9;
+	// Ten since v1.0.6 (LoopNumber). The 1.1 Watcher has no spot achievement and stays out.
+	constexpr int32 SpotAllAnomalyTypeCount = 10;
 
 	// Section and keys live in Loop9CloudSaveFormat, together with the list the
 	// file is rewritten from; add a key there, not here.
@@ -225,6 +226,7 @@ FName ULoop9AchievementsSubsystem::SpotAchievementId(const FString& AnomalyTypeL
 	if (AnomalyTypeLabel == TEXT("PursuerAnomaly")) { return FName(TEXT("ACH_SPOT_PURSUER")); }
 	if (AnomalyTypeLabel == TEXT("ScaleAnomaly")) { return FName(TEXT("ACH_SPOT_SCALE")); }
 	if (AnomalyTypeLabel == TEXT("PhantomMessageAnomaly")) { return FName(TEXT("ACH_SPOT_PHANTOM")); }
+	if (AnomalyTypeLabel == TEXT("LoopNumberAnomaly")) { return FName(TEXT("ACH_SPOT_LOOPNUMBER")); }
 	return NAME_None;
 }
 

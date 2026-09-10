@@ -1,29 +1,33 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **08.09.2026.**
+Poslednje ažuriranje: **10.09.2026.**
 Steam App ID: **4982260**
 
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
 > Valve dozvoljava od **četvrtka 10.09.** Release day je **petak 11.09.2026.**
-> (vikend za hotfix ako zatreba). Feature freeze do tada. Kandidat **v1.0.5**
-> (vrata / pursuer bed / flicker 8 m). Live/default je još **`25008533`**.
-> `valvereview` lozinka promenjena 07.09.
+> Default je **v1.0.5** (`25175593`, Set Live 09.09.). **v1.0.6**
+> (`ACH_SPOT_LOOPNUMBER` — treperenje brojača petlje, Almanac 10/10) kuvan
+> 09.09. i uploadovan na Steamworks 10.09. — release kandidat za petak.
+> `main` = v1.0.6. `valvereview` lozinka promenjena 07.09.
 >
 > **Ostalo pre 11.09.:**
-> 1. Library QA na Steam playtest v1.0.5. Set Live na default ide u petak
->    sa store release-om, ne ranije.
-> 2. Zone / Dragojlo location: Andrija hoće još jedan live prolaz da čuje
->    kako AI rezonuje (vidi §6). Nije petak-bloker ako ostalo drži.
+> 1. ~~Steamworks: `ACH_SPOT_LOOPNUMBER` (Lost Count) + Publish.~~ Urađeno 10.09.
+> 2. ~~Cook/upload **v1.0.6**.~~ Urađeno. Set Live na **default** u petak sa
+>    store release-om, ne ranije.
 > 3. Release day §8 u petak. Creator Homepage nije bloker.
 >
 > **Andrija — ručne stavke od 08.09. (ništa od ovoga nije u kodu):**
+> - [x] **Steamworks (pre v1.0.6 uploada, urađeno 10.09.):** New Achievement
+>   `ACH_SPOT_LOOPNUMBER` — Display **Lost Count**, Description **Correctly
+>   call out a flickering loop counter.** Hidden = No. Save + **Publish**.
+>   Ako Almanac ima progress stat, max 9 → 10.
 > - [ ] Render env: dodaj `AI_COMMITMENT_WRONG_LIFT_CHANCE=0.5` (backend je
 >   deployovan; bez ključa važi `.env` = 0.5, radi i bez toga).
 > - [ ] **OpenAI / provider nalog: postavi tvrdi mesečni spend limit.** Kod
 >   ograničava broj zahteva (5000/dan globalno), ne dolare — ovo je poslednja
 >   brana i jedina koju repo ne može da uradi za tebe.
-> - [ ] Odluči: v1.0.6 pre petka (Pursuer mrtva linija + poruka ≤1000 znakova)
->   ili prvi patch posle launcha. Ako kuvaš: **GatherText** pa cook.
+> - [x] ~~Odluči: v1.0.6 pre petka ili prvi patch posle launcha.~~ v1.0.6 je
+>   kuvan (Pursuer mrtva linija + poruka ≤1000 znakova + Lost Count).
 > - [ ] Ako kuvaš v1.0.6: Standalone QA Pursuer linije (§6) i jedan run da
 >   chat radi normalno na sledećem spratu.
 > - [ ] Monitoring alarm na `chat.denied.global` i `abuse.watch` (metrike već
@@ -402,7 +406,7 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
   pod `[OnlineSubsystemSteam]` kao `Achievement_N_Id=...`. Tog bloka nije bilo,
   pa je `QueryAchievements` padao, `bCacheReady` nikad nije postao `true` i
   `FlushPendingUnlocks` se nikad nije ni pozvao. Popravka je dvostruka:
-  svih 27 imena je upisano u config (redom od 0, bez navodnika), a
+  svih 28 imena je upisano u config (redom od 0, bez navodnika), a
   `UnlockAchievement` sada prvo zove Steamworks direktno
   (`SetAchievement` + `StoreStats`), pa tek onda pada na subsystem. Direktan
   put ne traži ni keširanu listu ni online identitet, pa radi i ako engine
@@ -412,7 +416,7 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
 
 - [x] **Arhiva se sama popravlja (25.08.2026.):** `GetSeenEndingIds` i
   `RecordSpottedAnomalies` više ne čitaju samo `Game.ini`, nego ga spajaju sa
-  onim što Steam drži za šest `ACH_ENDING_*` i devet `ACH_SPOT_*`. Isti podatak,
+  onim što Steam drži za šest `ACH_ENDING_*` i deset `ACH_SPOT_*`. Isti podatak,
   dva izvora: Steam preživi izgubljen ili Cloudom pregažen fajl, a fajl radi
   offline i bez Steama, gde Steam ne vraća ništa. Promašaj sa Steama se nikad ne
   čita kao „nije otključano“, pa nema lažnog brisanja. Spojena lista se upiše
@@ -801,7 +805,7 @@ nije `[x]`. Detalji koda i editor koraci:
 - [ ] **Novi achievement `ACH_ENDING_THE_EXIT`.** Display name „The Exit“,
   opis „You never needed the lift.“, **hidden = da** (spojler). Ikonice:
   achieved + locked (isti stil kao ostalih šest endinga). U kodu je već
-  `Achievement_27_Id=ACH_ENDING_THE_EXIT` u `DefaultEngine.ini` i mapiranje u
+  `Achievement_28_Id=ACH_ENDING_THE_EXIT` u `DefaultEngine.ini` i mapiranje u
   `ULoop9AchievementsSubsystem::EndingAchievementId`. Ako ime u Steamworksu ne
   postoji do slova, `SetAchievement` tiho ne uspeva **za ceo blok**, ne samo
   za taj jedan — ovo je bloker za 1.1 cook na playtestu, ne samo za default.
@@ -813,9 +817,9 @@ nije `[x]`. Detalji koda i editor koraci:
   postoji za klijent).
 - [ ] **Ne dodavati** spot achievement za `WatcherAnomaly` — odluka 08.09.:
   Watcher i `LoopNumber` se broje na liftu, ali ne ulaze u `ACH_SPOT_ALL`
-  (ostaje 9 tipova). Ako se predomisliš: jedna linija u `SpotAchievementId`,
-  `SpotAllAnomalyTypeCount = 10`, novi `ACH_SPOT_WATCHER` u Steamworksu +
-  `Achievement_28_Id` u configu.
+  (ostaje 10 tipova; `LoopNumber` je ušao u v1.0.6). Ako se predomisliš: jedna linija u `SpotAchievementId`,
+  `SpotAllAnomalyTypeCount = 11`, novi `ACH_SPOT_WATCHER` u Steamworksu +
+  `Achievement_29_Id` u configu.
 - [ ] Store: nema novih store asseta; ako želiš, jedna rečenica u „What's
   new“ / patch notes o novoj anomaliji i „nečemu iza zida“ bez spojlera
   endinga.
