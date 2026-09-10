@@ -240,6 +240,11 @@ Nothing below needs C++; everything is content on `develop`.
   Answer → line shown, nothing can be typed, `ACH_WRONG_NUMBER` toast. Close
   chat → lights back, lit lift opens. Dark lift stays usable throughout. Repeat
   a few times to see different lines.
+- Text swaps: `AnomalyForce I01`, `AnomalyMaterial`, `AnomalyForce D01`, `AnomalyForce F01`.
+  Newspaper headline column reads the words as the paper's own headline, PC
+  magazine back cover shows a "next issue" teaser, the manual's monitor a CRT
+  prompt, the HTML book its own title block. No sticker look anywhere; run
+  `AnomalyAuditMaterials` once on the loaded floor.
 - Creep: `AnomalyCreep`, watch a vase for a minute; it should have moved a
   hand's width. Lit lift → correct, `ACH_SPOT_CREEP`.
 - Regression: all six original endings via `EndingSetup 0–5`, Pursuer dead

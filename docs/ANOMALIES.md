@@ -61,6 +61,26 @@ the chat restores the lights and reopens the lit lift. The dark lift is never
 held. `MaxHoldSeconds` (240) reopens the lift if nobody ever answers; a loop
 change restores everything. Achievement `ACH_WRONG_NUMBER` on pickup.
 
+**Text anomaly textures (1.1 rework).** The `MaterialSwap` variants under
+`Content/MyStuff/Anomalies/{I01,Magazine,D01,F01}` are generated, not painted:
+`py -3 Tools/make_text_anomaly_textures.py <folder>` rebuilds every `_C`/`_C2`/`_C3`
+(and the Magazine `_E` emissives) from the clean Deko base textures, so the words
+read as print rather than as a sticker: a centred top-band headline and a swapped
+headline column on the newspaper (I01), a "next issue" teaser in the cover's own
+condensed type on the PC magazine back cover (Magazine), a CRT prompt on the
+manual's monitor (D01), and the book's own green title block plus spine tag (F01).
+Round trip without opening the editor:
+
+```
+UnrealEditor-Cmd.exe Loop9.uproject -EnablePlugins=PythonScriptPlugin -ExecutePythonScript=Tools/EditorPython/export_anomaly_textures.py -unattended -nopause -nosplash
+py -3 Tools/make_text_anomaly_textures.py D:\Temp\anomaly_textures
+UnrealEditor-Cmd.exe Loop9.uproject -EnablePlugins=PythonScriptPlugin -ExecutePythonScript=Tools/EditorPython/reimport_anomaly_textures.py -unattended -nopause -nosplash
+```
+
+The reimport writes over the existing assets, so the material instances keep their
+references. Run `AnomalyAuditMaterials` afterwards; a variant identical to the
+baseline is refused at activation.
+
 **Creep (1.1).** `UCreepAnomalyComponent` goes on the object itself. On
 activation the object starts at its normal spot and drifts toward a target at
 `CreepSpeedCmPerSecond` (1.0): a tagged `AAnomalyMovePoint` (`CreepTargetTag`,
