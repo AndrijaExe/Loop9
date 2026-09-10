@@ -81,11 +81,12 @@ work, one compile, GatherText, a cook and live QA — see
 - Spot achievement `ACH_SPOT_WATCHER` (hidden); he counts toward `ACH_SPOT_ALL`,
   which needs 12 types from 1.1. Debug: `Anomaly Watcher` / `Figure` /
   `BackTurned` filters work.
-- **Vanish effect** (11.09.): any vanish the player causes — walking up to him
-  at any speed, the second look, the long stare — plays a 0.7 s full-screen
-  signal burst (`PlaySignalBurst`) and puts the floor in the dark until the
-  next loop (`BlackoutSeconds` 0). Walking up also unlocks `ACH_TOO_CLOSE`. He is
-  gone when the picture comes back; only the lifetime timeout is quiet.
+- **How he leaves** (11.09.): look away and he is gone at once, quietly; the
+  first look back at the empty spot cuts the lights. Walk up to him at any
+  speed, or stare too long: 0.7 s signal burst (`PlaySignalBurst`), lights out,
+  gone behind it; the approach unlocks `ACH_TOO_CLOSE`. The dark lasts until
+  the next loop or `AnomalyReset` (`BlackoutSeconds` 0). Lifetime timeout is
+  the only silent exit.
 
 ## 5. Secret ending — "Loop 1" — how it works
 
@@ -235,8 +236,10 @@ Nothing below needs C++; everything is content on `develop`.
   `ACH_PERFECT_RUN` must **not** toast on this ending; `ACH_SILENT_RUN` may.
 - Watcher: `AnomalyWatcher`, walk up to him at any speed. Screen breaks up for
   under a second, every light goes out and stays out until the next floor, he is
-  gone, `ACH_TOO_CLOSE` toast. On another floor look away and back: same burst
-  and blackout, no toast. He faces the anchor's arrow.
+  gone, `ACH_TOO_CLOSE` toast. On another floor look away for half a second: he
+  is gone with no effect; look back at the spot: lights out, no burst.
+  `AnomalyReset` brings the lights back. He faces the anchor's red arrow (drawn
+  at head height).
 - Ringing floor: `AnomalyPhone` before leaving the lift. Step out → lit doors
   close, floor dark except one lamp by the phone, lit button does nothing.
   Answer → line shown, nothing can be typed, `ACH_WRONG_NUMBER` toast. Close

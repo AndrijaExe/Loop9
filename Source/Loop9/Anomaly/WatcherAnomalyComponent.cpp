@@ -19,6 +19,8 @@
 namespace
 {
 	constexpr float PollIntervalSeconds = 0.1f;
+	/** Aim at chest height rather than the feet so a figure behind a desk still counts. */
+	constexpr float LookTargetHeight = 120.0f;
 	/** Journal subject id; the backend sees "object_inspected" with this slug. */
 	const TCHAR* WatcherObservationId = TEXT("figure_back_turned");
 }
@@ -31,6 +33,7 @@ UWatcherAnomalyComponent::UWatcherAnomalyComponent()
 
 void UWatcherAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	StopPolling();
 	DestroyFigure();
 	Super::EndPlay(EndPlayReason);
 }
@@ -44,11 +47,12 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 		return false;
 	}
 
+	StopPolling();
 	DestroyFigure();
 
 	// He faces wherever the anchor faces; the arrow on AWatcherAnchor is the
-	// direction of his back-of-head-to-nose line. Nothing is computed here, so
-	// what the level designer sees is what spawns.
+	// direction of his nose. Nothing is computed here, so what the level
+	// designer sees is what spawns.
 	const FVector SpawnLocation = Owner->GetActorLocation();
 	const FRotator SpawnRotation = Owner->GetActorRotation();
 
@@ -64,8 +68,10 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 	SpawnedAtSeconds = World->GetTimeSeconds();
 	LookStartedAtSeconds = -1.0;
 	LastSeenAtSeconds = -1.0;
+	LastFigureTarget = SpawnedFigure->GetActorLocation() + FVector(0.0f, 0.0f, LookTargetHeight);
 	bEverObserved = false;
-	bLookedAway = false;
+	bAwaitingLookBack = false;
+	bCausedBlackout = false;
 
 	World->GetTimerManager().SetTimer(
 		PollTimerHandle, this, &UWatcherAnomalyComponent::Poll, PollIntervalSeconds, true);
@@ -76,22 +82,31 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 
 void UWatcherAnomalyComponent::RestoreNormalState()
 {
+	StopPolling();
 	DestroyFigure();
+	bAwaitingLookBack = false;
+
+	// A reset (next floor, AnomalyReset, run restart) gives the lights back if
+	// this component was the one that took them.
+	if (bCausedBlackout)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+			{
+				Lights->Restore();
+			}
+		}
+		bCausedBlackout = false;
+	}
 }
 
 void UWatcherAnomalyComponent::Poll()
 {
 	UWorld* World = GetWorld();
-	if (!World || !IsValid(SpawnedFigure))
+	if (!World)
 	{
-		DestroyFigure();
-		return;
-	}
-
-	const double Now = World->GetTimeSeconds();
-	if (Now - SpawnedAtSeconds >= MaxLifetimeSeconds)
-	{
-		Vanish(TEXT("lifetime"));
+		StopPolling();
 		return;
 	}
 
@@ -102,14 +117,44 @@ void UWatcherAnomalyComponent::Poll()
 		return;
 	}
 
-	const float Distance = FVector::Dist(PlayerPawn->GetActorLocation(), SpawnedFigure->GetActorLocation());
-	if (Distance <= VanishDistance)
+	// After a quiet vanish: the lights wait for the player to look at where he was.
+	if (bAwaitingLookBack)
 	{
-		VanishForPlayer(TEXT("player too close"), true);
+		if (IsLookingAt(LastFigureTarget, PlayerPawn, PlayerController))
+		{
+			bAwaitingLookBack = false;
+			StopPolling();
+			Blackout();
+			UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: player looked back at the empty spot, lights out"));
+		}
 		return;
 	}
 
-	const bool bObserved = IsObservedByPlayer(PlayerPawn, PlayerController);
+	if (!IsValid(SpawnedFigure))
+	{
+		StopPolling();
+		return;
+	}
+
+	const double Now = World->GetTimeSeconds();
+	if (Now - SpawnedAtSeconds >= MaxLifetimeSeconds)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: figure vanished (lifetime)"));
+		StopPolling();
+		DestroyFigure();
+		return;
+	}
+
+	LastFigureTarget = SpawnedFigure->GetActorLocation() + FVector(0.0f, 0.0f, LookTargetHeight);
+
+	const float Distance = FVector::Dist(PlayerPawn->GetActorLocation(), SpawnedFigure->GetActorLocation());
+	if (Distance <= VanishDistance)
+	{
+		VanishWithBurst(TEXT("player too close"), true);
+		return;
+	}
+
+	const bool bObserved = IsLookingAt(LastFigureTarget, PlayerPawn, PlayerController);
 	if (bObserved)
 	{
 		if (!bEverObserved)
@@ -127,45 +172,36 @@ void UWatcherAnomalyComponent::Poll()
 
 		if (LookStartedAtSeconds < 0.0)
 		{
-			// First sight, or sight resumed after a real look-away: he is not
-			// there anymore. A gap shorter than MinLookAwaySeconds never gets
-			// here, so a doorframe crossing the trace does not count as a look.
-			if (bLookedAway)
-			{
-				VanishForPlayer(TEXT("second look"), false);
-				return;
-			}
 			LookStartedAtSeconds = Now;
 		}
 		LastSeenAtSeconds = Now;
 
 		if (MaxContinuousLookSeconds > 0.0f && Now - LookStartedAtSeconds >= MaxContinuousLookSeconds)
 		{
-			VanishForPlayer(TEXT("stared too long"), false);
+			VanishWithBurst(TEXT("stared too long"), false);
 			return;
 		}
 	}
 	else if (LookStartedAtSeconds >= 0.0 && Now - LastSeenAtSeconds >= MinLookAwaySeconds)
 	{
-		bLookedAway = true;
-		LookStartedAtSeconds = -1.0;
+		// A real look-away, not a doorframe crossing the trace: he is gone the
+		// moment the player is not looking. The lights wait for the look back.
+		VanishQuietly(TEXT("looked away"));
 	}
 }
 
-bool UWatcherAnomalyComponent::IsObservedByPlayer(const APawn* PlayerPawn, const APlayerController* PlayerController) const
+bool UWatcherAnomalyComponent::IsLookingAt(const FVector& Target, const APawn* PlayerPawn, const APlayerController* PlayerController) const
 {
-	if (!PlayerPawn || !PlayerController || !PlayerController->PlayerCameraManager || !IsValid(SpawnedFigure))
+	if (!PlayerPawn || !PlayerController || !PlayerController->PlayerCameraManager)
 	{
 		return false;
 	}
 
 	const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
 	const FVector CameraForward = PlayerController->PlayerCameraManager->GetActorForwardVector().GetSafeNormal();
-	// Aim at chest height rather than the feet so a figure behind a desk still counts.
-	const FVector Target = SpawnedFigure->GetActorLocation() + FVector(0.0f, 0.0f, 120.0f);
-	const FVector ToFigure = (Target - CameraLocation).GetSafeNormal();
+	const FVector ToTarget = (Target - CameraLocation).GetSafeNormal();
 
-	if (FVector::DotProduct(CameraForward, ToFigure) < LookDotThreshold)
+	if (FVector::DotProduct(CameraForward, ToTarget) < LookDotThreshold)
 	{
 		return false;
 	}
@@ -175,17 +211,19 @@ bool UWatcherAnomalyComponent::IsObservedByPlayer(const APawn* PlayerPawn, const
 	const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(
 		Hit, CameraLocation, Target, ECC_Visibility, Params);
 
-	return !bHitSomething || Hit.GetActor() == SpawnedFigure;
+	// Nothing in the way, or the only thing in the way is him.
+	return !bHitSomething || (IsValid(SpawnedFigure) && Hit.GetActor() == SpawnedFigure);
 }
 
-void UWatcherAnomalyComponent::VanishForPlayer(const TCHAR* Reason, bool bApproached)
+void UWatcherAnomalyComponent::VanishWithBurst(const TCHAR* Reason, bool bApproached)
 {
 	UWorld* World = GetWorld();
-	if (!World || !bEffectOnPlayerCausedVanish)
+	if (!World)
 	{
-		Vanish(Reason);
 		return;
 	}
+
+	StopPolling();
 
 	// Burst first so the frame he disappears on is already unreadable.
 	if (ALoop9PlayerController* PC = Cast<ALoop9PlayerController>(UGameplayStatics::GetPlayerController(World, 0)))
@@ -193,14 +231,7 @@ void UWatcherAnomalyComponent::VanishForPlayer(const TCHAR* Reason, bool bApproa
 		PC->PlaySignalBurst(BurstSeconds);
 	}
 
-	if (bBlackout)
-	{
-		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
-		{
-			// 0 = the floor stays dark until the next loop restores it.
-			Lights->BlackoutForSeconds(BlackoutSeconds, TArray<ULightComponent*>());
-		}
-	}
+	Blackout();
 
 	if (bApproached)
 	{
@@ -213,11 +244,6 @@ void UWatcherAnomalyComponent::VanishForPlayer(const TCHAR* Reason, bool bApproa
 		}
 	}
 
-	Vanish(Reason);
-}
-
-void UWatcherAnomalyComponent::Vanish(const TCHAR* Reason)
-{
 	if (IsValid(SpawnedFigure) && VanishSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(
@@ -229,12 +255,51 @@ void UWatcherAnomalyComponent::Vanish(const TCHAR* Reason)
 	DestroyFigure();
 }
 
-void UWatcherAnomalyComponent::DestroyFigure()
+void UWatcherAnomalyComponent::VanishQuietly(const TCHAR* Reason)
+{
+	if (IsValid(SpawnedFigure) && VanishSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, VanishSound, SpawnedFigure->GetActorLocation(), FRotator::ZeroRotator,
+			1.0f, 1.0f, 0.0f, VanishAttenuation);
+	}
+	UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: figure vanished (%s), waiting for the look back"), Reason);
+	DestroyFigure();
+	// Polling continues: the next look at the empty spot cuts the lights.
+	bAwaitingLookBack = bBlackout;
+	if (!bAwaitingLookBack)
+	{
+		StopPolling();
+	}
+}
+
+void UWatcherAnomalyComponent::Blackout()
+{
+	if (!bBlackout)
+	{
+		return;
+	}
+	if (UWorld* World = GetWorld())
+	{
+		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+		{
+			// 0 = the floor stays dark until the next loop or a reset restores it.
+			Lights->BlackoutForSeconds(BlackoutSeconds, TArray<ULightComponent*>());
+			bCausedBlackout = true;
+		}
+	}
+}
+
+void UWatcherAnomalyComponent::StopPolling()
 {
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().ClearTimer(PollTimerHandle);
 	}
+}
+
+void UWatcherAnomalyComponent::DestroyFigure()
+{
 	if (IsValid(SpawnedFigure))
 	{
 		SpawnedFigure->Destroy();

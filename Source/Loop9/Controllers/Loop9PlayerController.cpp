@@ -5,6 +5,7 @@
 #include "Loop9.h"
 #include "Loop9CameraManager.h"
 #include "Subsystems/AnomalyManager.h"
+#include "Subsystems/Loop9LightsSubsystem.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Subsystems/Loop9DragojloMemorySubsystem.h"
@@ -197,6 +198,14 @@ void ALoop9PlayerController::AnomalyReset()
 	if (UAnomalyManager* Manager = GetAnomalyManager(this))
 	{
 		Manager->ResetAllAnomalies();
+		// A blackout left by an anomaly goes with it.
+		if (UWorld* World = GetWorld())
+		{
+			if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+			{
+				Lights->Restore();
+			}
+		}
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyReset: all anomalies cleared"));
 		DebugScreenMessage(TEXT("AnomalyReset: all anomalies cleared"), true);
 	}

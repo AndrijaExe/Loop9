@@ -6,19 +6,21 @@
 
 /**
  * 1.1 "Watcher": a man standing with his back turned. He never moves and never
- * chases. He is gone the moment the player gets close, or the second time the
- * player looks at him after having looked away.
+ * chases.
+ *
+ * Two ways he leaves:
+ *  - The player looks away. He is gone at once, quietly. When the player
+ *    looks back at the empty spot, the lights on the floor go out.
+ *  - The player walks up to him (any speed) or stares too long. The screen
+ *    breaks into bad signal, the lights go out, and he is gone behind it.
+ *
+ * The lights stay out until the next floor, or until the anomaly is reset.
  *
  * Put this on an AWatcherAnchor (arrow shows which way he faces) or on any
  * actor; the figure spawns at the owner's transform, facing the owner's
  * forward. FigureClass is any actor with a mesh (a Blueprint reusing the
  * pursuer's skeletal mesh is the intended default). Author AnomalyZone /
  * AnomalyObjectKind on the component like every other anomaly.
- *
- * Every vanish the player causes — walking up to him, the second look, the
- * long stare — goes behind a burst of bad signal with the lights cut for the
- * rest of the floor, so nobody ever sees him leave. Only the lifetime timeout
- * lets him slip away quietly.
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class LOOP9_API UWatcherAnomalyComponent : public UAnomalyComponentBase
@@ -44,13 +46,12 @@ public:
 
 	/**
 	 * Out of sight for less than this is a doorframe or a chair crossing the
-	 * trace, not a look-away; it neither arms the second look nor restarts the
-	 * stare timer. 0 restores "any single poll out of sight counts".
+	 * trace, not a look-away. 0 makes any single poll out of sight count.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0"))
 	float MinLookAwaySeconds = 0.5f;
 
-	/** He also vanishes on the first look if it lasted this long; 0 disables. */
+	/** He also vanishes on the first look if it lasted this long (with the burst); 0 disables. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0"))
 	float MaxContinuousLookSeconds = 6.0f;
 
@@ -65,20 +66,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
 	TObjectPtr<class USoundAttenuation> VanishAttenuation = nullptr;
 
-	/** Full-screen signal burst and lights out on every vanish the player causes. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect")
-	bool bEffectOnPlayerCausedVanish = true;
-
-	/** Length of the signal burst. */
+	/** Length of the signal burst on approach / stare. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.15"))
 	float BurstSeconds = 0.7f;
 
-	/** How long the floor stays dark. 0 = until the next floor. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.0"))
-	float BlackoutSeconds = 0.0f;
-
+	/** Lights go out on approach, stare, and on the look back after a look-away. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect")
 	bool bBlackout = true;
+
+	/** How long the floor stays dark. 0 = until the next floor or a reset. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.0"))
+	float BlackoutSeconds = 0.0f;
 
 	/** True once the player has looked at him at least once this floor. */
 	bool WasObserved() const { return bEverObserved; }
@@ -90,11 +88,14 @@ protected:
 
 private:
 	void Poll();
-	bool IsObservedByPlayer(const APawn* PlayerPawn, const APlayerController* PlayerController) const;
-	/** The player made him go: burst, dark, achievement on approach, then gone. */
-	void VanishForPlayer(const TCHAR* Reason, bool bApproached);
-	void Vanish(const TCHAR* Reason);
+	bool IsLookingAt(const FVector& Target, const APawn* PlayerPawn, const APlayerController* PlayerController) const;
+	/** Burst, lights out, achievement on approach, then gone. */
+	void VanishWithBurst(const TCHAR* Reason, bool bApproached);
+	/** Gone at once; the lights wait for the player to look back at the spot. */
+	void VanishQuietly(const TCHAR* Reason);
+	void Blackout();
 	void DestroyFigure();
+	void StopPolling();
 
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> SpawnedFigure = nullptr;
@@ -105,6 +106,9 @@ private:
 	double LookStartedAtSeconds = -1.0;
 	/** Last poll that saw him; decides whether a gap was a flicker or a look-away. */
 	double LastSeenAtSeconds = -1.0;
+	/** Chest height of where he stood, for the look back after a quiet vanish. */
+	FVector LastFigureTarget = FVector::ZeroVector;
 	bool bEverObserved = false;
-	bool bLookedAway = false;
+	bool bAwaitingLookBack = false;
+	bool bCausedBlackout = false;
 };

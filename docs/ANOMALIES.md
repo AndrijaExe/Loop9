@@ -40,15 +40,18 @@ active so the floor still judges "lit". First sight logs `object_inspected` /
 `figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). Spot
 achievement `ACH_SPOT_WATCHER` (hidden).
 
-**Vanish effect (1.1).** Every vanish the player causes — walking up to him at
-any speed (`VanishDistance`), the second look, the long stare — goes through
-`VanishForPlayer`: a full-screen "bad signal" burst
-(`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`, built in code,
-no asset), then every light on the floor goes out through `ULoop9LightsSubsystem`
-and stays out until the next loop restores it (`BlackoutSeconds` = 0; set a
-number for a timed blackout), and only then is the figure removed. Walking up
-to him also unlocks `ACH_TOO_CLOSE`. The lifetime timeout is the one quiet exit.
-`bEffectOnPlayerCausedVanish` turns the whole effect off.
+**How he leaves (1.1).** Two exits. *Look-away:* the moment the player has
+looked away for `MinLookAwaySeconds` he is gone, quietly (`VanishQuietly`);
+the component keeps polling and the first time the camera points back at the
+empty spot with line of sight, every light on the floor goes out. *Approach or
+stare:* walking up to him at any speed (`VanishDistance`) or staring for
+`MaxContinuousLookSeconds` goes through `VanishWithBurst`: a full-screen "bad
+signal" burst (`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`,
+built in code, no asset), lights out, and only then is the figure removed;
+the approach also unlocks `ACH_TOO_CLOSE`. The blackout runs through
+`ULoop9LightsSubsystem` and stays until the next loop, `AnomalyReset`, or the
+component's own reset (`BlackoutSeconds` = 0; a number makes it timed). The
+lifetime timeout is the one exit with no effect at all.
 
 **Ringing floor (1.1).** A ringing desk phone is a whole beat, run by
 `ULoop9RingingFloorSubsystem` (world subsystem, nothing to place). When the
