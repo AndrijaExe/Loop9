@@ -66,7 +66,7 @@ chats, loops, endings, anomaly spotting) and unlocks achievements through the
 Online Subsystem (no-op without Steam). Extra achievements can be unlocked from
 Blueprint via `UnlockAchievement(ApiName)`.
 
-The full list of 27 achievements (API names, display names, unlock conditions)
+The full list of 28 achievements (API names, display names, unlock conditions)
 and the step-by-step Steamworks publishing guide live in
 [`STEAM_ACHIEVEMENTS.md`](STEAM_ACHIEVEMENTS.md).
 

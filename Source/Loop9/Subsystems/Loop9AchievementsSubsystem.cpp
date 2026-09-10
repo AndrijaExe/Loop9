@@ -21,7 +21,7 @@ namespace
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
 	constexpr int32 EndingTypeCount = 6;
-	constexpr int32 SpotAllAnomalyTypeCount = 9;
+	constexpr int32 SpotAllAnomalyTypeCount = 10;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
@@ -230,6 +230,7 @@ FName ULoop9AchievementsSubsystem::SpotAchievementId(const FString& AnomalyTypeL
 	if (AnomalyTypeLabel == TEXT("PursuerAnomaly")) { return FName(TEXT("ACH_SPOT_PURSUER")); }
 	if (AnomalyTypeLabel == TEXT("ScaleAnomaly")) { return FName(TEXT("ACH_SPOT_SCALE")); }
 	if (AnomalyTypeLabel == TEXT("PhantomMessageAnomaly")) { return FName(TEXT("ACH_SPOT_PHANTOM")); }
+	if (AnomalyTypeLabel == TEXT("LoopNumberAnomaly")) { return FName(TEXT("ACH_SPOT_LOOPNUMBER")); }
 	return NAME_None;
 }
 

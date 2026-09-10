@@ -90,7 +90,7 @@ Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequenc
 
 ## Achievements
 
-Client hooks live in `ULoop9AchievementsSubsystem`. API names and Steamworks setup are authoritative in [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md) (27 achievements).
+Client hooks live in `ULoop9AchievementsSubsystem`. API names and Steamworks setup are authoritative in [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md) (28 achievements).
 
 ## Presentation locking
 

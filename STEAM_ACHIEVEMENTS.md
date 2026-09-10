@@ -11,7 +11,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
   poruke Dragojlu, loopove, endinge) i šalje unlock Steamu — prvo direktnim
   Steamworks pozivom (`SetAchievement` + `StoreStats`), pa ako to ne prođe,
   preko Online Subsystem-a sa retry redom.
-- **Svih 27 imena mora da stoji i u `Config/DefaultEngine.ini`** pod
+- **Svih 28 imena mora da stoji i u `Config/DefaultEngine.ini`** pod
   `[OnlineSubsystemSteam]` kao `Achievement_N_Id=IME` (redom od 0, bez
   navodnika). Online Subsystem odbija svaki read i write ako tog bloka nema.
   Simptom je bio da se vidi samo progress toast, a unlock nikad ne padne, jer
@@ -22,7 +22,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
   čuva se u `Saved/Config/.../Game.ini`, pa meta-achievementi rade i ako igrač
   restartuje igru.
 - Pri čitanju se ta lista **spaja sa onim što Steam već drži**. Šest
-  `ACH_ENDING_*` i devet `ACH_SPOT_*` govore istu stvar kao lokalni fajl, pa
+  `ACH_ENDING_*` i deset `ACH_SPOT_*` govore istu stvar kao lokalni fajl, pa
   arhiva i `ACH_SPOT_ALL` prežive izgubljen ili Cloudom pregažen `Game.ini`,
   a i dalje rade offline i bez Steama, gde je fajl jedini izvor. Spojena
   lista se odmah upiše natrag, tako da se fajl sam popravi.
@@ -33,7 +33,7 @@ tvoj posao je samo da svaki achievement iz tabele definišeš u Steamworks-u sa
 
 ---
 
-## Lista achievementa (27)
+## Lista achievementa (28)
 
 Kolona "Hidden" = označi kao skriven u Steamworks-u (spoiler). Predlozi imena i
 opisa su na engleskom (Steam prikazuje lokalizaciju kasnije ako je dodaš).
@@ -95,11 +95,15 @@ odluka dok je aktivna repeat anomalija.
 | 24 | `ACH_SPOT_PURSUER` | Don't Look Back | Survive a pursuer and call it out. | NE |
 | 25 | `ACH_SPOT_SCALE` | Size Matters | Correctly call out a wrong-sized object. | NE |
 | 26 | `ACH_SPOT_PHANTOM` | I Never Sent That | Correctly call out a message you never sent. | DA |
-| 27 | `ACH_SPOT_ALL` | Anomaly Almanac | Correctly call out every type of anomaly. | NE |
+| 27 | `ACH_SPOT_LOOPNUMBER` | Lost Count | Correctly call out a flickering loop counter. | NE |
+| 28 | `ACH_SPOT_ALL` | Anomaly Almanac | Correctly call out every type of anomaly. | NE |
 
-**Uslov u kodu:** 18–26 — tačna odluka (lit elevator) dok je aktivna anomalija
-tog tipa; 27 — svih 9 tipova uočeno (kumulativno kroz prolaze, persistovano).
-`ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju.
+**Uslov u kodu:** 18–27 — tačna odluka (lit elevator) dok je aktivna anomalija
+tog tipa; 28 — svih 10 tipova uočeno (kumulativno kroz prolaze, persistovano).
+`ACH_SPOT_PHANTOM` je hidden jer bi opis spojlovao anomaliju. `LoopNumber` je
+treperenje / `?` na brojaču petlje. Igrači koji su već imali Anomaly Almanac
+na 9 tipova treba da uoče i ovaj da bi progress bio 10/10; Steam unlock
+ostaje ako je već pao.
 
 ---
 
@@ -117,7 +121,7 @@ Za svaki achievement trebaju **dve ikonice, 256×256 px, JPG ili 24-bit PNG
 - **Locked** (siva varijanta) — prikazuje se dok je zaključan
 
 Praktičan pristup: napravi jednu baznu ikonicu po grupi (ending / progresija /
-veština / anomalije) u varijacijama, ili 27 jedinstvenih ako imaš vremena.
+veština / anomalije) u varijacijama, ili 28 jedinstvenih ako imaš vremena.
 Imenuj fajlove po API imenu (`ACH_SPOT_HIDE_on.png`, `ACH_SPOT_HIDE_off.png`)
 da ne pomešaš pri uploadu.
 
@@ -138,7 +142,7 @@ da ne pomešaš pri uploadu.
      se ne otključaju.
    - **Achieved Icon** / **Unachieved Icon** — upload dve ikonice.
 6. **Save** posle svakog achievementa.
-7. Kad uneseš svih 27, idi na **Publish** tab (u Steamworks Settings):
+7. Kad uneseš svih 28, idi na **Publish** tab (u Steamworks Settings):
    - **Prepare for Publishing → Publish to Steam** (traži confirm kod).
    - Promene u Stats & Achievements NE VAŽE dok ne publish-uješ — ovo je
      najčešća greška ("uneo sam ali ne radi").
