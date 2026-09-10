@@ -103,6 +103,12 @@ public:
 	/** Debug only: undo the cut so the ring can be answered again on this floor. */
 	void RestorePhoneLine() { bPhoneLineCutThisFloor = false; }
 
+	/** 1.1: a desk phone that has rung once in this run never rings again until the run resets. */
+	void MarkPhoneRang(const AActor* Phone) { if (Phone) { PhonesRangThisRun.Add(Phone); } }
+	bool HasPhoneRang(const AActor* Phone) const { return Phone && PhonesRangThisRun.Contains(Phone); }
+	/** Debug: let every phone ring again without a run reset. */
+	void ForgetPhonesRang() { PhonesRangThisRun.Reset(); }
+
 	/** If the map still has no Scale component, attach one to the office printer. */
 	void EnsureScaleAnomalyPlacement(UWorld* World);
 
@@ -120,6 +126,7 @@ private:
 	FString PreviousLoopAnomalyObjectKind;
 	bool bCurrentLoopAnomalyRepeat = false;
 	bool bPhoneLineCutThisFloor = false;
+	TSet<TWeakObjectPtr<const AActor>> PhonesRangThisRun;
 
 	void ComputeActiveAnomalySnapshot(
 		FString& OutKey,

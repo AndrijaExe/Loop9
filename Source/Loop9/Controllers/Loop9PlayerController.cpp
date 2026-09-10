@@ -331,6 +331,7 @@ void ALoop9PlayerController::PhoneLineRestore()
 	}
 	const bool bWasCut = Manager->IsPhoneLineCut();
 	Manager->RestorePhoneLine();
+	Manager->ForgetPhonesRang();
 	UE_LOG(LogLoop9, Log, TEXT("PhoneLineRestore: line %s"), bWasCut ? TEXT("restored") : TEXT("was not cut"));
 	DebugScreenMessage(
 		bWasCut ? TEXT("PhoneLineRestore: phones work again on this floor. AnomalyPhone to ring them once more.")

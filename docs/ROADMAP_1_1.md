@@ -67,9 +67,9 @@ work, one compile, GatherText, a cook and live QA — see
 ## 4. Figure with its back turned — how it works
 
 - `UWatcherAnomalyComponent` (type `Watcher`, label `WatcherAnomaly`, weight
-  0.45 like a rare shock). Put it on an empty anchor actor where the figure
-  should stand; on activation it spawns `FigureClass` at the anchor, rotated so
-  its back faces the player. Default `AnomalyObjectKind` is
+  0.45 like a rare shock). Comes built into `AWatcherAnchor`: place the anchor
+  where he stands, turn it so the red arrow points where he looks; on
+  activation `FigureClass` spawns at the anchor's transform, no rotation math. Default `AnomalyObjectKind` is
   "a man standing with his back turned"; author `AnomalyZone` per placement.
 - Vanishes (manifestation only; the floor stays anomalous) when the player is
   within `VanishDistance` (260 cm), on the second look after looking away, after
@@ -81,11 +81,11 @@ work, one compile, GatherText, a cook and live QA — see
 - Spot achievement `ACH_SPOT_WATCHER` (hidden); he counts toward `ACH_SPOT_ALL`,
   which needs 12 types from 1.1. Debug: `Anomaly Watcher` / `Figure` /
   `BackTurned` filters work.
-- **Contact** (added 10.09.): sprinting into him (approach speed above
-  `ContactApproachSpeed`, 420 cm/s, when he is within `VanishDistance`) plays a
-  0.7 s full-screen signal burst (`PlaySignalBurst`), puts the floor in the dark
-  for `ContactBlackoutSeconds` (5 s) and unlocks `ACH_TOO_CLOSE`. He is gone
-  when the picture comes back. Walking up slowly still just makes him vanish.
+- **Vanish effect** (11.09.): any vanish the player causes — walking up to him
+  at any speed, the second look, the long stare — plays a 0.7 s full-screen
+  signal burst (`PlaySignalBurst`) and puts the floor in the dark until the
+  next loop (`BlackoutSeconds` 0). Walking up also unlocks `ACH_TOO_CLOSE`. He is
+  gone when the picture comes back; only the lifetime timeout is quiet.
 
 ## 5. Secret ending — "Loop 1" — how it works
 
@@ -166,11 +166,12 @@ Nothing below needs C++; everything is content on `develop`.
    (AnomalySound = `/Game/MyStuff/Sound/Phone/...` ring, `bLooping = true`,
    `AnomalyZone` / `AnomalyObjectKind` = "a desk telephone"). Leave
    `bAnswerable` on. Optionally a short static burst SFX for the pickup.
-3. **Watcher:** make `BP_WatcherFigure` (Actor with the pursuer skeletal mesh,
-   idle pose, no AI, collision `BlockAll` on the mesh so the visibility trace
-   hits it). Place 3–4 empty anchor actors with `WatcherAnomaly`
-   (`FigureClass = BP_WatcherFigure`, zone tag per placement: end of corridor,
-   behind the printer, meeting-room window…). Orientation is computed at spawn.
+3. **Watcher:** make `BP_WatcherFigure` (Actor with `SKM_Urban_Nomad`, the
+   pursuer's mesh, idle pose or `ABP_Pursuer_Locomotion`, no AI, collision
+   `BlockAll` on the mesh so the visibility trace hits it). Place 3–4
+   `WatcherAnchor` actors (or a BP child with `FigureClass` preset), red arrow =
+   where he looks, `FigureClass = BP_WatcherFigure`, zone tag per placement:
+   end of corridor, behind the printer, meeting-room window…
 4. **Secret ending geometry:** pick one wall segment on the office floor, make
    it its own actor with a Hide `AnomalyComponent` (raise `SelectionWeight`
    modestly, e.g. 1.5, so it shows up but stays rare). Behind it: a short
@@ -232,14 +233,16 @@ Nothing below needs C++; everything is content on `develop`.
   command, the door must refuse while the wall is present, and also with the
   wall present but a different Hide anomaly forced (`AnomalyForce <other>`).
   `ACH_PERFECT_RUN` must **not** toast on this ending; `ACH_SILENT_RUN` may.
-- Watcher contact: `AnomalyWatcher`, sprint straight at him. Screen breaks up
-  for under a second, every light goes out for 5 s, he is gone, `ACH_TOO_CLOSE`
-  toast. Walk at him slowly on another floor: plain vanish, no burst.
+- Watcher: `AnomalyWatcher`, walk up to him at any speed. Screen breaks up for
+  under a second, every light goes out and stays out until the next floor, he is
+  gone, `ACH_TOO_CLOSE` toast. On another floor look away and back: same burst
+  and blackout, no toast. He faces the anchor's arrow.
 - Ringing floor: `AnomalyPhone` before leaving the lift. Step out → lit doors
   close, floor dark except one lamp by the phone, lit button does nothing.
   Answer → line shown, nothing can be typed, `ACH_WRONG_NUMBER` toast. Close
   chat → lights back, lit lift opens. Dark lift stays usable throughout. Repeat
-  a few times to see different lines.
+  a few times to see different lines (`PhoneLineRestore` first: a phone rings
+  once per run, the second `AnomalyPhone` on the same desk is refused).
 - Text swaps: `AnomalyForce I01`, `AnomalyMaterial`, `AnomalyForce D01`, `AnomalyForce F01`.
   Newspaper headline column reads the words as the paper's own headline, PC
   magazine back cover shows a "next issue" teaser, the manual's monitor a CRT

@@ -244,6 +244,7 @@ void UAnomalyManager::BeginLoopVisit()
 void UAnomalyManager::ResetRunTracking()
 {
 	BeginLoopVisit();
+	PhonesRangThisRun.Reset();
 	PreviousLoopAnomalyKey.Empty();
 	PreviousLoopAnomalyZone.Empty();
 	PreviousLoopAnomalyObjectKind.Empty();

@@ -1,11 +1,8 @@
 #include "Anomaly/WatcherAnomalyComponent.h"
 
 #include "Camera/PlayerCameraManager.h"
-#include "Controllers/Loop9PlayerController.h"
-#include "Engine/GameInstance.h"
-#include "Subsystems/Loop9AchievementsSubsystem.h"
-#include "Subsystems/Loop9LightsSubsystem.h"
 #include "CollisionQueryParams.h"
+#include "Controllers/Loop9PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -14,6 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9LightsSubsystem.h"
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "TimerManager.h"
 
@@ -47,18 +46,11 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 
 	DestroyFigure();
 
-	FVector SpawnLocation = Owner->GetActorLocation();
-	FRotator SpawnRotation = Owner->GetActorRotation();
-
-	// Back to the player: face the direction the player would look along.
-	if (const APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(World, 0))
-	{
-		const FVector Away = SpawnLocation - PlayerPawn->GetActorLocation();
-		if (!Away.IsNearlyZero())
-		{
-			SpawnRotation = FRotator(0.0f, Away.Rotation().Yaw, 0.0f);
-		}
-	}
+	// He faces wherever the anchor faces; the arrow on AWatcherAnchor is the
+	// direction of his back-of-head-to-nose line. Nothing is computed here, so
+	// what the level designer sees is what spawns.
+	const FVector SpawnLocation = Owner->GetActorLocation();
+	const FRotator SpawnRotation = Owner->GetActorRotation();
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -113,15 +105,7 @@ void UWatcherAnomalyComponent::Poll()
 	const float Distance = FVector::Dist(PlayerPawn->GetActorLocation(), SpawnedFigure->GetActorLocation());
 	if (Distance <= VanishDistance)
 	{
-		// Coming at him fast is a collision, not a look: a different exit.
-		const FVector ToFigure = (SpawnedFigure->GetActorLocation() - PlayerPawn->GetActorLocation()).GetSafeNormal2D();
-		const float ApproachSpeed = static_cast<float>(FVector::DotProduct(PlayerPawn->GetVelocity(), ToFigure));
-		if (ContactApproachSpeed > 0.0f && ApproachSpeed >= ContactApproachSpeed)
-		{
-			Contact(PlayerPawn);
-			return;
-		}
-		Vanish(TEXT("player too close"));
+		VanishForPlayer(TEXT("player too close"), true);
 		return;
 	}
 
@@ -148,7 +132,7 @@ void UWatcherAnomalyComponent::Poll()
 			// here, so a doorframe crossing the trace does not count as a look.
 			if (bLookedAway)
 			{
-				Vanish(TEXT("second look"));
+				VanishForPlayer(TEXT("second look"), false);
 				return;
 			}
 			LookStartedAtSeconds = Now;
@@ -157,7 +141,7 @@ void UWatcherAnomalyComponent::Poll()
 
 		if (MaxContinuousLookSeconds > 0.0f && Now - LookStartedAtSeconds >= MaxContinuousLookSeconds)
 		{
-			Vanish(TEXT("stared too long"));
+			VanishForPlayer(TEXT("stared too long"), false);
 			return;
 		}
 	}
@@ -194,6 +178,44 @@ bool UWatcherAnomalyComponent::IsObservedByPlayer(const APawn* PlayerPawn, const
 	return !bHitSomething || Hit.GetActor() == SpawnedFigure;
 }
 
+void UWatcherAnomalyComponent::VanishForPlayer(const TCHAR* Reason, bool bApproached)
+{
+	UWorld* World = GetWorld();
+	if (!World || !bEffectOnPlayerCausedVanish)
+	{
+		Vanish(Reason);
+		return;
+	}
+
+	// Burst first so the frame he disappears on is already unreadable.
+	if (ALoop9PlayerController* PC = Cast<ALoop9PlayerController>(UGameplayStatics::GetPlayerController(World, 0)))
+	{
+		PC->PlaySignalBurst(BurstSeconds);
+	}
+
+	if (bBlackout)
+	{
+		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+		{
+			// 0 = the floor stays dark until the next loop restores it.
+			Lights->BlackoutForSeconds(BlackoutSeconds, TArray<ULightComponent*>());
+		}
+	}
+
+	if (bApproached)
+	{
+		if (UGameInstance* GameInstance = World->GetGameInstance())
+		{
+			if (ULoop9AchievementsSubsystem* Achievements = GameInstance->GetSubsystem<ULoop9AchievementsSubsystem>())
+			{
+				Achievements->UnlockAchievement(FName(TEXT("ACH_TOO_CLOSE")));
+			}
+		}
+	}
+
+	Vanish(Reason);
+}
+
 void UWatcherAnomalyComponent::Vanish(const TCHAR* Reason)
 {
 	if (IsValid(SpawnedFigure) && VanishSound)
@@ -205,40 +227,6 @@ void UWatcherAnomalyComponent::Vanish(const TCHAR* Reason)
 	UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: figure vanished (%s)"), Reason);
 	// The floor stays "wrong" — bIsAnomalyActive is untouched, only the manifestation leaves.
 	DestroyFigure();
-}
-
-void UWatcherAnomalyComponent::Contact(const APawn* PlayerPawn)
-{
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		Vanish(TEXT("contact"));
-		return;
-	}
-
-	// Burst first so the frame he disappears on is already unreadable.
-	if (ALoop9PlayerController* PC = Cast<ALoop9PlayerController>(UGameplayStatics::GetPlayerController(World, 0)))
-	{
-		PC->PlaySignalBurst(ContactBurstSeconds);
-	}
-
-	if (bBlackoutOnContact)
-	{
-		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
-		{
-			Lights->BlackoutForSeconds(ContactBlackoutSeconds, TArray<ULightComponent*>());
-		}
-	}
-
-	if (UGameInstance* GameInstance = World->GetGameInstance())
-	{
-		if (ULoop9AchievementsSubsystem* Achievements = GameInstance->GetSubsystem<ULoop9AchievementsSubsystem>())
-		{
-			Achievements->UnlockAchievement(FName(TEXT("ACH_TOO_CLOSE")));
-		}
-	}
-
-	Vanish(TEXT("contact"));
 }
 
 void UWatcherAnomalyComponent::DestroyFigure()

@@ -30,23 +30,25 @@ the whole floor (`UAnomalyManager::CutPhoneLineForFloor`). Every phone then
 answers `SayToAI` with `ChatLineCutAfterRing` until the next floor. Audio
 components on any other actor behave as before.
 
-**Watcher (1.1).** `UWatcherAnomalyComponent` sits on an empty anchor actor and
-spawns `FigureClass` there, rotated so its back faces the player. It never
-moves. The manifestation vanishes when the player comes within
+**Watcher (1.1).** `UWatcherAnomalyComponent` sits on an `AWatcherAnchor` (drop
+it in the level like a `PursuerSpawnPoint`; the red arrow is the way he faces,
+the component is built in) and spawns `FigureClass` at the anchor's transform.
+No rotation is computed: what the arrow shows is what spawns. He never moves. The manifestation vanishes when the player comes within
 `VanishDistance`, on the second look after looking away, after
 `MaxContinuousLookSeconds`, or after `MaxLifetimeSeconds`; the component stays
 active so the floor still judges "lit". First sight logs `object_inspected` /
 `figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). Spot
 achievement `ACH_SPOT_WATCHER` (hidden).
 
-**Contact (1.1).** Reaching `VanishDistance` while closing in faster than
-`ContactApproachSpeed` (420 cm/s, i.e. sprinting at him) is a collision, not a
-look: `UWatcherAnomalyComponent::Contact` plays a full-screen "bad signal"
-burst (`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`, built in
-code, no asset), cuts every light on the floor for `ContactBlackoutSeconds`
-(5 s; 0 = until the next floor) through `ULoop9LightsSubsystem`, unlocks
-`ACH_TOO_CLOSE`, and only then removes the figure. A slow approach still just
-makes him vanish.
+**Vanish effect (1.1).** Every vanish the player causes — walking up to him at
+any speed (`VanishDistance`), the second look, the long stare — goes through
+`VanishForPlayer`: a full-screen "bad signal" burst
+(`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`, built in code,
+no asset), then every light on the floor goes out through `ULoop9LightsSubsystem`
+and stays out until the next loop restores it (`BlackoutSeconds` = 0; set a
+number for a timed blackout), and only then is the figure removed. Walking up
+to him also unlocks `ACH_TOO_CLOSE`. The lifetime timeout is the one quiet exit.
+`bEffectOnPlayerCausedVanish` turns the whole effect off.
 
 **Ringing floor (1.1).** A ringing desk phone is a whole beat, run by
 `ULoop9RingingFloorSubsystem` (world subsystem, nothing to place). When the
@@ -58,7 +60,10 @@ the lamp nearest the phone (`ULoop9LightsSubsystem::FindNearestLight`, within
 `ChatRingingLine2..6`) read-only (`UAI_ChatWidget::SetInputLocked`); lines 4-6
 hint at the wall, the stairs and the street door of the secret ending. Closing
 the chat restores the lights and reopens the lit lift. The dark lift is never
-held. `MaxHoldSeconds` (240) reopens the lift if nobody ever answers; a loop
+held. A desk phone rings **once per run**: `UAnomalyManager::MarkPhoneRang` /
+`HasPhoneRang` make the audio component refuse a second activation on the same
+phone until the run resets (the manager then draws another anomaly);
+`PhoneLineRestore` also forgets them for QA. `MaxHoldSeconds` (240) reopens the lift if nobody ever answers; a loop
 change restores everything. Achievement `ACH_WRONG_NUMBER` on pickup.
 
 **Text anomaly textures (1.1 rework).** The `MaterialSwap` variants under

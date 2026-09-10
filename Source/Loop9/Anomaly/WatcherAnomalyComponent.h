@@ -9,11 +9,16 @@
  * chases. He is gone the moment the player gets close, or the second time the
  * player looks at him after having looked away.
  *
- * Put this on an empty anchor actor placed where the figure should stand; the
- * figure spawns at the owner's transform, rotated so its back faces the player
- * at spawn time. FigureClass is any actor with a mesh (a Blueprint reusing the
+ * Put this on an AWatcherAnchor (arrow shows which way he faces) or on any
+ * actor; the figure spawns at the owner's transform, facing the owner's
+ * forward. FigureClass is any actor with a mesh (a Blueprint reusing the
  * pursuer's skeletal mesh is the intended default). Author AnomalyZone /
  * AnomalyObjectKind on the component like every other anomaly.
+ *
+ * Every vanish the player causes — walking up to him, the second look, the
+ * long stare — goes behind a burst of bad signal with the lights cut for the
+ * rest of the floor, so nobody ever sees him leave. Only the lifetime timeout
+ * lets him slip away quietly.
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class LOOP9_API UWatcherAnomalyComponent : public UAnomalyComponentBase
@@ -29,7 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher")
 	TSubclassOf<AActor> FigureClass;
 
-	/** Coming this close makes him vanish. */
+	/** Coming this close makes him vanish, at any speed. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "50.0"))
 	float VanishDistance = 260.0f;
 
@@ -49,29 +54,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0"))
 	float MaxContinuousLookSeconds = 6.0f;
 
-	/** Safety net: after this long on the floor he leaves on his own. */
+	/** Safety net: after this long on the floor he leaves on his own, quietly. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "5.0"))
 	float MaxLifetimeSeconds = 90.0f;
-
-	/**
-	 * 1.1: reaching VanishDistance while moving toward him this fast counts as
-	 * running into him. He still goes, but behind a burst of bad signal and
-	 * with the lights out, so the player never sees how. Walking speed is 300,
-	 * sprint 600; anything above this is a charge.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.0"))
-	float ContactApproachSpeed = 420.0f;
-
-	/** Length of the signal burst on contact. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.15"))
-	float ContactBurstSeconds = 0.7f;
-
-	/** How long the floor stays dark after contact. 0 = until the next floor. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact", meta = (ClampMin = "0.0"))
-	float ContactBlackoutSeconds = 5.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Contact")
-	bool bBlackoutOnContact = true;
 
 	/** Optional one-shot when he vanishes (a breath, a step). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
@@ -79,6 +64,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
 	TObjectPtr<class USoundAttenuation> VanishAttenuation = nullptr;
+
+	/** Full-screen signal burst and lights out on every vanish the player causes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect")
+	bool bEffectOnPlayerCausedVanish = true;
+
+	/** Length of the signal burst. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.15"))
+	float BurstSeconds = 0.7f;
+
+	/** How long the floor stays dark. 0 = until the next floor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.0"))
+	float BlackoutSeconds = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect")
+	bool bBlackout = true;
 
 	/** True once the player has looked at him at least once this floor. */
 	bool WasObserved() const { return bEverObserved; }
@@ -91,8 +91,9 @@ protected:
 private:
 	void Poll();
 	bool IsObservedByPlayer(const APawn* PlayerPawn, const APlayerController* PlayerController) const;
+	/** The player made him go: burst, dark, achievement on approach, then gone. */
+	void VanishForPlayer(const TCHAR* Reason, bool bApproached);
 	void Vanish(const TCHAR* Reason);
-	void Contact(const APawn* PlayerPawn);
 	void DestroyFigure();
 
 	UPROPERTY(Transient)

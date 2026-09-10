@@ -8,6 +8,8 @@
 #include "AI_Friend.h"
 #include "Engine/World.h"
 #include "Subsystems/Loop9RingingFloorSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/AnomalyManager.h"
 
 UAudioAnomalyComponent::UAudioAnomalyComponent()
 {
@@ -37,6 +39,17 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 
 	AActor* Owner = GetOwner();
 	if (!Owner)
+	{
+		return false;
+	}
+
+	// 1.1: a phone rings once per run. Refusing here makes the manager draw
+	// another anomaly instead of ringing the same desk twice.
+	UAnomalyManager* Manager = GetWorld() && GetWorld()->GetGameInstance()
+		? GetWorld()->GetGameInstance()->GetSubsystem<UAnomalyManager>()
+		: nullptr;
+	const bool bIsDeskPhone = bAnswerable && Owner->IsA<AAI_Friend>();
+	if (bIsDeskPhone && Manager && Manager->HasPhoneRang(Owner))
 	{
 		return false;
 	}
@@ -106,6 +119,10 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 	// 1.1: a desk phone that rings is a whole beat, not just a sound.
 	if (bAnswerable && Owner->IsA<AAI_Friend>())
 	{
+		if (Manager)
+		{
+			Manager->MarkPhoneRang(Owner);
+		}
 		if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
 		{
 			RingingFloor->BeginRingingFloor(Cast<AAI_Friend>(Owner));
