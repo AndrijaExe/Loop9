@@ -88,14 +88,16 @@ Automation: `Loop9.Runtime.Endings.EvaluatorProfiles`.
 
 7. **The Exit** (1.1, secret) — **triggered, never scored.** The evaluator does
    not know it. `ALoop9SecretExitDoor` on the ground-floor stub calls
-   `ULoopManagerSubsystem::TryTriggerSecretExitEnding()`, which accepts only
-   while the run is live, `CurrentLoop ≥ SecretExitMinLoop` (4) and a Hide
-   anomaly is active on the floor (the wall behind which the stairwell sits is
-   really missing). Otherwise the door refuses and stays a door. Accepted →
+   `ULoopManagerSubsystem::TryTriggerSecretExitEnding(HiddenWallActor)`, which
+   accepts only while the run is live, `CurrentLoop ≥ SecretExitMinLoop` (4)
+   and the Hide anomaly on the door's `HiddenWallActor` is active (the wall
+   behind which the stairwell sits is really missing; unset = any Hide on the
+   floor). Otherwise the door refuses and stays a door. Accepted →
    `ULoopEndingPresenterSubsystem::TriggerForcedEnding(TheExit)` runs the same
    pipeline as a scored ending (archive, `ACH_ENDING_THE_EXIT`, telemetry
    `the_exit`, Dragojlo memory), plays `EndingSequences[TheExit]` when
-   authored, else fades to the card. `ACH_ALL_ENDINGS` needs seven since 1.1.
+   authored, else fades to the card. `ACH_ALL_ENDINGS` needs seven since 1.1;
+   `ACH_PERFECT_RUN` is not awarded here (it is the nine-floor route).
    Debug: `EndingSetup TheExit` arms the door and skips the wall check.
 
 Presentation is owned by `ULoopEndingPresenterSubsystem` (optional Level Sequence → fade → widget → main menu). Replacement ending may show a terminal widget path; The Exit skips `ALoopEndingSceneDirector` (desk scene) on purpose.

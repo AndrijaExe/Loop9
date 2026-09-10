@@ -74,6 +74,9 @@ work, one compile, GatherText, a cook and live QA — see
 - Vanishes (manifestation only; the floor stays anomalous) when the player is
   within `VanishDistance` (260 cm), on the second look after looking away, after
   `MaxContinuousLookSeconds` (6 s) of staring, or after `MaxLifetimeSeconds`.
+  A gap in sight shorter than `MinLookAwaySeconds` (0.5 s) — a doorframe or a
+  chair crossing the visibility trace — is neither a look-away nor a restart of
+  the stare timer.
   First sight logs `object_inspected` / `figure_back_turned` to the journal.
 - No Steam spot achievement (same as `LoopNumber`); `ACH_SPOT_ALL` stays at 9.
   Debug: `Anomaly Watcher` / `Figure` / `BackTurned` filters work.
@@ -82,11 +85,13 @@ work, one compile, GatherText, a cook and live QA — see
 
 - `ELoopEndingType::TheExit` is **triggered, never scored**:
   `FLoopEndingEvaluator` does not know it. `ALoop9SecretExitDoor::TryInteract`
-  asks `ULoopManagerSubsystem::TryTriggerSecretExitEnding()`, which accepts only
-  when the run is live, `CurrentLoop ≥ SecretExitMinLoop` (4) and a **Hide**
-  anomaly is active on the floor (the wall is really missing). Otherwise the
-  door plays `LockedSound` and stays a door, so clipping through geometry
-  cannot award the ending.
+  asks `ULoopManagerSubsystem::TryTriggerSecretExitEnding(HiddenWallActor)`,
+  which accepts only when the run is live, `CurrentLoop ≥ SecretExitMinLoop`
+  (4) and the **Hide** anomaly on the door's `HiddenWallActor` is active (the
+  wall is really missing). With `HiddenWallActor` unset any active Hide on the
+  floor counts, which is why the editor task below sets it. Otherwise the door
+  plays `LockedSound` and stays a door, so clipping through geometry cannot
+  award the ending.
 - Accepted → `ULoopEndingPresenterSubsystem::TriggerForcedEnding(TheExit)`:
   same pipeline as every ending (archive `RecordEnding`, `ACH_ENDING_THE_EXIT`,
   `ACH_ALL_ENDINGS` now needs seven, telemetry `the_exit`, Dragojlo memory
@@ -122,7 +127,9 @@ Nothing below needs C++; everything is content on `develop`.
    stairwell down to a ground-floor stub (one corridor, one street door). Place
    `Loop9SecretExitDoor` as that door (mesh + `OpenSound`/`LockedSound`).
    Make sure no `Loop9ObservationZoneVolume` covers the stairwell, or add one
-   named `stairwell` if you want him to be able to mention it later.
+   named `stairwell` if you want him to be able to mention it later. On the
+   door set `HiddenWallActor` to that wall actor — without it any Hide anomaly
+   on the floor opens the door.
 5. **Cutscene:** author `LS_TheExit` (fade from black, exterior walk on rails,
    house door, interior, close-up on the prop reading **Loop 1**, cut). Assign
    it in `BP_Loop9GameMode → EndingSequences → TheExit`. Until then the fade →
@@ -151,7 +158,9 @@ Nothing below needs C++; everything is content on `develop`.
   floor judges lit. `AnomalyWatcher` (or `AnomalyForce Watcher`) forces it.
 - The Exit: `EndingSetup TheExit`, walk down, open door → card `THE EXIT`,
   archive shows seven nodes, `ACH_ENDING_THE_EXIT` toast. Without the debug
-  command, the door must refuse while the wall is present.
+  command, the door must refuse while the wall is present, and also with the
+  wall present but a different Hide anomaly forced (`AnomalyForce <other>`).
+  `ACH_PERFECT_RUN` must **not** toast on this ending; `ACH_SILENT_RUN` may.
 - Regression: all six original endings via `EndingSetup 0–5`, Pursuer dead
   line, `run_history` recognition on a second run.
 

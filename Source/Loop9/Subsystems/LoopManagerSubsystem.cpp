@@ -665,7 +665,7 @@ void ULoopManagerSubsystem::TriggerEndingSequence()
 	}
 }
 
-bool ULoopManagerSubsystem::IsSecretExitOpen() const
+bool ULoopManagerSubsystem::IsSecretExitOpen(const AActor* HiddenWall) const
 {
 	if (bGameFinished || bElevatorTransitionActive || bDeferredEndingPresentation)
 	{
@@ -685,13 +685,21 @@ bool ULoopManagerSubsystem::IsSecretExitOpen() const
 #endif
 
 	// The only honest way down is through the wall the Hide anomaly removed.
+	// A door that names its wall is gated on that wall alone; a hidden chair
+	// elsewhere on the floor must not open it.
 	const UAnomalyManager* AnomalyManager = GetAnomalyManager(GetGameInstance());
-	return AnomalyManager && AnomalyManager->IsAnomalyTypeActive(ELoopAnomalyType::Hide);
+	if (!AnomalyManager)
+	{
+		return false;
+	}
+	return HiddenWall
+		? AnomalyManager->IsAnomalyTypeActiveOn(ELoopAnomalyType::Hide, HiddenWall)
+		: AnomalyManager->IsAnomalyTypeActive(ELoopAnomalyType::Hide);
 }
 
-bool ULoopManagerSubsystem::TryTriggerSecretExitEnding()
+bool ULoopManagerSubsystem::TryTriggerSecretExitEnding(const AActor* HiddenWall)
 {
-	if (!IsSecretExitOpen())
+	if (!IsSecretExitOpen(HiddenWall))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Secret exit refused: loop=%d finished=%d"), CurrentLoop, bGameFinished ? 1 : 0);
 		return false;

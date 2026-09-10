@@ -740,6 +740,28 @@ bool UAnomalyManager::IsAnomalyTypeActive(ELoopAnomalyType Type) const
 	return false;
 }
 
+bool UAnomalyManager::IsAnomalyTypeActiveOn(ELoopAnomalyType Type, const AActor* Actor) const
+{
+	if (!Actor)
+	{
+		return false;
+	}
+
+	for (const TWeakObjectPtr<UAnomalyComponentBase>& ComponentPtr : RegisteredComponents)
+	{
+		const UAnomalyComponentBase* Component = ComponentPtr.Get();
+		if (Component
+			&& Component->bIsAnomalyActive
+			&& Component->GetAnomalyType() == Type
+			&& Component->GetOwner() == Actor)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void UAnomalyManager::PrintAnomalyStats()
 {
 #if !UE_BUILD_SHIPPING

@@ -59,6 +59,8 @@ ending; 7 kad su svi iz 1–6 viđeni (kroz bilo koji broj prolaza).
 **sedam** viđenih endinga (`EndingTypeCount = 7`), pa opis u Steamworks-u treba
 promeniti u "See every ending." **Pre 1.1 builda** achievement mora postojati u
 Steamworks-u i biti publishovan, inače `WriteAchievements` pada za ceo blok.
+The Exit ne daje `ACH_PERFECT_RUN` (to je ruta kroz svih devet spratova);
+`ACH_FINISH_RUN` i `ACH_SILENT_RUN` daje kao i svaki drugi ending.
 
 ### Progresija
 

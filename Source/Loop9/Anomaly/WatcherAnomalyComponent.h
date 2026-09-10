@@ -37,6 +37,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float LookDotThreshold = 0.86f;
 
+	/**
+	 * Out of sight for less than this is a doorframe or a chair crossing the
+	 * trace, not a look-away; it neither arms the second look nor restarts the
+	 * stare timer. 0 restores "any single poll out of sight counts".
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0"))
+	float MinLookAwaySeconds = 0.5f;
+
 	/** He also vanishes on the first look if it lasted this long; 0 disables. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher", meta = (ClampMin = "0.0"))
 	float MaxContinuousLookSeconds = 6.0f;
@@ -71,8 +79,10 @@ private:
 
 	FTimerHandle PollTimerHandle;
 	double SpawnedAtSeconds = 0.0;
+	/** Start of the current (flicker-tolerant) look; -1 while he is out of sight. */
 	double LookStartedAtSeconds = -1.0;
+	/** Last poll that saw him; decides whether a gap was a flicker or a look-away. */
+	double LastSeenAtSeconds = -1.0;
 	bool bEverObserved = false;
 	bool bLookedAway = false;
-	bool bWasObservedLastPoll = false;
 };

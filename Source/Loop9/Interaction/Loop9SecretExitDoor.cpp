@@ -37,7 +37,7 @@ bool ALoop9SecretExitDoor::TryInteract_Implementation(APlayerController* Interac
 		Journal->RecordObjectInspected(FName(TEXT("ground_floor_door")));
 	}
 
-	if (LoopManager && LoopManager->TryTriggerSecretExitEnding())
+	if (LoopManager && LoopManager->TryTriggerSecretExitEnding(HiddenWallActor))
 	{
 		bConsumed = true;
 		if (OpenSound)

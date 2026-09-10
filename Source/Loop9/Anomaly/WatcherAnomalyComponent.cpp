@@ -67,9 +67,9 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 
 	SpawnedAtSeconds = World->GetTimeSeconds();
 	LookStartedAtSeconds = -1.0;
+	LastSeenAtSeconds = -1.0;
 	bEverObserved = false;
 	bLookedAway = false;
-	bWasObservedLastPoll = false;
 
 	World->GetTimerManager().SetTimer(
 		PollTimerHandle, this, &UWatcherAnomalyComponent::Poll, PollIntervalSeconds, true);
@@ -129,31 +129,31 @@ void UWatcherAnomalyComponent::Poll()
 			}
 		}
 
-		if (!bWasObservedLastPoll)
+		if (LookStartedAtSeconds < 0.0)
 		{
-			LookStartedAtSeconds = Now;
-			// Looked away once and now looking back: he is not there anymore.
+			// First sight, or sight resumed after a real look-away: he is not
+			// there anymore. A gap shorter than MinLookAwaySeconds never gets
+			// here, so a doorframe crossing the trace does not count as a look.
 			if (bLookedAway)
 			{
 				Vanish(TEXT("second look"));
 				return;
 			}
+			LookStartedAtSeconds = Now;
 		}
-		else if (MaxContinuousLookSeconds > 0.0f
-			&& LookStartedAtSeconds >= 0.0
-			&& Now - LookStartedAtSeconds >= MaxContinuousLookSeconds)
+		LastSeenAtSeconds = Now;
+
+		if (MaxContinuousLookSeconds > 0.0f && Now - LookStartedAtSeconds >= MaxContinuousLookSeconds)
 		{
 			Vanish(TEXT("stared too long"));
 			return;
 		}
 	}
-	else if (bWasObservedLastPoll)
+	else if (LookStartedAtSeconds >= 0.0 && Now - LastSeenAtSeconds >= MinLookAwaySeconds)
 	{
 		bLookedAway = true;
 		LookStartedAtSeconds = -1.0;
 	}
-
-	bWasObservedLastPoll = bObserved;
 }
 
 bool UWatcherAnomalyComponent::IsObservedByPlayer(const APawn* PlayerPawn, const APlayerController* PlayerController) const

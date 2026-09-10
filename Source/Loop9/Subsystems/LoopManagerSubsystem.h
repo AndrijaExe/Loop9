@@ -6,6 +6,7 @@
 #include "Runtime/DragojloCommitmentTracker.h"
 #include "LoopManagerSubsystem.generated.h"
 
+class AActor;
 class URelationshipSubsystem;
 class ULoopEndingPresenterSubsystem;
 
@@ -127,15 +128,17 @@ public:
 	/**
 	 * 1.1 secret ending. The ground-floor exit door calls this; it only fires
 	 * when the door is legitimately reachable — the run is live, the floor is
-	 * high enough, and the wall is missing (Hide anomaly active this floor).
+	 * high enough, and the wall is missing. HiddenWall is the wall actor the
+	 * Hide anomaly removes: when given, that actor's Hide anomaly must be the
+	 * active one; when null, any active Hide anomaly on the floor counts.
 	 * Returns false when refused, so the door can stay a plain locked door.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Loop|Ending")
-	bool TryTriggerSecretExitEnding();
+	bool TryTriggerSecretExitEnding(const AActor* HiddenWall = nullptr);
 
 	/** True when TryTriggerSecretExitEnding would be accepted right now. */
 	UFUNCTION(BlueprintPure, Category = "Loop|Ending")
-	bool IsSecretExitOpen() const;
+	bool IsSecretExitOpen(const AActor* HiddenWall = nullptr) const;
 
 	/** Lowest floor on which the exit works; below this the door is just a door. */
 	UPROPERTY(BlueprintReadWrite, Category = "Loop|Ending")

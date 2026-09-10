@@ -29,6 +29,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secret Exit")
 	TObjectPtr<UStaticMeshComponent> Mesh;
 
+	/**
+	 * The wall segment whose Hide anomaly exposes the stairwell. Set it: with
+	 * it the door opens only while that wall is the missing one. Left empty,
+	 * any active Hide anomaly on the floor counts, which a clip through
+	 * geometry could exploit.
+	 */
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Secret Exit")
+	TObjectPtr<AActor> HiddenWallActor = nullptr;
+
 	/** Plays when the manager accepts the exit, right before the fade / cutscene. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Secret Exit|Audio")
 	TObjectPtr<USoundBase> OpenSound = nullptr;

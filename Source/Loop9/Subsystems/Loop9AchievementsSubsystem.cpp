@@ -320,7 +320,9 @@ void ULoop9AchievementsSubsystem::NotifyRunFinished(ELoopEndingType EndingType, 
 	UnlockAchievement(EndingAchievementId(EndingType));
 	RecordSeenEnding(EndingType);
 
-	if (TotalResets == 0)
+	// Spotless Record is the nine-floor route without a wrong call. The Exit
+	// leaves from floor four, so three clean lifts must not earn it.
+	if (TotalResets == 0 && EndingType != ELoopEndingType::TheExit)
 	{
 		UnlockAchievement(FName(TEXT("ACH_PERFECT_RUN")));
 	}

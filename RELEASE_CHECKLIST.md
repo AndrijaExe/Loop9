@@ -837,7 +837,7 @@ nije `[x]`. Detalji koda i editor koraci:
   zone tag).
 - [ ] `BP_WatcherFigure` + 3–4 anchor aktora sa `WatcherAnomaly`.
 - [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
-  `Loop9SecretExitDoor` kao ulična vrata.
+  `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.
 - [ ] `LS_TheExit` cutscena → `BP_Loop9GameMode → EndingSequences → TheExit`
   (fallback fade → karta radi bez nje).
 - [ ] **GatherText** (novi ključevi: `ChatRingingPhoneAnswered`,

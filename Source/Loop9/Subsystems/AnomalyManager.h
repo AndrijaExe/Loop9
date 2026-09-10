@@ -49,6 +49,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	bool IsAnomalyTypeActive(ELoopAnomalyType Type) const;
 
+	/** True while a registered component of this type on exactly this actor is active. */
+	UFUNCTION(BlueprintCallable, Category = "Anomaly")
+	bool IsAnomalyTypeActiveOn(ELoopAnomalyType Type, const AActor* Actor) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	int32 GetRegisteredAnomalyCount() const { return RegisteredComponents.Num(); }
 
