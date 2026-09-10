@@ -124,6 +124,12 @@ void UWatcherAnomalyComponent::Poll()
 		{
 			bAwaitingLookBack = false;
 			StopPolling();
+			if (LookBackSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(
+					this, LookBackSound, LastFigureTarget, FRotator::ZeroRotator,
+					1.0f, 1.0f, 0.0f, LookBackAttenuation);
+			}
 			Blackout();
 			UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: player looked back at the empty spot, lights out"));
 		}

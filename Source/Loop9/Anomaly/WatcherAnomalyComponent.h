@@ -66,6 +66,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
 	TObjectPtr<class USoundAttenuation> VanishAttenuation = nullptr;
 
+	/** Played where he stood when the player looks back at the empty spot, as the lights go. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundBase> LookBackSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundAttenuation> LookBackAttenuation = nullptr;
+
 	/** Length of the signal burst on approach / stare. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.15"))
 	float BurstSeconds = 0.7f;
