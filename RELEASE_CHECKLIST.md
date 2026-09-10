@@ -1,23 +1,23 @@
 # Loop 9 — authoritative release checklist
 
-Poslednje ažuriranje: **09.09.2026.**
+Poslednje ažuriranje: **10.09.2026.**
 Steam App ID: **4982260**
 
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
 > Valve dozvoljava od **četvrtka 10.09.** Release day je **petak 11.09.2026.**
-> Default je **v1.0.5** (`25175593`, Set Live 09.09.). Sledeći cook:
-> **v1.0.6** — `ACH_SPOT_LOOPNUMBER` (treperenje brojača petlje) + Almanac 10/10.
-> `valvereview` lozinka promenjena 07.09.
+> Default je **v1.0.5** (`25175593`, Set Live 09.09.). **v1.0.6**
+> (`ACH_SPOT_LOOPNUMBER` — treperenje brojača petlje, Almanac 10/10) kuvan
+> 09.09. i uploadovan na Steamworks 10.09. — release kandidat za petak.
+> `main` = v1.0.6. `valvereview` lozinka promenjena 07.09.
 >
 > **Ostalo pre 11.09.:**
-> 1. Steamworks: unesi i **Publish** `ACH_SPOT_LOOPNUMBER` (Lost Count) pre
->    nego što v1.0.6 klijent krene da piše 28 imena. Ikonice: kopiraj sa
->    drugog `ACH_SPOT_*`. Almanac progress max 9 → 10 ako si ga imao.
-> 2. Cook/upload **v1.0.6**, Set Live na **default** (streameri već snimaju).
+> 1. ~~Steamworks: `ACH_SPOT_LOOPNUMBER` (Lost Count) + Publish.~~ Urađeno 10.09.
+> 2. ~~Cook/upload **v1.0.6**.~~ Urađeno. Set Live na **default** u petak sa
+>    store release-om, ne ranije.
 > 3. Release day §8 u petak. Creator Homepage nije bloker.
 >
 > **Andrija — ručne stavke od 08.09. (ništa od ovoga nije u kodu):**
-> - [ ] **Steamworks (pre v1.0.6 uploada):** New Achievement
+> - [x] **Steamworks (pre v1.0.6 uploada, urađeno 10.09.):** New Achievement
 >   `ACH_SPOT_LOOPNUMBER` — Display **Lost Count**, Description **Correctly
 >   call out a flickering loop counter.** Hidden = No. Save + **Publish**.
 >   Ako Almanac ima progress stat, max 9 → 10.
@@ -26,8 +26,8 @@ Steam App ID: **4982260**
 > - [ ] **OpenAI / provider nalog: postavi tvrdi mesečni spend limit.** Kod
 >   ograničava broj zahteva (5000/dan globalno), ne dolare — ovo je poslednja
 >   brana i jedina koju repo ne može da uradi za tebe.
-> - [ ] Odluči: v1.0.6 pre petka (Pursuer mrtva linija + poruka ≤1000 znakova)
->   ili prvi patch posle launcha. Ako kuvaš: **GatherText** pa cook.
+> - [x] ~~Odluči: v1.0.6 pre petka ili prvi patch posle launcha.~~ v1.0.6 je
+>   kuvan (Pursuer mrtva linija + poruka ≤1000 znakova + Lost Count).
 > - [ ] Ako kuvaš v1.0.6: Standalone QA Pursuer linije (§6) i jedan run da
 >   chat radi normalno na sledećem spratu.
 > - [ ] Monitoring alarm na `chat.denied.global` i `abuse.watch` (metrike već
