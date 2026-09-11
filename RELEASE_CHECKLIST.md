@@ -41,6 +41,10 @@ Steam App ID: **4982260**
 >     `.po`). Bez toga ostali jezici prikazuju engleski. Link:
 >     `ReportBugUrl` na `WBP_MainMenu` (default Steam discussions), otvara se u
 >     Steam overlay-u.
+>   - [ ] Pogledati dugme u meniju: da tekst staje u klon dugmeta (300×60 pre
+>     skaliranja 0.7) i da klik otvara Steam overlay. Ako je odsečeno —
+>     brojevi u `EnsureReportBugButton`; ako ne valja — `git revert 1c5d1cd`
+>     (jedan commit, ništa drugo ne dira).
 >   - [ ] Brz prolaz: `AnomalyWatcher`, `AnomalyPhone`, `AnomalyCreep`,
 >     `AnomalyForce I01`; `AnomalyReset` vraća svetla.
 > - [ ] Posle: merge `release/v1.0.7` → `main` u igri. `develop` ostaje
