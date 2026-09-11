@@ -18,16 +18,28 @@ Steam App ID: **4982260**
 > nereferencirani, bezopasni; sledeći GatherText ih izbacuje.
 >
 > **Pre cooka (17:00):**
-> - [ ] Steamworks: `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP`, `ACH_WRONG_NUMBER`,
->   `ACH_TOO_CLOSE` uneti + ikonice + **Publish** — config ih traži, jedan
->   nepoznat id obara ceo `WriteAchievements` blok. `ACH_ALL_ENDINGS` opis
->   ostaje „six". Almanac progress stat max 10 → 12.
-> - [ ] Windows: build `release/v1.0.7`, cook u `Builds/v1.0.7`, SteamPipe
->   fajlovi već pokazuju na `v1.0.7`.
-> - [ ] Backend: merge `release/v1.0.7` → `main` u `Loop9_backend` (push na
->   `main` = Render deploy) **pre** nego što build ode na default; stari
->   klijenti su neosetljivi na sve novo. Bez toga AI dobija labele
->   `WatcherAnomaly`/`CreepAnomaly` koje ne poznaje.
+> - [x] Steamworks: `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP`, `ACH_WRONG_NUMBER`,
+>   `ACH_TOO_CLOSE` uneti + Publish (11.09.). `ACH_ALL_ENDINGS` opis ostaje
+>   „six". Almanac progress stat max 10 → 12 ako postoji.
+> - [x] Backend: `release/v1.0.7` → `main` pushovan 11.09. (Render deploy iz
+>   Actions); proveri `/readyz` i jedan chat sa Watcher/Creep labelom u logu.
+> - [ ] **Editor (kuća), pa build `release/v1.0.7` → cook u `Builds/v1.0.7`:**
+>   - [ ] `BP_WatcherFigure`: drugi mesh + ABP (idle), collision `BlockAll` na
+>     mesh-u; `FigureClass` na svakom anchoru (ili BP child anchora).
+>   - [ ] Još 2–3 `WatcherAnchor` mesta (strelica = kud gleda), `AnomalyZone`
+>     po mestu.
+>   - [ ] Zvuci: Watcher `VanishSound` / `LookBackSound` (+ attenuation),
+>     `SignalBurstSound` na PC-u (bez toga uzima `PhoneLineCut`), zvono i
+>     pickup na telefonima.
+>   - [ ] **Creep: bar 3 `CreepAnomalyComponent` u mapi** (vaza, šolja, ram,
+>     `CreepOffset`/`AnomalyZone`). Bez ijednog Creep-a `ACH_SPOT_CREEP` i
+>     `ACH_SPOT_ALL` (traži 12) su nedostižni.
+>   - [ ] Svaki telefon sa `AudioAnomaly` ima lampu u krugu 6 m (inače sprat
+>     ide skroz u mrak — log upozorava).
+>   - [ ] Ikonice `*_off.png` za 4 nova achievementa
+>     (`py -3 Tools/make_achievement_off_icons.py`) ako nisu uploadovane.
+>   - [ ] Brz prolaz: `AnomalyWatcher`, `AnomalyPhone`, `AnomalyCreep`,
+>     `AnomalyForce I01`; `AnomalyReset` vraća svetla.
 > - [ ] Posle: merge `release/v1.0.7` → `main` u igri. `develop` ostaje
 >   nadskup (The Exit, memorija, stale-floor); pri `main → develop` merge-u
 >   konflikti u `DefaultEngine.ini`, `AnomalyManager.*`, `AI_Friend.cpp` i
