@@ -70,6 +70,22 @@ void ULoop9TelemetrySubsystem::SendRunFinished(
 	const FDragojloCommitmentState& Commitment)
 {
 	const FString EndingId = EndingTelemetryId(EndingType);
+
+	// Only real players count. Editor runs and runs steered by debug commands
+	// would otherwise show up in the monitoring console as customers.
+	const bool bTainted = bRunTaintedByDebug;
+	bRunTaintedByDebug = false;
+	if (GIsEditor)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Telemetry skipped: editor run"));
+		return;
+	}
+	if (bTainted)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Telemetry skipped: run used debug commands"));
+		return;
+	}
+
 	if (TelemetryEndpoint.IsEmpty())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Telemetry skipped: endpoint not configured"));

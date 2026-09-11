@@ -9,6 +9,7 @@
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Subsystems/Loop9TrailerRigSubsystem.h"
+#include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "UI/SignalBurstWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -150,12 +151,24 @@ UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 #if !UE_BUILD_SHIPPING
 namespace
 {
+	/** Every debug command that reaches game state goes through here or GetLoopManager, so this is where the run stops counting as a player's. */
+	void TaintTelemetryRun(const UObject* WorldContext)
+	{
+		const UWorld* World = WorldContext ? WorldContext->GetWorld() : nullptr;
+		UGameInstance* GI = World ? World->GetGameInstance() : nullptr;
+		if (ULoop9TelemetrySubsystem* Telemetry = GI ? GI->GetSubsystem<ULoop9TelemetrySubsystem>() : nullptr)
+		{
+			Telemetry->MarkRunTaintedByDebug();
+		}
+	}
+
 	UAnomalyManager* GetAnomalyManager(const UObject* WorldContext)
 	{
 		if (!WorldContext)
 		{
 			return nullptr;
 		}
+		TaintTelemetryRun(WorldContext);
 		if (const UWorld* World = WorldContext->GetWorld())
 		{
 			if (UGameInstance* GI = World->GetGameInstance())
@@ -491,6 +504,7 @@ namespace
 		{
 			return nullptr;
 		}
+		TaintTelemetryRun(WorldContext);
 		if (const UWorld* World = WorldContext->GetWorld())
 		{
 			if (UGameInstance* GI = World->GetGameInstance())
@@ -562,6 +576,7 @@ void ALoop9PlayerController::TrailerShot(const FString& Args)
 		DebugScreenMessage(TEXT("TrailerShot: rig not available (start a run first)."), false);
 		return;
 	}
+	TaintTelemetryRun(this);
 	FString Message;
 	const bool bOk = Rig->StartShot(this, Tokens[0], Pan, Pitch, Dolly, Seconds, Message);
 	DebugScreenMessage(Message, bOk);

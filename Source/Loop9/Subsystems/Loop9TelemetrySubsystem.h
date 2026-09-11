@@ -27,6 +27,14 @@ public:
 	/** Derives the telemetry endpoint from the chat endpoint and stores the fallback token. */
 	void ConfigureFromChatEndpoint(const FString& ChatEndpoint, const FString& InGameToken);
 
+	/**
+	 * A debug command touched this run (EndingSetup, AnomalyForce, trailer rig...),
+	 * so its ending must not land in the player numbers. Cleared when the run
+	 * finishes. Editor (PIE) runs are never sent at all.
+	 */
+	void MarkRunTaintedByDebug() { bRunTaintedByDebug = true; }
+	bool IsRunTaintedByDebug() const { return bRunTaintedByDebug; }
+
 	/** Sends the end-of-run ping. Safe to call when unconfigured (no-op). */
 	void SendRunFinished(
 		ELoopEndingType EndingType,
@@ -53,6 +61,7 @@ private:
 	bool bPendingRunFinished = false;
 	ELoopEndingType PendingEndingType = ELoopEndingType::EscapeTogether;
 	int32 PendingTotalResets = 0;
+	bool bRunTaintedByDebug = false;
 	int32 PendingTotalAIInteractions = 0;
 	FDragojloCommitmentState PendingCommitment;
 	FDelegateHandle AuthReadyHandle;

@@ -25,7 +25,19 @@ namespace
 	 * reads as an empty level rather than as suspense. Floor 1 is exempt and
 	 * always clean, because the opening phone call promises the player that.
 	 */
-	constexpr float AnomalyChancePerLoop = 0.8f;
+	/**
+	 * Chance that a floor carries an anomaly at all. A flat 0.8 meant "take the
+	 * lit lift" was right four floors in five without looking; launch-day data
+	 * showed a first run finishing in 18 minutes with one reset. Late floors are
+	 * now closer to a coin flip, so a clean floor is a real possibility the
+	 * player has to rule out rather than a rare exception.
+	 */
+	float AnomalyChanceForLoop(int32 LoopIndex)
+	{
+		if (LoopIndex <= 3) { return 0.85f; }
+		if (LoopIndex <= 6) { return 0.70f; }
+		return 0.55f;
+	}
 
 	URelationshipSubsystem* GetRelationshipSubsystem(UGameInstance* GameInstance)
 	{
@@ -842,7 +854,7 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 		return;
 	}
 
-	const bool bShouldHaveAnomaly = bDebugAlwaysSpawnMoveAnomaly ? true : (FMath::FRand() < AnomalyChancePerLoop);
+	const bool bShouldHaveAnomaly = bDebugAlwaysSpawnMoveAnomaly ? true : (FMath::FRand() < AnomalyChanceForLoop(CurrentLoop));
 	if (!bShouldHaveAnomaly)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Anomaly: NO"));
@@ -853,7 +865,7 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 		? 1
 		: ComputeAnomalyTargetCount(CurrentLoop, GetAIStability());
 
-	AnomalyManager->TriggerRandomAnomalies(AnomalyCount);
+	AnomalyManager->TriggerRandomAnomalies(AnomalyCount, /*MinProbability*/ 0.0f, CurrentLoop);
 
 	if (AnomalyManager->GetActiveAnomalyCount() == 0)
 	{
