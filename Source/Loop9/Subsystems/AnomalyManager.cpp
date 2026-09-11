@@ -66,12 +66,12 @@ namespace
 	{
 		switch (Type)
 		{
-		// A missing object and a repainted surface are the two fair anomalies:
-		// the answer is in the room, and finding it feels like the player's own
-		// work rather than something that happened at them.
+		// A missing object and a repainted surface are the two fair anomalies,
+		// but at 1.8 they crowded out the rest of the roster in playtests; the
+		// norm keeps them common without making every other floor one of them.
 		case ELoopAnomalyType::Hide:
 		case ELoopAnomalyType::Text:
-			return 1.8f;
+			return 1.0f;
 
 		// The pursuer converts the floor from an inspection into a chase and
 		// removes the choice at the elevator, so it lands as a rare shock.
