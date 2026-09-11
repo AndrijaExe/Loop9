@@ -5,9 +5,13 @@
 #include "Loop9.h"
 #include "Loop9CameraManager.h"
 #include "Subsystems/AnomalyManager.h"
+#include "Subsystems/Loop9LightsSubsystem.h"
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
+#include "UI/SignalBurstWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "Loop9Character.h"
 #include "HorrorUI.h"
 #include "AudioDevice.h"
@@ -112,6 +116,27 @@ void ALoop9PlayerController::RemoveBlinkOverlay()
 	}
 }
 
+void ALoop9PlayerController::PlaySignalBurst(float Duration)
+{
+	USignalBurstWidget* Burst = CreateWidget<USignalBurstWidget>(this, USignalBurstWidget::StaticClass());
+	if (!Burst)
+	{
+		return;
+	}
+	Burst->AddToViewport(5001);
+	Burst->Play(Duration);
+
+	USoundBase* Sound = SignalBurstSound;
+	if (!Sound)
+	{
+		Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/MyStuff/Sound/Phone/PhoneLineCut.PhoneLineCut"));
+	}
+	if (Sound)
+	{
+		UGameplayStatics::PlaySound2D(this, Sound);
+	}
+}
+
 UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 {
 	return GameplayUI;
@@ -172,6 +197,14 @@ void ALoop9PlayerController::AnomalyReset()
 	if (UAnomalyManager* Manager = GetAnomalyManager(this))
 	{
 		Manager->ResetAllAnomalies();
+		// A blackout left by an anomaly goes with it.
+		if (UWorld* World = GetWorld())
+		{
+			if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+			{
+				Lights->Restore();
+			}
+		}
 		UE_LOG(LogLoop9, Log, TEXT("AnomalyReset: all anomalies cleared"));
 		DebugScreenMessage(TEXT("AnomalyReset: all anomalies cleared"), true);
 	}
@@ -285,6 +318,36 @@ void ALoop9PlayerController::AnomalyLoopNumber()
 	AnomalyForce(TEXT("LoopNumber"));
 }
 
+void ALoop9PlayerController::AnomalyWatcher()
+{
+	AnomalyForce(TEXT("Watcher"));
+}
+
+void ALoop9PlayerController::AnomalyCreep()
+{
+	AnomalyForce(TEXT("Creep"));
+}
+
+void ALoop9PlayerController::PhoneLineRestore()
+{
+#if !UE_BUILD_SHIPPING
+	UAnomalyManager* Manager = GetAnomalyManager(this);
+	if (!Manager)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("PhoneLineRestore: AnomalyManager not available"));
+		return;
+	}
+	const bool bWasCut = Manager->IsPhoneLineCut();
+	Manager->RestorePhoneLine();
+	Manager->ForgetPhonesRang();
+	UE_LOG(LogLoop9, Log, TEXT("PhoneLineRestore: line %s"), bWasCut ? TEXT("restored") : TEXT("was not cut"));
+	DebugScreenMessage(
+		bWasCut ? TEXT("PhoneLineRestore: phones work again on this floor. AnomalyPhone to ring them once more.")
+				: TEXT("PhoneLineRestore: the line was not cut on this floor."),
+		true);
+#endif
+}
+
 void ALoop9PlayerController::AnomalyAuditMaterials()
 {
 #if !UE_BUILD_SHIPPING
@@ -318,11 +381,14 @@ void ALoop9PlayerController::AnomalyHelp()
 		"  AnomalyScale                        - force every scale anomaly\n"
 		"  AnomalyPhantom                      - force every phantom chat message\n"
 		"  AnomalyLoopNumber                   - force the loop-counter ? glitch\n"
+		"  AnomalyWatcher                      - force the back-turned figure (1.1)\n"
+		"  AnomalyCreep                        - force the slow-drift object (1.1)\n"
 		"  AnomalyForce <filter> [matIndex]    - force ALL matches by type/class/actor\n"
 		"    type is exact; class/actor partial filters require at least 3 characters\n"
-		"    filter examples: Hide, Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, Scale, Phantom, DoorLock, LoopNumber, I01\n"
+		"    filter examples: Hide, Flicker, Audio, Pursuer, Phone, MaterialSwap, Move, Scale, Phantom, DoorLock, LoopNumber, Watcher, Creep, I01\n"
 		"    matIndex (optional): 0-based MaterialSwap variant (Die=0, Help=1, ...)\n"
 		"  AnomalyAuditMaterials               - list material swaps that would be invisible\n"
+		"  PhoneLineRestore                    - undo the ringing-phone line cut on this floor (1.1)\n"
 		"  AudioStatus                         - report why the floor is silent\n"
 		"  AnomalyHelp                         - this message"));
 #endif

@@ -24,7 +24,7 @@ namespace
 
 	constexpr bool bDebugOnlyMoveAnomaly = false;
 
-	constexpr int32 AnomalyTypeCount = 10;
+	constexpr int32 AnomalyTypeCount = 12;
 
 	constexpr ELoopAnomalyType AnomalyTypeOrder[AnomalyTypeCount] =
 	{
@@ -37,7 +37,9 @@ namespace
 		ELoopAnomalyType::Pursuer,
 		ELoopAnomalyType::Scale,
 		ELoopAnomalyType::PhantomMessage,
-		ELoopAnomalyType::LoopNumber
+		ELoopAnomalyType::LoopNumber,
+		ELoopAnomalyType::Watcher,
+		ELoopAnomalyType::Creep
 	};
 
 	int32 GetTypeIndex(ELoopAnomalyType Type)
@@ -80,6 +82,16 @@ namespace
 		// easier to call than a missing stapler. Keep it garnish.
 		case ELoopAnomalyType::LoopNumber:
 			return 0.55f;
+
+		// A man with his back turned is a shock, not a search. Rare like the
+		// pursuer, a touch more common because he never takes the choice away.
+		case ELoopAnomalyType::Watcher:
+			return 0.45f;
+
+		// A slow drift is a fair search once the player knows to compare, and a
+		// blank until then. Keep it at the norm.
+		case ELoopAnomalyType::Creep:
+			return 1.0f;
 
 		default:
 			return 1.0f;
@@ -222,11 +234,13 @@ void UAnomalyManager::BeginLoopVisit()
 	CurrentLoopAnomalyZone.Empty();
 	CurrentLoopAnomalyObjectKind.Empty();
 	bCurrentLoopAnomalyRepeat = false;
+	bPhoneLineCutThisFloor = false;
 }
 
 void UAnomalyManager::ResetRunTracking()
 {
 	BeginLoopVisit();
+	PhonesRangThisRun.Reset();
 	PreviousLoopAnomalyKey.Empty();
 }
 
@@ -577,6 +591,20 @@ bool UAnomalyManager::DoesComponentMatchFilter(const UAnomalyComponentBase* Comp
 	}
 	if (Filter.Equals(TEXT("Scale"), ESearchCase::IgnoreCase)
 		&& Component->GetAnomalyType() == ELoopAnomalyType::Scale)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Watcher"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Figure"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("BackTurned"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Watcher)
+	{
+		return true;
+	}
+	if ((Filter.Equals(TEXT("Creep"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("Drift"), ESearchCase::IgnoreCase)
+			|| Filter.Equals(TEXT("SlowMove"), ESearchCase::IgnoreCase))
+		&& Component->GetAnomalyType() == ELoopAnomalyType::Creep)
 	{
 		return true;
 	}

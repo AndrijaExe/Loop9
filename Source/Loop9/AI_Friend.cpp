@@ -2,6 +2,7 @@
 #include "AI_ChatWidget.h"
 #include "AI/Services/Loop9BackendChatService.h"
 #include "AI/Services/Loop9BackendEndpointUtils.h"
+#include "Anomaly/AudioAnomalyComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -17,6 +18,8 @@
 #include "Subsystems/Loop9GameplayNotificationSubsystem.h"
 #include "Subsystems/Loop9BackendAuthSubsystem.h"
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
+#include "Subsystems/Loop9RingingFloorSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "Internationalization/Culture.h"
 #include "Misc/Guid.h"
@@ -625,6 +628,22 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		return TEXT("Blocked: pursuer loose, nobody answers");
 	}
 
+	// Ringing-phone anomaly already answered on this floor: the line stays cut.
+	// Distinct text from the Pursuer dead line — here he hung up, he did not leave.
+	if (IsPhoneLineCut())
+	{
+		const FString CutReply = NSLOCTEXT("Loop9Chat", "ChatLineCutAfterRing",
+			"...static, then a steady tone. Whatever you picked up earlier took the line with it. Nothing gets through on this floor.").ToString();
+		LastAIResponse = CutReply;
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->AddMessageToChat(CutReply, false, true);
+		}
+		OnResponseReceived(CutReply);
+		UE_LOG(LogTemp, Log, TEXT("AI request suppressed: phone line cut after the ringing-phone anomaly."));
+		return TEXT("Blocked: line cut this floor");
+	}
+
 	if (TrimmedMessage.Len() > Loop9ChatLimits::MaxMessageLength)
 	{
 		const FString TooLongReply = NSLOCTEXT("Loop9Chat", "ChatMessageTooLong",
@@ -1065,6 +1084,12 @@ void AAI_Friend::ClearPhantomPlayerMessage()
 
 bool AAI_Friend::TryInteract_Implementation(APlayerController* InteractingController)
 {
+	if (UAudioAnomalyComponent* Ringing = GetRingingAnomaly())
+	{
+		AnswerRingingAnomaly(InteractingController, Ringing);
+		return true;
+	}
+
 	OpenChatWidget(InteractingController);
 	return true;
 }
@@ -1074,11 +1099,110 @@ FText AAI_Friend::GetInteractionPromptText_Implementation() const
 	return NSLOCTEXT("Loop9Interaction", "AnswerPhone", "Answer");
 }
 
+UAudioAnomalyComponent* AAI_Friend::GetRingingAnomaly() const
+{
+	TArray<UAudioAnomalyComponent*> AudioAnomalies;
+	GetComponents<UAudioAnomalyComponent>(AudioAnomalies);
+	for (UAudioAnomalyComponent* Audio : AudioAnomalies)
+	{
+		if (Audio && Audio->bAnswerable && Audio->IsRinging())
+		{
+			return Audio;
+		}
+	}
+	return nullptr;
+}
+
+bool AAI_Friend::IsPhoneLineCut() const
+{
+	const UGameInstance* GameInstance = GetGameInstance();
+	if (!GameInstance)
+	{
+		return false;
+	}
+	const UAnomalyManager* AnomalyManager = GameInstance->GetSubsystem<UAnomalyManager>();
+	return AnomalyManager && AnomalyManager->IsPhoneLineCut();
+}
+
+void AAI_Friend::AnswerRingingAnomaly(APlayerController* PlayerController, UAudioAnomalyComponent* Ringing)
+{
+	// The ring is the anomaly. Picking up stops it, shows one line that never
+	// touches the backend and cannot be answered, then the line goes dead for
+	// the whole floor. Closing the chat is what gives the lift back (1.1).
+	Ringing->Answer();
+	OpenChatWidget(PlayerController);
+
+	const FString CannedLine = PickRingingPhoneLine();
+	LastAIResponse = CannedLine;
+	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+	{
+		ChatWidget->SetInputLocked(true);
+		ChatWidget->AddMessageToChat(CannedLine, false, true);
+	}
+	bRingingMessagePending = true;
+	OnResponseReceived(CannedLine);
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (UAnomalyManager* AnomalyManager = GameInstance->GetSubsystem<UAnomalyManager>())
+		{
+			AnomalyManager->CutPhoneLineForFloor();
+		}
+		if (ULoop9ObservationJournalSubsystem* Journal =
+			GameInstance->GetSubsystem<ULoop9ObservationJournalSubsystem>())
+		{
+			Journal->RecordObjectInspected(FName(TEXT("ringing_phone")));
+		}
+		if (ULoop9AchievementsSubsystem* Achievements = GameInstance->GetSubsystem<ULoop9AchievementsSubsystem>())
+		{
+			Achievements->UnlockAchievement(FName(TEXT("ACH_WRONG_NUMBER")));
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Ringing phone answered: canned line shown read-only, phone line cut for this floor."));
+}
+
+FString AAI_Friend::PickRingingPhoneLine()
+{
+	// Six lines, drawn at random. The last three point at the 1.1 ending: a
+	// wall that is not always a wall, stairs, a street door. None of them
+	// says how to get there.
+	static const FText Lines[] = {
+		NSLOCTEXT("Loop9Chat", "ChatRingingPhoneAnswered",
+			"...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine2",
+			"...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine3",
+			"...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine4",
+			"...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine5",
+			"...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine6",
+			"...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."),
+	};
+	const int32 Index = FMath::RandRange(0, UE_ARRAY_COUNT(Lines) - 1);
+	return Lines[Index].ToString();
+}
+
 void AAI_Friend::CloseChatWidget(APlayerController* PlayerController)
 {
 	if (!PlayerController)
 	{
 		return;
+	}
+
+	if (bRingingMessagePending)
+	{
+		bRingingMessagePending = false;
+		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+		{
+			ChatWidget->SetInputLocked(false);
+		}
+		if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+		{
+			RingingFloor->OnRingingMessageRead(this);
+		}
 	}
 
 	if (ChatWidgetInstance && ChatWidgetInstance->IsInViewport())

@@ -1,6 +1,6 @@
 # Anomalies
 
-Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`). There is no Clock anomaly. `ACH_SPOT_ALL` tracks all ten, including `LoopNumber` (`ACH_SPOT_LOOPNUMBER`).
+Loop 9 has **twelve** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`): ten at v1.0.6, plus `Watcher` and `Creep` in 1.1. There is no Clock anomaly. `ACH_SPOT_ALL` tracks all twelve (`ACH_SPOT_LOOPNUMBER`, `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP` included).
 
 ## Types
 
@@ -16,8 +16,87 @@ Loop 9 has **ten** anomaly types (`ELoopAnomalyType` in `Anomaly/AnomalyTypes.h`
 | Scale | `ScaleAnomaly` | wrong-sized object |
 | PhantomMessage | `PhantomMessageAnomaly` | chat message the player never sent |
 | LoopNumber | `LoopNumberAnomaly` | loop counter flickers / turns into `?` |
+| Watcher (1.1) | `WatcherAnomaly` | `UWatcherAnomalyComponent`: a figure standing with its back turned |
+| Creep (1.1) | `CreepAnomaly` | `UCreepAnomalyComponent`: an object that drifts ~1 cm/s while the player is on the floor |
 
 `MaterialSwapAnomalyComponent` currently reports type `Text` and is used for material/text visual variants.
+
+**Ringing phones (1.1).** An `AudioAnomalyComponent` placed on an `AAI_Friend`
+desk phone with `bAnswerable` (default) is a ringing phone: interacting while
+it rings stops the sound (`Answer()`, anomaly stays active), opens the chat
+with one local canned line (`ChatRingingPhoneAnswered`, no backend call, no
+message slot), logs `object_inspected` / `ringing_phone`, and cuts the line for
+the whole floor (`UAnomalyManager::CutPhoneLineForFloor`). Every phone then
+answers `SayToAI` with `ChatLineCutAfterRing` until the next floor. Audio
+components on any other actor behave as before.
+
+**Watcher (1.1).** `UWatcherAnomalyComponent` sits on an `AWatcherAnchor` (drop
+it in the level like a `PursuerSpawnPoint`; the red arrow is the way he faces,
+the component is built in) and spawns `FigureClass` at the anchor's transform.
+No rotation is computed: what the arrow shows is what spawns. He never moves. The manifestation vanishes when the player comes within
+`VanishDistance`, on the second look after looking away, after
+`MaxContinuousLookSeconds`, or after `MaxLifetimeSeconds`; the component stays
+active so the floor still judges "lit". First sight logs `object_inspected` /
+`figure_back_turned`. Selection weight 0.45 (rare, like the Pursuer). Spot
+achievement `ACH_SPOT_WATCHER` (hidden).
+
+**How he leaves (1.1).** Two exits. *Look-away:* the moment the player has
+looked away for `MinLookAwaySeconds` he is gone, quietly (`VanishQuietly`);
+the component keeps polling and the first time the camera points back at the
+empty spot with line of sight, every light on the floor goes out. *Approach or
+stare:* walking up to him at any speed (`VanishDistance`) or staring for
+`MaxContinuousLookSeconds` goes through `VanishWithBurst`: a full-screen "bad
+signal" burst (`ALoop9PlayerController::PlaySignalBurst`, `USignalBurstWidget`,
+built in code, no asset), lights out, and only then is the figure removed;
+the approach also unlocks `ACH_TOO_CLOSE`. The blackout runs through
+`ULoop9LightsSubsystem` and stays until the next loop, `AnomalyReset`, or the
+component's own reset (`BlackoutSeconds` = 0; a number makes it timed). The
+lifetime timeout is the one exit with no effect at all.
+
+**Ringing floor (1.1).** A ringing desk phone is a whole beat, run by
+`ULoop9RingingFloorSubsystem` (world subsystem, nothing to place). When the
+player steps out of the lit lift (`LiftExitDistanceCm` from the arrival point),
+its doors close and the lit button refuses presses; every light goes out except
+the lamp nearest the phone (`ULoop9LightsSubsystem::FindNearestLight`, within
+`PhoneLampSearchRadiusCm`). Picking up shows one of six lines
+(`AAI_Friend::PickRingingPhoneLine`, `ChatRingingPhoneAnswered`,
+`ChatRingingLine2..6`) read-only (`UAI_ChatWidget::SetInputLocked`); lines 4-6
+hint at the wall, the stairs and the street door of the secret ending. Closing
+the chat restores the lights and reopens the lit lift. The dark lift is never
+held. A desk phone rings **once per run**: `UAnomalyManager::MarkPhoneRang` /
+`HasPhoneRang` make the audio component refuse a second activation on the same
+phone until the run resets (the manager then draws another anomaly);
+`PhoneLineRestore` also forgets them for QA. `MaxHoldSeconds` (240) reopens the lift if nobody ever answers; a loop
+change restores everything. Achievement `ACH_WRONG_NUMBER` on pickup.
+
+**Text anomaly textures (1.1 rework).** The `MaterialSwap` variants under
+`Content/MyStuff/Anomalies/{I01,Magazine,D01,F01}` are generated, not painted:
+`py -3 Tools/make_text_anomaly_textures.py <folder>` rebuilds every `_C`/`_C2`/`_C3`
+(and the Magazine `_E` emissives) from the clean Deko base textures, so the words
+read as print rather than as a sticker: a centred top-band headline and a swapped
+headline column on the newspaper (I01), a "next issue" teaser in the cover's own
+condensed type on the PC magazine back cover (Magazine), a CRT prompt on the
+manual's monitor (D01), and the book's own green title block plus spine tag (F01).
+Round trip without opening the editor:
+
+```
+UnrealEditor-Cmd.exe Loop9.uproject -EnablePlugins=PythonScriptPlugin -ExecutePythonScript=Tools/EditorPython/export_anomaly_textures.py -unattended -nopause -nosplash
+py -3 Tools/make_text_anomaly_textures.py D:\Temp\anomaly_textures
+UnrealEditor-Cmd.exe Loop9.uproject -EnablePlugins=PythonScriptPlugin -ExecutePythonScript=Tools/EditorPython/reimport_anomaly_textures.py -unattended -nopause -nosplash
+```
+
+The reimport writes over the existing assets, so the material instances keep their
+references. Run `AnomalyAuditMaterials` afterwards; a variant identical to the
+baseline is refused at activation.
+
+**Creep (1.1).** `UCreepAnomalyComponent` goes on the object itself. On
+activation the object starts at its normal spot and drifts toward a target at
+`CreepSpeedCmPerSecond` (1.0): a tagged `AAnomalyMovePoint` (`CreepTargetTag`,
+same contract as Move) or `CreepOffset` in the object's own axes (default 60 cm
+sideways). It stops when it arrives and never comes back on its own; a
+destination under 5 cm away is refused. `bPauseWhileObserved` (off) makes it
+move only when the player is not looking. Type weight 1.0. Spot achievement
+`ACH_SPOT_CREEP`. Debug: `AnomalyCreep`, filters `Creep` / `Drift` / `SlowMove`.
 
 Pursuer is the one anomaly that changes the phone. While it is active
 (`UAnomalyManager::IsAnomalyTypeActive(Pursuer)` — true for the whole floor
@@ -169,19 +248,24 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyScale` | Force every Scale anomaly |
 | `AnomalyPhantom` | Force every PhantomMessage anomaly |
 | `AnomalyLoopNumber` | Force the loop-counter `?` glitch |
+| `AnomalyWatcher` | 1.1: force the back-turned Watcher figure |
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
+| `PhoneLineRestore` | 1.1: undo the floor-wide line cut after answering a ringing phone (re-test without changing floors) |
+| `DragojloMemory` | 1.1: print the persisted cross-run memory (`runs`, `last`, `tone`, `lies`, ...) |
+| `DragojloForget` | 1.1: wipe that memory, as on a fresh install |
 | `AudioStatus` | Report why the floor is silent: audio device, volumes, music bed, placed ambience |
 | `AnomalyHelp` | Print usage |
+| `EndingSetup TheExit` | 1.1: arm the ground-floor door (see `EndingHelp`) |
 
 These are **tilde console** commands in PIE / Standalone / Development. They are compiled out of Shipping.
 
 Filter notes:
 
-- Type labels match exactly (case-insensitive), plus short names (`Hide`, `Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `Scale`, `Phantom`, `LoopNumber`, `Counter`).
+- Type labels match exactly (case-insensitive), plus short names (`Hide`, `Flicker`, `Audio`, `Pursuer`, `Phone`, `Door`, `DoorLock`, `Scale`, `Phantom`, `LoopNumber`, `Counter`, `Watcher`, `Figure`, `BackTurned`).
 - Class/actor partial filters require at least 3 characters.
 - Examples: `Flicker`, `Phone`, `Pursuer`, `MaterialSwap`, `Move`, `I01`.
 
 ## Achievements tied to anomalies
 
-Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all ten types across runs (persisted), including `LoopNumber`. Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).
+Spotting achievements unlock on correct lit-elevator calls while the matching type is active. Meta achievement `ACH_SPOT_ALL` requires all twelve types across runs (persisted): the original nine, `LoopNumber` (v1.0.6), `Watcher` and `Creep` (1.1). Two event achievements are not tied to the lift: `ACH_WRONG_NUMBER` (answered the ringing phone) and `ACH_TOO_CLOSE` (ran into the Watcher). Details: [`../STEAM_ACHIEVEMENTS.md`](../STEAM_ACHIEVEMENTS.md).

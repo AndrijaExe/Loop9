@@ -3,6 +3,37 @@
 Poslednje ažuriranje: **10.09.2026.**
 Steam App ID: **4982260**
 
+> ## v1.0.7 — `release/v1.0.7` (11.09.2026.)
+>
+> Grana = **`main` (v1.0.6) + ono što je sinoć urađeno**: Watcher (anchor,
+> burst, blackout, look-back), telefon koji drži lift i gasi sprat, Creep,
+> četiri achievementa, print teksture za text anomalije, GatherText/locres.
+> **Ništa od ostatka 1.1 nije u buildu**: nema The Exit (vrata, GameMode,
+> ending, `ACH_ENDING_THE_EXIT`), nema Dragojlo memorije, nema stale-floor —
+> ti fajlovi ne postoje na grani, klijent ne šalje `run_history` ni
+> `previous_anomaly_detail`. Endinga je 6, `SpotAllAnomalyTypeCount = 12`,
+> achievement slotovi 0–31 (28–31 = Watcher/Creep/WrongNumber/TooClose).
+> Backend `release/v1.0.7` = `main` + taksonomija 12 tipova (Watcher/Creep/
+> LoopNumber labele), ništa drugo. `.po`/locres nose i The Exit stringove —
+> nereferencirani, bezopasni; sledeći GatherText ih izbacuje.
+>
+> **Pre cooka (17:00):**
+> - [ ] Steamworks: `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP`, `ACH_WRONG_NUMBER`,
+>   `ACH_TOO_CLOSE` uneti + ikonice + **Publish** — config ih traži, jedan
+>   nepoznat id obara ceo `WriteAchievements` blok. `ACH_ALL_ENDINGS` opis
+>   ostaje „six". Almanac progress stat max 10 → 12.
+> - [ ] Windows: build `release/v1.0.7`, cook u `Builds/v1.0.7`, SteamPipe
+>   fajlovi već pokazuju na `v1.0.7`.
+> - [ ] Backend: merge `release/v1.0.7` → `main` u `Loop9_backend` (push na
+>   `main` = Render deploy) **pre** nego što build ode na default; stari
+>   klijenti su neosetljivi na sve novo. Bez toga AI dobija labele
+>   `WatcherAnomaly`/`CreepAnomaly` koje ne poznaje.
+> - [ ] Posle: merge `release/v1.0.7` → `main` u igri. `develop` ostaje
+>   nadskup (The Exit, memorija, stale-floor); pri `main → develop` merge-u
+>   konflikti u `DefaultEngine.ini`, `AnomalyManager.*`, `AI_Friend.cpp` i
+>   `Loop9PlayerController.cpp` se rešavaju uzimanjem `develop` strane.
+
+
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
 > Valve dozvoljava od **četvrtka 10.09.** Release day je **petak 11.09.2026.**
 > Default je **v1.0.5** (`25175593`, Set Live 09.09.). **v1.0.6**
@@ -33,7 +64,12 @@ Steam App ID: **4982260**
 > - [ ] Monitoring alarm na `chat.denied.global` i `abuse.watch` (metrike već
 >   postoje na `/metrics`). Ako launch dan probije 5000 legitimnih chatova,
 >   igrači dobijaju „Service is at capacity“ — tada se diže
->   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred.
+>   `GAME_GLOBAL_DAILY_QUOTA` na Renderu, ne unapred. **Kod je u
+>   `ProjectMonitoring` (10.09., lokalni commit, mail sadrži i savet).** Ostaje
+>   ručno: push + na `monitoring-api` Render env `ALERT_RATE_PER_HOUR` dodati
+>   `chat.denied.global=0` (`abuse.watch=0` već stoji).
+> - [ ] **1.1 (`develop`) — Steamworks + Render + editor:** vidi §10 dole
+>   (`ACH_ENDING_THE_EXIT`, opis `ACH_ALL_ENDINGS`, tri env ključa, cook).
 
 Ovo je jedini dokument koji prati spremnost za release. Tehničke tabele ostaju u
 `[STEAM_ACHIEVEMENTS.md](STEAM_ACHIEVEMENTS.md)`, marketinški tekst u
@@ -404,7 +440,7 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
   pod `[OnlineSubsystemSteam]` kao `Achievement_N_Id=...`. Tog bloka nije bilo,
   pa je `QueryAchievements` padao, `bCacheReady` nikad nije postao `true` i
   `FlushPendingUnlocks` se nikad nije ni pozvao. Popravka je dvostruka:
-  svih 27 imena je upisano u config (redom od 0, bez navodnika), a
+  svih 28 imena je upisano u config (redom od 0, bez navodnika), a
   `UnlockAchievement` sada prvo zove Steamworks direktno
   (`SetAchievement` + `StoreStats`), pa tek onda pada na subsystem. Direktan
   put ne traži ni keširanu listu ni online identitet, pa radi i ako engine
@@ -414,7 +450,7 @@ Playtest *branch* na istom App ID-u deli iste achievemente kao `default`.
 
 - [x] **Arhiva se sama popravlja (25.08.2026.):** `GetSeenEndingIds` i
   `RecordSpottedAnomalies` više ne čitaju samo `Game.ini`, nego ga spajaju sa
-  onim što Steam drži za šest `ACH_ENDING_*` i devet `ACH_SPOT_*`. Isti podatak,
+  onim što Steam drži za šest `ACH_ENDING_*` i deset `ACH_SPOT_*`. Isti podatak,
   dva izvora: Steam preživi izgubljen ili Cloudom pregažen fajl, a fajl radi
   offline i bez Steama, gde Steam ne vraća ništa. Promašaj sa Steama se nikad ne
   čita kao „nije otključano“, pa nema lažnog brisanja. Spojena lista se upiše
@@ -787,6 +823,93 @@ Brief:
   Prompt-complete i chat typing i dalje prazni; nisu launch bloker.
 - [x] Credits ekran odvojen od Help-a + How to Play label (26.08.2026.).
 
+
+---
+
+## 10. Verzija 1.1 (`develop`) — ručne stavke pre merge-a u `main`
+
+Kod za svih pet 1.1 stavki je na `develop` u oba repoa od 08.09.2026.
+(Dragojlo memorija, telefoni zvone, poziv o pogrešnom spratu, Watcher figura,
+tajni ending „The Exit“). Ništa od ovoga **ne sme** u `main` dok sve ispod
+nije `[x]`. Detalji koda i editor koraci:
+`[docs/ROADMAP_1_1.md](docs/ROADMAP_1_1.md)`.
+
+### Steamworks (App ID `4982260`, Stats & Achievements)
+
+- [ ] **Novi achievement `ACH_ENDING_THE_EXIT`.** Display name „The Exit“,
+  opis „You never needed the lift.“, **hidden = da** (spojler). Ikonice:
+  achieved + locked (isti stil kao ostalih šest endinga). U kodu je već
+  `Achievement_28_Id=ACH_ENDING_THE_EXIT` u `DefaultEngine.ini` i mapiranje u
+  `ULoop9AchievementsSubsystem::EndingAchievementId`. Ako ime u Steamworksu ne
+  postoji do slova, `SetAchievement` tiho ne uspeva **za ceo blok**, ne samo
+  za taj jedan — ovo je bloker za 1.1 cook na playtestu, ne samo za default.
+- [ ] **`ACH_ALL_ENDINGS` opis** promeniti sa „See all six endings.“ na
+  „See every ending.“ — od 1.1 kod traži **sedam** viđenih
+  (`EndingTypeCount = 7`). Igrači koji već imaju svih šest neće ga dobiti dok
+  ne nađu i The Exit; to je namerno.
+- [ ] **Publish** Stats & Achievements posle izmene (bez publish-a promena ne
+  postoji za klijent).
+- [ ] **Četiri nova achievementa (10.09.)** — uneti, ikonice, **Publish**:
+  `ACH_SPOT_WATCHER` (Don't Turn Around, hidden), `ACH_SPOT_CREEP` (It Was Not
+  There a Minute Ago), `ACH_WRONG_NUMBER` (Wrong Number, hidden),
+  `ACH_TOO_CLOSE` (Too Close, hidden). Tekstovi u `STEAM_ACHIEVEMENTS.md`
+  #30-33; u configu su `Achievement_29..32_Id`. Odluka od 08.09. („Watcher bez
+  spot achievementa") je povučena 10.09.: Watcher i Creep ulaze u
+  `ACH_SPOT_ALL`, koji sad traži **12** tipova (`SpotAllAnomalyTypeCount = 12`).
+  Ako Almanac ima progress stat, max 10 → 12.
+- [ ] Store: nema novih store asseta; ako želiš, jedna rečenica u „What's
+  new“ / patch notes o novoj anomaliji i „nečemu iza zida“ bez spojlera
+  endinga.
+
+### Render (backend `develop` → `main` = deploy)
+
+- [ ] Backend `develop` sada prima i `stale_floor_used` (brojač
+  `run.commitment.stale_floor`) — po njemu se posle playtesta podešava
+  `_CHANCE`.
+- [ ] `AI_COMMITMENT_STALE_FLOOR_ENABLED=true`
+- [ ] `AI_COMMITMENT_STALE_FLOOR_CHANCE=0.35`
+- [ ] `AI_RUN_HISTORY_ENABLED=true`
+- Sve tri su inertne za v1.0.5 klijente (nikad ne šalju `previous_anomaly_detail`
+  ni `run_history`), pa backend sme da ode na `main` **pre** igre. Kill switch
+  bez cooka: prva i treća na `false`.
+
+### Editor / cook (Windows)
+
+- [ ] Kompajlirati `develop` (novi fajlovi `WatcherAnomalyComponent.*`,
+  `Loop9SecretExitDoor.*`, `Loop9TheExitGameMode.*`); popraviti šta kompajler
+  nađe i pushovati.
+- [ ] `AudioAnomaly` komponenta na 2–3 `AI_Friend` telefona (zvono, looping,
+  zone tag).
+- [ ] Pored svakog telefona koji zvoni jedna lampa u krugu od 6 m (ostaje
+  upaljena dok je sprat u mraku; bez nje sprat je potpuno crn, log upozorava).
+- [ ] `CreepAnomalyComponent` na 3-4 sitna props-a (vaza, šolja, ram) sa
+  `CreepOffset` duž stola ili tagovanim `AnomalyMovePoint`-ima; `AnomalyZone`.
+- [ ] Ikonice za 4 nova achievementa (`*_on.png` 256x256 u
+  `Marketing/Steam/Achievements`, pa `py -3 Tools/make_achievement_off_icons.py`).
+- [ ] `BP_WatcherFigure` + 3–4 anchor aktora sa `WatcherAnomaly`.
+- [ ] Zid kao zaseban aktor sa Hide komponentom, stepenište, prizemlje,
+  `Loop9SecretExitDoor` kao ulična vrata sa `HiddenWallActor` = taj zid.
+- [ ] Nova mapa stana (npr. `TheExitApartment`): vrata stana, hodnik, dnevna
+  soba, TV sa `LoopNumberSign` (`FixedLoopValue = 1`), telefon kao prop
+  (static mesh, ne `AI_Friend`). GameMode Override =
+  `Loop9TheExitGameMode`; `BP_Loop9GameMode → TheExitLevel` = ta mapa; mapa u
+  `MapsToCook` (`DefaultGame.ini`).
+- [ ] `LS_TheExit` cutscena u mapi stana → `ExitSequence` na GameMode-u stana
+  (fallback crno → karta radi bez nje). Podela: Andrija geometrija, agent
+  kamera/vrata/svetla/zvuk kroz Unreal MCP — brief:
+  `docs/UNREAL_MCP_THE_EXIT_HANDOFF.md`. MCP server u editoru:
+  `ModelContextProtocol.StartServer` (port 8000, `/mcp`). Kućna mašina je
+  Windows.
+- [x] **GatherText** + compile texts urađeno 10.09. na `develop` (novi ključevi
+  `ChatRingingPhoneAnswered`, `ChatLineCutAfterRing`, `OpenStreetDoor`,
+  `TheExitTitle`, `TheExitDesc`, plus `ChatPursuerNoAnswer` koji je v1.0.6
+  kuvao bez prevoda). Ponoviti GatherText samo ako se dodaju novi ključevi
+  posle editor rada. Cook ide u **novi** `Builds/v1.1.0`.
+- [ ] Cook na playtest granu (isti tok kao `valvereview`), QA po
+  `docs/ROADMAP_1_1.md` → „QA pass for the 1.1 cook“ (uključuje regresiju
+  svih šest starih endinga i Pursuer mrtve linije).
+- [ ] Tek onda: backend `develop → main`, verifikovati `/api/health`, pa igra
+  `develop → main`, upload, Set Live. `release/v1.0.5` ostaje rollback.
 
 ---
 

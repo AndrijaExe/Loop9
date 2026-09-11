@@ -140,6 +140,14 @@ private:
 	bool ShouldUseAnomalyMumble() const;
 	/** Pursuer floor: he is out of the phone, so nobody can pick up on the other end. */
 	bool IsPursuerLoose() const;
+	/** 1.1 ringing-phone anomaly: an answerable Audio anomaly on this actor that is still ringing. */
+	class UAudioAnomalyComponent* GetRingingAnomaly() const;
+	/** True once a ringing phone was answered on this floor; every phone is dead until the next floor. */
+	bool IsPhoneLineCut() const;
+	/** 1.1: the ringing-phone line is on screen and unread; closing the chat releases the lift. */
+	bool bRingingMessagePending = false;
+	static FString PickRingingPhoneLine();
+	void AnswerRingingAnomaly(APlayerController* PlayerController, class UAudioAnomalyComponent* Ringing);
 	class UAI_ChatWidget* GetChatWidgetTyped() const;
 	class UAI_ChatWidget* GetOrCreateChatWidgetTyped(APlayerController* PlayerController);
 	void SetPlayerMovementEnabled(APlayerController* PlayerController, bool bEnabled);

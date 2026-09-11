@@ -5,6 +5,11 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
 #include "UObject/ConstructorHelpers.h"
+#include "AI_Friend.h"
+#include "Engine/World.h"
+#include "Subsystems/Loop9RingingFloorSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/AnomalyManager.h"
 
 UAudioAnomalyComponent::UAudioAnomalyComponent()
 {
@@ -30,9 +35,21 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 	{
 		return false;
 	}
+	bAnswered = false;
 
 	AActor* Owner = GetOwner();
 	if (!Owner)
+	{
+		return false;
+	}
+
+	// 1.1: a phone rings once per run. Refusing here makes the manager draw
+	// another anomaly instead of ringing the same desk twice.
+	UAnomalyManager* Manager = GetWorld() && GetWorld()->GetGameInstance()
+		? GetWorld()->GetGameInstance()->GetSubsystem<UAnomalyManager>()
+		: nullptr;
+	const bool bIsDeskPhone = bAnswerable && Owner->IsA<AAI_Friend>();
+	if (bIsDeskPhone && Manager && Manager->HasPhoneRang(Owner))
 	{
 		return false;
 	}
@@ -99,11 +116,51 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 		RuntimeAudioComponent->SetPitchMultiplier(PitchMultiplier);
 	}
 
+	// 1.1: a desk phone that rings is a whole beat, not just a sound.
+	if (bAnswerable && Owner->IsA<AAI_Friend>())
+	{
+		if (Manager)
+		{
+			Manager->MarkPhoneRang(Owner);
+		}
+		if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+		{
+			RingingFloor->BeginRingingFloor(Cast<AAI_Friend>(Owner));
+		}
+	}
+
 	return true;
 }
 
 void UAudioAnomalyComponent::RestoreNormalState()
 {
+	if (bAnswerable)
+	{
+		if (const AAI_Friend* Phone = Cast<AAI_Friend>(GetOwner()))
+		{
+			if (ULoop9RingingFloorSubsystem* RingingFloor = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+			{
+				RingingFloor->EndRingingFloor(Phone);
+			}
+		}
+	}
+	if (IsValid(RuntimeAudioComponent))
+	{
+		RuntimeAudioComponent->Stop();
+		RuntimeAudioComponent->DestroyComponent();
+	}
+	RuntimeAudioComponent = nullptr;
+	bAnswered = false;
+}
+
+bool UAudioAnomalyComponent::IsRinging() const
+{
+	return bIsAnomalyActive && !bAnswered && IsValid(RuntimeAudioComponent);
+}
+
+void UAudioAnomalyComponent::Answer()
+{
+	bAnswered = true;
 	if (IsValid(RuntimeAudioComponent))
 	{
 		RuntimeAudioComponent->Stop();

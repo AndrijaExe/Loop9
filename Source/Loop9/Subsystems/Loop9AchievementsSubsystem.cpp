@@ -21,7 +21,8 @@ namespace
 	constexpr int32 HotlineMessageTarget = 15;
 	constexpr int32 HalfwayLoopIndex = 5;
 	constexpr int32 EndingTypeCount = 6;
-	constexpr int32 SpotAllAnomalyTypeCount = 10;
+	// Twelve since v1.0.7: LoopNumber (v1.0.6), then Watcher and Creep each got a spot achievement.
+	constexpr int32 SpotAllAnomalyTypeCount = 12;
 
 	const TCHAR* PersistSection = TEXT("/Script/Loop9.Loop9AchievementsSubsystem");
 	const TCHAR* SeenEndingsKey = TEXT("SeenEndings");
@@ -231,6 +232,8 @@ FName ULoop9AchievementsSubsystem::SpotAchievementId(const FString& AnomalyTypeL
 	if (AnomalyTypeLabel == TEXT("ScaleAnomaly")) { return FName(TEXT("ACH_SPOT_SCALE")); }
 	if (AnomalyTypeLabel == TEXT("PhantomMessageAnomaly")) { return FName(TEXT("ACH_SPOT_PHANTOM")); }
 	if (AnomalyTypeLabel == TEXT("LoopNumberAnomaly")) { return FName(TEXT("ACH_SPOT_LOOPNUMBER")); }
+	if (AnomalyTypeLabel == TEXT("WatcherAnomaly")) { return FName(TEXT("ACH_SPOT_WATCHER")); }
+	if (AnomalyTypeLabel == TEXT("CreepAnomaly")) { return FName(TEXT("ACH_SPOT_CREEP")); }
 	return NAME_None;
 }
 

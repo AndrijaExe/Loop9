@@ -1,4 +1,5 @@
 #include "Subsystems/LoopManagerSubsystem.h"
+#include "Subsystems/Loop9LightsSubsystem.h"
 
 #include "Subsystems/AnomalyManager.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
@@ -823,6 +824,15 @@ void ULoopManagerSubsystem::GenerateAnomalyForNextLoop()
 
 	AnomalyManager->ResetAllAnomalies();
 	AnomalyManager->BeginLoopVisit();
+
+	// A blackout never outlives the floor that caused it.
+	if (UWorld* World = GetWorld())
+	{
+		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+		{
+			Lights->Restore();
+		}
+	}
 
 	// Floor 1 is always the clean baseline, including after an incorrect
 	// decision sends the player back to it. Debug forcing remains available.
