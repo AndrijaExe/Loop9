@@ -133,7 +133,11 @@ void ALoop9PlayerController::PlaySignalBurst(float Duration)
 	}
 	if (Sound)
 	{
-		UGameplayStatics::PlaySound2D(this, Sound);
+		// A game sound, not a UI one: pause with the game instead of playing through the pause menu.
+		if (UAudioComponent* Sting = UGameplayStatics::SpawnSound2D(this, Sound))
+		{
+			Sting->bIsUISound = false;
+		}
 	}
 }
 

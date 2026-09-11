@@ -102,14 +102,23 @@ void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit, bo
 
 	if (Count > 0 && bPlayWatcherAudio)
 	{
+		// SpawnSound2D marks the component as a UI sound, which keeps playing
+		// through the pause menu; these are game sounds and must pause with it.
 		if (BlackoutShatterSound)
 		{
-			UGameplayStatics::PlaySound2D(World, BlackoutShatterSound);
+			if (UAudioComponent* Shatter = UGameplayStatics::SpawnSound2D(World, BlackoutShatterSound))
+			{
+				Shatter->bIsUISound = false;
+			}
 		}
 		if (BlackoutAmbientSound)
 		{
 			BlackoutAmbientComponent = UGameplayStatics::SpawnSound2D(
 				World, BlackoutAmbientSound, 1.0f, 1.0f, 0.0f, nullptr, false, false);
+			if (BlackoutAmbientComponent)
+			{
+				BlackoutAmbientComponent->bIsUISound = false;
+			}
 		}
 	}
 

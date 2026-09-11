@@ -15,13 +15,17 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 namespace
 {
 	constexpr float ParanoidLookDurationSeconds = 2.85f;
 	constexpr float ParanoidGlimpseStartSeconds = 2.15f;
 	constexpr float ParanoidGlimpseWalkSeconds = 0.42f;
+	/** The piano lands before the figure does; by the time he crosses, the doors are almost shut. */
+	constexpr float ParanoidGlimpseSoundLeadSeconds = 1.0f;
 }
 
 ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
@@ -29,6 +33,13 @@ ALoopElevatorTransitionDirector::ALoopElevatorTransitionDirector()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot")));
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> GlimpseSoundFinder(
+		TEXT("/Game/MyStuff/Sound/Watcher/Watcher_LookAway_Piano.Watcher_LookAway_Piano"));
+	if (GlimpseSoundFinder.Succeeded())
+	{
+		ParanoidGlimpseSound = GlimpseSoundFinder.Object;
+	}
 }
 
 void ALoopElevatorTransitionDirector::Tick(float DeltaTime)
@@ -74,6 +85,7 @@ bool ALoopElevatorTransitionDirector::BeginTransition(
 	bDecisionCommitted = false;
 	bParanoidEndingClose = false;
 	bParanoidGlimpseSpawned = false;
+	bParanoidGlimpseSoundPlayed = false;
 	ParanoidCloseElapsedSeconds = 0.0f;
 	CleanupParanoidGlimpse();
 	Phase = ELoopElevatorTransitionPhase::ClosingDoors;
@@ -863,6 +875,16 @@ void ALoopElevatorTransitionDirector::UpdateParanoidClosingLook(float DeltaTime)
 	LookBlendTargetRotation = FRotator(Pitch, TargetYaw, 0.0f);
 	PC->SetControlRotation(LookBlendTargetRotation);
 
+	if (!bParanoidGlimpseSoundPlayed && T >= ParanoidGlimpseStartSeconds - ParanoidGlimpseSoundLeadSeconds)
+	{
+		bParanoidGlimpseSoundPlayed = true;
+		if (ParanoidGlimpseSound)
+		{
+			const FVector Doorway = ResolveSourceDoorCenter() + ParanoidDoorLookRotation.Vector().GetSafeNormal2D() * 90.0f;
+			UGameplayStatics::PlaySoundAtLocation(this, ParanoidGlimpseSound, Doorway);
+		}
+	}
+
 	if (!bParanoidGlimpseSpawned && T >= ParanoidGlimpseStartSeconds)
 	{
 		SpawnOrRevealParanoidGlimpse();
@@ -910,7 +932,7 @@ void ALoopElevatorTransitionDirector::SpawnOrRevealParanoidGlimpse()
 		Glimpse = GetWorld()->SpawnActor<AActor>(
 			ParanoidWalkerClass,
 			ParanoidGlimpseStart,
-			DoorLook + FRotator(0.0f, -90.0f, 0.0f),
+			DoorLook + FRotator(0.0f, 90.0f, 0.0f),
 			Params);
 		if (Glimpse)
 		{
@@ -921,7 +943,7 @@ void ALoopElevatorTransitionDirector::SpawnOrRevealParanoidGlimpse()
 	if (Glimpse)
 	{
 		Glimpse->SetActorLocation(ParanoidGlimpseStart);
-		Glimpse->SetActorRotation(DoorLook + FRotator(0.0f, -90.0f, 0.0f));
+		Glimpse->SetActorRotation(DoorLook + FRotator(0.0f, 90.0f, 0.0f));
 		ActiveParanoidGlimpse = Glimpse;
 	}
 }
@@ -942,6 +964,7 @@ void ALoopElevatorTransitionDirector::CleanupParanoidGlimpse()
 	}
 	ActiveParanoidGlimpse.Reset();
 	bParanoidGlimpseSpawned = false;
+	bParanoidGlimpseSoundPlayed = false;
 	bParanoidGlimpseWasHidden = false;
 }
 
@@ -1064,6 +1087,11 @@ void ALoopElevatorTransitionDirector::StartTravelSound()
 		nullptr,
 		false,
 		true);
+	if (ActiveTravelAudio)
+	{
+		// Pause with the game rather than humming through the pause menu.
+		ActiveTravelAudio->bIsUISound = false;
+	}
 }
 
 void ALoopElevatorTransitionDirector::StopTravelSound()
