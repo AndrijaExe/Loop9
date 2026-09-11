@@ -31,11 +31,9 @@ Steam App ID: **4982260**
 >   - [ ] Zvuci: Watcher `VanishSound` / `LookBackSound` (+ attenuation),
 >     `SignalBurstSound` na PC-u (bez toga uzima `PhoneLineCut`), zvono i
 >     pickup na telefonima.
->   - [ ] **Creep: bar 3 `CreepAnomalyComponent` u mapi** (vaza, šolja, ram,
->     `CreepOffset`/`AnomalyZone`). Bez ijednog Creep-a `ACH_SPOT_CREEP` i
->     `ACH_SPOT_ALL` (traži 12) su nedostižni.
->   - [ ] Svaki telefon sa `AudioAnomaly` ima lampu u krugu 6 m (inače sprat
->     ide skroz u mrak — log upozorava).
+>   - [ ] Creep: testiran, jedan prop u mapi radi; dodati još 2–3
+>     (`CreepOffset`/`AnomalyZone`) da ne ispada uvek isti predmet.
+>   - [x] Svaki telefon sa `AudioAnomaly` ima lampu u krugu 6 m — testirano.
 >   - [ ] Ikonice `*_off.png` za 4 nova achievementa
 >     (`py -3 Tools/make_achievement_off_icons.py`) ako nisu uploadovane.
 >   - [ ] Brz prolaz: `AnomalyWatcher`, `AnomalyPhone`, `AnomalyCreep`,
