@@ -21,6 +21,8 @@ UAI_ChatWidget::UAI_ChatWidget(const FObjectInitializer& ObjectInitializer)
 		TEXT("/Game/MyStuff/Sound/Phone/MumblingNormal"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> CrazyMumbleFinder(
 		TEXT("/Game/MyStuff/Sound/Phone/MumblingCrazy"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> UnavailableFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/Phone_MessageUnavailable"));
 
 	if (NormalMumbleFinder.Succeeded())
 	{
@@ -29,6 +31,10 @@ UAI_ChatWidget::UAI_ChatWidget(const FObjectInitializer& ObjectInitializer)
 	if (CrazyMumbleFinder.Succeeded())
 	{
 		AIMumbleAnomalySound = CrazyMumbleFinder.Object;
+	}
+	if (UnavailableFinder.Succeeded())
+	{
+		UnavailableSound = UnavailableFinder.Object;
 	}
 }
 
@@ -88,6 +94,7 @@ void UAI_ChatWidget::NativeConstruct()
 void UAI_ChatWidget::NativeDestruct()
 {
 	StopAIMumble();
+	StopUnavailableSound();
 
 	if (UWorld* World = GetWorld())
 	{
@@ -144,6 +151,47 @@ void UAI_ChatWidget::StopAIMumble()
 	ActiveAIMumbleAudioComponent->Stop();
 	ActiveAIMumbleAudioComponent->DestroyComponent();
 	ActiveAIMumbleAudioComponent = nullptr;
+}
+
+void UAI_ChatWidget::PlayUnavailableSound()
+{
+	StopUnavailableSound();
+
+	if (!UnavailableSound)
+	{
+		return;
+	}
+
+	ActiveUnavailableAudioComponent = UGameplayStatics::SpawnSound2D(
+		this, UnavailableSound, 1.0f, 1.0f, 0.0f, nullptr, false, false);
+
+	if (ActiveUnavailableAudioComponent)
+	{
+		ActiveUnavailableAudioComponent->bAutoDestroy = false;
+
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().SetTimer(
+				UnavailableSoundTimerHandle, this, &UAI_ChatWidget::StopUnavailableSound, UnavailableSoundMaxSeconds, false);
+		}
+	}
+}
+
+void UAI_ChatWidget::StopUnavailableSound()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(UnavailableSoundTimerHandle);
+	}
+
+	if (!ActiveUnavailableAudioComponent)
+	{
+		return;
+	}
+
+	ActiveUnavailableAudioComponent->Stop();
+	ActiveUnavailableAudioComponent->DestroyComponent();
+	ActiveUnavailableAudioComponent = nullptr;
 }
 
 UButton* UAI_ChatWidget::ResolveInnerButton(UUserWidget* Widget, const FName& ButtonName) const
@@ -243,17 +291,13 @@ void UAI_ChatWidget::HideThinkingIndicator()
 void UAI_ChatWidget::SetInputLocked(bool bLocked)
 {
 	bInputLocked = bLocked;
-	if (MessageInputBox)
-	{
-		MessageInputBox->SetIsEnabled(!bLocked);
-	}
-	if (SendButton)
-	{
-		SendButton->SetIsEnabled(!bLocked);
-	}
+	// Deliberately NOT disabling MessageInputBox/SendButton here: a disabled
+	// control swallows the click/commit event, so a locked send attempt would
+	// never reach HandleSendMessage() to play the "no signal" sound below.
+	// HandleSendMessage() is what actually blocks the send while locked.
 }
 
-void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble)
+void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble, const FText& OverridePrefix)
 {
 	if (!ChatScrollBox)
 	{
@@ -278,9 +322,11 @@ void UAI_ChatWidget::AddMessageToChat(const FString& Message, bool bIsFromUser, 
 		MessageText->SetColorAndOpacity(FSlateColor(TextColor));
 
 		// "Dragojlo" is a character name and stays untranslated by design.
-		const FString PrefixOnly = bIsFromUser
-			? NSLOCTEXT("Loop9Chat", "PlayerPrefix", "You: ").ToString()
-			: NSLOCTEXT("Loop9Chat", "FriendPrefix", "Dragojlo: ").ToString();
+		const FString PrefixOnly = !OverridePrefix.IsEmpty()
+			? OverridePrefix.ToString()
+			: (bIsFromUser
+				? NSLOCTEXT("Loop9Chat", "PlayerPrefix", "You: ").ToString()
+				: NSLOCTEXT("Loop9Chat", "FriendPrefix", "Dragojlo: ").ToString());
 
 		const FString PrefixedMessage = PrefixOnly + Message;
 		if (bIsFromUser || !bUseTypewriterForAI)
@@ -420,6 +466,32 @@ void UAI_ChatWidget::OnCloseButtonClicked()
 
 void UAI_ChatWidget::HandleSendMessage()
 {
+	if (bInputLocked)
+	{
+		const FString LockedDraft = MessageInputBox
+			? MessageInputBox->GetText().ToString().TrimStartAndEnd()
+			: FString();
+
+		if (!LockedDraft.IsEmpty())
+		{
+			AddMessageToChat(LockedDraft, true);
+		}
+
+		if (AIFriendRef)
+		{
+			AIFriendRef->NotifyLockedSendAttempt();
+		}
+		else
+		{
+			PlayUnavailableSound();
+		}
+		if (MessageInputBox)
+		{
+			MessageInputBox->SetText(FText::GetEmpty());
+		}
+		return;
+	}
+
 	if (!MessageInputBox)
 	{
 		return;

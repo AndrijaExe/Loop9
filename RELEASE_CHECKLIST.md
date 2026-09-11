@@ -3,6 +3,56 @@
 Poslednje ažuriranje: **10.09.2026.**
 Steam App ID: **4982260**
 
+> ## v1.0.7 — `release/v1.0.7` (11.09.2026.)
+>
+> Grana = **`main` (v1.0.6) + ono što je sinoć urađeno**: Watcher (anchor,
+> burst, blackout, look-back), telefon koji drži lift i gasi sprat, Creep,
+> četiri achievementa, print teksture za text anomalije, GatherText/locres.
+> **Ništa od ostatka 1.1 nije u buildu**: nema The Exit (vrata, GameMode,
+> ending, `ACH_ENDING_THE_EXIT`), nema Dragojlo memorije, nema stale-floor —
+> ti fajlovi ne postoje na grani, klijent ne šalje `run_history` ni
+> `previous_anomaly_detail`. Endinga je 6, `SpotAllAnomalyTypeCount = 12`,
+> achievement slotovi 0–31 (28–31 = Watcher/Creep/WrongNumber/TooClose).
+> Backend `release/v1.0.7` = `main` + taksonomija 12 tipova (Watcher/Creep/
+> LoopNumber labele), ništa drugo. `.po`/locres nose i The Exit stringove —
+> nereferencirani, bezopasni; sledeći GatherText ih izbacuje.
+>
+> **Pre cooka (17:00):**
+> - [x] Steamworks: `ACH_SPOT_WATCHER`, `ACH_SPOT_CREEP`, `ACH_WRONG_NUMBER`,
+>   `ACH_TOO_CLOSE` uneti + Publish (11.09.). `ACH_ALL_ENDINGS` opis ostaje
+>   „six". Almanac progress stat max 10 → 12 ako postoji.
+> - [x] Backend: `release/v1.0.7` → `main` pushovan 11.09. (Render deploy iz
+>   Actions); proveri `/readyz` i jedan chat sa Watcher/Creep labelom u logu.
+> - [ ] **Editor (kuća), pa build `release/v1.0.7` → cook u `Builds/v1.0.7`:**
+>   - [ ] `BP_WatcherFigure`: drugi mesh + ABP (idle), collision `BlockAll` na
+>     mesh-u; `FigureClass` na svakom anchoru (ili BP child anchora).
+>   - [ ] Još 2–3 `WatcherAnchor` mesta (strelica = kud gleda), `AnomalyZone`
+>     po mestu.
+>   - [ ] Zvuci: Watcher `VanishSound` / `LookBackSound` (+ attenuation),
+>     `SignalBurstSound` na PC-u (bez toga uzima `PhoneLineCut`), zvono i
+>     pickup na telefonima.
+>   - [ ] Creep: testiran, jedan prop u mapi radi; dodati još 2–3
+>     (`CreepOffset`/`AnomalyZone`) da ne ispada uvek isti predmet.
+>   - [x] Svaki telefon sa `AudioAnomaly` ima lampu u krugu 6 m — testirano.
+>   - [ ] Ikonice `*_off.png` za 4 nova achievementa
+>     (`py -3 Tools/make_achievement_off_icons.py`) ako nisu uploadovane.
+>   - [ ] **GatherText + compile texts ponovo** — novi ključ `ReportBug`
+>     (dugme „REPORT A BUG" u donjem desnom uglu glavnog menija, prevodi su u
+>     `.po`). Bez toga ostali jezici prikazuju engleski. Link:
+>     `ReportBugUrl` na `WBP_MainMenu` (default Steam discussions), otvara se u
+>     Steam overlay-u.
+>   - [ ] Pogledati dugme u meniju: da tekst staje u klon dugmeta (300×60 pre
+>     skaliranja 0.7) i da klik otvara Steam overlay. Ako je odsečeno —
+>     brojevi u `EnsureReportBugButton`; ako ne valja — `git revert 1c5d1cd`
+>     (jedan commit, ništa drugo ne dira).
+>   - [ ] Brz prolaz: `AnomalyWatcher`, `AnomalyPhone`, `AnomalyCreep`,
+>     `AnomalyForce I01`; `AnomalyReset` vraća svetla.
+> - [ ] Posle: merge `release/v1.0.7` → `main` u igri. `develop` ostaje
+>   nadskup (The Exit, memorija, stale-floor); pri `main → develop` merge-u
+>   konflikti u `DefaultEngine.ini`, `AnomalyManager.*`, `AI_Friend.cpp` i
+>   `Loop9PlayerController.cpp` se rešavaju uzimanjem `develop` strane.
+
+
 > **Valve build review je prošao (03.09.2026.).** Store spreman.
 > Valve dozvoljava od **četvrtka 10.09.** Release day je **petak 11.09.2026.**
 > Default je **v1.0.5** (`25175593`, Set Live 09.09.). **v1.0.6**

@@ -133,3 +133,18 @@ bool FLoop9SteamUtils::WriteCloudFile(const FString& Filename, const FString& Co
 	return false;
 #endif
 }
+
+bool FLoop9SteamUtils::OpenWebPage(const FString& Url)
+{
+#if LOOP9_WITH_STEAM
+	if (SteamFriends() == nullptr || SteamUtils() == nullptr || !SteamUtils()->IsOverlayEnabled() || Url.IsEmpty())
+	{
+		return false;
+	}
+
+	SteamFriends()->ActivateGameOverlayToWebPage(TCHAR_TO_UTF8(*Url));
+	return true;
+#else
+	return false;
+#endif
+}

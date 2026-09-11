@@ -206,6 +206,14 @@ void UCreditsWidget::RefreshSections()
 			"Despawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."));
 
 	AddSection(VB_Sections,
+		LOCTEXT("CreditsWatcherHeading", "WATCHER"),
+		LOCTEXT("CreditsWatcherBody",
+			"Look-away piano: \"Piano\" by Victor_Natas of Freesound.org. Licensed under CC BY 4.0.\n"
+			"Blackout laugh: sound by .Andre_Onate of Freesound.org (CC0).\n"
+			"Blackout shatter: \"Household Lightbulb Shattering\" by lucaslara of Pixabay.\n"
+			"Crying: sound by scottemoil of Freesound.org (CC0)."));
+
+	AddSection(VB_Sections,
 		LOCTEXT("CreditsOriginalHeading", "ORIGINAL"),
 		LOCTEXT("CreditsOriginalBody",
 			"Flashlight click, typewriter key, and light flicker were generated for this game."));

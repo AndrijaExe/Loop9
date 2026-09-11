@@ -42,13 +42,25 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	void AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble = false);
+	/** OverridePrefix replaces the default "You: " / "Dragojlo: " speaker label, e.g. "Someone: " for the ringing-phone caller. */
+	void AddMessageToChat(const FString& Message, bool bIsFromUser, bool bUseAnomalyMumble = false, const FText& OverridePrefix = FText::GetEmpty());
 	void ShowThinkingIndicator();
 	void HideThinkingIndicator();
 
-	/** 1.1: read-only chat — the line is shown, nothing can be typed. Cleared by the next unlock. */
+	/** 1.1: read-only chat — a send attempt plays PlayUnavailableSound() instead of sending. Cleared by the next unlock. */
 	void SetInputLocked(bool bLocked);
 	bool IsInputLocked() const { return bInputLocked; }
+
+	/** "No signal" stinger for a blocked send: locked chat, or Dragojlo's per-loop message cap. Caps itself at UnavailableSoundMaxSeconds and stops on close. */
+	UFUNCTION(BlueprintCallable, Category = "AI Chat")
+	void PlayUnavailableSound();
+	void StopUnavailableSound();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice")
+	class USoundBase* UnavailableSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Voice", meta = (ClampMin = "0.1"))
+	float UnavailableSoundMaxSeconds = 3.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Chat|Typing")
 	bool bUseTypewriterForAI = true;
@@ -132,6 +144,11 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UAudioComponent> ActiveAIMumbleAudioComponent = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UAudioComponent> ActiveUnavailableAudioComponent = nullptr;
+
+	FTimerHandle UnavailableSoundTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Chat")
 	FName InnerButtonName = TEXT("Button_45");

@@ -1,13 +1,34 @@
 #include "Subsystems/Loop9LightsSubsystem.h"
 
+#include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "Interaction/LiftButton.h"
+#include "Kismet/GameplayStatics.h"
 #include "Loop9.h"
+#include "Sound/SoundWave.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
+
+ULoop9LightsSubsystem::ULoop9LightsSubsystem()
+{
+	static ConstructorHelpers::FObjectFinder<USoundWave> ShatterFinder(
+		TEXT("/Game/MyStuff/Sound/Lights/Lights_Blackout_Shatter.Lights_Blackout_Shatter"));
+	if (ShatterFinder.Succeeded())
+	{
+		BlackoutShatterSound = ShatterFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> AmbientFinder(
+		TEXT("/Game/MyStuff/Sound/Lights/Lights_Blackout_SinisterLaugh.Lights_Blackout_SinisterLaugh"));
+	if (AmbientFinder.Succeeded())
+	{
+		BlackoutAmbientSound = AmbientFinder.Object;
+	}
+}
 
 void ULoop9LightsSubsystem::Deinitialize()
 {
@@ -15,6 +36,11 @@ void ULoop9LightsSubsystem::Deinitialize()
 	{
 		World->GetTimerManager().ClearTimer(RestoreTimerHandle);
 	}
+	if (IsValid(BlackoutAmbientComponent))
+	{
+		BlackoutAmbientComponent->Stop();
+	}
+	BlackoutAmbientComponent = nullptr;
 	SavedLights.Reset();
 	Super::Deinitialize();
 }
@@ -34,7 +60,7 @@ bool ULoop9LightsSubsystem::IsWorldLight(const ULightComponent* Light)
 	return true;
 }
 
-void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit)
+void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit, bool bPlayWatcherAudio)
 {
 	Restore();
 
@@ -74,12 +100,25 @@ void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit)
 		}
 	}
 
+	if (Count > 0 && bPlayWatcherAudio)
+	{
+		if (BlackoutShatterSound)
+		{
+			UGameplayStatics::PlaySound2D(World, BlackoutShatterSound);
+		}
+		if (BlackoutAmbientSound)
+		{
+			BlackoutAmbientComponent = UGameplayStatics::SpawnSound2D(
+				World, BlackoutAmbientSound, 1.0f, 1.0f, 0.0f, nullptr, false, false);
+		}
+	}
+
 	UE_LOG(LogLoop9, Log, TEXT("Lights: blackout, %d lights off, %d kept lit"), Count, KeepLit.Num());
 }
 
-void ULoop9LightsSubsystem::BlackoutForSeconds(float Seconds, const TArray<ULightComponent*>& KeepLit)
+void ULoop9LightsSubsystem::BlackoutForSeconds(float Seconds, const TArray<ULightComponent*>& KeepLit, bool bPlayWatcherAudio)
 {
-	Blackout(KeepLit);
+	Blackout(KeepLit, bPlayWatcherAudio);
 
 	UWorld* World = GetWorld();
 	if (!World || Seconds <= 0.0f)
@@ -97,6 +136,12 @@ void ULoop9LightsSubsystem::Restore()
 	{
 		World->GetTimerManager().ClearTimer(RestoreTimerHandle);
 	}
+
+	if (IsValid(BlackoutAmbientComponent))
+	{
+		BlackoutAmbientComponent->Stop();
+	}
+	BlackoutAmbientComponent = nullptr;
 
 	if (SavedLights.IsEmpty())
 	{

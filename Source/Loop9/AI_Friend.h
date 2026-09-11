@@ -129,6 +129,9 @@ public:
 	void QueuePhantomPlayerMessage(const FString& Message);
 	void ClearPhantomPlayerMessage();
 
+	/** Player tried to answer back on a locked (read-only) chat, e.g. the ringing-phone anomaly. Same garbled low-signal feedback as Dragojlo's per-loop cap. */
+	void NotifyLockedSendAttempt();
+
 private:
 	int32 ResolveCurrentLoopIndex() const;
 	void RefreshLoopMessageLimitCounter();

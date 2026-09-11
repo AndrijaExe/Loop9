@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-10 21:44\n"
-"PO-Revision-Date: 2026-09-10 21:44\n"
+"POT-Creation-Date: 2026-09-11 14:55\n"
+"PO-Revision-Date: 2026-09-11 14:55\n"
 "Language-Team: \n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -371,88 +371,95 @@ msgid "Tip: Look for missing objects"
 msgstr "Совет: ищи пропавшие предметы"
 
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(179)
-#: Source/Loop9/AI_ChatWidget.cpp(179)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(227)
+#: Source/Loop9/AI_ChatWidget.cpp(227)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Драгойло: "
 
 #. Key:	ThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(180)
-#: Source/Loop9/AI_ChatWidget.cpp(180)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(228)
+#: Source/Loop9/AI_ChatWidget.cpp(228)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
 msgstr "Думает..."
 
 #. Key:	StillThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(212)
-#: Source/Loop9/AI_ChatWidget.cpp(212)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(260)
+#: Source/Loop9/AI_ChatWidget.cpp(260)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
 msgstr "Всё ещё думает..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(282)
-#: Source/Loop9/AI_ChatWidget.cpp(282)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(328)
+#: Source/Loop9/AI_ChatWidget.cpp(328)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Ты: "
 
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1054)
-#: Source/Loop9/AI_Friend.cpp(1054)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1070)
+#: Source/Loop9/AI_Friend.cpp(1070)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Слушай внимательно: если заметишь любую странность, заходи в освещённый лифт. Если аномалии нет, заходи в тёмный лифт. Первая петля чистая — не спеши и запомни, как всё выглядит в норме."
 
 #. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1111)
-#: Source/Loop9/AI_Friend.cpp(1111)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1127)
+#: Source/Loop9/AI_Friend.cpp(1127)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Ответить"
 
 #. Key:	ChatRingingPhoneAnswered
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1183)
-#: Source/Loop9/AI_Friend.cpp(1183)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1200)
+#: Source/Loop9/AI_Friend.cpp(1200)
 msgctxt "Loop9Chat,ChatRingingPhoneAnswered"
-msgid "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
-msgstr "...щелчок. Затем его голос, ровный и слишком спокойный: \"Этот тебе не стоило поднимать.\" Линия обрывается, прежде чем ты успеваешь ответить."
+msgid "The lift was never the only way down...Some walls were put up after..."
+msgstr "Лифт никогда не был единственным путём вниз...Некоторые стены возвели уже потом..."
 
 #. Key:	ChatRingingLine2
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1185)
-#: Source/Loop9/AI_Friend.cpp(1185)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1202)
+#: Source/Loop9/AI_Friend.cpp(1202)
 msgctxt "Loop9Chat,ChatRingingLine2"
-msgid "...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."
-msgstr "...дыхание. Не его. Кто-то под ним считает, медленно, и останавливается на девяти. Потом гудок."
+msgid "The lift was never the only way down... Have you found the stairs yet?"
+msgstr "Лифт никогда не был единственным путём вниз... Ты уже нашёл лестницу?"
 
 #. Key:	ChatRingingLine3
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1187)
-#: Source/Loop9/AI_Friend.cpp(1187)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1204)
+#: Source/Loop9/AI_Friend.cpp(1204)
 msgctxt "Loop9Chat,ChatRingingLine3"
-msgid "...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."
-msgstr "...его голос, но старше: \"Что бы ты ни нашёл на этом этаже, не говори мне. Я уже знаю.\" Щелчок."
+msgid "Something strange is going on here...and things aren't quite what they seem at first glance."
+msgstr "Здесь происходит что-то странное...и всё не совсем то, чем кажется на первый взгляд."
 
 #. Key:	ChatRingingLine4
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1189)
-#: Source/Loop9/AI_Friend.cpp(1189)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1206)
+#: Source/Loop9/AI_Friend.cpp(1206)
 msgctxt "Loop9Chat,ChatRingingLine4"
-msgid "...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."
-msgstr "...шёпот, почти его: \"Лифт никогда не был единственным путём вниз. Некоторые стены поставили потом.\" Помехи, потом ничего."
+msgid "Don't be a fool. Never swallow every piece of advice whole - some hands reaching out are just dragging you deeper."
+msgstr "Не будь дураком. Никогда не глотай каждый совет не глядя - некоторые протянутые руки лишь тянут тебя глубже."
 
 #. Key:	ChatRingingLine5
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1191)
-#: Source/Loop9/AI_Friend.cpp(1191)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1208)
+#: Source/Loop9/AI_Friend.cpp(1208)
 msgctxt "Loop9Chat,ChatRingingLine5"
-msgid "...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."
-msgstr "...шаги вниз по лестнице. В этом здании на этом этаже нет лестницы. Потом дверь на улицу, и шум машин. Потом линия умирает."
+msgid "This feels like a fever dream...but will you ever actually wake up from it?"
+msgstr "Это похоже на лихорадочный сон...но проснёшься ли ты когда-нибудь на самом деле?"
 
 #. Key:	ChatRingingLine6
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1193)
-#: Source/Loop9/AI_Friend.cpp(1193)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1210)
+#: Source/Loop9/AI_Friend.cpp(1210)
 msgctxt "Loop9Chat,ChatRingingLine6"
-msgid "...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."
-msgstr "...\"Посмотри на стену, на которую никогда не смотришь. На ту, что всегда на месте.\" Долгий вдох. \"Кроме тех случаев, когда её нет.\" Щелчок."
+msgid "Did you honestly think you and Dragojlo were the only ones left in this office?"
+msgstr "Ты правда думал, что вы с Драгойло единственные, кто остался в этом офисе?"
+
+#. Key:	ChatRingingLine7
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1212)
+#: Source/Loop9/AI_Friend.cpp(1212)
+msgctxt "Loop9Chat,ChatRingingLine7"
+msgid "Don't lose hope just yet."
+msgstr "Пока не теряй надежду."
 
 #. Key:	ChatConnectionLost
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(576)
@@ -502,6 +509,13 @@ msgstr "...он тебя перебивает. Короче."
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
 msgstr "Слабый сигнал. Попробуй позже."
+
+#. Key:	SomeonePrefix
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(926)
+#: Source/Loop9/AI_Friend.cpp(926)
+msgctxt "Loop9Chat,SomeonePrefix"
+msgid "Someone: "
+msgstr "Кто-то: "
 
 #. Key:	PhoneRinging
 #. SourceLocation:	Source/Loop9/AI_Friend.h(99)
@@ -944,23 +958,37 @@ msgctxt "Loop9Credits,CreditsPursuerBody"
 msgid "Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\nDespawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."
 msgstr ""
 
-#. Key:	CreditsOriginalHeading
+#. Key:	CreditsWatcherHeading
 #. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(209)
 #: Source/Loop9/UI/CreditsWidget.cpp(209)
+msgctxt "Loop9Credits,CreditsWatcherHeading"
+msgid "WATCHER"
+msgstr ""
+
+#. Key:	CreditsWatcherBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
+#: Source/Loop9/UI/CreditsWidget.cpp(210)
+msgctxt "Loop9Credits,CreditsWatcherBody"
+msgid "Look-away piano: \"Piano\" by Victor_Natas of Freesound.org. Licensed under CC BY 4.0.\nBlackout laugh: sound by .Andre_Onate of Freesound.org (CC0).\nBlackout shatter: \"Household Lightbulb Shattering\" by lucaslara of Pixabay.\nCrying: sound by scottemoil of Freesound.org (CC0)."
+msgstr ""
+
+#. Key:	CreditsOriginalHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
+#: Source/Loop9/UI/CreditsWidget.cpp(217)
 msgctxt "Loop9Credits,CreditsOriginalHeading"
 msgid "ORIGINAL"
 msgstr ""
 
 #. Key:	CreditsOriginalBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
-#: Source/Loop9/UI/CreditsWidget.cpp(210)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(218)
+#: Source/Loop9/UI/CreditsWidget.cpp(218)
 msgctxt "Loop9Credits,CreditsOriginalBody"
 msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
 msgstr ""
 
 #. Key:	CreditsEngineHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
-#: Source/Loop9/UI/CreditsWidget.cpp(217)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(225)
+#: Source/Loop9/UI/CreditsWidget.cpp(225)
 msgctxt "Loop9Credits,CreditsEngineHeading"
 msgid "ENGINE"
 msgstr "ENGINE"
@@ -1162,46 +1190,53 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(132)
-#: Source/Loop9/UI/MainMenuWidget.cpp(132)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(141)
+#: Source/Loop9/UI/MainMenuWidget.cpp(141)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "ИГРАТЬ"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(133)
-#: Source/Loop9/UI/MainMenuWidget.cpp(133)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(142)
+#: Source/Loop9/UI/MainMenuWidget.cpp(142)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "НАСТРОЙКИ"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(134)
-#: Source/Loop9/UI/MainMenuWidget.cpp(134)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(143)
+#: Source/Loop9/UI/MainMenuWidget.cpp(143)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "ВЫХОД"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
-#: Source/Loop9/UI/MainMenuWidget.cpp(135)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(144)
+#: Source/Loop9/UI/MainMenuWidget.cpp(144)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "АРХИВ"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
-#: Source/Loop9/UI/MainMenuWidget.cpp(136)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
+#: Source/Loop9/UI/MainMenuWidget.cpp(145)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "КАК ИГРАТЬ"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(137)
-#: Source/Loop9/UI/MainMenuWidget.cpp(137)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
+#: Source/Loop9/UI/MainMenuWidget.cpp(146)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "ТИТРЫ"
+
+#. Key:	ReportBug
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
+#: Source/Loop9/UI/MainMenuWidget.cpp(147)
+msgctxt "Loop9Menu,ReportBug"
+msgid "REPORT A BUG"
+msgstr "СООБЩИТЬ ОБ ОШИБКЕ"
 
 #. Key:	Paused
 #. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(76)

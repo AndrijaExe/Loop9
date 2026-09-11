@@ -9,15 +9,27 @@
 #include "Kismet/GameplayStatics.h"
 #include "LiftDoorWing.h"
 #include "Loop9.h"
+#include "Sound/SoundWave.h"
 #include "Subsystems/Loop9LightsSubsystem.h"
 #include "TeleportPoint.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 namespace
 {
 	constexpr float ExitPollIntervalSeconds = 0.2f;
 	/** Without a director or an arrival point there is no lift to watch; hold after this long instead. */
 	constexpr double ExitPollFallbackSeconds = 4.0;
+}
+
+ULoop9RingingFloorSubsystem::ULoop9RingingFloorSubsystem()
+{
+	static ConstructorHelpers::FObjectFinder<USoundWave> BlackoutFinder(
+		TEXT("/Game/MyStuff/Sound/Phone/Phone_Blackout_PowerOutage.Phone_Blackout_PowerOutage"));
+	if (BlackoutFinder.Succeeded())
+	{
+		BlackoutSound = BlackoutFinder.Object;
+	}
 }
 
 void ULoop9RingingFloorSubsystem::Deinitialize()
@@ -143,6 +155,11 @@ void ULoop9RingingFloorSubsystem::HoldLiftAndBlackout()
 		}
 		Lights->Blackout(KeepLit);
 		bBlackoutApplied = true;
+
+		if (BlackoutSound)
+		{
+			UGameplayStatics::PlaySound2D(World, BlackoutSound);
+		}
 	}
 
 	if (MaxHoldSeconds > 0.0f)
@@ -160,7 +177,9 @@ void ULoop9RingingFloorSubsystem::OnRingingMessageRead(const AAI_Friend* Phone)
 	{
 		return;
 	}
-	ReleaseLiftAndRestore();
+	// Answering only earns the lift back; the floor stays dark until a reset,
+	// same as every other 1.1 blackout.
+	ReleaseLift();
 }
 
 void ULoop9RingingFloorSubsystem::EndRingingFloor(const AAI_Friend* Phone)
@@ -173,22 +192,12 @@ void ULoop9RingingFloorSubsystem::EndRingingFloor(const AAI_Friend* Phone)
 	ClearState();
 }
 
-void ULoop9RingingFloorSubsystem::ReleaseLiftAndRestore()
+void ULoop9RingingFloorSubsystem::ReleaseLift()
 {
-	UWorld* World = GetWorld();
-	if (World)
+	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().ClearTimer(ExitPollTimerHandle);
 		World->GetTimerManager().ClearTimer(MaxHoldTimerHandle);
-	}
-
-	if (bBlackoutApplied && World)
-	{
-		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
-		{
-			Lights->Restore();
-		}
-		bBlackoutApplied = false;
 	}
 
 	if (bLitLiftHeld)
@@ -207,8 +216,26 @@ void ULoop9RingingFloorSubsystem::ReleaseLiftAndRestore()
 			}
 		}
 		bLitLiftHeld = false;
-		UE_LOG(LogLoop9, Log, TEXT("Ringing floor: lights back, lit lift released."));
+		UE_LOG(LogLoop9, Log, TEXT("Ringing floor: lit lift released."));
 	}
+}
+
+void ULoop9RingingFloorSubsystem::ReleaseLiftAndRestore()
+{
+	if (bBlackoutApplied)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
+			{
+				Lights->Restore();
+			}
+		}
+		bBlackoutApplied = false;
+		UE_LOG(LogLoop9, Log, TEXT("Ringing floor: lights back (reset)."));
+	}
+
+	ReleaseLift();
 }
 
 void ULoop9RingingFloorSubsystem::ClearState()

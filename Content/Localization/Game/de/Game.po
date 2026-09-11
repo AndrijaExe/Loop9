@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-10 21:44\n"
-"PO-Revision-Date: 2026-09-10 21:44\n"
+"POT-Creation-Date: 2026-09-11 14:55\n"
+"PO-Revision-Date: 2026-09-11 14:55\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -371,88 +371,95 @@ msgid "Tip: Look for missing objects"
 msgstr "Tipp: Achte auf fehlende Objekte"
 
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(179)
-#: Source/Loop9/AI_ChatWidget.cpp(179)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(227)
+#: Source/Loop9/AI_ChatWidget.cpp(227)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Dragojlo: "
 
 #. Key:	ThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(180)
-#: Source/Loop9/AI_ChatWidget.cpp(180)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(228)
+#: Source/Loop9/AI_ChatWidget.cpp(228)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
 msgstr "Denkt nach..."
 
 #. Key:	StillThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(212)
-#: Source/Loop9/AI_ChatWidget.cpp(212)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(260)
+#: Source/Loop9/AI_ChatWidget.cpp(260)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
 msgstr "Denkt immer noch nach..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(282)
-#: Source/Loop9/AI_ChatWidget.cpp(282)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(328)
+#: Source/Loop9/AI_ChatWidget.cpp(328)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Du: "
 
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1054)
-#: Source/Loop9/AI_Friend.cpp(1054)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1070)
+#: Source/Loop9/AI_Friend.cpp(1070)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Hör gut zu: Wenn dir irgendeine Unregelmäßigkeit auffällt, nimm den beleuchteten Aufzug. Findest du keine Anomalie, nimm den dunklen Aufzug. Die erste Schleife ist sauber – lass dir Zeit und präg dir den Normalzustand ein."
 
 #. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1111)
-#: Source/Loop9/AI_Friend.cpp(1111)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1127)
+#: Source/Loop9/AI_Friend.cpp(1127)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Abheben"
 
 #. Key:	ChatRingingPhoneAnswered
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1183)
-#: Source/Loop9/AI_Friend.cpp(1183)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1200)
+#: Source/Loop9/AI_Friend.cpp(1200)
 msgctxt "Loop9Chat,ChatRingingPhoneAnswered"
-msgid "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
-msgstr "...ein Klicken. Dann seine Stimme, flach und viel zu ruhig: \"Diesen hättest du nicht abnehmen sollen.\" Die Leitung bricht ab, bevor du antworten kannst."
+msgid "The lift was never the only way down...Some walls were put up after..."
+msgstr "Der Aufzug war nie der einzige Weg nach unten...Manche Wände wurden erst später hochgezogen..."
 
 #. Key:	ChatRingingLine2
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1185)
-#: Source/Loop9/AI_Friend.cpp(1185)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1202)
+#: Source/Loop9/AI_Friend.cpp(1202)
 msgctxt "Loop9Chat,ChatRingingLine2"
-msgid "...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."
-msgstr "...Atmen. Nicht seins. Jemand zählt darunter, langsam, und hört bei neun auf. Dann das Freizeichen."
+msgid "The lift was never the only way down... Have you found the stairs yet?"
+msgstr "Der Aufzug war nie der einzige Weg nach unten... Hast du die Treppe schon gefunden?"
 
 #. Key:	ChatRingingLine3
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1187)
-#: Source/Loop9/AI_Friend.cpp(1187)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1204)
+#: Source/Loop9/AI_Friend.cpp(1204)
 msgctxt "Loop9Chat,ChatRingingLine3"
-msgid "...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."
-msgstr "...seine Stimme, aber älter: \"Was immer du auf dieser Etage findest, sag es mir nicht. Ich weiß es schon.\" Klick."
+msgid "Something strange is going on here...and things aren't quite what they seem at first glance."
+msgstr "Hier geht etwas Seltsames vor sich...und die Dinge sind nicht ganz das, was sie auf den ersten Blick zu sein scheinen."
 
 #. Key:	ChatRingingLine4
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1189)
-#: Source/Loop9/AI_Friend.cpp(1189)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1206)
+#: Source/Loop9/AI_Friend.cpp(1206)
 msgctxt "Loop9Chat,ChatRingingLine4"
-msgid "...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."
-msgstr "...ein Flüstern, das fast seins ist: \"Der Aufzug war nie der einzige Weg nach unten. Manche Wände kamen erst später.\" Rauschen, dann nichts."
+msgid "Don't be a fool. Never swallow every piece of advice whole - some hands reaching out are just dragging you deeper."
+msgstr "Sei kein Narr. Schluck nie jeden Ratschlag ungeprüft - manche ausgestreckten Hände ziehen dich nur tiefer hinein."
 
 #. Key:	ChatRingingLine5
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1191)
-#: Source/Loop9/AI_Friend.cpp(1191)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1208)
+#: Source/Loop9/AI_Friend.cpp(1208)
 msgctxt "Loop9Chat,ChatRingingLine5"
-msgid "...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."
-msgstr "...Schritte, die eine Treppe hinuntergehen. Dieses Gebäude hat auf dieser Etage keine Treppe. Dann eine Haustür, und Verkehr. Dann stirbt die Leitung."
+msgid "This feels like a fever dream...but will you ever actually wake up from it?"
+msgstr "Das fühlt sich an wie ein Fiebertraum...aber wirst du je wirklich daraus aufwachen?"
 
 #. Key:	ChatRingingLine6
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1193)
-#: Source/Loop9/AI_Friend.cpp(1193)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1210)
+#: Source/Loop9/AI_Friend.cpp(1210)
 msgctxt "Loop9Chat,ChatRingingLine6"
-msgid "...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."
-msgstr "...\"Sieh dir die Wand an, die du nie ansiehst. Die, die immer da ist.\" Ein langer Atemzug. \"Außer wenn nicht.\" Klick."
+msgid "Did you honestly think you and Dragojlo were the only ones left in this office?"
+msgstr "Hast du ernsthaft geglaubt, du und Dragojlo wärt die Einzigen, die in diesem Büro übrig sind?"
+
+#. Key:	ChatRingingLine7
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1212)
+#: Source/Loop9/AI_Friend.cpp(1212)
+msgctxt "Loop9Chat,ChatRingingLine7"
+msgid "Don't lose hope just yet."
+msgstr "Verlier noch nicht die Hoffnung."
 
 #. Key:	ChatConnectionLost
 #. SourceLocation:	Source/Loop9/AI_Friend.cpp(576)
@@ -502,6 +509,13 @@ msgstr "...er unterbricht dich. Mach es kürzer."
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
 msgstr "Schwaches Signal. Versuch es später noch mal."
+
+#. Key:	SomeonePrefix
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(926)
+#: Source/Loop9/AI_Friend.cpp(926)
+msgctxt "Loop9Chat,SomeonePrefix"
+msgid "Someone: "
+msgstr "Jemand: "
 
 #. Key:	PhoneRinging
 #. SourceLocation:	Source/Loop9/AI_Friend.h(99)
@@ -944,23 +958,37 @@ msgctxt "Loop9Credits,CreditsPursuerBody"
 msgid "Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\nDespawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."
 msgstr ""
 
-#. Key:	CreditsOriginalHeading
+#. Key:	CreditsWatcherHeading
 #. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(209)
 #: Source/Loop9/UI/CreditsWidget.cpp(209)
+msgctxt "Loop9Credits,CreditsWatcherHeading"
+msgid "WATCHER"
+msgstr ""
+
+#. Key:	CreditsWatcherBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
+#: Source/Loop9/UI/CreditsWidget.cpp(210)
+msgctxt "Loop9Credits,CreditsWatcherBody"
+msgid "Look-away piano: \"Piano\" by Victor_Natas of Freesound.org. Licensed under CC BY 4.0.\nBlackout laugh: sound by .Andre_Onate of Freesound.org (CC0).\nBlackout shatter: \"Household Lightbulb Shattering\" by lucaslara of Pixabay.\nCrying: sound by scottemoil of Freesound.org (CC0)."
+msgstr ""
+
+#. Key:	CreditsOriginalHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
+#: Source/Loop9/UI/CreditsWidget.cpp(217)
 msgctxt "Loop9Credits,CreditsOriginalHeading"
 msgid "ORIGINAL"
 msgstr ""
 
 #. Key:	CreditsOriginalBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
-#: Source/Loop9/UI/CreditsWidget.cpp(210)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(218)
+#: Source/Loop9/UI/CreditsWidget.cpp(218)
 msgctxt "Loop9Credits,CreditsOriginalBody"
 msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
 msgstr ""
 
 #. Key:	CreditsEngineHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
-#: Source/Loop9/UI/CreditsWidget.cpp(217)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(225)
+#: Source/Loop9/UI/CreditsWidget.cpp(225)
 msgctxt "Loop9Credits,CreditsEngineHeading"
 msgid "ENGINE"
 msgstr "ENGINE"
@@ -1162,46 +1190,53 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(132)
-#: Source/Loop9/UI/MainMenuWidget.cpp(132)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(141)
+#: Source/Loop9/UI/MainMenuWidget.cpp(141)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "SPIELEN"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(133)
-#: Source/Loop9/UI/MainMenuWidget.cpp(133)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(142)
+#: Source/Loop9/UI/MainMenuWidget.cpp(142)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "EINSTELLUNGEN"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(134)
-#: Source/Loop9/UI/MainMenuWidget.cpp(134)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(143)
+#: Source/Loop9/UI/MainMenuWidget.cpp(143)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "BEENDEN"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
-#: Source/Loop9/UI/MainMenuWidget.cpp(135)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(144)
+#: Source/Loop9/UI/MainMenuWidget.cpp(144)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIV"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
-#: Source/Loop9/UI/MainMenuWidget.cpp(136)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
+#: Source/Loop9/UI/MainMenuWidget.cpp(145)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "SPIELANLEITUNG"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(137)
-#: Source/Loop9/UI/MainMenuWidget.cpp(137)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
+#: Source/Loop9/UI/MainMenuWidget.cpp(146)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "CREDITS"
+
+#. Key:	ReportBug
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
+#: Source/Loop9/UI/MainMenuWidget.cpp(147)
+msgctxt "Loop9Menu,ReportBug"
+msgid "REPORT A BUG"
+msgstr "FEHLER MELDEN"
 
 #. Key:	Paused
 #. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(76)
