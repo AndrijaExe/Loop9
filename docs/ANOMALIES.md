@@ -252,8 +252,6 @@ Bound on `ALoop9PlayerController` and compiled out of Shipping:
 | `AnomalyForce <filter> [matIndex]` | Force matches by type/class/actor; optional MaterialSwap index |
 | `AnomalyAuditMaterials` | List material swaps that would be invisible if they fired |
 | `PhoneLineRestore` | 1.1: undo the floor-wide line cut after answering a ringing phone (re-test without changing floors) |
-| `DragojloMemory` | 1.1: print the persisted cross-run memory (`runs`, `last`, `tone`, `lies`, ...) |
-| `DragojloForget` | 1.1: wipe that memory, as on a fresh install |
 | `AudioStatus` | Report why the floor is silent: audio device, volumes, music bed, placed ambience |
 | `AnomalyHelp` | Print usage |
 | `EndingSetup TheExit` | 1.1: arm the ground-floor door (see `EndingHelp`) |
