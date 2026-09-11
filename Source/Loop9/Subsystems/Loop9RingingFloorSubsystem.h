@@ -18,7 +18,8 @@ class ULightComponent;
  *     every light on the floor goes out except the lamp nearest the phone.
  *  2. They walk to it and pick up. One line is shown, read-only; some of the
  *     lines point at the wall that is not always a wall (the 1.1 ending).
- *  3. They close the chat. The lights come back, the lit lift opens again.
+ *  3. They close the chat. Only the lit lift opens again; the floor stays
+ *     dark like every other 1.1 blackout, until the next floor or a reset.
  *
  * While the lift is held the lit button refuses presses. The dark lift is
  * never touched: a player who would rather not answer can still take the
@@ -34,6 +35,8 @@ class LOOP9_API ULoop9RingingFloorSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
+	ULoop9RingingFloorSubsystem();
+
 	/** A desk phone started ringing as this floor's anomaly. */
 	void BeginRingingFloor(AAI_Friend* Phone);
 
@@ -62,12 +65,19 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Loop9|Ringing Floor", meta = (ClampMin = "0.0"))
 	float MaxHoldSeconds = 240.0f;
 
+	/** Played once, non-spatialized, the instant this anomaly turns the floor's lights off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop9|Ringing Floor|Audio")
+	TObjectPtr<class USoundBase> BlackoutSound = nullptr;
+
 protected:
 	virtual void Deinitialize() override;
 
 private:
 	void PollForLiftExit();
 	void HoldLiftAndBlackout();
+	/** Opens the lit lift only; used after the player answers, the floor stays dark. */
+	void ReleaseLift();
+	/** Opens the lift and also restores the lights; used on a full anomaly reset. */
 	void ReleaseLiftAndRestore();
 	void ClearState();
 	ALoopElevatorTransitionDirector* FindDirector() const;

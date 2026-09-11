@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-10 21:44\n"
-"PO-Revision-Date: 2026-09-10 21:44\n"
+"POT-Creation-Date: 2026-09-11 14:22\n"
+"PO-Revision-Date: 2026-09-11 14:22\n"
 "Language-Team: \n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
@@ -371,137 +371,151 @@ msgid "Tip: Look for missing objects"
 msgstr "Savet: Traži predmete koji nedostaju"
 
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(179)
-#: Source/Loop9/AI_ChatWidget.cpp(179)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(227)
+#: Source/Loop9/AI_ChatWidget.cpp(227)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Dragojlo: "
 
 #. Key:	ThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(180)
-#: Source/Loop9/AI_ChatWidget.cpp(180)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(228)
+#: Source/Loop9/AI_ChatWidget.cpp(228)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
 msgstr "Razmišlja..."
 
 #. Key:	StillThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(212)
-#: Source/Loop9/AI_ChatWidget.cpp(212)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(260)
+#: Source/Loop9/AI_ChatWidget.cpp(260)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
 msgstr "Još razmišlja..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(282)
-#: Source/Loop9/AI_ChatWidget.cpp(282)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(328)
+#: Source/Loop9/AI_ChatWidget.cpp(328)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Ti: "
 
 #. Key:	InitialRuleMessage
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1054)
-#: Source/Loop9/AI_Friend.cpp(1054)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1058)
+#: Source/Loop9/AI_Friend.cpp(1058)
 msgctxt "Loop9Chat,InitialRuleMessage"
 msgid "Listen carefully: if you notice any irregularity, take the lit elevator. If you find no anomaly, take the dark elevator. The first loop is clean, so take your time and learn the baseline."
 msgstr "Slušaj me pažljivo: ako primetiš bilo kakvu nepravilnost, uđi u osvetljeni lift. Ako ne nađeš anomaliju, uđi u mračni lift. Prva petlja je čista, zato ne žuri i dobro upamti kako sve izgleda."
 
 #. Key:	AnswerPhone
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1111)
-#: Source/Loop9/AI_Friend.cpp(1111)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1115)
+#: Source/Loop9/AI_Friend.cpp(1115)
 msgctxt "Loop9Interaction,AnswerPhone"
 msgid "Answer"
 msgstr "Javi se"
 
 #. Key:	ChatRingingPhoneAnswered
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1183)
-#: Source/Loop9/AI_Friend.cpp(1183)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1188)
+#: Source/Loop9/AI_Friend.cpp(1188)
 msgctxt "Loop9Chat,ChatRingingPhoneAnswered"
-msgid "...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."
-msgstr "...klik. Onda njegov glas, ravan i previše miran: \"Ovaj nisi smeo da podigneš.\" Veza se prekida pre nego što stigneš da odgovoriš."
+msgid "The lift was never the only way down...Some walls were put up after..."
+msgstr "Lift nikad nije bio jedini put dole...Neki zidovi su podignuti posle..."
 
 #. Key:	ChatRingingLine2
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1185)
-#: Source/Loop9/AI_Friend.cpp(1185)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1190)
+#: Source/Loop9/AI_Friend.cpp(1190)
 msgctxt "Loop9Chat,ChatRingingLine2"
-msgid "...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."
-msgstr "...disanje. Nije njegovo. Neko ispod njega broji, polako, i staje na devet. Onda signal slobodne linije."
+msgid "The lift was never the only way down... Have you found the stairs yet?"
+msgstr "Lift nikad nije bio jedini put dole... Jesi li već pronašao stepenice?"
 
 #. Key:	ChatRingingLine3
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1187)
-#: Source/Loop9/AI_Friend.cpp(1187)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1192)
+#: Source/Loop9/AI_Friend.cpp(1192)
 msgctxt "Loop9Chat,ChatRingingLine3"
-msgid "...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."
-msgstr "...njegov glas, ali stariji: \"Šta god nađeš na ovom spratu, nemoj mi reći. Već znam.\" Klik."
+msgid "Something strange is going on here...and things aren't quite what they seem at first glance."
+msgstr "Nešto čudno se dešava ovde...i stvari nisu baš onakve kakvim se čine na prvi pogled."
 
 #. Key:	ChatRingingLine4
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1189)
-#: Source/Loop9/AI_Friend.cpp(1189)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1194)
+#: Source/Loop9/AI_Friend.cpp(1194)
 msgctxt "Loop9Chat,ChatRingingLine4"
-msgid "...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."
-msgstr "...šapat koji je skoro njegov: \"Lift nikad nije bio jedini put dole. Neki zidovi su podignuti posle.\" Šum, pa ništa."
+msgid "Don't be a fool. Never swallow every piece of advice whole - some hands reaching out are just dragging you deeper."
+msgstr "Ne budi budala. Nikad ne progutaj svaki savet nekritički - neke ruke koje ti se pružaju samo te vuku dublje."
 
 #. Key:	ChatRingingLine5
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1191)
-#: Source/Loop9/AI_Friend.cpp(1191)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1196)
+#: Source/Loop9/AI_Friend.cpp(1196)
 msgctxt "Loop9Chat,ChatRingingLine5"
-msgid "...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."
-msgstr "...koraci koji silaze niz stepenice. Ova zgrada nema stepenice na ovom spratu. Onda ulična vrata, i saobraćaj. Onda veza umire."
+msgid "This feels like a fever dream...but will you ever actually wake up from it?"
+msgstr "Ovo liči na grozničav san...ali hoćeš li se ikada zaista probuditi iz njega?"
 
 #. Key:	ChatRingingLine6
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1193)
-#: Source/Loop9/AI_Friend.cpp(1193)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1198)
+#: Source/Loop9/AI_Friend.cpp(1198)
 msgctxt "Loop9Chat,ChatRingingLine6"
-msgid "...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."
-msgstr "...\"Proveri zid u koji nikad ne gledaš. Onaj koji je uvek tu.\" Dug udah. \"Osim kad nije.\" Klik."
+msgid "Did you honestly think you and Dragojlo were the only ones left in this office?"
+msgstr "Jesi li stvarno mislio da ste ti i Dragojlo jedini koji su ostali u ovoj kancelariji?"
+
+#. Key:	ChatRingingLine7
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(1200)
+#: Source/Loop9/AI_Friend.cpp(1200)
+msgctxt "Loop9Chat,ChatRingingLine7"
+msgid "Don't lose hope just yet."
+msgstr "Još uvek ne gubi nadu."
 
 #. Key:	ChatConnectionLost
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(576)
-#: Source/Loop9/AI_Friend.cpp(576)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(575)
+#: Source/Loop9/AI_Friend.cpp(575)
 msgctxt "Loop9Chat,ChatConnectionLost"
 msgid "...the line crackles and goes dead. (No connection. Check your internet and try again.)"
 msgstr "...veza krči i prekida se. (Nema konekcije. Proveri internet i pokušaj ponovo.)"
 
 #. Key:	ChatRateLimitedRetry
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(586)
-#: Source/Loop9/AI_Friend.cpp(586)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(585)
+#: Source/Loop9/AI_Friend.cpp(585)
 msgctxt "Loop9Chat,ChatRateLimitedRetry"
 msgid "...the line is busy. Try again in {0}s."
 msgstr "...linija je zauzeta. Pokušaj ponovo za {0} s."
 
 #. Key:	ChatServerError
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(592)
-#: Source/Loop9/AI_Friend.cpp(592)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(591)
+#: Source/Loop9/AI_Friend.cpp(591)
 msgctxt "Loop9Chat,ChatServerError"
 msgid "...static hisses through the receiver. Something is wrong on the other side. Try again."
 msgstr "...šum krči kroz slušalicu. Nešto nije u redu sa druge strane. Pokušaj ponovo."
 
 #. Key:	ChatPursuerNoAnswer
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(620)
-#: Source/Loop9/AI_Friend.cpp(620)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(619)
+#: Source/Loop9/AI_Friend.cpp(619)
 msgctxt "Loop9Chat,ChatPursuerNoAnswer"
 msgid "...the line picks up. Nobody speaks. The breathing you hear is not coming from the receiver."
 msgstr "...veza se uspostavlja. Niko ne govori. Disanje koje čuješ ne dolazi iz slušalice."
 
 #. Key:	ChatLineCutAfterRing
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(636)
-#: Source/Loop9/AI_Friend.cpp(636)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(635)
+#: Source/Loop9/AI_Friend.cpp(635)
 msgctxt "Loop9Chat,ChatLineCutAfterRing"
 msgid "...static, then a steady tone. Whatever you picked up earlier took the line with it. Nothing gets through on this floor."
 msgstr "...šum, pa ravan ton. Ono što si malopre podigao odnelo je vezu sa sobom. Na ovom spratu ništa ne prolazi."
 
 #. Key:	ChatMessageTooLong
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(650)
-#: Source/Loop9/AI_Friend.cpp(650)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(649)
+#: Source/Loop9/AI_Friend.cpp(649)
 msgctxt "Loop9Chat,ChatMessageTooLong"
 msgid "...he cuts you off. Keep it shorter."
 msgstr "...prekida te. Skrati."
 
 #. Key:	LowSignalReply
-#. SourceLocation:	Source/Loop9/AI_Friend.cpp(682)
-#: Source/Loop9/AI_Friend.cpp(682)
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(681)
+#: Source/Loop9/AI_Friend.cpp(681)
 msgctxt "Loop9Chat,LowSignalReply"
 msgid "Low signal. Try again later."
 msgstr "Slab signal. Pokušaj kasnije."
+
+#. Key:	SomeonePrefix
+#. SourceLocation:	Source/Loop9/AI_Friend.cpp(914)
+#: Source/Loop9/AI_Friend.cpp(914)
+msgctxt "Loop9Chat,SomeonePrefix"
+msgid "Someone: "
+msgstr "Neko: "
 
 #. Key:	PhoneRinging
 #. SourceLocation:	Source/Loop9/AI_Friend.h(99)
@@ -650,26 +664,26 @@ msgctxt "Loop9Interaction,LiftNext"
 msgid "Next floor"
 msgstr "Sledeći sprat"
 
-#. Key:	OpenStreetDoor
-#. SourceLocation:	Source/Loop9/Interaction/Loop9SecretExitDoor.cpp(66)
-#: Source/Loop9/Interaction/Loop9SecretExitDoor.cpp(66)
-msgctxt "Loop9Interaction,OpenStreetDoor"
-msgid "Open"
-msgstr "Otvori"
-
 #. Key:	TaskComplete
-#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(344)
-#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(344)
+#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
+#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
 msgctxt "Loop9Ending,TaskComplete"
 msgid "TASK COMPLETE"
 msgstr "ZADATAK ZAVRŠEN"
 
 #. Key:	CallTitleTwice
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(119)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(119)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(117)
 msgctxt "Loop9RunEvent,CallTitleTwice"
 msgid "LOOP {0} · TWO CALLS"
 msgstr "KRUG {0} · DVA POZIVA"
+
+#. Key:	CallTitle
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(118)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(118)
+msgctxt "Loop9RunEvent,CallTitle"
+msgid "LOOP {0} · CALL"
+msgstr "KRUG {0} · POZIV"
 
 #. Key:	CallHostile
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(12)
@@ -678,54 +692,54 @@ msgctxt "Loop9RunEvent,CallHostile"
 msgid "You spoke to him harshly. He heard it."
 msgstr "Govorio si mu oštro. Čuo je."
 
-#. Key:	CallTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(120)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(120)
-msgctxt "Loop9RunEvent,CallTitle"
-msgid "LOOP {0} · CALL"
-msgstr "KRUG {0} · POZIV"
-
 #. Key:	CorrectLiftTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(124)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(124)
 msgctxt "Loop9RunEvent,CorrectLiftTitle"
 msgid "LOOP {0} · RIGHT ELEVATOR"
 msgstr "KRUG {0} · PRAVI LIFT"
 
 #. Key:	CorrectLiftAnomaly
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(128)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(128)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(126)
 msgctxt "Loop9RunEvent,CorrectLiftAnomaly"
 msgid "You took the right elevator. The floor was already wrong."
 msgstr "Ušao si u pravi lift. Sprat je već bio pogrešan."
 
 #. Key:	CorrectLiftClean
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(129)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(129)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(127)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(127)
 msgctxt "Loop9RunEvent,CorrectLiftClean"
 msgid "You took the right elevator. The floor was clean."
 msgstr "Ušao si u pravi lift. Sprat je bio čist."
 
 #. Key:	WrongLiftTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(131)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(131)
 msgctxt "Loop9RunEvent,WrongLiftTitle"
 msgid "LOOP {0} · WRONG ELEVATOR"
 msgstr "KRUG {0} · POGREŠAN LIFT"
 
 #. Key:	WrongLiftAnomaly
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(135)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(135)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(133)
 msgctxt "Loop9RunEvent,WrongLiftAnomaly"
 msgid "You chose the wrong elevator. The floor was already lying."
 msgstr "Izabrao si pogrešan lift. Sprat je već lagao."
 
 #. Key:	WrongLiftClean
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(136)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(136)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(134)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(134)
 msgctxt "Loop9RunEvent,WrongLiftClean"
 msgid "You chose the wrong elevator. The floor was clean."
 msgstr "Izabrao si pogrešan lift. Sprat je bio čist."
+
+#. Key:	EndingBody
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(139)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(139)
+msgctxt "Loop9RunEvent,EndingBody"
+msgid "This is how the shift ended."
+msgstr "Ovako je smena završila."
 
 #. Key:	CallSuspicious
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(14)
@@ -733,13 +747,6 @@ msgstr "Izabrao si pogrešan lift. Sprat je bio čist."
 msgctxt "Loop9RunEvent,CallSuspicious"
 msgid "You doubted the voice on the line."
 msgstr "Sumnjao si u glas na liniji."
-
-#. Key:	EndingBody
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(141)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(141)
-msgctxt "Loop9RunEvent,EndingBody"
-msgid "This is how the shift ended."
-msgstr "Ovako je smena završila."
 
 #. Key:	CallFriendly
 #. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(16)
@@ -832,16 +839,9 @@ msgctxt "Loop9Endings,TheReplacementTitle"
 msgid "THE REPLACEMENT"
 msgstr "ZAMENA"
 
-#. Key:	TheExitTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(78)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(78)
-msgctxt "Loop9Endings,TheExitTitle"
-msgid "THE EXIT"
-msgstr "IZLAZ"
-
 #. Key:	ParanoidSurvivorTitle
-#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(81)
-#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(81)
+#. SourceLocation:	Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
+#: Source/Loop9/Runtime/Loop9RunEventCards.cpp(79)
 msgctxt "Loop9Endings,ParanoidSurvivorTitle"
 msgid "PARANOID SURVIVOR"
 msgstr "PARANOIČNI PREŽIVELI"
@@ -944,23 +944,37 @@ msgctxt "Loop9Credits,CreditsPursuerBody"
 msgid "Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\nDespawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."
 msgstr ""
 
-#. Key:	CreditsOriginalHeading
+#. Key:	CreditsWatcherHeading
 #. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(209)
 #: Source/Loop9/UI/CreditsWidget.cpp(209)
+msgctxt "Loop9Credits,CreditsWatcherHeading"
+msgid "WATCHER"
+msgstr ""
+
+#. Key:	CreditsWatcherBody
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
+#: Source/Loop9/UI/CreditsWidget.cpp(210)
+msgctxt "Loop9Credits,CreditsWatcherBody"
+msgid "Look-away piano: \"Piano\" by Victor_Natas of Freesound.org. Licensed under CC BY 4.0.\nBlackout laugh: sound by .Andre_Onate of Freesound.org (CC0).\nBlackout shatter: \"Household Lightbulb Shattering\" by lucaslara of Pixabay.\nCrying: sound by scottemoil of Freesound.org (CC0)."
+msgstr ""
+
+#. Key:	CreditsOriginalHeading
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
+#: Source/Loop9/UI/CreditsWidget.cpp(217)
 msgctxt "Loop9Credits,CreditsOriginalHeading"
 msgid "ORIGINAL"
 msgstr ""
 
 #. Key:	CreditsOriginalBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
-#: Source/Loop9/UI/CreditsWidget.cpp(210)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(218)
+#: Source/Loop9/UI/CreditsWidget.cpp(218)
 msgctxt "Loop9Credits,CreditsOriginalBody"
 msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
 msgstr ""
 
 #. Key:	CreditsEngineHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
-#: Source/Loop9/UI/CreditsWidget.cpp(217)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(225)
+#: Source/Loop9/UI/CreditsWidget.cpp(225)
 msgctxt "Loop9Credits,CreditsEngineHeading"
 msgid "ENGINE"
 msgstr "ENGINE"
@@ -1014,23 +1028,16 @@ msgctxt "Loop9Endings,TheReplacementDesc"
 msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
 msgstr "Nije te uništio. Naučio te je. Sada si ti glas sa druge strane linije."
 
-#. Key:	TheExitDesc
+#. Key:	ParanoidSurvivorDesc
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(191)
 #: Source/Loop9/UI/EndingWidget.cpp(191)
-msgctxt "Loop9Endings,TheExitDesc"
-msgid "A wall that was not there. A door nobody mentioned. You walked home without asking him once. Something at home says you have been here before."
-msgstr "Zid kojeg nije bilo. Vrata koja niko nije pomenuo. Otišao si kući a da ga nijednom nisi pitao. Nešto u kući kaže da si već bio ovde."
-
-#. Key:	ParanoidSurvivorDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(195)
-#: Source/Loop9/UI/EndingWidget.cpp(195)
 msgctxt "Loop9Endings,ParanoidSurvivorDesc"
 msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
 msgstr "Pobegao si sam jer nisi verovao nikome. Možda te je to spasilo. Možda te je koštalo istine."
 
 #. Key:	EndingStatsFormat
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(200)
-#: Source/Loop9/UI/EndingWidget.cpp(200)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(196)
+#: Source/Loop9/UI/EndingWidget.cpp(196)
 msgctxt "Loop9Endings,EndingStatsFormat"
 msgid "Resets: {0} | AI interactions: {1}"
 msgstr "Resetovanja: {0} | Razgovori sa AI: {1}"
@@ -1162,50 +1169,50 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(132)
-#: Source/Loop9/UI/MainMenuWidget.cpp(132)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(141)
+#: Source/Loop9/UI/MainMenuWidget.cpp(141)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "IGRAJ"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(133)
-#: Source/Loop9/UI/MainMenuWidget.cpp(133)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(142)
+#: Source/Loop9/UI/MainMenuWidget.cpp(142)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "PODEŠAVANJA"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(134)
-#: Source/Loop9/UI/MainMenuWidget.cpp(134)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(143)
+#: Source/Loop9/UI/MainMenuWidget.cpp(143)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "IZAĐI"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(135)
-#: Source/Loop9/UI/MainMenuWidget.cpp(135)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(144)
+#: Source/Loop9/UI/MainMenuWidget.cpp(144)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARHIVA"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(136)
-#: Source/Loop9/UI/MainMenuWidget.cpp(136)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
+#: Source/Loop9/UI/MainMenuWidget.cpp(145)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "KAKO SE IGRA"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(137)
-#: Source/Loop9/UI/MainMenuWidget.cpp(137)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
+#: Source/Loop9/UI/MainMenuWidget.cpp(146)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "ZASLUGE"
 
 #. Key:	ReportBug
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(140)
-#: Source/Loop9/UI/MainMenuWidget.cpp(140)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
+#: Source/Loop9/UI/MainMenuWidget.cpp(147)
 msgctxt "Loop9Menu,ReportBug"
 msgid "REPORT A BUG"
 msgstr "PRIJAVI BUG"

@@ -2,6 +2,7 @@
 
 #include "Camera/PlayerCameraManager.h"
 #include "CollisionQueryParams.h"
+#include "Components/AudioComponent.h"
 #include "Controllers/Loop9PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -11,10 +12,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
 #include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Subsystems/Loop9LightsSubsystem.h"
 #include "Subsystems/Loop9ObservationJournalSubsystem.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 namespace
 {
@@ -29,6 +32,20 @@ UWatcherAnomalyComponent::UWatcherAnomalyComponent()
 {
 	AnomalyProbability = 0.45f;
 	AnomalyObjectKind = TEXT("a man standing with his back turned");
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> LookAwayFinder(
+		TEXT("/Game/MyStuff/Sound/Watcher/Watcher_LookAway_Piano.Watcher_LookAway_Piano"));
+	if (LookAwayFinder.Succeeded())
+	{
+		LookAwaySound = LookAwayFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> CryingFinder(
+		TEXT("/Game/MyStuff/Sound/Watcher/Watcher_Crying.Watcher_Crying"));
+	if (CryingFinder.Succeeded())
+	{
+		CryingSound = CryingFinder.Object;
+	}
 }
 
 void UWatcherAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -63,6 +80,14 @@ bool UWatcherAnomalyComponent::ApplyAnomalyState()
 	if (!SpawnedFigure)
 	{
 		return false;
+	}
+
+	if (CryingSound && SpawnedFigure->GetRootComponent())
+	{
+		CryingAudioComponent = UGameplayStatics::SpawnSoundAttached(
+			CryingSound, SpawnedFigure->GetRootComponent(), NAME_None,
+			FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset,
+			/*bStopWhenAttachedToDestroyed*/ true, 1.0f, 1.0f, 0.0f, CryingAttenuation);
 	}
 
 	SpawnedAtSeconds = World->GetTimeSeconds();
@@ -263,11 +288,20 @@ void UWatcherAnomalyComponent::VanishWithBurst(const TCHAR* Reason, bool bApproa
 
 void UWatcherAnomalyComponent::VanishQuietly(const TCHAR* Reason)
 {
-	if (IsValid(SpawnedFigure) && VanishSound)
+	if (IsValid(SpawnedFigure))
 	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, VanishSound, SpawnedFigure->GetActorLocation(), FRotator::ZeroRotator,
-			1.0f, 1.0f, 0.0f, VanishAttenuation);
+		if (LookAwaySound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this, LookAwaySound, SpawnedFigure->GetActorLocation(), FRotator::ZeroRotator,
+				1.0f, 1.0f, 0.0f, LookAwayAttenuation);
+		}
+		else if (VanishSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this, VanishSound, SpawnedFigure->GetActorLocation(), FRotator::ZeroRotator,
+				1.0f, 1.0f, 0.0f, VanishAttenuation);
+		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("Watcher anomaly: figure vanished (%s), waiting for the look back"), Reason);
 	DestroyFigure();
@@ -290,7 +324,7 @@ void UWatcherAnomalyComponent::Blackout()
 		if (ULoop9LightsSubsystem* Lights = World->GetSubsystem<ULoop9LightsSubsystem>())
 		{
 			// 0 = the floor stays dark until the next loop or a reset restores it.
-			Lights->BlackoutForSeconds(BlackoutSeconds, TArray<ULightComponent*>());
+			Lights->BlackoutForSeconds(BlackoutSeconds, TArray<ULightComponent*>(), /*bPlayWatcherAudio*/ true);
 			bCausedBlackout = true;
 		}
 	}
@@ -306,6 +340,12 @@ void UWatcherAnomalyComponent::StopPolling()
 
 void UWatcherAnomalyComponent::DestroyFigure()
 {
+	if (IsValid(CryingAudioComponent))
+	{
+		CryingAudioComponent->Stop();
+	}
+	CryingAudioComponent = nullptr;
+
 	if (IsValid(SpawnedFigure))
 	{
 		SpawnedFigure->Destroy();

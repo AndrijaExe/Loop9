@@ -73,6 +73,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
 	TObjectPtr<class USoundAttenuation> LookBackAttenuation = nullptr;
 
+	/** Played where he stood the instant the player looks away and he vanishes quietly. Falls back to VanishSound if unset. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundBase> LookAwaySound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundAttenuation> LookAwayAttenuation = nullptr;
+
+	/** Soft looping ambient attached to him for as long as he stands there. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundBase> CryingSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Audio")
+	TObjectPtr<class USoundAttenuation> CryingAttenuation = nullptr;
+
 	/** Length of the signal burst on approach / stare. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Watcher|Vanish Effect", meta = (ClampMin = "0.15"))
 	float BurstSeconds = 0.7f;
@@ -106,6 +120,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> SpawnedFigure = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UAudioComponent> CryingAudioComponent = nullptr;
 
 	FTimerHandle PollTimerHandle;
 	double SpawnedAtSeconds = 0.0;

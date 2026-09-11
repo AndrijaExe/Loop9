@@ -5,6 +5,8 @@
 #include "Loop9LightsSubsystem.generated.h"
 
 class ULightComponent;
+class UAudioComponent;
+class USoundBase;
 
 /**
  * 1.1: one place that can put the floor in the dark and bring it back.
@@ -25,17 +27,19 @@ class LOOP9_API ULoop9LightsSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
+	ULoop9LightsSubsystem();
+
 	/**
 	 * Turns off every world light except the ones listed. Calling it while a
 	 * blackout is already on restores first, so the saved intensities are
 	 * always the real ones and never a previous zero.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Loop9|Lights")
-	void Blackout(const TArray<ULightComponent*>& KeepLit);
+	void Blackout(const TArray<ULightComponent*>& KeepLit, bool bPlayWatcherAudio = false);
 
 	/** Same, but the lights come back on their own after Seconds. 0 = until Restore(). */
 	UFUNCTION(BlueprintCallable, Category = "Loop9|Lights")
-	void BlackoutForSeconds(float Seconds, const TArray<ULightComponent*>& KeepLit);
+	void BlackoutForSeconds(float Seconds, const TArray<ULightComponent*>& KeepLit, bool bPlayWatcherAudio = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Loop9|Lights")
 	void Restore();
@@ -49,6 +53,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Loop9|Lights")
 	ULightComponent* FindNearestLight(const FVector& Location, float MaxDistance) const;
+
+	/** Played once, non-spatialized, the instant a Watcher blackout (bPlayWatcherAudio=true) turns lights off. Silent for other callers, e.g. the ringing-phone floor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop9|Lights|Audio")
+	TObjectPtr<USoundBase> BlackoutShatterSound = nullptr;
+
+	/** Looped, non-spatialized, for as long as a Watcher blackout lasts; stopped on Restore() regardless of who caused it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop9|Lights|Audio")
+	TObjectPtr<USoundBase> BlackoutAmbientSound = nullptr;
 
 protected:
 	virtual void Deinitialize() override;
@@ -65,4 +77,7 @@ private:
 
 	TArray<FSavedLight> SavedLights;
 	FTimerHandle RestoreTimerHandle;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> BlackoutAmbientComponent = nullptr;
 };

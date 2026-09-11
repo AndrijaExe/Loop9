@@ -685,6 +685,7 @@ FString AAI_Friend::SayToAI(const FString& Message)
 		if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
 		{
 			ChatWidget->AddMessageToChat(LimitReply, false, true);
+			ChatWidget->PlayUnavailableSound();
 		}
 
 		OnResponseReceived(LimitReply);
@@ -900,6 +901,21 @@ FString AAI_Friend::BuildSignalDropMessage() const
 	const FString DotsB = MakeDots(FMath::RandRange(16, 24));
 
 	return FString::Printf(TEXT("%s%s%s%s (LOW SIGNAL)"), *ChunkA, *DotsA, *ChunkB, *DotsB);
+}
+
+void AAI_Friend::NotifyLockedSendAttempt()
+{
+	const FString LimitReply = BuildSignalDropMessage();
+	LastAIResponse = LimitReply;
+
+	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
+	{
+		ChatWidget->AddMessageToChat(LimitReply, false, true,
+			NSLOCTEXT("Loop9Chat", "SomeonePrefix", "Someone: "));
+		ChatWidget->PlayUnavailableSound();
+	}
+
+	OnResponseReceived(LimitReply);
 }
 
 void AAI_Friend::OnResponseReceived(FString Response)
@@ -1137,7 +1153,8 @@ void AAI_Friend::AnswerRingingAnomaly(APlayerController* PlayerController, UAudi
 	if (UAI_ChatWidget* ChatWidget = GetChatWidgetTyped())
 	{
 		ChatWidget->SetInputLocked(true);
-		ChatWidget->AddMessageToChat(CannedLine, false, true);
+		ChatWidget->AddMessageToChat(CannedLine, false, true,
+			NSLOCTEXT("Loop9Chat", "SomeonePrefix", "Someone: "));
 	}
 	bRingingMessagePending = true;
 	OnResponseReceived(CannedLine);
@@ -1164,22 +1181,24 @@ void AAI_Friend::AnswerRingingAnomaly(APlayerController* PlayerController, UAudi
 
 FString AAI_Friend::PickRingingPhoneLine()
 {
-	// Six lines, drawn at random. The last three point at the 1.1 ending: a
-	// wall that is not always a wall, stairs, a street door. None of them
-	// says how to get there.
+	// Seven lines, drawn at random. No canned "the line goes dead" beat on
+	// these — that only happens now if the player tries to answer back
+	// (see UAI_ChatWidget::HandleSendMessage / PlayUnavailableSound).
 	static const FText Lines[] = {
 		NSLOCTEXT("Loop9Chat", "ChatRingingPhoneAnswered",
-			"...a click. Then his voice, flat and far too calm: \"You should not have picked up this one.\" The line goes dead before you can answer."),
+			"The lift was never the only way down...Some walls were put up after..."),
 		NSLOCTEXT("Loop9Chat", "ChatRingingLine2",
-			"...breathing. Not his. Someone counting under it, slowly, and they stop at nine. Then the dial tone."),
+			"The lift was never the only way down... Have you found the stairs yet?"),
 		NSLOCTEXT("Loop9Chat", "ChatRingingLine3",
-			"...his voice, but older: \"Whatever you find on this floor, do not tell me. I already know.\" Click."),
+			"Something strange is going on here...and things aren't quite what they seem at first glance."),
 		NSLOCTEXT("Loop9Chat", "ChatRingingLine4",
-			"...a whisper that is almost his: \"The lift was never the only way down. Some walls were put up after.\" Static, then nothing."),
+			"Don't be a fool. Never swallow every piece of advice whole - some hands reaching out are just dragging you deeper."),
 		NSLOCTEXT("Loop9Chat", "ChatRingingLine5",
-			"...footsteps going down stairs. This building has no stairs on this floor. Then a street door, and traffic. Then the line dies."),
+			"This feels like a fever dream...but will you ever actually wake up from it?"),
 		NSLOCTEXT("Loop9Chat", "ChatRingingLine6",
-			"...\"Check the wall you never look at. The one that is always there.\" A long breath. \"Except when it is not.\" Click."),
+			"Did you honestly think you and Dragojlo were the only ones left in this office?"),
+		NSLOCTEXT("Loop9Chat", "ChatRingingLine7",
+			"Don't lose hope just yet."),
 	};
 	const int32 Index = FMath::RandRange(0, UE_ARRAY_COUNT(Lines) - 1);
 	return Lines[Index].ToString();

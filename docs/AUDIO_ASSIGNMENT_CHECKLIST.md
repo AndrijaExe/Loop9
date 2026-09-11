@@ -228,6 +228,10 @@ Urađeno 26.08.2026.:
 | `Sound/Pursuer/PursuerDespawn` | https://freesound.org/people/CVLTIV8R/sounds/847621/ | CVLTIV8R | Freesound | Magic Spell - Whir, and Boom (7.23 s, isečeno na ~6.13 s) |
 | `Sound/Pursuer/185993__mmleys__dynamic-space` | https://freesound.org/people/mmleys/sounds/185993/ | mmleys | Freesound | pursuer tension bed, 17 s |
 | `Sound/Ambient/726368__christmaskrumble666__street-museum-dark-ambient-bgm` | https://freesound.org/people/christmaskrumble666/sounds/726368/ | ChristmasKrumble666 | Freesound | alternate floor bed, 224 s |
+| `Sound/Watcher/Watcher_LookAway_Piano` | https://freesound.org/people/Victor_Natas/sounds/587014/ | Victor_Natas | CC BY 4.0 | plays on look-away; **attribution required** |
+| `Sound/Lights/Lights_Blackout_SinisterLaugh` | https://freesound.org/people/.Andre_Onate/sounds/160964/ | .Andre_Onate | CC0 | loops for the duration of a Watcher blackout only |
+| `Sound/Lights/Lights_Blackout_Shatter` | https://pixabay.com/sound-effects/household-lightbulb-shattering-1-2-89954/ | lucaslara | Pixabay Content License | one-shot the instant a Watcher blackout starts |
+| `Sound/Watcher/Watcher_Crying` | https://freesound.org/people/scottemoil/sounds/263776/ | scottemoil | CC0 | loops attached to the figure while he stands there |
 
 Napomene:
 
