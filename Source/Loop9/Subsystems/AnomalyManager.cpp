@@ -173,7 +173,11 @@ namespace
 	 * drawing walks the whole level exactly once. Returns false when nothing is
 	 * left to draw.
 	 */
-	bool DrawCandidate(FCandidatePools& Pools, FCandidate& OutCandidate)
+	/** A type that fired on any of the last N floors draws at this fraction of its weight. */
+	constexpr int32 AnomalyTypeCooldownFloors = 3;
+	constexpr float AnomalyTypeCooldownWeightScale = 0.1f;
+
+	bool DrawCandidate(FCandidatePools& Pools, const TArray<ELoopAnomalyType>& CooldownTypes, FCandidate& OutCandidate)
 	{
 		TArray<int32> AvailableTypeIndices;
 		TArray<float> TypeWeights;
@@ -181,8 +185,14 @@ namespace
 		{
 			if (Pools[Index].Num() > 0)
 			{
+				const ELoopAnomalyType Type = AnomalyTypeOrder[Index];
+				float Weight = GetTypeSelectionWeight(Type);
+				if (CooldownTypes.Contains(Type))
+				{
+					Weight *= AnomalyTypeCooldownWeightScale;
+				}
 				AvailableTypeIndices.Add(Index);
-				TypeWeights.Add(GetTypeSelectionWeight(AnomalyTypeOrder[Index]));
+				TypeWeights.Add(Weight);
 			}
 		}
 
@@ -205,7 +215,7 @@ namespace
 		if (DrawnComponentIndex == INDEX_NONE)
 		{
 			ChosenPool.Empty();
-			return DrawCandidate(Pools, OutCandidate);
+			return DrawCandidate(Pools, CooldownTypes, OutCandidate);
 		}
 
 		OutCandidate = ChosenPool[DrawnComponentIndex];
@@ -235,10 +245,18 @@ void UAnomalyManager::BeginLoopVisit()
 	CurrentLoopAnomalyObjectKind.Empty();
 	bCurrentLoopAnomalyRepeat = false;
 	bPhoneLineCutThisFloor = false;
+
+	// New bucket for this floor; keep the cooldown window plus the current floor.
+	RecentFloorAnomalyTypes.AddDefaulted();
+	while (RecentFloorAnomalyTypes.Num() > AnomalyTypeCooldownFloors + 1)
+	{
+		RecentFloorAnomalyTypes.RemoveAt(0);
+	}
 }
 
 void UAnomalyManager::ResetRunTracking()
 {
+	RecentFloorAnomalyTypes.Empty();
 	BeginLoopVisit();
 	PhonesRangThisRun.Reset();
 	PreviousLoopAnomalyKey.Empty();
@@ -468,11 +486,13 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 	// misconfigured placement could hand the player a silently clean floor.
 	FCandidatePools CandidatePools = CollectCandidates(RegisteredComponents, /*MinProbability*/ 0.0f);
 
+	const TArray<ELoopAnomalyType> CooldownTypes = GetAnomalyTypesOnCooldown();
 	FCandidate Selected;
-	while (DrawCandidate(CandidatePools, Selected))
+	while (DrawCandidate(CandidatePools, CooldownTypes, Selected))
 	{
 		if (ForceActivateComponent(Selected.Component, INDEX_NONE))
 		{
+			RecordActivatedAnomalyType(Selected.Component->GetAnomalyType());
 			return true;
 		}
 	}
@@ -679,9 +699,10 @@ void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability)
 	// A component that loses its probability roll, or whose ApplyAnomalyState
 	// refuses, therefore no longer costs the floor an anomaly: the next draw
 	// takes its place.
+	const TArray<ELoopAnomalyType> CooldownTypes = GetAnomalyTypesOnCooldown();
 	int32 AnomaliesTriggered = 0;
 	FCandidate Selected;
-	while (AnomaliesTriggered < Count && DrawCandidate(CandidatePools, Selected))
+	while (AnomaliesTriggered < Count && DrawCandidate(CandidatePools, CooldownTypes, Selected))
 	{
 		if (!Selected.Component || FMath::FRand() > Selected.Probability)
 		{
@@ -691,9 +712,33 @@ void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability)
 		Selected.Component->ActivateAnomaly();
 		if (Selected.Component->bIsAnomalyActive)
 		{
+			RecordActivatedAnomalyType(Selected.Component->GetAnomalyType());
 			AnomaliesTriggered++;
 		}
 	}
+}
+
+TArray<ELoopAnomalyType> UAnomalyManager::GetAnomalyTypesOnCooldown() const
+{
+	TArray<ELoopAnomalyType> Types;
+	// The last bucket is the floor being generated; only the floors before it count.
+	for (int32 Index = 0; Index < RecentFloorAnomalyTypes.Num() - 1; ++Index)
+	{
+		for (const ELoopAnomalyType Type : RecentFloorAnomalyTypes[Index])
+		{
+			Types.AddUnique(Type);
+		}
+	}
+	return Types;
+}
+
+void UAnomalyManager::RecordActivatedAnomalyType(ELoopAnomalyType Type)
+{
+	if (RecentFloorAnomalyTypes.IsEmpty())
+	{
+		RecentFloorAnomalyTypes.AddDefaulted();
+	}
+	RecentFloorAnomalyTypes.Last().AddUnique(Type);
 }
 
 void UAnomalyManager::ResetAllAnomalies()

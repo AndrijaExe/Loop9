@@ -46,6 +46,15 @@ UWatcherAnomalyComponent::UWatcherAnomalyComponent()
 	{
 		CryingSound = CryingFinder.Object;
 	}
+
+	// The desk-phone falloff pushed out ~2.5 m with a linear curve: audible across
+	// the room, gone by the lift.
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> CryingAttenuationFinder(
+		TEXT("/Game/MyStuff/Sound/Watcher/ATT_WatcherCrying.ATT_WatcherCrying"));
+	if (CryingAttenuationFinder.Succeeded())
+	{
+		CryingAttenuation = CryingAttenuationFinder.Object;
+	}
 }
 
 void UWatcherAnomalyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
