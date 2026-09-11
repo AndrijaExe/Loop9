@@ -171,4 +171,27 @@ public:
 	/** Print ending debug command help. */
 	UFUNCTION(Exec)
 	void EndingHelp();
+
+	// ---- Trailer capture rig (ULoop9TrailerRigSubsystem); compiled out of Shipping ----
+
+	/** Save the current spot and look direction under a name: TrailerMark clip2 */
+	UFUNCTION(Exec)
+	void TrailerMark(const FString& Name);
+
+	/** Replay a mark with an eased move: TrailerShot clip2 pan 25 pitch -5 dolly 120 time 5 */
+	UFUNCTION(Exec)
+	void TrailerShot(const FString& Args);
+
+	UFUNCTION(Exec)
+	void TrailerStop();
+
+	UFUNCTION(Exec)
+	void TrailerList();
+
+	/** Hide (0) or show (1) the gameplay HUD: crosshair, prompts, sprint meter. */
+	UFUNCTION(Exec)
+	void TrailerHUD(int32 Visible);
+
+	UFUNCTION(Exec)
+	void TrailerHelp();
 };
