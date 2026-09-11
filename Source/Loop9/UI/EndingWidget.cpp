@@ -2,7 +2,9 @@
 
 #include "UI/Loop9WidgetClickBinder.h"
 #include "Subsystems/RelationshipSubsystem.h"
+#include "Subsystems/Loop9AchievementsSubsystem.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/GameInstance.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -192,9 +194,28 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		break;
 	}
 
+	// The run stats alone read as "the end"; the totals say there is more office
+	// to see, which is the difference between a refund and a second run.
+	int32 SeenEndings = 1;
+	int32 TotalEndings = 6;
+	int32 SpottedTypes = 0;
+	int32 TotalTypes = 12;
+	if (const UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (const ULoop9AchievementsSubsystem* Achievements = GameInstance->GetSubsystem<ULoop9AchievementsSubsystem>())
+		{
+			SeenEndings = FMath::Max(1, Achievements->GetSeenEndingCount());
+			TotalEndings = Achievements->GetTotalEndingCount();
+			SpottedTypes = Achievements->GetSpottedAnomalyTypeCount();
+			TotalTypes = Achievements->GetTotalSpotAnomalyTypeCount();
+		}
+	}
+
 	EndingStats = FText::Format(
-		LOCTEXT("EndingStatsFormat", "Resets: {0} | AI interactions: {1}"),
-		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions));
+		LOCTEXT("EndingStatsFormat", "Resets: {0}   |   Calls: {1}   |   Endings seen: {2} of {3}   |   Anomalies spotted: {4} of {5}"),
+		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions),
+		FText::AsNumber(SeenEndings), FText::AsNumber(TotalEndings),
+		FText::AsNumber(SpottedTypes), FText::AsNumber(TotalTypes));
 
 	RefreshBoundWidgets();
 	StartTyping();

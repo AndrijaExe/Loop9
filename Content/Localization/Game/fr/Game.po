@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-11 14:22\n"
-"PO-Revision-Date: 2026-09-11 14:22\n"
+"POT-Creation-Date: 2026-09-11 21:55\n"
+"PO-Revision-Date: 2026-09-11 21:55\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -371,29 +371,29 @@ msgid "Tip: Look for missing objects"
 msgstr "Astuce : cherche les objets manquants"
 
 #. Key:	FriendPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(227)
-#: Source/Loop9/AI_ChatWidget.cpp(227)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(230)
+#: Source/Loop9/AI_ChatWidget.cpp(230)
 msgctxt "Loop9Chat,FriendPrefix"
 msgid "Dragojlo: "
 msgstr "Dragojlo : "
 
 #. Key:	ThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(228)
-#: Source/Loop9/AI_ChatWidget.cpp(228)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(231)
+#: Source/Loop9/AI_ChatWidget.cpp(231)
 msgctxt "Loop9Chat,ThinkingIndicator"
 msgid "Thinking..."
 msgstr "Il réfléchit..."
 
 #. Key:	StillThinkingIndicator
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(260)
-#: Source/Loop9/AI_ChatWidget.cpp(260)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(263)
+#: Source/Loop9/AI_ChatWidget.cpp(263)
 msgctxt "Loop9Chat,StillThinkingIndicator"
 msgid "Still thinking..."
 msgstr "Il réfléchit toujours..."
 
 #. Key:	PlayerPrefix
-#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(328)
-#: Source/Loop9/AI_ChatWidget.cpp(328)
+#. SourceLocation:	Source/Loop9/AI_ChatWidget.cpp(331)
+#: Source/Loop9/AI_ChatWidget.cpp(331)
 msgctxt "Loop9Chat,PlayerPrefix"
 msgid "You: "
 msgstr "Toi : "
@@ -665,8 +665,8 @@ msgid "Next floor"
 msgstr "Étage suivant"
 
 #. Key:	TaskComplete
-#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
-#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(337)
+#. SourceLocation:	Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(353)
+#: Source/Loop9/Interaction/LoopEndingSceneDirector.cpp(353)
 msgctxt "Loop9Ending,TaskComplete"
 msgid "TASK COMPLETE"
 msgstr "TÂCHE TERMINÉE"
@@ -994,53 +994,53 @@ msgid "BACK"
 msgstr ""
 
 #. Key:	EscapeTogetherDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(171)
-#: Source/Loop9/UI/EndingWidget.cpp(171)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(173)
+#: Source/Loop9/UI/EndingWidget.cpp(173)
 msgctxt "Loop9Endings,EscapeTogetherDesc"
 msgid "You and Dragojlo built trust without losing yourself. You escaped the loop together."
 msgstr "Dragojlo et toi avez bâti une confiance sans que tu te perdes toi-même. Vous vous êtes échappés de la boucle ensemble."
 
 #. Key:	ObedientFoolDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(175)
-#: Source/Loop9/UI/EndingWidget.cpp(175)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(177)
+#: Source/Loop9/UI/EndingWidget.cpp(177)
 msgctxt "Loop9Endings,ObedientFoolDesc"
 msgid "You trusted completely and stopped deciding for yourself. The wrong voice chose your fate."
 msgstr "Tu as fait confiance aveuglément et cessé de décider par toi-même. La mauvaise voix a choisi ton destin."
 
 #. Key:	ColdBetrayalDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(179)
-#: Source/Loop9/UI/EndingWidget.cpp(179)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(181)
+#: Source/Loop9/UI/EndingWidget.cpp(181)
 msgctxt "Loop9Endings,ColdBetrayalDesc"
 msgid "You relied on him but never respected him. One calm lie was enough."
 msgstr "Tu comptais sur lui sans jamais le respecter. Un mensonge calme a suffi."
 
 #. Key:	MergedMemoryDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(183)
-#: Source/Loop9/UI/EndingWidget.cpp(183)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(185)
+#: Source/Loop9/UI/EndingWidget.cpp(185)
 msgctxt "Loop9Endings,MergedMemoryDesc"
 msgid "Your memories and his leaks intertwined. You can no longer tell who remembers what."
 msgstr "Tes souvenirs et ses fuites se sont entremêlés. Tu ne sais plus qui se souvient de quoi."
 
 #. Key:	TheReplacementDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(187)
-#: Source/Loop9/UI/EndingWidget.cpp(187)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(189)
+#: Source/Loop9/UI/EndingWidget.cpp(189)
 msgctxt "Loop9Endings,TheReplacementDesc"
 msgid "He did not destroy you. He learned you. Now you are the voice on the other side of the line."
 msgstr "Il ne t'a pas détruit. Il t'a appris. Maintenant, c'est toi la voix à l'autre bout de la ligne."
 
 #. Key:	ParanoidSurvivorDesc
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(191)
-#: Source/Loop9/UI/EndingWidget.cpp(191)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(193)
+#: Source/Loop9/UI/EndingWidget.cpp(193)
 msgctxt "Loop9Endings,ParanoidSurvivorDesc"
 msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
 msgstr "Tu t'es échappé seul en ne faisant confiance à personne. Cela t'a peut-être sauvé. Cela t'a peut-être coûté la vérité."
 
 #. Key:	EndingStatsFormat
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(196)
-#: Source/Loop9/UI/EndingWidget.cpp(196)
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(215)
+#: Source/Loop9/UI/EndingWidget.cpp(215)
 msgctxt "Loop9Endings,EndingStatsFormat"
-msgid "Resets: {0} | AI interactions: {1}"
-msgstr "Réinitialisations : {0} | Interactions IA : {1}"
+msgid "Resets: {0}   |   Calls: {1}   |   Endings seen: {2} of {3}   |   Anomalies spotted: {4} of {5}"
+msgstr "Réinitialisations : {0}   |   Appels : {1}   |   Fins vues : {2} sur {3}   |   Anomalies repérées : {4} sur {5}"
 
 #. Key:	ContinueButtonLabel
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.h(57)

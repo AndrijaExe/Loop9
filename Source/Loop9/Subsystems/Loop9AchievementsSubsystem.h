@@ -54,6 +54,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Achievements")
 	TArray<FString> GetSeenEndingIds() const;
 
+	/** Progress the ending screen shows so a first run reads as "1 of 6", not "the end". */
+	UFUNCTION(BlueprintPure, Category = "Achievements")
+	int32 GetSeenEndingCount() const;
+
+	UFUNCTION(BlueprintPure, Category = "Achievements")
+	int32 GetTotalEndingCount() const;
+
+	/** Distinct anomaly types correctly called out across runs (the Almanac count). */
+	UFUNCTION(BlueprintPure, Category = "Achievements")
+	int32 GetSpottedAnomalyTypeCount() const;
+
+	UFUNCTION(BlueprintPure, Category = "Achievements")
+	int32 GetTotalSpotAnomalyTypeCount() const;
+
 	/** Steamworks API name for spotting a given anomaly type label (e.g. "PursuerAnomaly"). */
 	static FName SpotAchievementId(const FString& AnomalyTypeLabel);
 
