@@ -46,4 +46,11 @@ struct FLoop9SteamUtils
 	 * shows Cloud usage even if Auto-Cloud misses the AppData file.
 	 */
 	static bool WriteCloudFile(const FString& Filename, const FString& Contents);
+
+	/**
+	 * Opens Url in the Steam overlay browser so the player never leaves the
+	 * game. False when Steam or the overlay is unavailable; the caller then
+	 * falls back to the system browser.
+	 */
+	static bool OpenWebPage(const FString& Url);
 };

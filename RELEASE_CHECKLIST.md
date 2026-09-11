@@ -36,6 +36,11 @@ Steam App ID: **4982260**
 >   - [x] Svaki telefon sa `AudioAnomaly` ima lampu u krugu 6 m — testirano.
 >   - [ ] Ikonice `*_off.png` za 4 nova achievementa
 >     (`py -3 Tools/make_achievement_off_icons.py`) ako nisu uploadovane.
+>   - [ ] **GatherText + compile texts ponovo** — novi ključ `ReportBug`
+>     (dugme „REPORT A BUG" u donjem desnom uglu glavnog menija, prevodi su u
+>     `.po`). Bez toga ostali jezici prikazuju engleski. Link:
+>     `ReportBugUrl` na `WBP_MainMenu` (default Steam discussions), otvara se u
+>     Steam overlay-u.
 >   - [ ] Brz prolaz: `AnomalyWatcher`, `AnomalyPhone`, `AnomalyCreep`,
 >     `AnomalyForce I01`; `AnomalyReset` vraća svetla.
 > - [ ] Posle: merge `release/v1.0.7` → `main` u igri. `develop` ostaje

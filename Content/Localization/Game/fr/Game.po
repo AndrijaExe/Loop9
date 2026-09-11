@@ -1203,6 +1203,13 @@ msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "CRÉDITS"
 
+#. Key:	ReportBug
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(140)
+#: Source/Loop9/UI/MainMenuWidget.cpp(140)
+msgctxt "Loop9Menu,ReportBug"
+msgid "REPORT A BUG"
+msgstr "SIGNALER UN BUG"
+
 #. Key:	Paused
 #. SourceLocation:	Source/Loop9/UI/PauseMenuWidget.cpp(76)
 #: Source/Loop9/UI/PauseMenuWidget.cpp(76)

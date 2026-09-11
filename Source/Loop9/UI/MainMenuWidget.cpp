@@ -17,6 +17,8 @@
 #include "Components/PanelWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/Widget.h"
+#include "HAL/PlatformProcess.h"
+#include "Steam/Loop9SteamUtils.h"
 
 namespace
 {
@@ -83,10 +85,15 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		Credits = GetWidgetFromName(TEXT("Credits"));
 	}
+	if (!ReportBug)
+	{
+		ReportBug = GetWidgetFromName(TEXT("ReportBug"));
+	}
 	// Desired order: Play, How to Play, Settings, Archive, Credits, Quit.
 	EnsureHelpButton();
 	EnsureArchiveButton();
 	EnsureCreditsButton();
+	EnsureReportBugButton();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
@@ -94,6 +101,7 @@ void UMainMenuWidget::NativeConstruct()
 	FLoop9WidgetClickBinder::BindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 	FLoop9WidgetClickBinder::BindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
 	FLoop9WidgetClickBinder::BindClicked(Credits, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnCreditsClicked));
+	FLoop9WidgetClickBinder::BindClicked(ReportBug, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnReportBugClicked));
 
 	ApplyLocalizedTexts();
 
@@ -112,6 +120,7 @@ void UMainMenuWidget::NativeDestruct()
 	FLoop9WidgetClickBinder::UnbindClicked(Archive, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnArchiveClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Help, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnHelpClicked));
 	FLoop9WidgetClickBinder::UnbindClicked(Credits, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnCreditsClicked));
+	FLoop9WidgetClickBinder::UnbindClicked(ReportBug, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnReportBugClicked));
 
 	if (CultureChangedHandle.IsValid())
 	{
@@ -135,6 +144,7 @@ void UMainMenuWidget::ApplyLocalizedTexts()
 	FLoop9WidgetClickBinder::SetButtonText(Archive, NSLOCTEXT("Loop9Menu", "Archive", "ARCHIVE"));
 	FLoop9WidgetClickBinder::SetButtonText(Help, NSLOCTEXT("Loop9Menu", "HowToPlay", "HOW TO PLAY"));
 	FLoop9WidgetClickBinder::SetButtonText(Credits, NSLOCTEXT("Loop9Menu", "Credits", "CREDITS"));
+	FLoop9WidgetClickBinder::SetButtonText(ReportBug, NSLOCTEXT("Loop9Menu", "ReportBug", "REPORT A BUG"));
 }
 
 void UMainMenuWidget::OnPlayClicked()
@@ -501,6 +511,61 @@ void UMainMenuWidget::EnsureCreditsButton()
 	if (Credits)
 	{
 		UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Credits button above Quit"));
+	}
+}
+
+void UMainMenuWidget::EnsureReportBugButton()
+{
+	if (ReportBug || !Settings || !WidgetTree)
+	{
+		return;
+	}
+
+	// Same class as the other buttons so it inherits their style, but it goes
+	// straight onto the canvas: a corner element, not part of the stack.
+	UCanvasPanel* Canvas = nullptr;
+	for (UWidget* Walk = Settings->GetParent(); Walk; Walk = Walk->GetParent())
+	{
+		if (UCanvasPanel* Found = Cast<UCanvasPanel>(Walk))
+		{
+			Canvas = Found;
+			break;
+		}
+	}
+
+	if (!Canvas)
+	{
+		// No canvas to pin to: fall back to one more row above Quit.
+		ReportBug = SynthesizeButtonBefore(TEXT("ReportBug"), Quit);
+		return;
+	}
+
+	UWidget* NewButton = WidgetTree->ConstructWidget<UWidget>(Settings->GetClass(), TEXT("ReportBug"));
+	if (!NewButton)
+	{
+		return;
+	}
+
+	Canvas->AddChildToCanvas(NewButton);
+	FLoop9WidgetClickBinder::AlignToCanvasBottomRight(NewButton, FVector2D(28.0f, 24.0f), FVector2D(300.0f, 60.0f));
+	// Shrunk toward the corner so it reads as a footnote, not a seventh menu entry.
+	NewButton->SetRenderTransformPivot(FVector2D(1.0f, 1.0f));
+	NewButton->SetRenderScale(FVector2D(0.7f, 0.7f));
+	NewButton->SetRenderOpacity(0.8f);
+	ReportBug = NewButton;
+	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Report a bug button in the corner"));
+}
+
+void UMainMenuWidget::OnReportBugClicked()
+{
+	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: Report a bug clicked -> %s"), *ReportBugUrl);
+	if (ReportBugUrl.IsEmpty())
+	{
+		return;
+	}
+	if (!FLoop9SteamUtils::OpenWebPage(ReportBugUrl))
+	{
+		FPlatformProcess::LaunchURL(*ReportBugUrl, nullptr, nullptr);
 	}
 }
 

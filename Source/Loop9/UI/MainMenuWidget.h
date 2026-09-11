@@ -24,6 +24,8 @@ protected:
 	void EnsureArchiveButton();
 	void EnsureHelpButton();
 	void EnsureCreditsButton();
+	/** Small button in the bottom-right corner; a Settings clone pinned to the canvas. */
+	void EnsureReportBugButton();
 
 	/**
 	 * Clones the Settings button and inserts the copy immediately before Anchor
@@ -63,6 +65,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void OnBackFromCredits();
 
+	/** Opens ReportBugUrl in the Steam overlay, or the system browser without Steam. */
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void OnReportBugClicked();
+
+	/** Where the corner button sends players. Steam discussions need no extra service. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FString ReportBugUrl = TEXT("https://steamcommunity.com/app/4982260/discussions/");
+
 	/** Settings Widget Class (set in Blueprint) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> SettingsWidgetClass;
@@ -91,6 +101,7 @@ private:
 	UWidget* Archive = nullptr;
 	UWidget* Help = nullptr;
 	UWidget* Credits = nullptr;
+	UWidget* ReportBug = nullptr;
 
 	/** Settings widget instance */
 	UPROPERTY()
