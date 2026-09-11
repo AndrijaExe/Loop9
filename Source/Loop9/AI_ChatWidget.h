@@ -46,7 +46,7 @@ public:
 	void ShowThinkingIndicator();
 	void HideThinkingIndicator();
 
-	/** 1.1: read-only chat â the line is shown, nothing can be typed. Cleared by the next unlock. */
+	/** 1.1: read-only chat — the line is shown, nothing can be typed. Cleared by the next unlock. */
 	void SetInputLocked(bool bLocked);
 	bool IsInputLocked() const { return bInputLocked; }
 

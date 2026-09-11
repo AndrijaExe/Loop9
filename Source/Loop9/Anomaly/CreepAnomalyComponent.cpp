@@ -24,11 +24,15 @@ void UCreepAnomalyComponent::BeginPlay()
 	{
 		if (bEnsureOwnerIsMovable)
 		{
-			if (USceneComponent* RootComp = Owner->GetRootComponent())
+			// Every scene component, not just the root: a Static mesh under a
+			// Movable root stays where it was and only logs a warning.
+			TArray<USceneComponent*> SceneComponents;
+			Owner->GetComponents<USceneComponent>(SceneComponents);
+			for (USceneComponent* SceneComponent : SceneComponents)
 			{
-				if (RootComp->Mobility != EComponentMobility::Movable)
+				if (SceneComponent && SceneComponent->Mobility != EComponentMobility::Movable)
 				{
-					RootComp->SetMobility(EComponentMobility::Movable);
+					SceneComponent->SetMobility(EComponentMobility::Movable);
 				}
 			}
 		}

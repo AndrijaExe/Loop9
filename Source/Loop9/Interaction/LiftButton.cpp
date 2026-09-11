@@ -180,7 +180,7 @@ bool ALiftButton::HandleInteraction(APlayerController* InteractingController)
 		{
 			if (RingingFloor->IsLitLiftHeld())
 			{
-				UE_LOG(LogTemp, Log, TEXT("LiftButton: ignored press â the lit lift is held shut by the ringing phone."));
+				UE_LOG(LogTemp, Log, TEXT("LiftButton: ignored press — the lit lift is held shut by the ringing phone."));
 				return false;
 			}
 		}
