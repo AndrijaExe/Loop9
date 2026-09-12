@@ -583,6 +583,45 @@ void ALoop9PlayerController::TrailerShot(const FString& Args)
 #endif
 }
 
+void ALoop9PlayerController::TrailerScene(const FString& Name)
+{
+#if UE_BUILD_SHIPPING
+	(void)Name;
+#else
+	TArray<FString> Tokens;
+	Name.ParseIntoArrayWS(Tokens);
+	if (Tokens.Num() == 0)
+	{
+		TrailerScenes();
+		return;
+	}
+	ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr;
+	if (!Rig)
+	{
+		DebugScreenMessage(TEXT("TrailerScene: rig not available (start a run first)."), false);
+		return;
+	}
+	TaintTelemetryRun(this);
+	FString Message;
+	const bool bOk = Rig->StartScene(this, Tokens[0], Message);
+	DebugScreenMessage(Message, bOk);
+#endif
+}
+
+void ALoop9PlayerController::TrailerScenes()
+{
+#if !UE_BUILD_SHIPPING
+	UE_LOG(LogLoop9, Log, TEXT("Trailer scenes (name — marks it needs — what happens):"));
+	FString OnScreen;
+	for (const FTrailerScene& Scene : ULoop9TrailerRigSubsystem::GetScenes())
+	{
+		UE_LOG(LogLoop9, Log, TEXT("  %-14s marks: %-8s %s"), *Scene.Name, *Scene.RequiredMarks, *Scene.Notes);
+		OnScreen += FString::Printf(TEXT("%s [%s]  "), *Scene.Name, *Scene.RequiredMarks);
+	}
+	DebugScreenMessage(OnScreen, true);
+#endif
+}
+
 void ALoop9PlayerController::TrailerStop()
 {
 #if !UE_BUILD_SHIPPING
@@ -637,6 +676,9 @@ void ALoop9PlayerController::TrailerHelp()
 		"      pitch  degrees, + = up                (default 0)\n"
 		"      dolly  cm walked forward, - = back    (default 0, walks at the needed speed)\n"
 		"      time   seconds for the move           (default 5; +0.4 s settle, +0.6 s hold)\n"
+		"  TrailerScene <name>                      - authored multi-step scene; TrailerScenes lists them\n"
+		"                                             and the marks each needs (e.g. hook: look right,\n"
+		"                                             back left, and the phone rings on the way back)\n"
 		"  TrailerStop                              - abort the move, give input back\n"
 		"  TrailerList                              - list saved marks\n"
 		"  TrailerHUD 0 | 1                         - hide / show crosshair and prompts\n"

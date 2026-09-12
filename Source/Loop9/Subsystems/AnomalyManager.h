@@ -23,8 +23,7 @@ public:
 	void UnregisterAnomalyComponent(UAnomalyComponentBase* Component);
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
-	/** LoopIndex shapes the type mix: obvious types early, subtle ones late (see GetLoopPhaseWeightScale). */
-	void TriggerRandomAnomalies(int32 Count = 3, float MinProbability = 0.0f, int32 LoopIndex = 0);
+	void TriggerRandomAnomalies(int32 Count = 3, float MinProbability = 0.0f);
 
 	UFUNCTION(BlueprintCallable, Category = "Anomaly")
 	bool ForceActivateAnyAnomaly();
@@ -124,8 +123,6 @@ private:
 	 * a repeat stays possible for ACH_DEJA_VU and the backend's repeat context.
 	 */
 	TArray<TArray<ELoopAnomalyType>> RecentFloorAnomalyTypes;
-	/** Loop the last random draw was made for; the rescue draw reuses it. */
-	int32 SelectionLoopIndex = 0;
 	TArray<ELoopAnomalyType> GetAnomalyTypesOnCooldown() const;
 	void RecordActivatedAnomalyType(ELoopAnomalyType Type);
 

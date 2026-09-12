@@ -182,6 +182,14 @@ public:
 	UFUNCTION(Exec)
 	void TrailerShot(const FString& Args);
 
+	/** Run an authored multi-step scene (hook, lifts, desk, desk_creep, shelf, hall, watcher, watcher_burst, pursuer, mag, phone_dark). */
+	UFUNCTION(Exec)
+	void TrailerScene(const FString& Name);
+
+	/** List the scenes and the marks each one needs. */
+	UFUNCTION(Exec)
+	void TrailerScenes();
+
 	UFUNCTION(Exec)
 	void TrailerStop();
 

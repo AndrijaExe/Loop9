@@ -177,33 +177,7 @@ namespace
 	constexpr int32 AnomalyTypeCooldownFloors = 3;
 	constexpr float AnomalyTypeCooldownWeightScale = 0.1f;
 
-	/**
-	 * Difficulty curve by floor. Floors 1-3 teach the game with anomalies that
-	 * announce themselves; floors 7-9 lean on the ones that need a real look
-	 * (a drift, a missing object, a wrong digit), so the back half of a run is
-	 * a search rather than a walk. Floors 4-6 are the plain roster.
-	 */
-	float GetLoopPhaseWeightScale(ELoopAnomalyType Type, int32 LoopIndex)
-	{
-		const bool bObvious =
-			Type == ELoopAnomalyType::Move || Type == ELoopAnomalyType::Light || Type == ELoopAnomalyType::Pursuer
-			|| Type == ELoopAnomalyType::DoorLock || Type == ELoopAnomalyType::Audio;
-		const bool bSubtle =
-			Type == ELoopAnomalyType::Creep || Type == ELoopAnomalyType::Hide || Type == ELoopAnomalyType::LoopNumber
-			|| Type == ELoopAnomalyType::Text || Type == ELoopAnomalyType::Scale;
-
-		if (LoopIndex > 0 && LoopIndex <= 3)
-		{
-			return bObvious ? 1.4f : (bSubtle ? 0.6f : 1.0f);
-		}
-		if (LoopIndex >= 7)
-		{
-			return bSubtle ? 1.6f : (bObvious ? 0.55f : 1.0f);
-		}
-		return 1.0f;
-	}
-
-	bool DrawCandidate(FCandidatePools& Pools, const TArray<ELoopAnomalyType>& CooldownTypes, int32 LoopIndex, FCandidate& OutCandidate)
+	bool DrawCandidate(FCandidatePools& Pools, const TArray<ELoopAnomalyType>& CooldownTypes, FCandidate& OutCandidate)
 	{
 		TArray<int32> AvailableTypeIndices;
 		TArray<float> TypeWeights;
@@ -212,7 +186,7 @@ namespace
 			if (Pools[Index].Num() > 0)
 			{
 				const ELoopAnomalyType Type = AnomalyTypeOrder[Index];
-				float Weight = GetTypeSelectionWeight(Type) * GetLoopPhaseWeightScale(Type, LoopIndex);
+				float Weight = GetTypeSelectionWeight(Type);
 				if (CooldownTypes.Contains(Type))
 				{
 					Weight *= AnomalyTypeCooldownWeightScale;
@@ -241,7 +215,7 @@ namespace
 		if (DrawnComponentIndex == INDEX_NONE)
 		{
 			ChosenPool.Empty();
-			return DrawCandidate(Pools, CooldownTypes, LoopIndex, OutCandidate);
+			return DrawCandidate(Pools, CooldownTypes, OutCandidate);
 		}
 
 		OutCandidate = ChosenPool[DrawnComponentIndex];
@@ -514,7 +488,7 @@ bool UAnomalyManager::ForceActivateAnyAnomaly()
 
 	const TArray<ELoopAnomalyType> CooldownTypes = GetAnomalyTypesOnCooldown();
 	FCandidate Selected;
-	while (DrawCandidate(CandidatePools, CooldownTypes, SelectionLoopIndex, Selected))
+	while (DrawCandidate(CandidatePools, CooldownTypes, Selected))
 	{
 		if (ForceActivateComponent(Selected.Component, INDEX_NONE))
 		{
@@ -709,10 +683,9 @@ bool UAnomalyManager::ForceActivateComponent(UAnomalyComponentBase* Component, i
 	return Component->bIsAnomalyActive;
 }
 
-void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability, int32 LoopIndex)
+void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability)
 {
 	CleanupInvalidComponents();
-	SelectionLoopIndex = LoopIndex;
 
 	if (RegisteredComponents.Num() == 0)
 	{
@@ -729,7 +702,7 @@ void UAnomalyManager::TriggerRandomAnomalies(int32 Count, float MinProbability, 
 	const TArray<ELoopAnomalyType> CooldownTypes = GetAnomalyTypesOnCooldown();
 	int32 AnomaliesTriggered = 0;
 	FCandidate Selected;
-	while (AnomaliesTriggered < Count && DrawCandidate(CandidatePools, CooldownTypes, LoopIndex, Selected))
+	while (AnomaliesTriggered < Count && DrawCandidate(CandidatePools, CooldownTypes, Selected))
 	{
 		if (!Selected.Component || FMath::FRand() > Selected.Probability)
 		{
