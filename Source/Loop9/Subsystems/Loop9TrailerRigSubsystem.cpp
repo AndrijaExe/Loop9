@@ -41,9 +41,9 @@ const TArray<FTrailerScene>& ULoop9TrailerRigSubsystem::GetScenes()
 		{ TEXT("hook"), TEXT("hook"),
 		  TEXT("Open-space, 5+ lamps and the ringing phone in view. Look right, back left, and on the way right again the phone rings and the floor goes dark."),
 		  { Step(TEXT("hook"), 0.0f, 0.0f, 0.0f, 2.0f),
-		    Step(TEXT(""), 30.0f, 0.0f, 0.0f, 3.0f),
-		    Step(TEXT(""), -60.0f, 0.0f, 0.0f, 3.5f),
-		    Step(TEXT(""), 30.0f, 0.0f, 0.0f, 3.0f, TEXT("Phone"), 0.35f),
+		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 2.2f),
+		    Step(TEXT(""), -100.0f, 0.0f, 0.0f, 2.6f),
+		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 2.2f, TEXT("Phone"), 0.35f),
 		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 3.0f) } },
 
 		{ TEXT("lifts"), TEXT("lifts"),
