@@ -1,9 +1,9 @@
 "appbuild"
 {
 	"appid" "4982260"
-	"desc" "Loop 9 v1.0.9 Windows"
+	"desc" "Loop 9 v1.0.10 Windows"
 	"buildoutput" "D:/UE Course/Loop 9 AI/Builds/SteamPipeOutput"
-	"contentroot" "D:/UE Course/Loop 9 AI/Builds/v1.0.9/Windows"
+	"contentroot" "D:/UE Course/Loop 9 AI/Builds/v1.0.10/Windows"
 	"setlive" "playtest"
 	"preview" "0"
 	"local" ""
