@@ -1,17 +1,26 @@
 #include "Subsystems/Loop9TrailerRigSubsystem.h"
 
+#include "Anomaly/AudioAnomalyComponent.h"
+#include "Anomaly/Pursuer/PursuerAnomalyCharacter.h"
+#include "Anomaly/Pursuer/PursuerAnomalyComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Components/AudioComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Loop9.h"
 #include "Loop9GameMode.h"
 #include "Controllers/Loop9PlayerController.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
 #include "Subsystems/AnomalyManager.h"
+#include "Subsystems/Loop9RingingFloorSubsystem.h"
 #include "Subsystems/Loop9TelemetrySubsystem.h"
+#include "UObject/UObjectIterator.h"
 
 namespace
 {
@@ -19,9 +28,15 @@ namespace
 	constexpr float TeleportSettleSeconds = 0.4f;
 	/** Keeps the frame still after the last step so the cut has a clean tail. */
 	constexpr float HoldSeconds = 0.6f;
+	/** Fade to black on the phone pickup, and the fade back once the shot ends. */
+	constexpr float PickupFadeSeconds = 0.8f;
+	constexpr float FadeBackSeconds = 0.6f;
+	/** A rig Pursuer never gets closer than this, or the catch logic despawns him. */
+	constexpr float PursuerMinDistanceCm = 170.0f;
 	const TCHAR* MarksSection = TEXT("Marks");
+	const TCHAR* PickupSoundPath = TEXT("/Game/MyStuff/Sound/Phone/PhonePickup.PhonePickup");
 
-	FTrailerStep Step(const TCHAR* Mark, float Pan, float Pitch, float Dolly, float Seconds, const TCHAR* Force = TEXT(""), float ForceAt = 0.0f)
+	FTrailerStep Step(const TCHAR* Mark, float Pan, float Pitch, float Dolly, float Seconds, const TCHAR* Action = TEXT(""), float ActionAt = 0.0f)
 	{
 		FTrailerStep S;
 		S.Mark = Mark;
@@ -29,8 +44,8 @@ namespace
 		S.PitchDegrees = Pitch;
 		S.DollyCm = Dolly;
 		S.Seconds = Seconds;
-		S.ForceFilter = Force;
-		S.ForceAtAlpha = ForceAt;
+		S.Action = Action;
+		S.ActionAtAlpha = ActionAt;
 		return S;
 	}
 }
@@ -82,10 +97,22 @@ const TArray<FTrailerScene>& ULoop9TrailerRigSubsystem::GetScenes()
 		  { Step(TEXT("watcher"), 0.0f, 0.0f, 0.0f, 1.5f, TEXT("Watcher"), 0.0f),
 		    Step(TEXT(""), 0.0f, 0.0f, 420.0f, 3.5f) } },
 
-		{ TEXT("pursuer"), TEXT("pursuer"),
-		  TEXT("Mark facing the corridor the pursuer comes down. He is forced, then a slow walk backwards while looking at him."),
-		  { Step(TEXT("pursuer"), 0.0f, 0.0f, 0.0f, 2.0f, TEXT("Pursuer"), 0.0f),
-		    Step(TEXT(""), 0.0f, 0.0f, -220.0f, 5.0f) } },
+		{ TEXT("pursuer"), TEXT("pursuer, pursuer_far, pursuer_near"),
+		  TEXT("No anomaly. 'pursuer' = where you stand and look; 'pursuer_far' = where he stands in that view (6+ m); 'pursuer_near' = closer on the same line (2+ m). He appears, a 0.7 s glance right and back, and he is nearer."),
+		  { Step(TEXT("pursuer"), 0.0f, 0.0f, 0.0f, 1.8f, TEXT("spawn_pursuer:pursuer_far"), 0.0f),
+		    Step(TEXT(""), 80.0f, 0.0f, 0.0f, 0.35f),
+		    Step(TEXT(""), -80.0f, 0.0f, 0.0f, 0.35f, TEXT("move_pursuer:pursuer_near"), 0.0f),
+		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 2.5f) } },
+
+		{ TEXT("pursuer2"), TEXT("pursuer, pursuer_far, pursuer_mid, pursuer_near"),
+		  TEXT("Same, two glances: far -> mid -> near. Stronger read of 'he only moves when you are not looking'."),
+		  { Step(TEXT("pursuer"), 0.0f, 0.0f, 0.0f, 1.8f, TEXT("spawn_pursuer:pursuer_far"), 0.0f),
+		    Step(TEXT(""), 80.0f, 0.0f, 0.0f, 0.35f),
+		    Step(TEXT(""), -80.0f, 0.0f, 0.0f, 0.35f, TEXT("move_pursuer:pursuer_mid"), 0.0f),
+		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 1.2f),
+		    Step(TEXT(""), 80.0f, 0.0f, 0.0f, 0.35f),
+		    Step(TEXT(""), -80.0f, 0.0f, 0.0f, 0.35f, TEXT("move_pursuer:pursuer_near"), 0.0f),
+		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 2.5f) } },
 
 		{ TEXT("mag"), TEXT("mag"),
 		  TEXT("Tight on the magazine, only the word in frame. Text forced, then a short push in."),
@@ -93,9 +120,10 @@ const TArray<FTrailerScene>& ULoop9TrailerRigSubsystem::GetScenes()
 		    Step(TEXT(""), 0.0f, 0.0f, 40.0f, 2.5f) } },
 
 		{ TEXT("phone_dark"), TEXT("phone"),
-		  TEXT("Closing shot: framed on a desk phone. Phone forced, floor goes dark, one lamp stays. Hold."),
-		  { Step(TEXT("phone"), 0.0f, 0.0f, 0.0f, 1.0f, TEXT("Phone"), 0.0f),
-		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 4.0f) } },
+		  TEXT("Closing shot. Mark ~3.5 m from a desk phone, facing it. Phone forced without the outage sound, floor drops to the one lamp, a slow walk in looking down, then the pickup and black."),
+		  { Step(TEXT("phone"), 0.0f, 0.0f, 0.0f, 1.5f, TEXT("phone_quiet"), 0.0f),
+		    Step(TEXT(""), 0.0f, -14.0f, 300.0f, 6.0f),
+		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 2.5f, TEXT("pickup"), 0.0f) } },
 	};
 	return Scenes;
 }
@@ -223,10 +251,13 @@ bool ULoop9TrailerRigSubsystem::BeginSteps(APlayerController* InController, cons
 	{
 		FVector Loc;
 		FRotator Rot;
-		if (!S.Mark.IsEmpty() && !LoadMark(S.Mark, Loc, Rot))
+		for (const FString& Needed : { S.Mark, MarkFromAction(S.Action) })
 		{
-			OutMessage = FString::Printf(TEXT("Trailer rig: mark '%s' is not set. Stand there and TrailerMark %s."), *S.Mark, *S.Mark);
-			return false;
+			if (!Needed.IsEmpty() && !LoadMark(Needed, Loc, Rot))
+			{
+				OutMessage = FString::Printf(TEXT("Trailer rig: mark '%s' is not set. Stand there and TrailerMark %s."), *Needed, *Needed);
+				return false;
+			}
 		}
 	}
 
@@ -280,7 +311,7 @@ bool ULoop9TrailerRigSubsystem::BeginStep(int32 Index)
 
 	StepIndex = Index;
 	StepElapsed = 0.0f;
-	bForceFired = false;
+	bActionFired = false;
 	const FTrailerStep& S = Steps[Index];
 
 	if (!S.Mark.IsEmpty())
@@ -313,12 +344,225 @@ bool ULoop9TrailerRigSubsystem::BeginStep(int32 Index)
 	}
 	DollyDirection = FRotator(0.0f, BaseRotation.Yaw, 0.0f).Vector();
 
-	if (!S.ForceFilter.IsEmpty() && S.ForceAtAlpha <= 0.0f)
+	if (!S.Action.IsEmpty() && S.ActionAtAlpha <= 0.0f)
 	{
-		FireForce(S.ForceFilter);
-		bForceFired = true;
+		RunAction(S.Action);
+		bActionFired = true;
 	}
 	return true;
+}
+
+FString ULoop9TrailerRigSubsystem::MarkFromAction(const FString& Action)
+{
+	FString Verb;
+	FString Arg;
+	if (Action.Split(TEXT(":"), &Verb, &Arg) &&
+		(Verb.Equals(TEXT("spawn_pursuer"), ESearchCase::IgnoreCase) || Verb.Equals(TEXT("move_pursuer"), ESearchCase::IgnoreCase)))
+	{
+		return Arg.TrimStartAndEnd();
+	}
+	return FString();
+}
+
+void ULoop9TrailerRigSubsystem::RunAction(const FString& Action)
+{
+	FString Verb = Action;
+	FString Arg;
+	Action.Split(TEXT(":"), &Verb, &Arg);
+	Verb.TrimStartAndEndInline();
+	Arg.TrimStartAndEndInline();
+
+	if (Verb.Equals(TEXT("spawn_pursuer"), ESearchCase::IgnoreCase))
+	{
+		SpawnRigPursuer(Arg);
+	}
+	else if (Verb.Equals(TEXT("move_pursuer"), ESearchCase::IgnoreCase))
+	{
+		MoveRigPursuer(Arg);
+	}
+	else if (Verb.Equals(TEXT("phone_quiet"), ESearchCase::IgnoreCase))
+	{
+		if (ULoop9RingingFloorSubsystem* Ringing = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+		{
+			Ringing->SetBlackoutSoundMuted(true);
+		}
+		FireForce(TEXT("Phone"));
+	}
+	else if (Verb.Equals(TEXT("pickup"), ESearchCase::IgnoreCase))
+	{
+		PhonePickup();
+	}
+	else if (Verb.Equals(TEXT("fade_out"), ESearchCase::IgnoreCase))
+	{
+		FadeOut();
+	}
+	else
+	{
+		FireForce(Action);
+	}
+}
+
+bool ULoop9TrailerRigSubsystem::PursuerSpotFromMark(const FString& MarkName, FVector& OutLocation, FRotator& OutRotation) const
+{
+	const APlayerController* PC = Controller.Get();
+	const ACharacter* Player = PC ? Cast<ACharacter>(PC->GetPawn()) : nullptr;
+	FRotator Unused;
+	if (!Player || !LoadMark(MarkName, OutLocation, Unused))
+	{
+		return false;
+	}
+
+	// Marks store the player's capsule centre; put the Pursuer's centre at the
+	// same floor height. His capsule can be a different size.
+	float PursuerHalfHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	if (const APursuerAnomalyCharacter* Existing = RigPursuer.Get())
+	{
+		PursuerHalfHeight = Existing->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	}
+	OutLocation.Z += PursuerHalfHeight - Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+	// Never inside the catch radius: the character would count it as a catch and despawn.
+	const FVector PlayerLocation = Player->GetActorLocation();
+	FVector ToSpot = OutLocation - PlayerLocation;
+	ToSpot.Z = 0.0f;
+	if (ToSpot.SizeSquared() < FMath::Square(PursuerMinDistanceCm))
+	{
+		const FVector Dir = ToSpot.IsNearlyZero() ? FRotator(0.0f, PC->GetControlRotation().Yaw, 0.0f).Vector() : ToSpot.GetSafeNormal();
+		OutLocation = FVector(PlayerLocation.X, PlayerLocation.Y, OutLocation.Z) + Dir * PursuerMinDistanceCm;
+	}
+
+	// Face the player, upright.
+	OutRotation = FRotator(0.0f, (PlayerLocation - OutLocation).Rotation().Yaw, 0.0f);
+	return true;
+}
+
+void ULoop9TrailerRigSubsystem::SpawnRigPursuer(const FString& MarkName)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	if (APursuerAnomalyCharacter* Old = RigPursuer.Get())
+	{
+		Old->Destroy();
+		RigPursuer.Reset();
+	}
+
+	// The class is only known to the anomaly component placed on the floor.
+	TSubclassOf<APursuerAnomalyCharacter> PursuerClass;
+	for (TObjectIterator<UPursuerAnomalyComponent> It; It; ++It)
+	{
+		if (It->GetWorld() == World && It->PursuerClass)
+		{
+			PursuerClass = It->PursuerClass;
+			break;
+		}
+	}
+	if (!PursuerClass)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("Trailer %s: no Pursuer anomaly component with a PursuerClass on this floor; nothing spawned."), *Label);
+		return;
+	}
+
+	FVector Location;
+	FRotator Rotation;
+	if (!PursuerSpotFromMark(MarkName, Location, Rotation))
+	{
+		return;
+	}
+	// A CDO capsule is what we have before he exists; correct the height with it.
+	if (const ACharacter* CDO = PursuerClass->GetDefaultObject<ACharacter>())
+	{
+		if (const ACharacter* Player = Cast<ACharacter>(Controller->GetPawn()))
+		{
+			Location.Z += CDO->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		}
+	}
+
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	APursuerAnomalyCharacter* Pursuer = World->SpawnActor<APursuerAnomalyCharacter>(PursuerClass, Location, Rotation, Params);
+	if (!Pursuer)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("Trailer %s: Pursuer spawn failed at %s."), *Label, *Location.ToCompactString());
+		return;
+	}
+
+	// A prop, not a hunter: he stands where the rig puts him and stays for the shot.
+	Pursuer->MaxLifetime = 600.0f;
+	if (UCharacterMovementComponent* Move = Pursuer->GetCharacterMovement())
+	{
+		Move->MaxWalkSpeed = 0.0f;
+		Move->StopMovementImmediately();
+	}
+	RigPursuer = Pursuer;
+
+	if (UGameInstance* GI = World->GetGameInstance())
+	{
+		if (ULoop9TelemetrySubsystem* Telemetry = GI->GetSubsystem<ULoop9TelemetrySubsystem>())
+		{
+			Telemetry->MarkRunTaintedByDebug();
+		}
+	}
+	UE_LOG(LogLoop9, Log, TEXT("Trailer %s: Pursuer placed on '%s' at %s."), *Label, *MarkName, *Location.ToCompactString());
+}
+
+void ULoop9TrailerRigSubsystem::MoveRigPursuer(const FString& MarkName)
+{
+	APursuerAnomalyCharacter* Pursuer = RigPursuer.Get();
+	if (!Pursuer)
+	{
+		UE_LOG(LogLoop9, Warning, TEXT("Trailer %s: move_pursuer before spawn_pursuer; nothing to move."), *Label);
+		return;
+	}
+	FVector Location;
+	FRotator Rotation;
+	if (!PursuerSpotFromMark(MarkName, Location, Rotation))
+	{
+		return;
+	}
+	if (UCharacterMovementComponent* Move = Pursuer->GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+	}
+	Pursuer->SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+	UE_LOG(LogLoop9, Log, TEXT("Trailer %s: Pursuer moved to '%s'."), *Label, *MarkName);
+}
+
+void ULoop9TrailerRigSubsystem::PhonePickup()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	// Silence every ringing desk phone the way answering does, keep the anomaly.
+	for (TObjectIterator<UAudioAnomalyComponent> It; It; ++It)
+	{
+		if (It->GetWorld() == World && It->IsRinging())
+		{
+			It->Answer();
+		}
+	}
+	if (USoundBase* Pickup = LoadObject<USoundBase>(nullptr, PickupSoundPath))
+	{
+		if (UAudioComponent* Audio = UGameplayStatics::SpawnSound2D(World, Pickup))
+		{
+			Audio->bIsUISound = false;
+		}
+	}
+	FadeOut();
+}
+
+void ULoop9TrailerRigSubsystem::FadeOut()
+{
+	APlayerController* PC = Controller.Get();
+	if (PC && PC->PlayerCameraManager)
+	{
+		PC->PlayerCameraManager->StartCameraFade(0.0f, 1.0f, PickupFadeSeconds, FLinearColor::Black, false, true);
+		bFadedOut = true;
+	}
 }
 
 void ULoop9TrailerRigSubsystem::FireForce(const FString& Filter)
@@ -370,6 +614,26 @@ void ULoop9TrailerRigSubsystem::StopShot()
 		}
 		bMusicSuppressed = false;
 	}
+	if (bFadedOut)
+	{
+		if (APlayerController* PC = Controller.Get())
+		{
+			if (PC->PlayerCameraManager)
+			{
+				PC->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, FadeBackSeconds, FLinearColor::Black, false, false);
+			}
+		}
+		bFadedOut = false;
+	}
+	if (APursuerAnomalyCharacter* Pursuer = RigPursuer.Get())
+	{
+		Pursuer->Destroy();
+	}
+	RigPursuer.Reset();
+	if (ULoop9RingingFloorSubsystem* Ringing = GetWorld() ? GetWorld()->GetSubsystem<ULoop9RingingFloorSubsystem>() : nullptr)
+	{
+		Ringing->SetBlackoutSoundMuted(false);
+	}
 	if (bRunning)
 	{
 		UE_LOG(LogLoop9, Log, TEXT("Trailer %s: done"), *Label);
@@ -408,10 +672,10 @@ void ULoop9TrailerRigSubsystem::Tick(float DeltaTime)
 	const float MoveTime = StepElapsed - StepSettle;
 	const float Alpha = EaseInOut(MoveTime / S.Seconds);
 
-	if (!bForceFired && !S.ForceFilter.IsEmpty() && Alpha >= S.ForceAtAlpha)
+	if (!bActionFired && !S.Action.IsEmpty() && Alpha >= S.ActionAtAlpha)
 	{
-		bForceFired = true;
-		FireForce(S.ForceFilter);
+		bActionFired = true;
+		RunAction(S.Action);
 	}
 
 	FRotator Rotation = BaseRotation;

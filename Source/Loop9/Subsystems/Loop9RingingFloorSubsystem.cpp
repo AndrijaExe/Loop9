@@ -157,7 +157,7 @@ void ULoop9RingingFloorSubsystem::HoldLiftAndBlackout()
 		Lights->Blackout(KeepLit);
 		bBlackoutApplied = true;
 
-		if (BlackoutSound)
+		if (BlackoutSound && !bBlackoutSoundMuted)
 		{
 			// Not a UI sound: it has to pause with the game, not play through the pause menu.
 			if (UAudioComponent* Outage = UGameplayStatics::SpawnSound2D(World, BlackoutSound))

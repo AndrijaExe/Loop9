@@ -69,6 +69,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loop9|Ringing Floor|Audio")
 	TObjectPtr<class USoundBase> BlackoutSound = nullptr;
 
+	/** Trailer rig: skip BlackoutSound so the ring is the only thing heard when the floor drops. */
+	void SetBlackoutSoundMuted(bool bMuted) { bBlackoutSoundMuted = bMuted; }
+
 protected:
 	virtual void Deinitialize() override;
 
@@ -86,6 +89,7 @@ private:
 	TWeakObjectPtr<ALoopElevatorTransitionDirector> Director;
 	bool bLitLiftHeld = false;
 	bool bBlackoutApplied = false;
+	bool bBlackoutSoundMuted = false;
 	FTimerHandle ExitPollTimerHandle;
 	FTimerHandle MaxHoldTimerHandle;
 	double ExitPollStartedAtSeconds = 0.0;

@@ -15,10 +15,18 @@ struct FTrailerStep
 	float PitchDegrees = 0.0f;
 	float DollyCm = 0.0f;
 	float Seconds = 2.0f;
-	/** AnomalyForce filter fired once during this step (Phone, Creep, Hide, Flicker, Watcher, Pursuer, Text, Move...). */
-	FString ForceFilter;
-	/** Where in the move (0..1) the force fires. */
-	float ForceAtAlpha = 0.0f;
+	/**
+	 * Fired once during this step. Either an AnomalyForce filter (Phone, Creep,
+	 * Hide, Flicker, Watcher, Pursuer, Text, Move...) or a rig verb:
+	 *   phone_quiet          force Phone with the power-outage sound muted
+	 *   spawn_pursuer:MARK   put a Pursuer on a mark, facing the player, standing still
+	 *   move_pursuer:MARK    teleport that Pursuer to another mark
+	 *   pickup               stop the ring, play the phone pickup, fade to black
+	 *   fade_out             fade to black only
+	 */
+	FString Action;
+	/** Where in the move (0..1) the action fires. */
+	float ActionAtAlpha = 0.0f;
 };
 
 struct FTrailerScene
@@ -80,10 +88,20 @@ private:
 	bool LoadMark(const FString& Name, FVector& OutLocation, FRotator& OutRotation) const;
 	bool BeginSteps(APlayerController* Controller, const FString& Label, TArray<FTrailerStep>&& InSteps, FString& OutMessage);
 	bool BeginStep(int32 Index);
+	void RunAction(const FString& Action);
 	void FireForce(const FString& Filter);
+	void SpawnRigPursuer(const FString& MarkName);
+	void MoveRigPursuer(const FString& MarkName);
+	bool PursuerSpotFromMark(const FString& MarkName, FVector& OutLocation, FRotator& OutRotation) const;
+	void PhonePickup();
+	void FadeOut();
+	/** Mark name a verb refers to (spawn_pursuer:MARK), empty for the rest. */
+	static FString MarkFromAction(const FString& Action);
 	static float EaseInOut(float T);
 
 	TWeakObjectPtr<APlayerController> Controller;
+	TWeakObjectPtr<class APursuerAnomalyCharacter> RigPursuer;
+	bool bFadedOut = false;
 	TArray<FTrailerStep> Steps;
 	int32 StepIndex = INDEX_NONE;
 	FString Label;
@@ -91,7 +109,7 @@ private:
 	bool bInputIgnored = false;
 	bool bHudHidden = false;
 	bool bMusicSuppressed = false;
-	bool bForceFired = false;
+	bool bActionFired = false;
 	float StepElapsed = 0.0f;
 	float StepSettle = 0.0f;
 	FRotator BaseRotation = FRotator::ZeroRotator;
