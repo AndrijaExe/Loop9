@@ -12,6 +12,8 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Image.h"
+#include "Engine/Texture2D.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Components/PanelWidget.h"
@@ -94,6 +96,8 @@ void UMainMenuWidget::NativeConstruct()
 	EnsureArchiveButton();
 	EnsureCreditsButton();
 	EnsureReportBugButton();
+	EnsureStudioBadge();
+	EnsureTitleAspect();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
 	FLoop9WidgetClickBinder::BindClicked(Settings, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnSettingsClicked));
@@ -554,6 +558,84 @@ void UMainMenuWidget::EnsureReportBugButton()
 	NewButton->SetRenderOpacity(0.8f);
 	ReportBug = NewButton;
 	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Report a bug button in the corner"));
+}
+
+void UMainMenuWidget::EnsureStudioBadge()
+{
+	if (!WidgetTree || GetWidgetFromName(TEXT("StudioBadge")))
+	{
+		return;
+	}
+
+	UCanvasPanel* Canvas = Cast<UCanvasPanel>(WidgetTree->RootWidget);
+	for (UWidget* Walk = Settings ? Settings->GetParent() : nullptr; Walk && !Canvas; Walk = Walk->GetParent())
+	{
+		Canvas = Cast<UCanvasPanel>(Walk);
+	}
+	UTexture2D* BadgeTexture = LoadObject<UTexture2D>(nullptr, TEXT("/Game/MyStuff/UI/Images/SmenaBadge.SmenaBadge"));
+	if (!Canvas || !BadgeTexture)
+	{
+		return;
+	}
+
+	UImage* Badge = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("StudioBadge"));
+	if (!Badge)
+	{
+		return;
+	}
+	Badge->SetBrushFromTexture(BadgeTexture, false);
+	Badge->SetVisibility(ESlateVisibility::HitTestInvisible);
+	Badge->SetRenderOpacity(0.9f);
+
+	// Mirror of the Report-a-bug corner on the other side: same padding, a
+	// studio mark rather than a menu entry.
+	UCanvasPanelSlot* BadgeSlot = Canvas->AddChildToCanvas(Badge);
+	BadgeSlot->SetAnchors(FAnchors(0.0f, 1.0f));
+	BadgeSlot->SetAlignment(FVector2D(0.0f, 1.0f));
+	BadgeSlot->SetAutoSize(false);
+	BadgeSlot->SetSize(FVector2D(96.0f, 96.0f));
+	BadgeSlot->SetPosition(FVector2D(28.0f, -24.0f));
+	BadgeSlot->SetZOrder(50);
+}
+
+void UMainMenuWidget::EnsureTitleAspect()
+{
+	if (!WidgetTree)
+	{
+		return;
+	}
+	TArray<UWidget*> AllWidgets;
+	WidgetTree->GetAllWidgets(AllWidgets);
+	for (UWidget* Widget : AllWidgets)
+	{
+		UImage* Image = Cast<UImage>(Widget);
+		const UTexture2D* Texture = Image ? Cast<UTexture2D>(Image->GetBrush().GetResourceObject()) : nullptr;
+		if (!Texture || Texture->GetFName() != TEXT("Loop9Title"))
+		{
+			continue;
+		}
+		const float TexW = static_cast<float>(Texture->GetSizeX());
+		const float TexH = static_cast<float>(Texture->GetSizeY());
+		if (TexW <= 0.0f || TexH <= 0.0f)
+		{
+			return;
+		}
+		// The WBP stored the size of whatever texture was assigned at design
+		// time; keep its width and let the height follow the current texture.
+		FSlateBrush Brush = Image->GetBrush();
+		const float Width = Brush.ImageSize.X > 0.0f ? Brush.ImageSize.X : TexW;
+		Brush.ImageSize = FVector2D(Width, Width * TexH / TexW);
+		Image->SetBrush(Brush);
+		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Image->Slot))
+		{
+			const FVector2D SlotSize = ImageSlot->GetSize();
+			if (!ImageSlot->GetAutoSize() && SlotSize.X > 0.0f)
+			{
+				ImageSlot->SetSize(FVector2D(SlotSize.X, SlotSize.X * TexH / TexW));
+			}
+		}
+		return;
+	}
 }
 
 void UMainMenuWidget::OnReportBugClicked()
