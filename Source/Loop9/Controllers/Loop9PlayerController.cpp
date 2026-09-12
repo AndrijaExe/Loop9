@@ -148,6 +148,14 @@ UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 	return GameplayUI;
 }
 
+void ALoop9PlayerController::SetGameplayHUDVisible(bool bVisible)
+{
+	if (GameplayUI)
+	{
+		GameplayUI->SetVisibility(bVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
 #if !UE_BUILD_SHIPPING
 namespace
 {
@@ -658,7 +666,7 @@ void ALoop9PlayerController::TrailerHUD(int32 Visible)
 		DebugScreenMessage(TEXT("TrailerHUD: no gameplay HUD on this controller."), false);
 		return;
 	}
-	GameplayUI->SetVisibility(Visible != 0 ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	SetGameplayHUDVisible(Visible != 0);
 	DebugScreenMessage(Visible != 0 ? TEXT("HUD shown.") : TEXT("HUD hidden. TrailerHUD 1 brings it back."), true);
 #endif
 }

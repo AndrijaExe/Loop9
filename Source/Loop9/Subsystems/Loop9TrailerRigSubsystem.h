@@ -89,6 +89,8 @@ private:
 	FString Label;
 	bool bRunning = false;
 	bool bInputIgnored = false;
+	bool bHudHidden = false;
+	bool bMusicSuppressed = false;
 	bool bForceFired = false;
 	float StepElapsed = 0.0f;
 	float StepSettle = 0.0f;

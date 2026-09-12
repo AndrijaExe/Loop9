@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Loop9.h"
+#include "Loop9GameMode.h"
+#include "Controllers/Loop9PlayerController.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
 #include "Subsystems/AnomalyManager.h"
@@ -41,9 +43,9 @@ const TArray<FTrailerScene>& ULoop9TrailerRigSubsystem::GetScenes()
 		{ TEXT("hook"), TEXT("hook"),
 		  TEXT("Open-space, 5+ lamps and the ringing phone in view. Look right, back left, and on the way right again the phone rings and the floor goes dark."),
 		  { Step(TEXT("hook"), 0.0f, 0.0f, 0.0f, 2.0f),
-		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 2.2f),
-		    Step(TEXT(""), -100.0f, 0.0f, 0.0f, 2.6f),
-		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 2.2f, TEXT("Phone"), 0.35f),
+		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 1.6f),
+		    Step(TEXT(""), -100.0f, 0.0f, 0.0f, 2.0f),
+		    Step(TEXT(""), 50.0f, 0.0f, 0.0f, 1.6f, TEXT("Phone"), 0.35f),
 		    Step(TEXT(""), 0.0f, 0.0f, 0.0f, 3.0f) } },
 
 		{ TEXT("lifts"), TEXT("lifts"),
@@ -237,6 +239,19 @@ bool ULoop9TrailerRigSubsystem::BeginSteps(APlayerController* InController, cons
 	bInputIgnored = true;
 	bRunning = true;
 
+	// Clean frame and clean audio for the capture: no crosshair or prompts, and
+	// no music bed under the phone / the burst. Both come back when it ends.
+	if (ALoop9PlayerController* LoopPC = Cast<ALoop9PlayerController>(InController))
+	{
+		LoopPC->SetGameplayHUDVisible(false);
+		bHudHidden = true;
+	}
+	if (ALoop9GameMode* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode<ALoop9GameMode>() : nullptr)
+	{
+		GameMode->SetMusicSuppressed(true);
+		bMusicSuppressed = true;
+	}
+
 	if (!BeginStep(0))
 	{
 		StopShot();
@@ -338,6 +353,22 @@ void ULoop9TrailerRigSubsystem::StopShot()
 			PC->SetIgnoreMoveInput(false);
 		}
 		bInputIgnored = false;
+	}
+	if (bHudHidden)
+	{
+		if (ALoop9PlayerController* LoopPC = Cast<ALoop9PlayerController>(Controller.Get()))
+		{
+			LoopPC->SetGameplayHUDVisible(true);
+		}
+		bHudHidden = false;
+	}
+	if (bMusicSuppressed)
+	{
+		if (ALoop9GameMode* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode<ALoop9GameMode>() : nullptr)
+		{
+			GameMode->SetMusicSuppressed(false);
+		}
+		bMusicSuppressed = false;
 	}
 	if (bRunning)
 	{

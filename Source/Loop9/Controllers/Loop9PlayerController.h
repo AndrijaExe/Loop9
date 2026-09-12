@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI|Cutscene")
 	TObjectPtr<class USoundBase> SignalBurstSound;
 
+	/** Hides or shows the whole gameplay HUD (crosshair, prompts, sprint meter). */
+	UFUNCTION(BlueprintCallable, Category="UI|Gameplay")
+	void SetGameplayHUDVisible(bool bVisible);
+
 	// ---- Debug / testing console commands (tilde ~) ----
 	/** List all registered anomalies. */
 	UFUNCTION(Exec)
