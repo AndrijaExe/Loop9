@@ -1090,7 +1090,7 @@ void ALoopElevatorTransitionDirector::StartTravelSound()
 	if (ActiveTravelAudio)
 	{
 		// Pause with the game rather than humming through the pause menu.
-		ActiveTravelAudio->bIsUISound = false;
+		ActiveTravelAudio->SetUISound(false);
 	}
 }
 

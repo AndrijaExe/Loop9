@@ -108,7 +108,7 @@ bool UAudioAnomalyComponent::ApplyAnomalyState()
 
 	if (IsValid(RuntimeAudioComponent))
 	{
-		RuntimeAudioComponent->bIsUISound = false;
+		RuntimeAudioComponent->SetUISound(false);
 		RuntimeAudioComponent->bAllowSpatialization = bPlaySoundAtLocation;
 		// This component owns the pointer and tears it down explicitly.
 		RuntimeAudioComponent->bAutoDestroy = false;

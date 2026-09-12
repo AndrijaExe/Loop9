@@ -139,7 +139,7 @@ void UAI_ChatWidget::StartAIMumble(bool bUseAnomalyMumble)
 	{
 		ActiveAIMumbleAudioComponent->bAutoDestroy = false;
 		// Pause with the game instead of talking through the pause menu.
-		ActiveAIMumbleAudioComponent->bIsUISound = false;
+		ActiveAIMumbleAudioComponent->SetUISound(false);
 	}
 }
 
@@ -170,7 +170,7 @@ void UAI_ChatWidget::PlayUnavailableSound()
 	if (ActiveUnavailableAudioComponent)
 	{
 		ActiveUnavailableAudioComponent->bAutoDestroy = false;
-		ActiveUnavailableAudioComponent->bIsUISound = false;
+		ActiveUnavailableAudioComponent->SetUISound(false);
 
 		if (UWorld* World = GetWorld())
 		{

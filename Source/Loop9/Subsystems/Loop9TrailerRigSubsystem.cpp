@@ -549,7 +549,7 @@ void ULoop9TrailerRigSubsystem::PhonePickup()
 	{
 		if (UAudioComponent* Audio = UGameplayStatics::SpawnSound2D(World, Pickup))
 		{
-			Audio->bIsUISound = false;
+			Audio->SetUISound(false);
 		}
 	}
 	FadeOut();

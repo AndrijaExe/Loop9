@@ -162,7 +162,7 @@ void ULoop9RingingFloorSubsystem::HoldLiftAndBlackout()
 			// Not a UI sound: it has to pause with the game, not play through the pause menu.
 			if (UAudioComponent* Outage = UGameplayStatics::SpawnSound2D(World, BlackoutSound))
 			{
-				Outage->bIsUISound = false;
+				Outage->SetUISound(false);
 			}
 		}
 	}

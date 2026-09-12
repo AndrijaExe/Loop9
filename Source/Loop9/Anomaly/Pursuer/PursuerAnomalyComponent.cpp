@@ -236,7 +236,7 @@ void UPursuerAnomalyComponent::StartTensionMusic()
 	{
 		ActiveAnomalyLoopAudioComponent->bAutoDestroy = false;
 		// Pause with the game rather than playing through the pause menu.
-		ActiveAnomalyLoopAudioComponent->bIsUISound = false;
+		ActiveAnomalyLoopAudioComponent->SetUISound(false);
 		ActiveAnomalyLoopAudioComponent->OnAudioFinished.AddDynamic(
 			this, &UPursuerAnomalyComponent::HandleTensionMusicFinished);
 	}

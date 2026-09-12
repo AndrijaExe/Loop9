@@ -108,7 +108,7 @@ void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit, bo
 		{
 			if (UAudioComponent* Shatter = UGameplayStatics::SpawnSound2D(World, BlackoutShatterSound))
 			{
-				Shatter->bIsUISound = false;
+				Shatter->SetUISound(false);
 			}
 		}
 		if (BlackoutAmbientSound)
@@ -117,7 +117,7 @@ void ULoop9LightsSubsystem::Blackout(const TArray<ULightComponent*>& KeepLit, bo
 				World, BlackoutAmbientSound, 1.0f, 1.0f, 0.0f, nullptr, false, false);
 			if (BlackoutAmbientComponent)
 			{
-				BlackoutAmbientComponent->bIsUISound = false;
+				BlackoutAmbientComponent->SetUISound(false);
 			}
 		}
 	}
