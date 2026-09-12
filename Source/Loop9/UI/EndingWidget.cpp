@@ -211,9 +211,10 @@ void UEndingWidget::InitializeEnding(ELoopEndingType EndingType, int32 InResets,
 		}
 	}
 
+	// Progress only: the run itself is on screen already, the totals are what
+	// tells a player there is more office to see.
 	EndingStats = FText::Format(
-		LOCTEXT("EndingStatsFormat", "Resets: {0}   |   Calls: {1}   |   Endings seen: {2} of {3}   |   Anomalies spotted: {4} of {5}"),
-		FText::AsNumber(InResets), FText::AsNumber(InAIInteractions),
+		LOCTEXT("EndingProgressFormat", "Endings seen: {0} of {1}   |   Anomalies spotted: {2} of {3}"),
 		FText::AsNumber(SeenEndings), FText::AsNumber(TotalEndings),
 		FText::AsNumber(SpottedTypes), FText::AsNumber(TotalTypes));
 
@@ -400,9 +401,10 @@ void UEndingWidget::RefreshBoundWidgets()
 
 	if (TB_Stats)
 	{
-		// Replaced by the session timeline. Keep the widget for layout reuse,
-		// but do not show raw Resets | AI interactions.
-		TB_Stats->SetVisibility(ESlateVisibility::Collapsed);
+		// The progress line lives here; it is set once InitializeEnding has run.
+		TB_Stats->SetText(EndingStats);
+		TB_Stats->SetColorAndOpacity(FSlateColor(EndingTextColor));
+		TB_Stats->SetVisibility(EndingStats.IsEmpty() ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
 	}
 
 	ApplyTerminalTextColor();
@@ -487,7 +489,6 @@ void UEndingWidget::BuildFallbackLayoutIfNeeded()
 	StatsText->SetJustification(ETextJustify::Center);
 	VBox->AddChildToVerticalBox(StatsText);
 	TB_Stats = StatsText;
-	TB_Stats->SetVisibility(ESlateVisibility::Collapsed);
 
 	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(), TEXT("TimelineScroll"));
 	USizeBox* ScrollSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("TimelineSize"));

@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-11 21:55\n"
-"PO-Revision-Date: 2026-09-11 21:55\n"
+"POT-Creation-Date: 2026-09-12 14:00\n"
+"PO-Revision-Date: 2026-09-12 14:00\n"
 "Language-Team: \n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
@@ -1035,12 +1035,12 @@ msgctxt "Loop9Endings,ParanoidSurvivorDesc"
 msgid "You escaped alone by trusting nobody. Maybe that saved you. Maybe it cost you the truth."
 msgstr "Pobegao si sam jer nisi verovao nikome. Možda te je to spasilo. Možda te je koštalo istine."
 
-#. Key:	EndingStatsFormat
-#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(215)
-#: Source/Loop9/UI/EndingWidget.cpp(215)
-msgctxt "Loop9Endings,EndingStatsFormat"
-msgid "Resets: {0}   |   Calls: {1}   |   Endings seen: {2} of {3}   |   Anomalies spotted: {4} of {5}"
-msgstr "Resetovanja: {0}   |   Pozivi: {1}   |   Viđeni krajevi: {2} od {3}   |   Uočene anomalije: {4} od {5}"
+#. Key:	EndingProgressFormat
+#. SourceLocation:	Source/Loop9/UI/EndingWidget.cpp(217)
+#: Source/Loop9/UI/EndingWidget.cpp(217)
+msgctxt "Loop9Endings,EndingProgressFormat"
+msgid "Endings seen: {0} of {1}   |   Anomalies spotted: {2} of {3}"
+msgstr "Viđeni krajevi: {0} od {1}   |   Uočene anomalije: {2} od {3}"
 
 #. Key:	ContinueButtonLabel
 #. SourceLocation:	Source/Loop9/UI/EndingWidget.h(57)
@@ -1169,50 +1169,50 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(141)
-#: Source/Loop9/UI/MainMenuWidget.cpp(141)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
+#: Source/Loop9/UI/MainMenuWidget.cpp(145)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "IGRAJ"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(142)
-#: Source/Loop9/UI/MainMenuWidget.cpp(142)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
+#: Source/Loop9/UI/MainMenuWidget.cpp(146)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "PODEŠAVANJA"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(143)
-#: Source/Loop9/UI/MainMenuWidget.cpp(143)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
+#: Source/Loop9/UI/MainMenuWidget.cpp(147)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "IZAĐI"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(144)
-#: Source/Loop9/UI/MainMenuWidget.cpp(144)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(148)
+#: Source/Loop9/UI/MainMenuWidget.cpp(148)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARHIVA"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
-#: Source/Loop9/UI/MainMenuWidget.cpp(145)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(149)
+#: Source/Loop9/UI/MainMenuWidget.cpp(149)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "KAKO SE IGRA"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
-#: Source/Loop9/UI/MainMenuWidget.cpp(146)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(150)
+#: Source/Loop9/UI/MainMenuWidget.cpp(150)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "ZASLUGE"
 
 #. Key:	ReportBug
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
-#: Source/Loop9/UI/MainMenuWidget.cpp(147)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(151)
+#: Source/Loop9/UI/MainMenuWidget.cpp(151)
 msgctxt "Loop9Menu,ReportBug"
 msgid "REPORT A BUG"
 msgstr "PRIJAVI BUG"
