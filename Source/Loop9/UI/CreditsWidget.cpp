@@ -185,7 +185,9 @@ void UCreditsWidget::RefreshSections()
 			"Line cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\n"
 			"Line noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain.\n"
 			"Mumbling: \"Mumbling.wav\" by so0rec of Freesound.org.\n"
-			"Pursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org."));
+			"Pursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org.\n"
+			"Low signal: \"Unavailable Phone\" by lucadialessandro of Pixabay.\n"
+			"Power outage: \"Power Outage\" by HiSound of Pixabay."));
 
 	AddSection(VB_Sections,
 		LOCTEXT("CreditsFootstepsHeading", "FOOTSTEPS"),

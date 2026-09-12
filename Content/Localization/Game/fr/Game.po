@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-09-12 14:00\n"
-"PO-Revision-Date: 2026-09-12 14:00\n"
+"POT-Creation-Date: 2026-09-12 19:48\n"
+"PO-Revision-Date: 2026-09-12 19:48\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -146,19 +146,19 @@ msgctxt ",8AC00E3D4A820BDBE08BA1BA35EFAB8A"
 msgid "Return to Main Menu"
 msgstr "Retour au menu principal"
 
-#. Key:	TextBlockDefaultValue
-#. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.TB_Title.Text
-#: /Game/MyStuff/UI/Endings/WBP_Ending_TheReplacement.WBP_Ending_TheReplacement_C:WidgetTree.TB_Title.Text
-msgctxt "UMG,TextBlockDefaultValue"
-msgid "Text Block"
-msgstr ""
-
 #. Key:	8B3D79274E23AA42843A549FCD48CF80
 #. SourceLocation:	/Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 #: /Game/MyStuff/UI/Endings/WBP_ReplacementTerminal.WBP_ReplacementTerminal_C:WidgetTree.BT_Continue.ButtonText
 msgctxt ",8B3D79274E23AA42843A549FCD48CF80"
 msgid "Return to Main Menu"
 msgstr "Retour au menu principal"
+
+#. Key:	TextBlockDefaultValue
+#. SourceLocation:	/Game/MyStuff/UI/GameplayNotifications/WBP_GameplayNotifications.WBP_GameplayNotifications_C:WidgetTree.TB_Message.Text
+#: /Game/MyStuff/UI/GameplayNotifications/WBP_GameplayNotifications.WBP_GameplayNotifications_C:WidgetTree.TB_Message.Text
+msgctxt "UMG,TextBlockDefaultValue"
+msgid "Text Block"
+msgstr ""
 
 #. Key:	6CD5353A43D9DEEAC6EDEE9801E6CA35
 #. SourceLocation:	/Game/MyStuff/UI/MainMenu/WBP_MainMenu.WBP_MainMenu_C:WidgetTree.Archive.ButtonText
@@ -899,82 +899,82 @@ msgstr ""
 #. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(182)
 #: Source/Loop9/UI/CreditsWidget.cpp(182)
 msgctxt "Loop9Credits,CreditsPhoneBody"
-msgid "Ring: \"Phone Ringing #2\" by AUDACITIER of Freesound.org.\nPickup: \"Phone Pick Up.wav\" by MootMcnoodles of Freesound.org (CC0).\nLine cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\nLine noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain.\nMumbling: \"Mumbling.wav\" by so0rec of Freesound.org.\nPursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org."
+msgid "Ring: \"Phone Ringing #2\" by AUDACITIER of Freesound.org.\nPickup: \"Phone Pick Up.wav\" by MootMcnoodles of Freesound.org (CC0).\nLine cut click: rubberduck, \"100 CC0 SFX\" (switch_01), OpenGameArt, CC0.\nLine noise: bretbernhoft, \"Frequency Static Sound Effects\" (static4.wav), OpenGameArt, CC0 / Public Domain.\nMumbling: \"Mumbling.wav\" by so0rec of Freesound.org.\nPursuer murmur: \"Human_Male_Crazy Mumbles_1.wav\" by SilentStrikeZ of Freesound.org.\nLow signal: \"Unavailable Phone\" by lucadialessandro of Pixabay.\nPower outage: \"Power Outage\" by HiSound of Pixabay."
 msgstr ""
 
 #. Key:	CreditsFootstepsHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(191)
-#: Source/Loop9/UI/CreditsWidget.cpp(191)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(193)
+#: Source/Loop9/UI/CreditsWidget.cpp(193)
 msgctxt "Loop9Credits,CreditsFootstepsHeading"
 msgid "FOOTSTEPS"
 msgstr ""
 
 #. Key:	CreditsFootstepsBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(192)
-#: Source/Loop9/UI/CreditsWidget.cpp(192)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(194)
+#: Source/Loop9/UI/CreditsWidget.cpp(194)
 msgctxt "Loop9Credits,CreditsFootstepsBody"
 msgid "\"Hard Female Footstep (3)\" and \"Hard Female Footstep (4)\" by OwlStorm (Ashe Kirk / Owlish Media) of Freesound.org (CC0)."
 msgstr ""
 
 #. Key:	CreditsAmbientHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(197)
-#: Source/Loop9/UI/CreditsWidget.cpp(197)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(199)
+#: Source/Loop9/UI/CreditsWidget.cpp(199)
 msgctxt "Loop9Credits,CreditsAmbientHeading"
 msgid "AMBIENT"
 msgstr ""
 
 #. Key:	CreditsAmbientBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(198)
-#: Source/Loop9/UI/CreditsWidget.cpp(198)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(200)
+#: Source/Loop9/UI/CreditsWidget.cpp(200)
 msgctxt "Loop9Credits,CreditsAmbientBody"
 msgid "\"Horror ambient.mp3\" by ZHRØ of Freesound.org.\n\"Street Museum (Dark Ambient BGM)\" by ChristmasKrumble666 of Freesound.org."
 msgstr ""
 
 #. Key:	CreditsPursuerHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(203)
-#: Source/Loop9/UI/CreditsWidget.cpp(203)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(205)
+#: Source/Loop9/UI/CreditsWidget.cpp(205)
 msgctxt "Loop9Credits,CreditsPursuerHeading"
 msgid "PURSUER"
 msgstr ""
 
 #. Key:	CreditsPursuerBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(204)
-#: Source/Loop9/UI/CreditsWidget.cpp(204)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(206)
+#: Source/Loop9/UI/CreditsWidget.cpp(206)
 msgctxt "Loop9Credits,CreditsPursuerBody"
 msgid "Tension bed: \"dynamic space.wav\" by mmleys of Freesound.org.\nDespawn: \"Magic Spell - Whir, and Boom\" by CVLTIV8R of Freesound.org."
 msgstr ""
 
 #. Key:	CreditsWatcherHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(209)
-#: Source/Loop9/UI/CreditsWidget.cpp(209)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(211)
+#: Source/Loop9/UI/CreditsWidget.cpp(211)
 msgctxt "Loop9Credits,CreditsWatcherHeading"
 msgid "WATCHER"
 msgstr ""
 
 #. Key:	CreditsWatcherBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(210)
-#: Source/Loop9/UI/CreditsWidget.cpp(210)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(212)
+#: Source/Loop9/UI/CreditsWidget.cpp(212)
 msgctxt "Loop9Credits,CreditsWatcherBody"
 msgid "Look-away piano: \"Piano\" by Victor_Natas of Freesound.org. Licensed under CC BY 4.0.\nBlackout laugh: sound by .Andre_Onate of Freesound.org (CC0).\nBlackout shatter: \"Household Lightbulb Shattering\" by lucaslara of Pixabay.\nCrying: sound by scottemoil of Freesound.org (CC0)."
 msgstr ""
 
 #. Key:	CreditsOriginalHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(217)
-#: Source/Loop9/UI/CreditsWidget.cpp(217)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(219)
+#: Source/Loop9/UI/CreditsWidget.cpp(219)
 msgctxt "Loop9Credits,CreditsOriginalHeading"
 msgid "ORIGINAL"
 msgstr ""
 
 #. Key:	CreditsOriginalBody
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(218)
-#: Source/Loop9/UI/CreditsWidget.cpp(218)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(220)
+#: Source/Loop9/UI/CreditsWidget.cpp(220)
 msgctxt "Loop9Credits,CreditsOriginalBody"
 msgid "Flashlight click, typewriter key, and light flicker were generated for this game."
 msgstr ""
 
 #. Key:	CreditsEngineHeading
-#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(225)
-#: Source/Loop9/UI/CreditsWidget.cpp(225)
+#. SourceLocation:	Source/Loop9/UI/CreditsWidget.cpp(227)
+#: Source/Loop9/UI/CreditsWidget.cpp(227)
 msgctxt "Loop9Credits,CreditsEngineHeading"
 msgid "ENGINE"
 msgstr "ENGINE"
@@ -1169,50 +1169,50 @@ msgid "{0}%"
 msgstr "{0}%"
 
 #. Key:	Play
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
-#: Source/Loop9/UI/MainMenuWidget.cpp(145)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(144)
+#: Source/Loop9/UI/MainMenuWidget.cpp(144)
 msgctxt "Loop9Menu,Play"
 msgid "PLAY"
 msgstr "JOUER"
 
 #. Key:	Settings
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
-#: Source/Loop9/UI/MainMenuWidget.cpp(146)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(145)
+#: Source/Loop9/UI/MainMenuWidget.cpp(145)
 msgctxt "Loop9Menu,Settings"
 msgid "SETTINGS"
 msgstr "PARAMÈTRES"
 
 #. Key:	Quit
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
-#: Source/Loop9/UI/MainMenuWidget.cpp(147)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(146)
+#: Source/Loop9/UI/MainMenuWidget.cpp(146)
 msgctxt "Loop9Menu,Quit"
 msgid "QUIT"
 msgstr "QUITTER"
 
 #. Key:	Archive
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(148)
-#: Source/Loop9/UI/MainMenuWidget.cpp(148)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(147)
+#: Source/Loop9/UI/MainMenuWidget.cpp(147)
 msgctxt "Loop9Menu,Archive"
 msgid "ARCHIVE"
 msgstr "ARCHIVES"
 
 #. Key:	HowToPlay
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(149)
-#: Source/Loop9/UI/MainMenuWidget.cpp(149)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(148)
+#: Source/Loop9/UI/MainMenuWidget.cpp(148)
 msgctxt "Loop9Menu,HowToPlay"
 msgid "HOW TO PLAY"
 msgstr "COMMENT JOUER"
 
 #. Key:	Credits
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(150)
-#: Source/Loop9/UI/MainMenuWidget.cpp(150)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(149)
+#: Source/Loop9/UI/MainMenuWidget.cpp(149)
 msgctxt "Loop9Menu,Credits"
 msgid "CREDITS"
 msgstr "CRÉDITS"
 
 #. Key:	ReportBug
-#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(151)
-#: Source/Loop9/UI/MainMenuWidget.cpp(151)
+#. SourceLocation:	Source/Loop9/UI/MainMenuWidget.cpp(150)
+#: Source/Loop9/UI/MainMenuWidget.cpp(150)
 msgctxt "Loop9Menu,ReportBug"
 msgid "REPORT A BUG"
 msgstr "SIGNALER UN BUG"

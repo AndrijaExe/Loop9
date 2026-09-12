@@ -232,6 +232,8 @@ Urađeno 26.08.2026.:
 | `Sound/Lights/Lights_Blackout_SinisterLaugh` | https://freesound.org/people/.Andre_Onate/sounds/160964/ | .Andre_Onate | CC0 | loops for the duration of a Watcher blackout only |
 | `Sound/Lights/Lights_Blackout_Shatter` | https://pixabay.com/sound-effects/household-lightbulb-shattering-1-2-89954/ | lucaslara | Pixabay Content License | one-shot the instant a Watcher blackout starts |
 | `Sound/Watcher/Watcher_Crying` | https://freesound.org/people/scottemoil/sounds/263776/ | scottemoil | CC0 | loops attached to the figure while he stands there |
+| `Sound/Phone/Phone_MessageUnavailable` | https://pixabay.com/sound-effects/film-special-effects-unavailable-phone-192489/ | lucadialessandro | Pixabay Content License | first 3 s, non-loop; locked ringing chat and Dragojlo's per-loop cap |
+| `Sound/Phone/Phone_Blackout_PowerOutage` | https://pixabay.com/sound-effects/power-outage-451574/ | HiSound | Pixabay Content License | one-shot when the ringing-phone floor goes dark |
 
 Napomene:
 
