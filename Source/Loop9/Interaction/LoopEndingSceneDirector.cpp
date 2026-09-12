@@ -214,10 +214,26 @@ void ALoopEndingSceneDirector::BeginSceneSetup()
 			CamStartRotation = (PhoneLoc - CamStartLocation).Rotation();
 			CamStartRotation.Pitch = FMath::Clamp(CamStartRotation.Pitch, -12.0f, 8.0f);
 		}
-		CamEndLocation = CamStartLocation + CamStartRotation.Vector() * 55.0f;
-		CamEndRotation = CamStartRotation;
 		WarmKeyLight->SetWorldLocation(ArrivalLoc + FVector(0.0f, 180.0f, 80.0f));
 		BeginEscapeTogetherCompanion();
+
+		// The phone look above only fixes where the companion stands. The shot
+		// itself is a two-shot: frame Dragojlo's face, not whatever wall happens
+		// to sit between the cabin and the phone, and drift a little toward him.
+		if (const AActor* Companion = ActiveEscapeCompanion.Get())
+		{
+			const FVector Face = Companion->GetActorLocation() + FVector(0.0f, 0.0f, 60.0f);
+			CamStartRotation = (Face - CamStartLocation).Rotation();
+			CamStartRotation.Pitch = FMath::Clamp(CamStartRotation.Pitch, -12.0f, 8.0f);
+			CamEndLocation = CamStartLocation + CamStartRotation.Vector() * 35.0f;
+			CamEndRotation = (Face - CamEndLocation).Rotation();
+			CamEndRotation.Pitch = FMath::Clamp(CamEndRotation.Pitch, -12.0f, 8.0f);
+		}
+		else
+		{
+			CamEndLocation = CamStartLocation + CamStartRotation.Vector() * 55.0f;
+			CamEndRotation = CamStartRotation;
+		}
 		break;
 	}
 	case ELoopEndingType::ObedientFool:
@@ -961,9 +977,11 @@ void ALoopEndingSceneDirector::BeginEscapeTogetherCompanion()
 	FVector CompanionLoc = CamStartLocation + Right * 105.0f + Forward * 35.0f;
 	CompanionLoc.Z = CamStartLocation.Z - 75.0f; // ~0.3m lower than before
 	Companion->SetActorLocation(CompanionLoc);
-	// Face mostly with the player, but yaw ~30° left (toward cabin center / player).
-	FRotator CompanionRot = CamStartRotation;
-	CompanionRot.Yaw -= 30.0f;
+	// He has turned to look at the player: this is the one ending where you
+	// leave together, so he meets your eye instead of staring at the doors.
+	FRotator CompanionRot = (CamStartLocation - CompanionLoc).Rotation();
+	CompanionRot.Pitch = 0.0f;
+	CompanionRot.Roll = 0.0f;
 	Companion->SetActorRotation(CompanionRot);
 	Companion->SetActorHiddenInGame(false);
 	Companion->SetActorEnableCollision(false);

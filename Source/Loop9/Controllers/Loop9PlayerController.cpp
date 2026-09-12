@@ -9,6 +9,8 @@
 #include "Subsystems/LoopManagerSubsystem.h"
 #include "Subsystems/Loop9GameSettingsSubsystem.h"
 #include "Subsystems/Loop9DragojloMemorySubsystem.h"
+#include "Subsystems/Loop9TrailerRigSubsystem.h"
+#include "Subsystems/Loop9TelemetrySubsystem.h"
 #include "UI/BlinkOverlayWidget.h"
 #include "UI/SignalBurstWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -134,7 +136,11 @@ void ALoop9PlayerController::PlaySignalBurst(float Duration)
 	}
 	if (Sound)
 	{
-		UGameplayStatics::PlaySound2D(this, Sound);
+		// A game sound, not a UI one: pause with the game instead of playing through the pause menu.
+		if (UAudioComponent* Sting = UGameplayStatics::SpawnSound2D(this, Sound))
+		{
+			Sting->SetUISound(false);
+		}
 	}
 }
 
@@ -143,15 +149,35 @@ UUserWidget* ALoop9PlayerController::GetInteractionPromptWidget() const
 	return GameplayUI;
 }
 
+void ALoop9PlayerController::SetGameplayHUDVisible(bool bVisible)
+{
+	if (GameplayUI)
+	{
+		GameplayUI->SetVisibility(bVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
 #if !UE_BUILD_SHIPPING
 namespace
 {
+	/** Every debug command that reaches game state goes through here or GetLoopManager, so this is where the run stops counting as a player's. */
+	void TaintTelemetryRun(const UObject* WorldContext)
+	{
+		const UWorld* World = WorldContext ? WorldContext->GetWorld() : nullptr;
+		UGameInstance* GI = World ? World->GetGameInstance() : nullptr;
+		if (ULoop9TelemetrySubsystem* Telemetry = GI ? GI->GetSubsystem<ULoop9TelemetrySubsystem>() : nullptr)
+		{
+			Telemetry->MarkRunTaintedByDebug();
+		}
+	}
+
 	UAnomalyManager* GetAnomalyManager(const UObject* WorldContext)
 	{
 		if (!WorldContext)
 		{
 			return nullptr;
 		}
+		TaintTelemetryRun(WorldContext);
 		if (const UWorld* World = WorldContext->GetWorld())
 		{
 			if (UGameInstance* GI = World->GetGameInstance())
@@ -544,6 +570,7 @@ namespace
 		{
 			return nullptr;
 		}
+		TaintTelemetryRun(WorldContext);
 		if (const UWorld* World = WorldContext->GetWorld())
 		{
 			if (UGameInstance* GI = World->GetGameInstance())
@@ -555,6 +582,178 @@ namespace
 	}
 }
 #endif
+
+void ALoop9PlayerController::TrailerMark(const FString& Name)
+{
+#if UE_BUILD_SHIPPING
+	(void)Name;
+#else
+	ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr;
+	if (!Rig)
+	{
+		DebugScreenMessage(TEXT("TrailerMark: rig not available (start a run first)."), false);
+		return;
+	}
+	// Only the first word is the name; "TrailerMark clip2 pan 25" is a typo, not a mark called that.
+	TArray<FString> Tokens;
+	Name.ParseIntoArrayWS(Tokens);
+	FString Message;
+	const bool bOk = Rig->MarkHere(this, Tokens.Num() > 0 ? Tokens[0] : FString(), Message);
+	UE_LOG(LogLoop9, Log, TEXT("%s"), *Message);
+	DebugScreenMessage(Message, bOk);
+#endif
+}
+
+void ALoop9PlayerController::TrailerShot(const FString& Args)
+{
+#if UE_BUILD_SHIPPING
+	(void)Args;
+#else
+	TArray<FString> Tokens;
+	Args.ParseIntoArrayWS(Tokens);
+	if (Tokens.Num() == 0 || Tokens[0].Equals(TEXT("Help"), ESearchCase::IgnoreCase))
+	{
+		TrailerHelp();
+		return;
+	}
+
+	float Pan = 0.0f;
+	float Pitch = 0.0f;
+	float Dolly = 0.0f;
+	float Seconds = 5.0f;
+	for (int32 Index = 1; Index + 1 < Tokens.Num(); Index += 2)
+	{
+		const FString Key = Tokens[Index].ToLower();
+		const float Value = FCString::Atof(*Tokens[Index + 1]);
+		if (Key == TEXT("pan")) { Pan = Value; }
+		else if (Key == TEXT("pitch")) { Pitch = Value; }
+		else if (Key == TEXT("dolly")) { Dolly = Value; }
+		else if (Key == TEXT("time") || Key == TEXT("sec") || Key == TEXT("seconds")) { Seconds = Value; }
+		else
+		{
+			DebugScreenMessage(FString::Printf(TEXT("TrailerShot: unknown option '%s' (pan / pitch / dolly / time)"), *Tokens[Index]), false);
+			return;
+		}
+	}
+
+	ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr;
+	if (!Rig)
+	{
+		DebugScreenMessage(TEXT("TrailerShot: rig not available (start a run first)."), false);
+		return;
+	}
+	TaintTelemetryRun(this);
+	FString Message;
+	const bool bOk = Rig->StartShot(this, Tokens[0], Pan, Pitch, Dolly, Seconds, Message);
+	DebugScreenMessage(Message, bOk);
+#endif
+}
+
+void ALoop9PlayerController::TrailerScene(const FString& Name)
+{
+#if UE_BUILD_SHIPPING
+	(void)Name;
+#else
+	TArray<FString> Tokens;
+	Name.ParseIntoArrayWS(Tokens);
+	if (Tokens.Num() == 0)
+	{
+		TrailerScenes();
+		return;
+	}
+	ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr;
+	if (!Rig)
+	{
+		DebugScreenMessage(TEXT("TrailerScene: rig not available (start a run first)."), false);
+		return;
+	}
+	TaintTelemetryRun(this);
+	FString Message;
+	const bool bOk = Rig->StartScene(this, Tokens[0], Message);
+	DebugScreenMessage(Message, bOk);
+#endif
+}
+
+void ALoop9PlayerController::TrailerScenes()
+{
+#if !UE_BUILD_SHIPPING
+	UE_LOG(LogLoop9, Log, TEXT("Trailer scenes (name — marks it needs — what happens):"));
+	FString OnScreen;
+	for (const FTrailerScene& Scene : ULoop9TrailerRigSubsystem::GetScenes())
+	{
+		UE_LOG(LogLoop9, Log, TEXT("  %-14s marks: %-8s %s"), *Scene.Name, *Scene.RequiredMarks, *Scene.Notes);
+		OnScreen += FString::Printf(TEXT("%s [%s]  "), *Scene.Name, *Scene.RequiredMarks);
+	}
+	DebugScreenMessage(OnScreen, true);
+#endif
+}
+
+void ALoop9PlayerController::TrailerStop()
+{
+#if !UE_BUILD_SHIPPING
+	if (ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr)
+	{
+		Rig->StopShot();
+		DebugScreenMessage(TEXT("TrailerShot stopped; input is yours again."), true);
+	}
+#endif
+}
+
+void ALoop9PlayerController::TrailerList()
+{
+#if !UE_BUILD_SHIPPING
+	ULoop9TrailerRigSubsystem* Rig = GetWorld() ? GetWorld()->GetSubsystem<ULoop9TrailerRigSubsystem>() : nullptr;
+	if (!Rig)
+	{
+		return;
+	}
+	const TArray<FString> Names = Rig->ListMarks();
+	const FString Joined = Names.Num() > 0 ? FString::Join(Names, TEXT(", ")) : TEXT("(none yet — walk somewhere and TrailerMark <name>)");
+	UE_LOG(LogLoop9, Log, TEXT("Trailer marks (%s): %s"), *Rig->GetMarksFilePath(), *Joined);
+	DebugScreenMessage(FString::Printf(TEXT("Trailer marks: %s"), *Joined), true);
+#endif
+}
+
+void ALoop9PlayerController::TrailerHUD(int32 Visible)
+{
+#if UE_BUILD_SHIPPING
+	(void)Visible;
+#else
+	if (!GameplayUI)
+	{
+		DebugScreenMessage(TEXT("TrailerHUD: no gameplay HUD on this controller."), false);
+		return;
+	}
+	SetGameplayHUDVisible(Visible != 0);
+	DebugScreenMessage(Visible != 0 ? TEXT("HUD shown.") : TEXT("HUD hidden. TrailerHUD 1 brings it back."), true);
+#endif
+}
+
+void ALoop9PlayerController::TrailerHelp()
+{
+#if !UE_BUILD_SHIPPING
+	const TCHAR* Help = TEXT(
+		"Trailer capture rig (real gameplay, camera lag/tremor/bob stay on):\n"
+		"  TrailerMark <name>                       - save where you stand and where you look\n"
+		"  TrailerShot <name> [pan D] [pitch D] [dolly CM] [time S]\n"
+		"                                           - teleport to the mark, then an eased move;\n"
+		"                                             mouse and movement are ignored until it ends\n"
+		"      pan    degrees of yaw, + = right      (default 0)\n"
+		"      pitch  degrees, + = up                (default 0)\n"
+		"      dolly  cm walked forward, - = back    (default 0, walks at the needed speed)\n"
+		"      time   seconds for the move           (default 5; +0.4 s settle, +0.6 s hold)\n"
+		"  TrailerScene <name>                      - authored multi-step scene; TrailerScenes lists them\n"
+		"                                             and the marks each needs (e.g. hook: look right,\n"
+		"                                             back left, and the phone rings on the way back)\n"
+		"  TrailerStop                              - abort the move, give input back\n"
+		"  TrailerList                              - list saved marks\n"
+		"  TrailerHUD 0 | 1                         - hide / show crosshair and prompts\n"
+		"Examples: TrailerShot clip2 pan 25 time 5   |   TrailerShot clip1 dolly 150 time 4\n"
+		"Marks live in Saved/Trailer/Marks.ini and survive restarts.");
+	UE_LOG(LogLoop9, Log, TEXT("%s"), Help);
+	DebugScreenMessage(TEXT("TrailerHelp printed to the log (~ console shows it too)."), true);
+#endif
+}
 
 void ALoop9PlayerController::EndingSetup(const FString& Args)
 {

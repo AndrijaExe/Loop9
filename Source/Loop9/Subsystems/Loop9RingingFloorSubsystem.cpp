@@ -1,6 +1,7 @@
 #include "Subsystems/Loop9RingingFloorSubsystem.h"
 
 #include "AI_Friend.h"
+#include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -156,9 +157,13 @@ void ULoop9RingingFloorSubsystem::HoldLiftAndBlackout()
 		Lights->Blackout(KeepLit);
 		bBlackoutApplied = true;
 
-		if (BlackoutSound)
+		if (BlackoutSound && !bBlackoutSoundMuted)
 		{
-			UGameplayStatics::PlaySound2D(World, BlackoutSound);
+			// Not a UI sound: it has to pause with the game, not play through the pause menu.
+			if (UAudioComponent* Outage = UGameplayStatics::SpawnSound2D(World, BlackoutSound))
+			{
+				Outage->SetUISound(false);
+			}
 		}
 	}
 

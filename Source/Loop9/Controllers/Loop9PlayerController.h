@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI|Cutscene")
 	TObjectPtr<class USoundBase> SignalBurstSound;
 
+	/** Hides or shows the whole gameplay HUD (crosshair, prompts, sprint meter). */
+	UFUNCTION(BlueprintCallable, Category="UI|Gameplay")
+	void SetGameplayHUDVisible(bool bVisible);
+
 	// ---- Debug / testing console commands (tilde ~) ----
 	/** List all registered anomalies. */
 	UFUNCTION(Exec)
@@ -179,4 +183,35 @@ public:
 	/** Print ending debug command help. */
 	UFUNCTION(Exec)
 	void EndingHelp();
+
+	// ---- Trailer capture rig (ULoop9TrailerRigSubsystem); compiled out of Shipping ----
+
+	/** Save the current spot and look direction under a name: TrailerMark clip2 */
+	UFUNCTION(Exec)
+	void TrailerMark(const FString& Name);
+
+	/** Replay a mark with an eased move: TrailerShot clip2 pan 25 pitch -5 dolly 120 time 5 */
+	UFUNCTION(Exec)
+	void TrailerShot(const FString& Args);
+
+	/** Run an authored multi-step scene (hook, lifts, desk, desk_creep, shelf, hall, watcher, watcher_burst, pursuer, pursuer2, mag, phone_dark). */
+	UFUNCTION(Exec)
+	void TrailerScene(const FString& Name);
+
+	/** List the scenes and the marks each one needs. */
+	UFUNCTION(Exec)
+	void TrailerScenes();
+
+	UFUNCTION(Exec)
+	void TrailerStop();
+
+	UFUNCTION(Exec)
+	void TrailerList();
+
+	/** Hide (0) or show (1) the gameplay HUD: crosshair, prompts, sprint meter. */
+	UFUNCTION(Exec)
+	void TrailerHUD(int32 Visible);
+
+	UFUNCTION(Exec)
+	void TrailerHelp();
 };

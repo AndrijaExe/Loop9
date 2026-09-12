@@ -26,6 +26,8 @@ protected:
 	void EnsureCreditsButton();
 	/** Small button in the bottom-right corner; a Settings clone pinned to the canvas. */
 	void EnsureReportBugButton();
+	/** Keeps the title image at its texture's aspect, so a re-imported Loop9Title is never squashed. */
+	void EnsureTitleAspect();
 
 	/**
 	 * Clones the Settings button and inserts the copy immediately before Anchor

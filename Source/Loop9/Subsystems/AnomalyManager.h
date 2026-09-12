@@ -128,6 +128,16 @@ private:
 	bool bPhoneLineCutThisFloor = false;
 	TSet<TWeakObjectPtr<const AActor>> PhonesRangThisRun;
 
+	/**
+	 * Anomaly types per floor visit, newest last; the last entry is the floor
+	 * being generated. A type seen on the previous floors draws at a fraction
+	 * of its weight (see AnomalyTypeCooldownWeightScale) rather than never, so
+	 * a repeat stays possible for ACH_DEJA_VU and the backend's repeat context.
+	 */
+	TArray<TArray<ELoopAnomalyType>> RecentFloorAnomalyTypes;
+	TArray<ELoopAnomalyType> GetAnomalyTypesOnCooldown() const;
+	void RecordActivatedAnomalyType(ELoopAnomalyType Type);
+
 	void ComputeActiveAnomalySnapshot(
 		FString& OutKey,
 		FString& OutContext,

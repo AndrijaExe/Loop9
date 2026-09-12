@@ -335,6 +335,28 @@ TArray<FString> ULoop9AchievementsSubsystem::GetSeenEndingIds() const
 	return MergeWithSteam(SeenEndingsKey, EndingAchievementRecord());
 }
 
+int32 ULoop9AchievementsSubsystem::GetSeenEndingCount() const
+{
+	return FMath::Min(GetSeenEndingIds().Num(), EndingTypeCount);
+}
+
+int32 ULoop9AchievementsSubsystem::GetTotalEndingCount() const
+{
+	return EndingTypeCount;
+}
+
+int32 ULoop9AchievementsSubsystem::GetSpottedAnomalyTypeCount() const
+{
+	TArray<FString> Spotted = MergeWithSteam(SpottedAnomaliesKey, SpotAchievementRecord());
+	Spotted.Remove(TEXT("ClockAnomaly"));
+	return FMath::Min(Spotted.Num(), SpotAllAnomalyTypeCount);
+}
+
+int32 ULoop9AchievementsSubsystem::GetTotalSpotAnomalyTypeCount() const
+{
+	return SpotAllAnomalyTypeCount;
+}
+
 void ULoop9AchievementsSubsystem::RecordSeenEnding(ELoopEndingType EndingType)
 {
 	const FName EndingId = EndingAchievementId(EndingType);

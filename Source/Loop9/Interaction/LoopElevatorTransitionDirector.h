@@ -107,6 +107,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Paranoid")
 	TSubclassOf<AActor> ParanoidWalkerClass;
 
+	/** Played at the doorway the moment the glimpse crosses it (defaults to the Watcher piano). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elevator Transition|Paranoid")
+	TObjectPtr<class USoundBase> ParanoidGlimpseSound;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Elevator Transition")
 	void OnTransitionStarted(EButtonType ButtonType);
 
@@ -167,6 +171,7 @@ private:
 	bool bLookBlendActive = false;
 	bool bParanoidEndingClose = false;
 	bool bParanoidGlimpseSpawned = false;
+	bool bParanoidGlimpseSoundPlayed = false;
 	float LookBlendElapsedSeconds = 0.0f;
 	float ParanoidCloseElapsedSeconds = 0.0f;
 	float SavedLookBlendDurationSeconds = 0.0f;
