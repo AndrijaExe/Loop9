@@ -96,7 +96,6 @@ void UMainMenuWidget::NativeConstruct()
 	EnsureArchiveButton();
 	EnsureCreditsButton();
 	EnsureReportBugButton();
-	EnsureStudioBadge();
 	EnsureTitleAspect();
 
 	FLoop9WidgetClickBinder::BindClicked(Play, this, GET_FUNCTION_NAME_CHECKED(UMainMenuWidget, OnPlayClicked));
@@ -558,44 +557,6 @@ void UMainMenuWidget::EnsureReportBugButton()
 	NewButton->SetRenderOpacity(0.8f);
 	ReportBug = NewButton;
 	UE_LOG(LogTemp, Log, TEXT("MainMenuWidget: synthesized Report a bug button in the corner"));
-}
-
-void UMainMenuWidget::EnsureStudioBadge()
-{
-	if (!WidgetTree || GetWidgetFromName(TEXT("StudioBadge")))
-	{
-		return;
-	}
-
-	UCanvasPanel* Canvas = Cast<UCanvasPanel>(WidgetTree->RootWidget);
-	for (UWidget* Walk = Settings ? Settings->GetParent() : nullptr; Walk && !Canvas; Walk = Walk->GetParent())
-	{
-		Canvas = Cast<UCanvasPanel>(Walk);
-	}
-	UTexture2D* BadgeTexture = LoadObject<UTexture2D>(nullptr, TEXT("/Game/MyStuff/UI/Images/SmenaBadge.SmenaBadge"));
-	if (!Canvas || !BadgeTexture)
-	{
-		return;
-	}
-
-	UImage* Badge = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("StudioBadge"));
-	if (!Badge)
-	{
-		return;
-	}
-	Badge->SetBrushFromTexture(BadgeTexture, false);
-	Badge->SetVisibility(ESlateVisibility::HitTestInvisible);
-	Badge->SetRenderOpacity(0.9f);
-
-	// Mirror of the Report-a-bug corner on the other side: same padding, a
-	// studio mark rather than a menu entry.
-	UCanvasPanelSlot* BadgeSlot = Canvas->AddChildToCanvas(Badge);
-	BadgeSlot->SetAnchors(FAnchors(0.0f, 1.0f));
-	BadgeSlot->SetAlignment(FVector2D(0.0f, 1.0f));
-	BadgeSlot->SetAutoSize(false);
-	BadgeSlot->SetSize(FVector2D(96.0f, 96.0f));
-	BadgeSlot->SetPosition(FVector2D(28.0f, -24.0f));
-	BadgeSlot->SetZOrder(50);
 }
 
 void UMainMenuWidget::EnsureTitleAspect()
